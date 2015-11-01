@@ -13,5 +13,15 @@ install-deps:
 	godep restore
 	$(DEPS) | xargs -n1 go get -d
 
-test:
-	go list ./... | grep -v vendor | xargs -n1 go test -timeout=3s
+test-set-up:
+	createuser --createdb go_microservice_example_test
+	createdb -U go_microservice_example_test go_microservice_example_test
+
+run-tests:
+	DATABASE_USER=go_microservice_example_test DATABASE_NAME=go_microservice_example_test go list ./... | grep -v vendor | xargs -n1 go test -timeout=3s
+
+test-tear-down:
+	dropdb -U go_microservice_example_test go_microservice_example_test
+	dropuser go_microservice_example_test
+
+test: test-set-up run-tests test-tear-down
