@@ -5,16 +5,16 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/RichardKnop/go-microservice-example/migrations"
 	"github.com/RichardKnop/go-microservice-example/service"
-	// "github.com/RichardKnop/go-microservice-example/migrations"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	log.Print("Starting up the Go Microservice Example")
 
-	// Run migrations
-	// migrations.RunAll()
+	// Run database migrations
+	migrations.RunAll()
 
 	r := mux.NewRouter()
 	// Register /api/v1/tokens/ handler
