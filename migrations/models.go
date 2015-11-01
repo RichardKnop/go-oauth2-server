@@ -5,6 +5,6 @@ import "time"
 // Migration ...
 type Migration struct {
 	ID        int
-	Name      string
-	CreatedAt time.Time `sql:"not null"`
+	Name      string `sql:"size:255"`
+	CreatedAt time.Time
 }
