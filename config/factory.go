@@ -11,7 +11,7 @@ func Factory() *Config {
 	viper.SetDefault("DATABASE_TYPE", "postgres")
 	viper.SetDefault("DATABASE_HOST", "127.0.0.1")
 	viper.SetDefault("DATABASE_PORT", 5432)
-	viper.SetDefault("DATABASE_USER", "richardknop")
+	viper.SetDefault("DATABASE_USER", "go_microservice_example")
 	viper.SetDefault("DATABASE_PASSWORD", "")
 	viper.SetDefault("DATABASE_NAME", "go_microservice_example")
 	viper.SetDefault("ACCESS_TOKEN_LIFETIME", 3600)

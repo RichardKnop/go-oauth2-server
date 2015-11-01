@@ -27,6 +27,15 @@ To install dependencies:
 make install-deps
 ```
 
+## Database
+
+Create a Postgres user and database:
+
+```
+createuser --createdb go_microservice_example
+createdb -U go_microservice_example go_microservice_example
+```
+
 ## Testing
 
 A test database is created before running the tests and destroyed after the tests have run.
