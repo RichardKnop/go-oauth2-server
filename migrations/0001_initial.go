@@ -2,7 +2,6 @@ package migrations
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/RichardKnop/go-microservice-example/config"
 	"github.com/RichardKnop/go-microservice-example/database"
@@ -41,7 +40,6 @@ func runMigration0001() error {
 		// Save a record to migrations table,
 		// so we don't rerun this migration again
 		migration.Name = migrationName
-		migration.RunAt = time.Now()
 		if err := db.Create(&migration).Error; err != nil {
 			return fmt.Errorf("Error saving record to migrations table: %s", err)
 		}
