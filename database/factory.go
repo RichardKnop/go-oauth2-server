@@ -9,9 +9,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// Factory returns a gorm.DB struct, gorm.DB.DB() returns a database handle
+// NewDatabase returns a gorm.DB struct, gorm.DB.DB() returns a database handle
 // see http://golang.org/pkg/database/sql/#DB
-func Factory(cnf *config.Config) (*gorm.DB, error) {
+func NewDatabase(cnf *config.Config) (*gorm.DB, error) {
 	// Postgres
 	if cnf.Database.Type == "postgres" {
 		// Connection args
