@@ -48,9 +48,9 @@ func migrate0001() error {
 			return fmt.Errorf("Error creating access_tokens table: %s", db.Error)
 		}
 
-		// Create authorization_codes table
-		if err := db.CreateTable(&service.AuthorizationCode{}).Error; err != nil {
-			return fmt.Errorf("Error creating authorization_codes table: %s", db.Error)
+		// Create auth_codes table
+		if err := db.CreateTable(&service.AuthCode{}).Error; err != nil {
+			return fmt.Errorf("Error creating auth_codes table: %s", db.Error)
 		}
 
 		// Add foreign key on access_tokens.client_id
@@ -68,14 +68,32 @@ func migrate0001() error {
 			return fmt.Errorf("Error creating foreign key on access_tokens.refresh_token_id for refresh_tokens(id): %s", db.Error)
 		}
 
-		// Add foreign key on authorization_codes.client_id
-		if err := db.Model(&service.AuthorizationCode{}).AddForeignKey("client_id", "clients(id)", "RESTRICT", "RESTRICT").Error; err != nil {
-			return fmt.Errorf("Error creating foreign key on authorization_codes.client_id for clients(id): %s", db.Error)
+		// Add foreign key on auth_codes.client_id
+		if err := db.Model(&service.AuthCode{}).AddForeignKey("client_id", "clients(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on auth_codes.client_id for clients(id): %s", db.Error)
 		}
 
-		// Add foreign key on authorization_codes.user_id
-		if err := db.Model(&service.AuthorizationCode{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
-			return fmt.Errorf("Error creating foreign key on authorization_codes.user_id for users(id): %s", db.Error)
+		// Add foreign key on auth_codes.user_id
+		if err := db.Model(&service.AuthCode{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on auth_codes.user_id for users(id): %s", db.Error)
+		}
+
+		// Add foreign keys to access_token_scopes.access_token_id, access_token_scopes.scope_id
+		// (many-to-many table)
+		if err := db.Table("access_token_scopes").AddForeignKey("access_token_id", "access_tokens(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on access_token_scopes.access_token_id for access_tokens(id): %s", db.Error)
+		}
+		if err := db.Table("access_token_scopes").AddForeignKey("scope_id", "scopes(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on access_token_scopes.scope_id for scopes(id): %s", db.Error)
+		}
+
+		// Add foreign keys to auth_code_scopes.auth_code_id, auth_code_scopes.scope_id
+		// (many-to-many table)
+		if err := db.Table("auth_code_scopes").AddForeignKey("auth_code_id", "auth_codes(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on auth_code_scopes.auth_code_id for auth_codes(id): %s", db.Error)
+		}
+		if err := db.Table("auth_code_scopes").AddForeignKey("scope_id", "scopes(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on auth_code_scopes.scope_id for scopes(id): %s", db.Error)
 		}
 
 		// Save a record to migrations table,

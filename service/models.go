@@ -40,21 +40,21 @@ type AccessToken struct {
 	ClientID       int       `sql:"index;not null"`
 	UserID         int       `sql:"index"`
 	RefreshTokenID int       `sql:"index"`
-	Scopes         []Scope   `gorm:"many2many:access_token_scopes;"`
+	Scopes         []Scope   `gorm:"many2many:access_token_scopes"`
 	Client         Client
 	User           User
 	RefreshToken   RefreshToken
 }
 
-// AuthorizationCode ...
-type AuthorizationCode struct {
+// AuthCode ...
+type AuthCode struct {
 	ID          int
 	Code        string    `sql:"type:varchar(40);unique;not null"`
 	RedirectURI string    `sql:"type:varchar(200)"`
 	ExpiresAt   time.Time `sql:"not null"`
 	ClientID    int       `sql:"index;not null"`
 	UserID      int       `sql:"index"`
-	Scopes      []Scope   `gorm:"many2many:access_token_scopes;"`
+	Scopes      []Scope   `gorm:"many2many:auth_code_scopes"`
 	Client      Client
 	User        User
 }
