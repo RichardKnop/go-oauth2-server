@@ -55,7 +55,7 @@ createdb -U go_microservice_example go_microservice_example
 
 ## Testing
 
-A test database is created before running the tests and destroyed after the tests have run. Therefor, You need to have Postgres installed in order for tests to run.
+A test database is created before running the tests and destroyed after the tests have run. Therefor, You need to have Postgres installed in order for tests to run (i.e. `createdb` and `createuser` commands must be available).
 
 To run tests:
 
@@ -77,7 +77,7 @@ $ curl -u testclient:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=p
 
 You should get a response like:
 
-```
+```json
 {
     "id": 1,
     "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",

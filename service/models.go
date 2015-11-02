@@ -22,7 +22,7 @@ type AccessToken struct {
 	AccessToken    string    `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt      time.Time `sql:"not null"`
 	UserID         int       `sql:"index"`
+	RefreshTokenID int       `sql:"index"`
 	User           User
-	RefreshTokenID int `sql:"index"`
 	RefreshToken   RefreshToken
 }

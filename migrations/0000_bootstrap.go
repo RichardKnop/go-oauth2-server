@@ -13,10 +13,8 @@ import (
 func migrate0000() error {
 	migrationName := "0000_bootstrap"
 
-	// Config factory
 	cnf := config.NewConfig()
 
-	// Database connection factory
 	db, err := database.NewDatabase(cnf)
 	if err != nil {
 		return fmt.Errorf("Error connecting to database: %s", err)

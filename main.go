@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/RichardKnop/go-microservice-example/migrations"
 	"github.com/RichardKnop/go-microservice-example/service"
-	"github.com/gorilla/mux"
+	"github.com/ant0ine/go-json-rest/rest"
 )
 
 func main() {
@@ -16,13 +15,15 @@ func main() {
 	// Run database migrations
 	migrations.RunAll()
 
-	r := mux.NewRouter()
-	// Register /api/v1/tokens/ handler
-	log.Print("Registering /api/v1/tokens/ resource handler")
-	r.HandleFunc("/api/v1/tokens/", service.TokensHandler)
-
-	// Listen on port 8080
-	port := 8080
-	log.Printf("Listening on port %v", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%v", port), r))
+	api := rest.NewApi()
+	api.Use(rest.DefaultDevStack...)
+	router, err := rest.MakeRouter(
+		rest.Post("/api/v1/tokens", service.GrantAccessToken),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	api.SetApp(router)
+	log.Print("Listening on port 8080")
+	log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 }

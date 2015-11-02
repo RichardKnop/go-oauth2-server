@@ -22,7 +22,7 @@ func NewConfig() *Config {
 	viper.SetDefault("database_password", "")
 	viper.SetDefault("database_name", "go_microservice_example")
 	viper.SetDefault("access_token_lifetime", 3600)
-	viper.SetDefault("refresh_token_lifetime", 3600)
+	viper.SetDefault("refresh_token_lifetime", 1209600)
 
 	return &Config{
 		Database: DatabaseConfig{
