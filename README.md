@@ -27,6 +27,7 @@ Few notable third party libraries used:
 * [godep](https://github.com/tools/godep) - build packages reproducibly by fixing their dependencies
 * [Viper](https://github.com/spf13/viper) - Go configuration with fangs
 * [gorm](https://github.com/jinzhu/gorm) - The fantastic ORM library for Golang, aims to be developer friendly
+* [go-json-rest](https://github.com/ant0ine/go-json-rest) - A quick and easy way to setup a RESTful JSON API
 
 ## Dependencies
 
