@@ -1,4 +1,15 @@
-# Go Microservice Example
+Index:
+
+* [Introduction](#introduction)
+  * [Third Party Libraries](#third-party-libraries)
+  * [Dependencies](#dependencies)
+  * [Database](#database)
+  * [Testing](#Testing)
+* [API](#api)
+  * [Grant Types](#grant-types)
+    * [Resource Owner Password Credentials](#resource-owner-password-credentials)
+
+# Introduction
 
 A simple Go microservice example.
 
@@ -10,8 +21,6 @@ Goals:
 * test database
 * migrations
 * easily packaged as Docker container
-
-- [Third Party Libraries](#third-party-libraries)
 
 ## Third Party Libraries
 
@@ -54,4 +63,29 @@ To run tests:
 
 ```
 make test
+```
+
+# API
+
+## Grant Types
+
+### Resource Owner Password Credentials
+
+Given you have a username and password, you can get a new access token:
+
+```
+$ curl -u testclient:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=password&username=testuser@example.com&password=testpassword'
+```
+
+You should get a response like:
+
+```
+{
+    "id": 1,
+    "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+    "expires_in": 3600,
+    "token_type": "Bearer",
+    "scope": "foo bar qux",
+    "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+}
 ```
