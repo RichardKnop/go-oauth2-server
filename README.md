@@ -11,6 +11,8 @@ Goals:
 * migrations
 * easily packaged as Docker container
 
+- [Third Party Libraries](#third-party-libraries)
+
 ## Third Party Libraries
 
 Few notable third party libraries used:
