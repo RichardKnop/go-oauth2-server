@@ -5,7 +5,7 @@
   * [Testing](#Testing)
 * [API](#api)
   * [Grant Types](#grant-types)
-    * [Resource Owner Password Credentials](#resource-owner-password-credentials)
+    * [User Credentials](#user-credentials)
 
 # Introduction
 
@@ -67,7 +67,7 @@ make test
 
 ## Grant Types
 
-### Resource Owner Password Credentials
+### User Credentials
 
 Given you have a username and password, you can get a new access token:
 
