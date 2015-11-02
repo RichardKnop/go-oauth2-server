@@ -1,5 +1,3 @@
-Index:
-
 * [Introduction](#introduction)
   * [Third Party Libraries](#third-party-libraries)
   * [Dependencies](#dependencies)
