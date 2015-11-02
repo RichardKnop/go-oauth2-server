@@ -23,6 +23,16 @@ func migrate0001() error {
 	if err := db.Where(&Migration{Name: migrationName}).First(migration).Error; err != nil {
 		log.Printf("Running %s migration", migrationName)
 
+		// Create clients table
+		if err := db.CreateTable(&service.Client{}).Error; err != nil {
+			return fmt.Errorf("Error creating clients table: %s", db.Error)
+		}
+
+		// Create scopes table
+		if err := db.CreateTable(&service.Scope{}).Error; err != nil {
+			return fmt.Errorf("Error creating scopes table: %s", db.Error)
+		}
+
 		// Create users table
 		if err := db.CreateTable(&service.User{}).Error; err != nil {
 			return fmt.Errorf("Error creating users table: %s", db.Error)
@@ -38,6 +48,16 @@ func migrate0001() error {
 			return fmt.Errorf("Error creating access_tokens table: %s", db.Error)
 		}
 
+		// Create authorization_codes table
+		if err := db.CreateTable(&service.AuthorizationCode{}).Error; err != nil {
+			return fmt.Errorf("Error creating authorization_codes table: %s", db.Error)
+		}
+
+		// Add foreign key on access_tokens.client_id
+		if err := db.Model(&service.AccessToken{}).AddForeignKey("client_id", "clients(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on access_tokens.client_id for clients(id): %s", db.Error)
+		}
+
 		// Add foreign key on access_tokens.user_id
 		if err := db.Model(&service.AccessToken{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
 			return fmt.Errorf("Error creating foreign key on access_tokens.user_id for users(id): %s", db.Error)
@@ -46,6 +66,16 @@ func migrate0001() error {
 		// Add foreign key on access_tokens.refresh_token_id
 		if err := db.Model(&service.AccessToken{}).AddForeignKey("refresh_token_id", "refresh_tokens(id)", "RESTRICT", "RESTRICT").Error; err != nil {
 			return fmt.Errorf("Error creating foreign key on access_tokens.refresh_token_id for refresh_tokens(id): %s", db.Error)
+		}
+
+		// Add foreign key on authorization_codes.client_id
+		if err := db.Model(&service.AuthorizationCode{}).AddForeignKey("client_id", "clients(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on authorization_codes.client_id for clients(id): %s", db.Error)
+		}
+
+		// Add foreign key on authorization_codes.user_id
+		if err := db.Model(&service.AuthorizationCode{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on authorization_codes.user_id for users(id): %s", db.Error)
 		}
 
 		// Save a record to migrations table,
