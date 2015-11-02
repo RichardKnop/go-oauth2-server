@@ -7,14 +7,14 @@ import (
 )
 
 func TestNewConfig(t *testing.T) {
-	viper.Set("DATABASE_TYPE", "a")
-	viper.Set("DATABASE_HOST", "b")
-	viper.Set("DATABASE_PORT", 1)
-	viper.Set("DATABASE_USER", "c")
-	viper.Set("DATABASE_PASSWORD", "d")
-	viper.Set("DATABASE_NAME", "e")
-	viper.Set("ACCESS_TOKEN_LIFETIME", 2)
-	viper.Set("REFRESH_TOKEN_LIFETIME", 3)
+	viper.Set("database_type", "a")
+	viper.Set("database_host", "b")
+	viper.Set("database_port", 1)
+	viper.Set("database_user", "c")
+	viper.Set("database_password", "d")
+	viper.Set("database_name", "e")
+	viper.Set("access_token_lifetime", 2)
+	viper.Set("refresh_token_lifetime", 3)
 
 	cnf := NewConfig()
 
