@@ -5,13 +5,19 @@
   * [Testing](#Testing)
 * [API](#api)
   * [Grant Types](#grant-types)
+    * [Authorization Code](#authorization-code)
+    * [Implicit](#implicit)
     * [User Credentials](#user-credentials)
+    * [Client Credentials](#client-credentials)
+  * [Refreshing Token](#refreshing-token)
+  * [Scope](#scope)
+  * [Authentication](#authorization)
 
 # Introduction
 
 A simple Go microservice example.
 
-This example service implements resource owner password credentials grant of [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3). It can be used as a simple login service.
+This example service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3). It can be used as a simple login service.
 
 Goals:
 
@@ -68,12 +74,34 @@ make test
 
 ## Grant Types
 
+### Authorization Code
+
+http://tools.ietf.org/html/rfc6749#section-4.1
+
+TODO
+
+### Implicit
+
+http://tools.ietf.org/html/rfc6749#section-4.2
+
+TODO
+
 ### User Credentials
 
-Given you have a username and password, you can get a new access token:
+http://tools.ietf.org/html/rfc6749#section-4.3
+
+Given you have a username and password, you can get a new access token.
+
+Either by using HTTP Basic Authentication:
 
 ```
-$ curl -u testclient:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=password&username=testuser@example.com&password=testpassword'
+$ curl -u testusername:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=client_credentials'
+```
+
+Or using POST body:
+
+```
+$ curl localhost:8000/api/v1/tokens/ -d 'grant_type=client_credentials&username=testusername&password=testpassword'
 ```
 
 You should get a response like:
@@ -88,3 +116,69 @@ You should get a response like:
     "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
+
+### Client Credentials
+
+http://tools.ietf.org/html/rfc6749#section-4.4
+
+Given you have a client ID and secret, you can get a new access token.
+
+Either by using HTTP Basic Authentication:
+
+```
+$ curl -u testclient:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=client_credentials'
+```
+
+Or using POST body:
+
+```
+$ curl localhost:8000/api/v1/tokens/ -d 'grant_type=client_credentials&client_id=testclient&client_secret=testpassword'
+```
+
+You should get a response like:
+
+```json
+{
+    "id": 1,
+    "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+    "expires_in": 3600,
+    "token_type": "Bearer",
+    "scope": "foo bar qux",
+    "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+}
+```
+
+## Refreshing Token
+
+http://tools.ietf.org/html/rfc6749#section-6
+
+Let's say you have created a new access token using client or user credentials grant type. The response included a refresh token which you can use to get a new access token before your current access token expires.
+
+```
+$ curl localhost:8080/api/v1/tokens/ -d 'grant_type=refresh_token&refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791'
+```
+
+And you get a new access token:
+
+```json
+{
+    "id": 1,
+    "access_token": "1f962bd5-7890-435d-b619-584b6aa32e6c",
+    "expires_in": 3600,
+    "token_type": "Bearer",
+    "scope": "foo bar qux",
+    "refresh_token": "3a6b45b8-9d29-4cba-8a1b-0093e8a2b933"
+}
+```
+
+## Scope
+
+http://tools.ietf.org/html/rfc6749#section-3.3
+
+Scope is quite arbitrary. Basically it is a space delimited case-sensitive string where each part defines a specific access range.
+
+You can define your scopes and insert them into scopes table, is_default flag can be used to specify default scope.
+
+## Authentication
+
+TODO

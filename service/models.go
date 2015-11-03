@@ -37,7 +37,7 @@ type AccessToken struct {
 	ID             int
 	AccessToken    string    `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt      time.Time `sql:"not null"`
-	ClientID       int       `sql:"index;not null"`
+	ClientID       int       `sql:"index"`
 	UserID         int       `sql:"index"`
 	RefreshTokenID int       `sql:"index"`
 	Scopes         []Scope   `gorm:"many2many:access_token_scopes"`

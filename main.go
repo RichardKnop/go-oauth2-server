@@ -18,7 +18,7 @@ func main() {
 	api := rest.NewApi()
 	api.Use(rest.DefaultDevStack...)
 	router, err := rest.MakeRouter(
-		rest.Post("/api/v1/users", service.UsersHandler),
+		rest.Post("/api/v1/users", service.RegisterUser),
 		rest.Post("/api/v1/tokens", service.TokensHandler),
 	)
 	if err != nil {
