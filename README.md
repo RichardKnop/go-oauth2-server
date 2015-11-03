@@ -172,7 +172,7 @@ The configuration is done via environment variables. Available variables:
 * DATABASE_HOST (defaults to '127.0.0.1')
 * DATABASE_PORT (defaults to `5432`)
 * DATABASE_USER (defaults to `go_microservice_example`)
-* DATABASE_PASSWORD (defaults to ``)
+* DATABASE_PASSWORD (defaults to empty string)
 * DATABASE_NAME (defaults to `go_microservice_example`)
 * ACCESS_TOKEN_LIFETIME (defaults to `3600`)
 * REFRESH_TOKEN_LIFETIME (defaults to `1209600`)
