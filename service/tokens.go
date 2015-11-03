@@ -38,12 +38,10 @@ func TokensHandler(w rest.ResponseWriter, r *rest.Request) {
 
 	if grantType == "password" {
 		password(w, r, cnf, db)
-		return
 	}
 
 	if grantType == "client_credentials" {
 		clientCredentials(w, r, cnf, db)
-		return
 	}
 
 	if grantType == "refresh_token" {
@@ -167,6 +165,7 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 		scopeStrings = append(scopeStrings, scope.Scope)
 	}
 
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteJson(map[string]interface{}{
 		"id":            accessToken.ID,
 		"access_token":  accessToken.AccessToken,
