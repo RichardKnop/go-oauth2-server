@@ -2,37 +2,36 @@ package service
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/RichardKnop/go-microservice-example/config"
 	"github.com/RichardKnop/go-microservice-example/database"
 	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/jinzhu/gorm"
 	"github.com/pborman/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// GrantAccessToken ...
-func GrantAccessToken(w rest.ResponseWriter, r *rest.Request) {
-	// clientID, clientPassword, ok := r.BasicAuth()
-	// if !ok {
-	// 	w.Header().Set("WWW-Authenticate", "Basic realm=Bearer")
-	// 	rest.Error(w, "Unautorized", http.StatusUnauthorized)
-	// 	return
-	// }
-
-	grantType := r.FormValue("grant_type")
-
-	if grantType == "password" {
-		passwordGrant(w, r)
+// TokensHandler ...
+func TokensHandler(w rest.ResponseWriter, r *rest.Request) {
+	clientID, clientPassword, ok := r.BasicAuth()
+	if !ok {
+		w.Header().Set("WWW-Authenticate", "Basic realm=Bearer")
+		rest.Error(w, "Unautorized", http.StatusUnauthorized)
 		return
 	}
 
-	rest.Error(w, "Invalid grant type", http.StatusBadRequest)
-}
+	grantType := r.FormValue("grant_type")
 
-func passwordGrant(w rest.ResponseWriter, r *rest.Request) {
-	username := r.FormValue("username")
-	password := r.FormValue("password")
+	supportedGrantTypes := map[string]bool{
+		"password": true,
+	}
+
+	if !supportedGrantTypes[grantType] {
+		rest.Error(w, "Invalid grant type", http.StatusBadRequest)
+		return
+	}
 
 	cnf := config.NewConfig()
 
@@ -41,6 +40,29 @@ func passwordGrant(w rest.ResponseWriter, r *rest.Request) {
 		rest.Error(w, "Error connecting to database", http.StatusInternalServerError)
 		return
 	}
+
+	client := Client{}
+	if db.Where("client_id = ?", clientID).First(&client).RecordNotFound() {
+		w.Header().Set("WWW-Authenticate", "Basic realm=Bearer")
+		rest.Error(w, "Unautorized", http.StatusUnauthorized)
+		return
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(client.Password), []byte(clientPassword)); err != nil {
+		w.Header().Set("WWW-Authenticate", "Basic realm=Bearer")
+		rest.Error(w, "Unautorized", http.StatusUnauthorized)
+		return
+	}
+
+	if grantType == "password" {
+		passwordGrant(w, r, cnf, db)
+		return
+	}
+}
+
+func passwordGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
+	username := r.FormValue("username")
+	password := r.FormValue("password")
 
 	user := User{}
 	if db.Where("username = ?", username).First(&user).RecordNotFound() {
@@ -81,6 +103,15 @@ func passwordGrant(w rest.ResponseWriter, r *rest.Request) {
 
 	tx.Commit()
 
-	// TODO proper JSON structure
-	w.WriteJson(&accessToken)
+	var scopes []string
+	db.Model(&Scope{}).Where("is_default = ?", true).Pluck("scope", &scopes)
+
+	w.WriteJson(map[string]interface{}{
+		"id":            accessToken.ID,
+		"access_token":  accessToken.AccessToken,
+		"expires_in":    cnf.AccessTokenLifetime,
+		"token_type":    "Bearer",
+		"scope":         strings.Join(scopes, " "),
+		"refresh_token": refreshToken.RefreshToken,
+	})
 }
