@@ -19,11 +19,12 @@ import (
 //
 // }
 
-func TestNewDatabasePostgres(t *testing.T) {
+func TestRegisterUserBadPayload(t *testing.T) {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/api/v1/users", nil)
 	recorded := test.RunRequest(t, NewAPI().MakeHandler(), r)
 
 	assert.Equal(t, 400, recorded.Recorder.Code, "Status code should be 400")
-
-	//fmt.Printf("%d - %s", w.Code, w.Body.String())
+	expectedBody := "{\n  \"Error\": \"Decode JSON error\"\n}"
+	assert.Equal(t, expectedBody, recorded.Recorder.Body.String(),
+		"Body should be expected JSON error")
 }
