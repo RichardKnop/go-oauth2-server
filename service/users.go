@@ -25,7 +25,9 @@ func RegisterUser(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	if db.Where("username = ?", user.Username).First(&User{}).RecordNotFound() {
+	// Case insensitive search, usernames will probably be emails and
+	// foo@bar.com is identical to FOO@BAR.com
+	if db.Where("LOWER(username) = LOWER(?)", user.Username).First(&User{}).RowsAffected > 0 {
 		rest.Error(w, "Username already taken", http.StatusBadRequest)
 		return
 	}
@@ -42,5 +44,8 @@ func RegisterUser(w rest.ResponseWriter, r *rest.Request) {
 		return
 	}
 
-	w.WriteJson(&user)
+	w.WriteJson(map[string]interface{}{
+		"id":       user.ID,
+		"username": user.Username,
+	})
 }

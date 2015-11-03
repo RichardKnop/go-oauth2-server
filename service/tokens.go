@@ -60,7 +60,7 @@ func password(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *go
 	}
 
 	user := User{}
-	if db.Where("username = ?", username).First(&user).RecordNotFound() {
+	if db.Where(&User{Username: username}).First(&user).RecordNotFound() {
 		w.Header().Set("WWW-Authenticate", "Basic realm=Bearer")
 		rest.Error(w, "Unautorized", http.StatusUnauthorized)
 		return
@@ -84,7 +84,7 @@ func clientCredentials(w rest.ResponseWriter, r *rest.Request, cnf *config.Confi
 	}
 
 	client := Client{}
-	if db.Where("client_id = ?", clientID).First(&client).RecordNotFound() {
+	if db.Where(&Client{ClientID: clientID}).First(&client).RecordNotFound() {
 		w.Header().Set("WWW-Authenticate", "Basic realm=Bearer")
 		rest.Error(w, "Unautorized", http.StatusUnauthorized)
 		return
@@ -104,15 +104,18 @@ func refreshToken(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db
 	token := r.FormValue("refresh_token")
 
 	refreshToken := RefreshToken{}
-	if db.Where("refresh_token = ?", token).First(&refreshToken).RecordNotFound() {
-		rest.Error(w, "Refresh token not found", http.StatusBadGateway)
+	if db.Where(&RefreshToken{RefreshToken: token}).First(&refreshToken).RecordNotFound() {
+		rest.Error(w, "Refresh token not found", http.StatusBadRequest)
 		return
 	}
 
-	// check refresh token is not expired
+	if refreshToken.ExpiresAt.After(time.Now()) {
+		rest.Error(w, "Refresh token expired", http.StatusBadRequest)
+		return
+	}
 
 	accessToken := AccessToken{}
-	if db.Where("refresh_token_id = ?", refreshToken.ID).First(&accessToken).RecordNotFound() {
+	if db.Where(&AccessToken{RefreshTokenID: refreshToken.ID}).First(&accessToken).RecordNotFound() {
 		rest.Error(w, "Access token with refresh token not found", http.StatusBadGateway)
 		return
 	}
@@ -137,7 +140,7 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 	}
 
 	var scopes []Scope
-	db.Where("is_default = ?", "true").Find(&scopes)
+	db.Where(&Scope{IsDefault: true}).Find(&scopes)
 
 	accessToken := AccessToken{
 		AccessToken:    uuid.New(),

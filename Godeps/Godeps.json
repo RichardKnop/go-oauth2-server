@@ -11,12 +11,14 @@
 			"Rev": "056c9bc7be7190eaa7715723883caffa5f8fa3e4"
 		},
 		{
-			"ImportPath": "github.com/gorilla/context",
-			"Rev": "708054d61e5a2918b9f4e9700000ee611dcf03f5"
+			"ImportPath": "github.com/ant0ine/go-json-rest/rest",
+			"Comment": "v3.2.0-11-g2af9d00",
+			"Rev": "2af9d0034afcd83101abb1945f2a65ddbd563719"
 		},
 		{
-			"ImportPath": "github.com/gorilla/mux",
-			"Rev": "b08c5fcf14d01cb0c20ddf70157f54d4a2c3a38a"
+			"ImportPath": "github.com/codegangsta/cli",
+			"Comment": "1.2.0-62-gbf4a526",
+			"Rev": "bf4a526f48af7badd25d2cb02d587e1b01be3b50"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
@@ -46,6 +48,10 @@
 			"Rev": "281073eb9eb092240d33ef253c404f1cca550309"
 		},
 		{
+			"ImportPath": "github.com/pborman/uuid",
+			"Rev": "cccd189d45f7ac3368a0d127efb7f4d08ae0b655"
+		},
+		{
 			"ImportPath": "github.com/qor/inflection",
 			"Rev": "45321e63b98c756df17369c027c1df89298e1288"
 		},
@@ -59,11 +65,19 @@
 		},
 		{
 			"ImportPath": "github.com/spf13/pflag",
-			"Rev": "8e7dc108ab3a1ab6ce6d922bbaff5657b88e8e49"
+			"Rev": "08b1a584251b5b62f458943640fc8ebd4d50aaa5"
 		},
 		{
 			"ImportPath": "github.com/spf13/viper",
 			"Rev": "1967d93db724f4a5c0e101307e96d82ff520a067"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/bcrypt",
+			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
