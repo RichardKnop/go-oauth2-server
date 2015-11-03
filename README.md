@@ -174,8 +174,8 @@ The configuration is done via environment variables. Available variables:
 * `DATABASE_USER` (defaults to `go_microservice_example`)
 * `DATABASE_PASSWORD` (defaults to empty string)
 * `DATABASE_NAME` (defaults to `go_microservice_example`)
-* `ACCESS_TOKEN_LIFETIME` (defaults to `3600`)
-* `REFRESH_TOKEN_LIFETIME` (defaults to `1209600`)
+* `ACCESS_TOKEN_LIFETIME` (defaults to `3600` or 1 hour)
+* `REFRESH_TOKEN_LIFETIME` (defaults to `1209600` or 14 days)
 
 Variables are not prefixed as this service is intended to run inside a Docker container so there should be no conflict with some other service's configuration.
 
