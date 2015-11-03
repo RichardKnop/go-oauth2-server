@@ -13,8 +13,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// TokensHandler - handles all OAuth 2.0 grant types
-func TokensHandler(w rest.ResponseWriter, r *rest.Request) {
+// Handles all OAuth 2.0 grant types
+func tokensHandler(w rest.ResponseWriter, r *rest.Request) {
 	grantType := r.FormValue("grant_type")
 
 	supportedGrantTypes := map[string]bool{

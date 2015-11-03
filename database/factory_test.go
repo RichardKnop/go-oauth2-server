@@ -5,16 +5,16 @@ import (
 	"testing"
 
 	"github.com/RichardKnop/go-microservice-example/config"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestNewDatabasePostgres(t *testing.T) {
-	cnf := config.NewConfig()
-	_, err := NewDatabase(cnf)
-
-	if err != nil {
-		t.Errorf("err = %s, wanted nil", err.Error())
-	}
-}
+// TODO - this test relies on a database
+// func TestNewDatabasePostgres(t *testing.T) {
+// 	cnf := config.NewConfig()
+// 	_, err := NewDatabase(cnf)
+//
+// 	assert.Nil(t, err)
+// }
 
 func TestNewDatabaseTypeNotSupported(t *testing.T) {
 	cnf := &config.Config{
@@ -24,13 +24,7 @@ func TestNewDatabaseTypeNotSupported(t *testing.T) {
 	}
 	_, err := NewDatabase(cnf)
 
-	expectedErr := errors.New("Database type bogus not suppported")
-
-	if err == nil {
-		t.Errorf("err = nil, wanted %v", expectedErr)
-	}
-
-	if err.Error() != expectedErr.Error() {
-		t.Errorf("err.Error() = %s, wanted %s", err.Error(), expectedErr.Error())
+	if assert.NotNil(t, err) {
+		assert.Equal(t, errors.New("Database type bogus not suppported"), err)
 	}
 }

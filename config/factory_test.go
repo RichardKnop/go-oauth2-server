@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/spf13/viper"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestNewConfig(t *testing.T) {
@@ -18,35 +19,19 @@ func TestNewConfig(t *testing.T) {
 
 	cnf := NewConfig()
 
-	if cnf.Database.Type != "a" {
-		t.Errorf("cnf.Database.Type = %s, want a", cnf.Database.Type)
-	}
+	assert.Equal(t, "a", cnf.Database.Type, "cnf.Database.Type should be a")
 
-	if cnf.Database.Host != "b" {
-		t.Errorf("cnf.Database.Host = %s, want b", cnf.Database.Host)
-	}
+	assert.Equal(t, "b", cnf.Database.Host, "cnf.Database.Host should be b")
 
-	if cnf.Database.Port != 1 {
-		t.Errorf("cnf.Database.Port = %d, want 1", cnf.Database.Port)
-	}
+	assert.Equal(t, 1, cnf.Database.Port, "cnf.Database.Port should be 1")
 
-	if cnf.Database.User != "c" {
-		t.Errorf("cnf.Database.User = %s, want c", cnf.Database.User)
-	}
+	assert.Equal(t, "c", cnf.Database.User, "cnf.Database.User should be c")
 
-	if cnf.Database.Password != "d" {
-		t.Errorf("cnf.Database.Password = %s, want d", cnf.Database.Password)
-	}
+	assert.Equal(t, "d", cnf.Database.Password, "cnf.Database.Password should be d")
 
-	if cnf.Database.DatabaseName != "e" {
-		t.Errorf("cnf.Database.DatabaseName = %s, want e", cnf.Database.Password)
-	}
+	assert.Equal(t, "e", cnf.Database.DatabaseName, "cnf.Database.DatabaseName should be e")
 
-	if cnf.AccessTokenLifetime != 2 {
-		t.Errorf("cnf.AccessTokenLifetime = %d, want 2", cnf.AccessTokenLifetime)
-	}
+	assert.Equal(t, 2, cnf.AccessTokenLifetime, "cnf.AccessTokenLifetime should be 2")
 
-	if cnf.RefreshTokenLifetime != 3 {
-		t.Errorf("cnf.RefreshTokenLifetime = %d, want 3", cnf.RefreshTokenLifetime)
-	}
+	assert.Equal(t, 3, cnf.RefreshTokenLifetime, "cnf.RefreshTokenLifetime should be 3")
 }

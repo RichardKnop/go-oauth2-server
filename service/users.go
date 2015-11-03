@@ -9,8 +9,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// RegisterUser - registers a new user
-func RegisterUser(w rest.ResponseWriter, r *rest.Request) {
+// Registers a new user
+func registerUser(w rest.ResponseWriter, r *rest.Request) {
 	user := User{}
 	if err := r.DecodeJsonPayload(&user); err != nil {
 		rest.Error(w, "Decode JSON error", http.StatusBadRequest)
