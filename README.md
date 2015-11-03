@@ -147,6 +147,7 @@ Few notable third party libraries used:
 * [Viper](https://github.com/spf13/viper) - Go configuration with fangs
 * [gorm](https://github.com/jinzhu/gorm) - The fantastic ORM library for Golang, aims to be developer friendly
 * [go-json-rest](https://github.com/ant0ine/go-json-rest) - A quick and easy way to setup a RESTful JSON API
+* [testify](https://github.com/stretchr/testify) - A sacred extension to the standard go testing package
 
 ## Dependencies
 
