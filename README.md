@@ -181,16 +181,16 @@ Variables are not prefixed as this service is intended to run inside a Docker co
 
 ## Database
 
-Create a Postgres user and database:
+In order to run this service, create a Postgres user and database:
 
 ```
 createuser --createdb go_microservice_example
 createdb -U go_microservice_example go_microservice_example
 ```
 
-## Testing
+Set environment variables to match your database connection details.
 
-A test database is created before running the tests and destroyed after the tests have run. Therefor, You need to have Postgres installed in order for tests to run (i.e. `createdb` and `createuser` commands must be available).
+## Testing
 
 To run tests:
 
