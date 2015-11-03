@@ -1,8 +1,13 @@
+# Go Microservice Example
+
 A simple Go microservice example.
 
 This example service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3). It can be used as a simple login service.
 
-Index:
+# Index
+
+* [Go Microservice Example](#go-microservice-example)
+* [Index](#index)
 * [API](#api)
   * [Grant Types](#grant-types)
     * [Authorization Code](#authorization-code)
