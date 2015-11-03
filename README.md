@@ -95,13 +95,13 @@ Given you have a username and password, you can get a new access token.
 Either by using HTTP Basic Authentication:
 
 ```
-$ curl -u testusername:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=client_credentials'
+$ curl -u testusername:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=password'
 ```
 
 Or using POST body:
 
 ```
-$ curl localhost:8000/api/v1/tokens/ -d 'grant_type=client_credentials&username=testusername&password=testpassword'
+$ curl localhost:8000/api/v1/tokens/ -d 'grant_type=password&username=testusername&password=testpassword'
 ```
 
 You should get a response like:
