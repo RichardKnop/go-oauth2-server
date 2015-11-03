@@ -15,6 +15,9 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "go-microservice-example"
 	app.Usage = "OAuth 2.0 Go microservice"
+	app.Author = "Richard Knop"
+	app.Email = "risoknop@gmail.com"
+	app.Version = "0.0.0"
 
 	app.Commands = []cli.Command{
 		{
