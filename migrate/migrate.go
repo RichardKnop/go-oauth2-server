@@ -1,15 +1,23 @@
-package migrations
+package migrate
 
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/jinzhu/gorm"
 )
 
-// The very first migration creates "migrations" table
+// Migration ...
+type Migration struct {
+	ID        int
+	Name      string `sql:"size:255"`
+	CreatedAt time.Time
+}
+
+// Bootstrap executes the very first migration creates "migrations" table
 // to keep track of already run database migrations
-func migrate0000(db *gorm.DB) error {
+func Bootstrap(db *gorm.DB) error {
 	migrationName := "0000_bootstrap"
 
 	migration := &Migration{}

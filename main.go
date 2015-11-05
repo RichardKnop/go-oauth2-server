@@ -8,7 +8,7 @@ import (
 	"github.com/RichardKnop/go-microservice-example/api"
 	"github.com/RichardKnop/go-microservice-example/config"
 	"github.com/RichardKnop/go-microservice-example/database"
-	"github.com/RichardKnop/go-microservice-example/migrations"
+	"github.com/RichardKnop/go-microservice-example/migrate"
 	"github.com/RichardKnop/go-microservice-example/oauth2"
 	"github.com/codegangsta/cli"
 )
@@ -32,7 +32,12 @@ func main() {
 			Name:  "migrate",
 			Usage: "run migrations",
 			Action: func(c *cli.Context) {
-				migrations.MigrateAll(db)
+				if err := migrate.Bootstrap(db); err != nil {
+					log.Fatal(err)
+				}
+				if err := oauth2.MigrateAll(db); err != nil {
+					log.Fatal(err)
+				}
 			},
 		},
 		{

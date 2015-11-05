@@ -1,26 +1,31 @@
 package oauth2
 
-// import (
-// 	"testing"
-//
-// 	"github.com/RichardKnop/go-microservice-example/api"
-// 	"github.com/RichardKnop/go-microservice-example/config"
-// 	"github.com/RichardKnop/go-microservice-example/utils"
-// 	"github.com/ant0ine/go-json-rest/rest/test"
-// 	"github.com/stretchr/testify/assert"
-// )
-//
-// func TestRegisterUserBadPayload(t *testing.T) {
-// 	db := utils.TestSetUp()
-//
-// 	api := api.NewAPI(NewRoutes(config.NewConfig(), db))
-// 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/api/v1/users", nil)
-// 	recorded := test.RunRequest(t, api.MakeHandler(), r)
-//
-// 	assert.Equal(t, 400, recorded.Recorder.Code, "Status code should be 400")
-// 	expectedBody := "{\n  \"Error\": \"Decode JSON error\"\n}"
-// 	assert.Equal(t, expectedBody, recorded.Recorder.Body.String(),
-// 		"Body should be expected JSON error")
-//
-// 	utils.TestTearDown(db)
-// }
+import (
+	"net/url"
+	"testing"
+
+	"github.com/RichardKnop/go-microservice-example/api"
+	"github.com/RichardKnop/go-microservice-example/config"
+	"github.com/ant0ine/go-json-rest/rest/test"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/suite"
+)
+
+func (suite *TestSuite) TestRegisterUser() {
+	api := api.NewAPI(NewRoutes(config.NewConfig(), suite.DB))
+	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/api/v1/users",
+		url.Values{"username": {"testusername"}, "password": {"testpassword"}})
+	recorded := test.RunRequest(suite.T(), api.MakeHandler(), r)
+
+	assert.Equal(suite.T(), 200, recorded.Recorder.Code, "Status code should be 200")
+	expectedBody := "{\n  \"id\": 1,\n  \"username\": \"testusername\"\n}"
+	assert.Equal(suite.T(), expectedBody, recorded.Recorder.Body.String(),
+		"Body should be expected JSON error")
+}
+
+// TestTestSuite
+// In order for 'go test' to run this suite, we need to create
+// a normal test function and pass our suite to suite.Run
+func TestTestSuite(t *testing.T) {
+	suite.Run(t, new(TestSuite))
+}
