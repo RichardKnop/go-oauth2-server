@@ -3,7 +3,6 @@ package oauth2
 import (
 	"encoding/json"
 	"log"
-	"net/url"
 
 	"github.com/ant0ine/go-json-rest/rest/test"
 	"github.com/stretchr/testify/assert"
@@ -11,8 +10,15 @@ import (
 )
 
 func (suite *TestSuite) TestRegisterUsernameRequired() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/api/v1/users", nil)
-	r.PostForm = url.Values{}
+	r := test.MakeSimpleRequest(
+		"POST", "http://1.2.3.4/api/v1/users",
+		[]byte(`{
+			"username": "",
+			"password": "testpassword",
+			"first_name": "John",
+			"last_name": "Doe"
+		}`),
+	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
 	// Status code
@@ -32,10 +38,15 @@ func (suite *TestSuite) TestRegisterUsernameRequired() {
 }
 
 func (suite *TestSuite) TestRegisterPasswordRequired() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/api/v1/users", nil)
-	r.PostForm = url.Values{
-		"username": {"testusername"},
-	}
+	r := test.MakeSimpleRequest(
+		"POST", "http://1.2.3.4/api/v1/users",
+		[]byte(`{
+			"username": "testusername",
+			"password": "",
+			"first_name": "John",
+			"last_name": "Doe"
+		}`),
+	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
 	// Status code
@@ -55,11 +66,15 @@ func (suite *TestSuite) TestRegisterPasswordRequired() {
 }
 
 func (suite *TestSuite) TestRegisterFirstNameRequired() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/api/v1/users", nil)
-	r.PostForm = url.Values{
-		"username": {"testusername"},
-		"password": {"testpassword"},
-	}
+	r := test.MakeSimpleRequest(
+		"POST", "http://1.2.3.4/api/v1/users",
+		[]byte(`{
+			"username": "testusername",
+			"password": "testpassword",
+			"first_name": "",
+			"last_name": "Doe"
+		}`),
+	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
 	// Status code
@@ -79,12 +94,15 @@ func (suite *TestSuite) TestRegisterFirstNameRequired() {
 }
 
 func (suite *TestSuite) TestRegisterLastNameNameRequired() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/api/v1/users", nil)
-	r.PostForm = url.Values{
-		"username":   {"testusername"},
-		"password":   {"testpassword"},
-		"first_name": {"John"},
-	}
+	r := test.MakeSimpleRequest(
+		"POST", "http://1.2.3.4/api/v1/users",
+		[]byte(`{
+			"username": "testusername",
+			"password": "testpassword",
+			"first_name": "John",
+			"last_name": ""
+		}`),
+	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
 	// Status code
@@ -104,13 +122,15 @@ func (suite *TestSuite) TestRegisterLastNameNameRequired() {
 }
 
 func (suite *TestSuite) TestRegister() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/api/v1/users", nil)
-	r.PostForm = url.Values{
-		"username":   {"testusername"},
-		"password":   {"testpassword"},
-		"first_name": {"John"},
-		"last_name":  {"Doe"},
-	}
+	r := test.MakeSimpleRequest(
+		"POST", "http://1.2.3.4/api/v1/users",
+		[]byte(`{
+			"username": "testusername",
+			"password": "testpassword",
+			"first_name": "John",
+			"last_name": "Doe"
+		}`),
+	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
 	// Status code
@@ -160,13 +180,15 @@ func (suite *TestSuite) TestRegisterUsernameAlreadyTaken() {
 		log.Fatal(err)
 	}
 
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/api/v1/users", nil)
-	r.PostForm = url.Values{
-		"username":   {"testusername"},
-		"password":   {"testpassword"},
-		"first_name": {"John"},
-		"last_name":  {"Doe"},
-	}
+	r := test.MakeSimpleRequest(
+		"POST", "http://1.2.3.4/api/v1/users",
+		[]byte(`{
+			"username": "testusername",
+			"password": "testpassword",
+			"first_name": "John",
+			"last_name": "Doe"
+		}`),
+	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
 	// Status code

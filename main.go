@@ -47,7 +47,16 @@ func main() {
 			Action: func(c *cli.Context) {
 				routes := oauth2.NewRoutes(cnf, db)
 				api := api.NewAPI(
-					rest.DefaultProdStack,
+					[]rest.Middleware{
+						&rest.AccessLogApacheMiddleware{
+							Format: rest.CombinedLogFormat,
+						},
+						&rest.TimerMiddleware{},
+						&rest.RecorderMiddleware{},
+						&rest.PoweredByMiddleware{},
+						&rest.RecoverMiddleware{},
+						&rest.GzipMiddleware{},
+					},
 					routes,
 				)
 				log.Print("Listening on port 8080")

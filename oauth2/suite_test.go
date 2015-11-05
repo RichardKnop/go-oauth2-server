@@ -42,7 +42,6 @@ func (suite *TestSuite) SetupTest() {
 			&rest.RecoverMiddleware{
 				EnableResponseStackTrace: true,
 			},
-			&rest.ContentTypeCheckerMiddleware{},
 		}
 		suite.API = api.NewAPI(
 			stack,

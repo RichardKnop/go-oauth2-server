@@ -17,6 +17,7 @@ This example service implements [OAuth 2.0 specification](http://tools.ietf.org/
   * [Refreshing Token](#refreshing-token)
   * [Scope](#scope)
   * [Authentication](#authorization)
+  * [Users](#users)
 * [Development](#development)
   * [Third Party Libraries](#third-party-libraries)
   * [Dependencies](#dependencies)
@@ -49,13 +50,17 @@ Given you have a username and password, you can get a new access token.
 Either by using HTTP Basic Authentication:
 
 ```
-$ curl -u testusername:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=password'
+$ curl -u testusername:testpassword localhost:8080/api/v1/tokens
+  -d 'grant_type=password'
 ```
 
 Or using POST body:
 
 ```
-$ curl localhost:8000/api/v1/tokens/ -d 'grant_type=password&username=testusername&password=testpassword'
+$ curl localhost:8000/api/v1/tokens \
+  -d 'grant_type=password" \
+  -d `"username=testusername" \
+  -d "password=testpassword'
 ```
 
 You should get a response like:
@@ -80,13 +85,17 @@ Given you have a client ID and secret, you can get a new access token.
 Either by using HTTP Basic Authentication:
 
 ```
-$ curl -u testclient:testpassword localhost:8080/api/v1/tokens/ -d 'grant_type=client_credentials'
+$ curl -u testclient:testpassword localhost:8080/api/v1/tokens \
+  -d 'grant_type=client_credentials'
 ```
 
 Or using POST body:
 
 ```
-$ curl localhost:8000/api/v1/tokens/ -d 'grant_type=client_credentials&client_id=testclient&client_secret=testpassword'
+$ curl localhost:8000/api/v1/tokens \
+  -d 'grant_type=client_credentials" \
+  -d "client_id=testclient" \
+  -d "client_secret=testpassword'
 ```
 
 You should get a response like:
@@ -109,7 +118,9 @@ http://tools.ietf.org/html/rfc6749#section-6
 Let's say you have created a new access token using client or user credentials grant type. The response included a refresh token which you can use to get a new access token before your current access token expires.
 
 ```
-$ curl localhost:8080/api/v1/tokens/ -d 'grant_type=refresh_token&refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791'
+$ curl localhost:8080/api/v1/tokens \
+  -d 'grant_type=refresh_token" \
+  -d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791'
 ```
 
 And you get a new access token:
@@ -136,6 +147,21 @@ You can define your scopes and insert them into scopes table, is_default flag ca
 ## Authentication
 
 TODO
+
+## Users
+
+To register a new user, POST to `/api/v1/users`:
+
+```
+curl localhost:8080/api/v1/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "testusername",
+    "password": "password",
+    "first_name": "John",
+    "last_name": "Doe"
+  }'
+```
 
 # Development
 

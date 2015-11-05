@@ -12,38 +12,31 @@ import (
 
 // Registers a new user
 func register(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
-	requiredFields := []string{"username", "password", "first_name", "last_name"}
-	for _, requiredField := range requiredFields {
-		if r.FormValue(requiredField) == "" {
-			rest.Error(w, fmt.Sprintf("%s required", requiredField), http.StatusBadRequest)
-			return
-		}
-	}
-
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-	firstName := r.FormValue("first_name")
-	lastName := r.FormValue("last_name")
-
-	// Case insensitive search, usernames will probably be emails and
-	// foo@bar.com is identical to FOO@BAR.com
-	if db.Where("LOWER(username) = LOWER(?)", username).First(&User{}).RowsAffected > 0 {
-		rest.Error(w, fmt.Sprintf("%s already taken", username), http.StatusBadRequest)
+	user := User{}
+	if err := r.DecodeJsonPayload(&user); err != nil {
+		rest.Error(w, "Unmarshal error", http.StatusBadRequest)
 		return
 	}
 
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte(password), 3)
+	if err := user.Validate(); err != nil {
+		rest.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Case insensitive search, usernames will probably be emails and
+	// foo@bar.com is identical to FOO@BAR.com
+	if db.Where("LOWER(username) = LOWER(?)", user.Username).First(&User{}).RowsAffected > 0 {
+		rest.Error(w, fmt.Sprintf("%s already taken", user.Username), http.StatusBadRequest)
+		return
+	}
+
+	passwordHash, err := bcrypt.GenerateFromPassword([]byte(user.Password), 3)
 	if err != nil {
 		rest.Error(w, "Bcrypt error", http.StatusInternalServerError)
 		return
 	}
 
-	user := User{
-		Username:  username,
-		Password:  string(passwordHash),
-		FirstName: firstName,
-		LastName:  lastName,
-	}
+	user.Password = string(passwordHash)
 	if err := db.Create(&user).Error; err != nil {
 		rest.Error(w, "Error saving user", http.StatusInternalServerError)
 		return

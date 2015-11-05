@@ -1,6 +1,9 @@
 package oauth2
 
-import "time"
+import (
+	"errors"
+	"time"
+)
 
 // Client ...
 type Client struct {
@@ -20,11 +23,11 @@ type Scope struct {
 
 // User ...
 type User struct {
-	ID        int
-	Username  string `sql:"type:varchar(254);unique;not null"`
-	Password  string `sql:"type:varchar(60);not null"`
-	FirstName string `sql:"type:varchar(254);unique;not null"`
-	LastName  string `sql:"type:varchar(254);unique;not null"`
+	ID        int    `json:"id"`
+	Username  string `sql:"type:varchar(254);unique;not null" json:"username"`
+	Password  string `sql:"type:varchar(60);not null" json:"password"`
+	FirstName string `sql:"type:varchar(254);unique;not null" json:"first_name"`
+	LastName  string `sql:"type:varchar(254);unique;not null" json:"last_name"`
 }
 
 // RefreshToken ...
@@ -59,4 +62,25 @@ type AuthCode struct {
 	Scopes      []Scope   `gorm:"many2many:auth_code_scopes"`
 	Client      Client
 	User        User
+}
+
+// Validate validates user data
+func (user *User) Validate() error {
+	if user.Username == "" {
+		return errors.New("username required")
+	}
+
+	if user.Password == "" {
+		return errors.New("password required")
+	}
+
+	if user.FirstName == "" {
+		return errors.New("first_name required")
+	}
+
+	if user.LastName == "" {
+		return errors.New("last_name required")
+	}
+
+	return nil
 }

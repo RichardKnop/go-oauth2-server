@@ -101,7 +101,7 @@ func migrate0001(db *gorm.DB) error {
 		// Save a record to migrations table,
 		// so we don't rerun this migration again
 		migration.Name = migrationName
-		if err := db.Create(migration).Error; err != nil {
+		if err := db.Create(&migration).Error; err != nil {
 			return fmt.Errorf("Error saving record to migrations table: %s", err)
 		}
 	} else {
