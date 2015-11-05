@@ -9,7 +9,7 @@ This example service implements [OAuth 2.0 specification](http://tools.ietf.org/
 * [Go Microservice Example](#go-microservice-example)
 * [Index](#index)
 * [API](#api)
-  * [OAuth 2.0](#oauth-2.0)
+  * [OAuth 2.0](#oauth-20)
     * [Grant Types](#grant-types)
       * [Authorization Code](#authorization-code)
       * [Implicit](#implicit)
@@ -19,6 +19,7 @@ This example service implements [OAuth 2.0 specification](http://tools.ietf.org/
     * [Scope](#scope)
     * [Authentication](#authorization)
   * [Users](#users)
+    * [Register](#register)
 * [Development](#development)
   * [Third Party Libraries](#third-party-libraries)
   * [Dependencies](#dependencies)
@@ -152,6 +153,8 @@ You can define your scopes and insert them into scopes table, is_default flag ca
 TODO
 
 ## Users
+
+### Register
 
 To register a new user, POST to `/api/v1/users`:
 
