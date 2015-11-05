@@ -228,8 +228,8 @@ Variables are not prefixed as this service is intended to run inside a Docker co
 In order to run this service, create a Postgres user and database:
 
 ```
-createuser --createdb go_microservice_example
-createdb -U go_microservice_example go_microservice_example
+createuser --createdb go_oauth2_server
+createdb -U go_microservice_example go_oauth2_server
 ```
 
 Set environment variables to match your database connection details.
