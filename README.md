@@ -1,12 +1,10 @@
-# Go Microservice Example
+# Go OAuth2 Server
 
-A simple Go microservice example.
-
-This example service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3). It can be used as a simple login service.
+This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3). It can be used as a simple login service.
 
 # Index
 
-* [Go Microservice Example](#go-microservice-example)
+* [Go OAuth2 Server](#go-oauth2-server)
 * [Index](#index)
 * [API](#api)
   * [OAuth 2.0](#oauth-20)
@@ -215,9 +213,9 @@ The configuration is done via environment variables. Available variables:
 * `DATABASE_TYPE` (defaults to `postgres`)
 * `DATABASE_HOST` (defaults to `127.0.0.1`)
 * `DATABASE_PORT` (defaults to `5432`)
-* `DATABASE_USER` (defaults to `go_microservice_example`)
+* `DATABASE_USER` (defaults to `go_oauth2_server`)
 * `DATABASE_PASSWORD` (defaults to empty string)
-* `DATABASE_NAME` (defaults to `go_microservice_example`)
+* `DATABASE_NAME` (defaults to `go_oauth2_server`)
 * `ACCESS_TOKEN_LIFETIME` (defaults to `3600` or 1 hour)
 * `REFRESH_TOKEN_LIFETIME` (defaults to `1209600` or 14 days)
 

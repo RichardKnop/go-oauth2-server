@@ -18,9 +18,9 @@ func NewConfig() *Config {
 	viper.SetDefault("database_type", "postgres")
 	viper.SetDefault("database_host", "127.0.0.1")
 	viper.SetDefault("database_port", 5432)
-	viper.SetDefault("database_user", "go_microservice_example")
+	viper.SetDefault("database_user", "go_oauth2_server")
 	viper.SetDefault("database_password", "")
-	viper.SetDefault("database_name", "go_microservice_example")
+	viper.SetDefault("database_name", "go_oauth2_server")
 	viper.SetDefault("access_token_lifetime", 3600)     // 1 hour
 	viper.SetDefault("refresh_token_lifetime", 1209600) // 14 days
 

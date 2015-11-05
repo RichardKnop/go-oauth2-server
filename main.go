@@ -5,19 +5,19 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/RichardKnop/go-microservice-example/api"
-	"github.com/RichardKnop/go-microservice-example/config"
-	"github.com/RichardKnop/go-microservice-example/database"
-	"github.com/RichardKnop/go-microservice-example/migrate"
-	"github.com/RichardKnop/go-microservice-example/oauth2"
+	"github.com/RichardKnop/go-oauth2-server/api"
+	"github.com/RichardKnop/go-oauth2-server/config"
+	"github.com/RichardKnop/go-oauth2-server/database"
+	"github.com/RichardKnop/go-oauth2-server/migrate"
+	"github.com/RichardKnop/go-oauth2-server/oauth2"
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/codegangsta/cli"
 )
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "go-microservice-example"
-	app.Usage = "OAuth 2.0 Go microservice"
+	app.Name = "go-oauth2-server"
+	app.Usage = "OAuth 2.0 Server"
 	app.Author = "Richard Knop"
 	app.Email = "risoknop@gmail.com"
 	app.Version = "0.0.0"

@@ -3,7 +3,7 @@ package database
 import (
 	"fmt"
 
-	"github.com/RichardKnop/go-microservice-example/config"
+	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/jinzhu/gorm"
 	// Drivers
 	_ "github.com/lib/pq"

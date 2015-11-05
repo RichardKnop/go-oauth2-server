@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/RichardKnop/go-microservice-example/config"
+	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/stretchr/testify/assert"
 )
 
