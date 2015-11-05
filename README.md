@@ -169,6 +169,17 @@ curl localhost:8080/api/v1/users \
   }'
 ```
 
+Response:
+
+```json
+{
+  "first_name": "John",
+  "id": 1,
+  "last_name": "Doe",
+  "username": "testusername"
+}
+```
+
 # Development
 
 ## Third Party Libraries
