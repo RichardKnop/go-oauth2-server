@@ -5,8 +5,11 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/RichardKnop/go-microservice-example/api"
+	"github.com/RichardKnop/go-microservice-example/config"
+	"github.com/RichardKnop/go-microservice-example/database"
 	"github.com/RichardKnop/go-microservice-example/migrations"
-	"github.com/RichardKnop/go-microservice-example/service"
+	"github.com/RichardKnop/go-microservice-example/oauth2"
 	"github.com/codegangsta/cli"
 )
 
@@ -18,19 +21,26 @@ func main() {
 	app.Email = "risoknop@gmail.com"
 	app.Version = "0.0.0"
 
+	cnf := config.NewConfig()
+	db, err := database.NewDatabase(cnf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	app.Commands = []cli.Command{
 		{
 			Name:  "migrate",
 			Usage: "run migrations",
 			Action: func(c *cli.Context) {
-				migrations.RunAll()
+				migrations.MigrateAll(db)
 			},
 		},
 		{
 			Name:  "runserver",
 			Usage: "run web server",
 			Action: func(c *cli.Context) {
-				api := service.NewAPI()
+				routes := oauth2.NewRoutes(cnf, db)
+				api := api.NewAPI(routes)
 				log.Print("Listening on port 8080")
 				log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 			},

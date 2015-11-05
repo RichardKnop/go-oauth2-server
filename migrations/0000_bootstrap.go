@@ -4,21 +4,13 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/RichardKnop/go-microservice-example/config"
-	"github.com/RichardKnop/go-microservice-example/database"
+	"github.com/jinzhu/gorm"
 )
 
 // The very first migration creates "migrations" table
 // to keep track of already run database migrations
-func migrate0000() error {
+func migrate0000(db *gorm.DB) error {
 	migrationName := "0000_bootstrap"
-
-	cnf := config.NewConfig()
-
-	db, err := database.NewDatabase(cnf)
-	if err != nil {
-		return fmt.Errorf("Error connecting to database: %s", err)
-	}
 
 	migration := &Migration{}
 	if err := db.LogMode(false).Where(&Migration{Name: migrationName}).First(migration).Error; err != nil {

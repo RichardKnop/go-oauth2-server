@@ -5,7 +5,7 @@ import (
 
 	"github.com/RichardKnop/go-microservice-example/config"
 	"github.com/jinzhu/gorm"
-	// Postgres driver
+	// Drivers
 	_ "github.com/lib/pq"
 )
 
@@ -24,13 +24,10 @@ func NewDatabase(cnf *config.Config) (*gorm.DB, error) {
 			cnf.Database.Password,
 			cnf.Database.DatabaseName,
 		)
-
-		// Failed opening a database connection
 		db, err := gorm.Open(cnf.Database.Type, args)
 		if err != nil {
 			return &db, err
 		}
-
 		return &db, nil
 	}
 
