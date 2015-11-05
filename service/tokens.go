@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/RichardKnop/go-microservice-example/config"
-	"github.com/RichardKnop/go-microservice-example/database"
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/jinzhu/gorm"
 	"github.com/pborman/uuid"
@@ -14,7 +13,7 @@ import (
 )
 
 // Handles all OAuth 2.0 grant types
-func tokensHandler(w rest.ResponseWriter, r *rest.Request) {
+func tokensHandler(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
 	grantType := r.FormValue("grant_type")
 
 	supportedGrantTypes := map[string]bool{
@@ -25,14 +24,6 @@ func tokensHandler(w rest.ResponseWriter, r *rest.Request) {
 
 	if !supportedGrantTypes[grantType] {
 		rest.Error(w, "Invalid grant type", http.StatusBadRequest)
-		return
-	}
-
-	cnf := config.NewConfig()
-
-	db, err := database.NewDatabase(cnf)
-	if err != nil {
-		rest.Error(w, "Error connecting to database", http.StatusInternalServerError)
 		return
 	}
 

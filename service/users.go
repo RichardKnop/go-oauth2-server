@@ -4,24 +4,16 @@ import (
 	"net/http"
 
 	"github.com/RichardKnop/go-microservice-example/config"
-	"github.com/RichardKnop/go-microservice-example/database"
 	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // Registers a new user
-func registerUser(w rest.ResponseWriter, r *rest.Request) {
+func registerUser(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
 	user := User{}
 	if err := r.DecodeJsonPayload(&user); err != nil {
 		rest.Error(w, "Decode JSON error", http.StatusBadRequest)
-		return
-	}
-
-	cnf := config.NewConfig()
-
-	db, err := database.NewDatabase(cnf)
-	if err != nil {
-		rest.Error(w, "Error connecting to database", http.StatusInternalServerError)
 		return
 	}
 
