@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/RichardKnop/go-oauth2-serber.svg?branch=master "Build Status")](https://travis-ci.org/RichardKnop/go-oauth2-server)
+[![Build Status](https://travis-ci.org/RichardKnop/go-oauth2-server.svg?branch=master "Build Status")](https://travis-ci.org/RichardKnop/go-oauth2-server)
 
 # Go OAuth2 Server
 
