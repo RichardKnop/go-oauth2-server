@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/RichardKnop/go-oauth2-serber.svg?branch=master "Build Status")](https://travis-ci.org/RichardKnop/go-oauth2-server)
+
 # Go OAuth2 Server
 
 This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3).
