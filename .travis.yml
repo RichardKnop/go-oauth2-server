@@ -5,8 +5,12 @@ go:
   - 1.4.3
   - 1.5.1
 
+services:
+  - sqlite3
+
 branches:
   only:
     - master
 
-script: make deps && make test
+script:
+  - make install-deps && make test
