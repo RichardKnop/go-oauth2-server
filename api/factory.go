@@ -7,9 +7,9 @@ import (
 )
 
 // NewAPI - returns new *rest.Api with routes
-func NewAPI(routes []*rest.Route) *rest.Api {
+func NewAPI(stack []rest.Middleware, routes []*rest.Route) *rest.Api {
 	api := rest.NewApi()
-	api.Use(rest.DefaultDevStack...)
+	api.Use(stack...)
 	router, err := rest.MakeRouter(routes...)
 	if err != nil {
 		log.Fatal(err)

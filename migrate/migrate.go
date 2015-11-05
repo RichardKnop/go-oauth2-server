@@ -15,13 +15,13 @@ type Migration struct {
 	CreatedAt time.Time
 }
 
-// Bootstrap executes the very first migration creates "migrations" table
+// Bootstrap creates "migrations" table
 // to keep track of already run database migrations
 func Bootstrap(db *gorm.DB) error {
 	migrationName := "0000_bootstrap"
 
-	migration := &Migration{}
-	if err := db.LogMode(false).Where(&Migration{Name: migrationName}).First(migration).Error; err != nil {
+	migration := Migration{}
+	if err := db.LogMode(false).Where(&Migration{Name: migrationName}).First(&migration).Error; err != nil {
 		log.Printf("Running %s migration", migrationName)
 
 		// Create migrations table

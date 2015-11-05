@@ -24,10 +24,12 @@ func NewDatabase(cnf *config.Config) (*gorm.DB, error) {
 			cnf.Database.Password,
 			cnf.Database.DatabaseName,
 		)
+
 		db, err := gorm.Open(cnf.Database.Type, args)
 		if err != nil {
 			return &db, err
 		}
+
 		return &db, nil
 	}
 

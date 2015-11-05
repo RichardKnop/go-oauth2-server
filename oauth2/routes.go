@@ -10,7 +10,7 @@ import (
 func NewRoutes(cnf *config.Config, db *gorm.DB) []*rest.Route {
 	return []*rest.Route{
 		rest.Post("/api/v1/users", func(w rest.ResponseWriter, r *rest.Request) {
-			registerUser(w, r, cnf, db)
+			register(w, r, cnf, db)
 		}),
 		rest.Post("/api/v1/tokens", func(w rest.ResponseWriter, r *rest.Request) {
 			tokensHandler(w, r, cnf, db)

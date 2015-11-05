@@ -10,6 +10,7 @@ import (
 	"github.com/RichardKnop/go-microservice-example/database"
 	"github.com/RichardKnop/go-microservice-example/migrate"
 	"github.com/RichardKnop/go-microservice-example/oauth2"
+	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/codegangsta/cli"
 )
 
@@ -45,7 +46,10 @@ func main() {
 			Usage: "run web server",
 			Action: func(c *cli.Context) {
 				routes := oauth2.NewRoutes(cnf, db)
-				api := api.NewAPI(routes)
+				api := api.NewAPI(
+					rest.DefaultProdStack,
+					routes,
+				)
 				log.Print("Listening on port 8080")
 				log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 			},

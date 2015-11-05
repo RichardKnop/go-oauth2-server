@@ -20,9 +20,11 @@ type Scope struct {
 
 // User ...
 type User struct {
-	ID       int
-	Username string `sql:"type:varchar(254);unique;not null"`
-	Password string `sql:"type:varchar(60);not null"`
+	ID        int
+	Username  string `sql:"type:varchar(254);unique;not null"`
+	Password  string `sql:"type:varchar(60);not null"`
+	FirstName string `sql:"type:varchar(254);unique;not null"`
+	LastName  string `sql:"type:varchar(254);unique;not null"`
 }
 
 // RefreshToken ...

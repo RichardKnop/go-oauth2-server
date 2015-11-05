@@ -21,8 +21,8 @@ func MigrateAll(db *gorm.DB) error {
 func migrate0001(db *gorm.DB) error {
 	migrationName := "0001_initial"
 
-	migration := &migrate.Migration{}
-	if err := db.Table("access_token_scopes").Where("name = ?", migrationName).First(migration).Error; err != nil {
+	migration := migrate.Migration{}
+	if err := db.Where(&migrate.Migration{Name: migrationName}).First(&migration).Error; err != nil {
 		log.Printf("Running %s migration", migrationName)
 
 		// Create clients table
