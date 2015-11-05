@@ -9,14 +9,15 @@ This example service implements [OAuth 2.0 specification](http://tools.ietf.org/
 * [Go Microservice Example](#go-microservice-example)
 * [Index](#index)
 * [API](#api)
-  * [Grant Types](#grant-types)
-    * [Authorization Code](#authorization-code)
-    * [Implicit](#implicit)
-    * [User Credentials](#user-credentials)
-    * [Client Credentials](#client-credentials)
-  * [Refreshing Token](#refreshing-token)
-  * [Scope](#scope)
-  * [Authentication](#authorization)
+  * [OAuth 2.0](#oauth-2.0)
+    * [Grant Types](#grant-types)
+      * [Authorization Code](#authorization-code)
+      * [Implicit](#implicit)
+      * [User Credentials](#user-credentials)
+      * [Client Credentials](#client-credentials)
+    * [Refreshing Token](#refreshing-token)
+    * [Scope](#scope)
+    * [Authentication](#authorization)
   * [Users](#users)
 * [Development](#development)
   * [Third Party Libraries](#third-party-libraries)
@@ -27,21 +28,23 @@ This example service implements [OAuth 2.0 specification](http://tools.ietf.org/
 
 # API
 
-## Grant Types
+## OAuth 2.0
 
-### Authorization Code
+### Grant Types
+
+#### Authorization Code
 
 http://tools.ietf.org/html/rfc6749#section-4.1
 
 TODO
 
-### Implicit
+#### Implicit
 
 http://tools.ietf.org/html/rfc6749#section-4.2
 
 TODO
 
-### User Credentials
+#### User Credentials
 
 http://tools.ietf.org/html/rfc6749#section-4.3
 
@@ -76,7 +79,7 @@ You should get a response like:
 }
 ```
 
-### Client Credentials
+#### Client Credentials
 
 http://tools.ietf.org/html/rfc6749#section-4.4
 
@@ -111,7 +114,7 @@ You should get a response like:
 }
 ```
 
-## Refreshing Token
+### Refreshing Token
 
 http://tools.ietf.org/html/rfc6749#section-6
 
@@ -136,7 +139,7 @@ And you get a new access token:
 }
 ```
 
-## Scope
+### Scope
 
 http://tools.ietf.org/html/rfc6749#section-3.3
 
@@ -144,7 +147,7 @@ Scope is quite arbitrary. Basically it is a space delimited case-sensitive strin
 
 You can define your scopes and insert them into scopes table, is_default flag can be used to specify default scope.
 
-## Authentication
+### Authentication
 
 TODO
 
