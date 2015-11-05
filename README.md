@@ -1,6 +1,6 @@
 # Go OAuth2 Server
 
-This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3). It can be used as a simple login service.
+This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3).
 
 # Index
 
