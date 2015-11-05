@@ -14,7 +14,7 @@ import (
 func register(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
 	user := User{}
 	if err := r.DecodeJsonPayload(&user); err != nil {
-		rest.Error(w, "Unmarshal error", http.StatusBadRequest)
+		rest.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

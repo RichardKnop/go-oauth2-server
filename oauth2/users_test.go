@@ -12,12 +12,12 @@ import (
 func (suite *TestSuite) TestRegisterUsernameRequired() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/api/v1/users",
-		[]byte(`{
-			"username": "",
-			"password": "testpassword",
+		map[string]interface{}{
+			"username":   "",
+			"password":   "testpassword",
 			"first_name": "John",
-			"last_name": "Doe"
-		}`),
+			"last_name":  "Doe",
+		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
@@ -40,12 +40,12 @@ func (suite *TestSuite) TestRegisterUsernameRequired() {
 func (suite *TestSuite) TestRegisterPasswordRequired() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/api/v1/users",
-		[]byte(`{
-			"username": "testusername",
-			"password": "",
+		map[string]interface{}{
+			"username":   "testusername",
+			"password":   "",
 			"first_name": "John",
-			"last_name": "Doe"
-		}`),
+			"last_name":  "Doe",
+		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
@@ -68,12 +68,12 @@ func (suite *TestSuite) TestRegisterPasswordRequired() {
 func (suite *TestSuite) TestRegisterFirstNameRequired() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/api/v1/users",
-		[]byte(`{
-			"username": "testusername",
-			"password": "testpassword",
+		map[string]interface{}{
+			"username":   "testusername",
+			"password":   "testpassword",
 			"first_name": "",
-			"last_name": "Doe"
-		}`),
+			"last_name":  "Doe",
+		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
@@ -96,12 +96,12 @@ func (suite *TestSuite) TestRegisterFirstNameRequired() {
 func (suite *TestSuite) TestRegisterLastNameNameRequired() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/api/v1/users",
-		[]byte(`{
-			"username": "testusername",
-			"password": "testpassword",
+		map[string]interface{}{
+			"username":   "testusername",
+			"password":   "testpassword",
 			"first_name": "John",
-			"last_name": ""
-		}`),
+			"last_name":  "",
+		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
@@ -124,12 +124,12 @@ func (suite *TestSuite) TestRegisterLastNameNameRequired() {
 func (suite *TestSuite) TestRegister() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/api/v1/users",
-		[]byte(`{
-			"username": "testusername",
-			"password": "testpassword",
+		map[string]interface{}{
+			"username":   "testusername",
+			"password":   "testpassword",
 			"first_name": "John",
-			"last_name": "Doe"
-		}`),
+			"last_name":  "Doe",
+		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
@@ -173,7 +173,7 @@ func (suite *TestSuite) TestRegister() {
 func (suite *TestSuite) TestRegisterUsernameAlreadyTaken() {
 	if err := suite.DB.Create(&User{
 		Username:  "testUSERname",
-		Password:  "doesn't matter",
+		Password:  "doesn't matter doesn't matter doesn't matter doesn't matter doesn't matter doesn't matter doesn't matter",
 		FirstName: "doesn't matter",
 		LastName:  "doesn't matter",
 	}).Error; err != nil {
@@ -182,12 +182,12 @@ func (suite *TestSuite) TestRegisterUsernameAlreadyTaken() {
 
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/api/v1/users",
-		[]byte(`{
-			"username": "testusername",
-			"password": "testpassword",
+		map[string]interface{}{
+			"username":   "testusername",
+			"password":   "testpassword",
 			"first_name": "John",
-			"last_name": "Doe"
-		}`),
+			"last_name":  "Doe",
+		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 

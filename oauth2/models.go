@@ -23,9 +23,9 @@ type Scope struct {
 
 // User ...
 type User struct {
-	ID        int    `json:"id"`
-	Username  string `sql:"type:varchar(254);unique;not null" json:"username"`
-	Password  string `sql:"type:varchar(60);not null" json:"password"`
+	ID        int
+	Username  string `sql:"type:varchar(254);unique;not null"`
+	Password  string `sql:"type:varchar(60);not null"`
 	FirstName string `sql:"type:varchar(254);unique;not null" json:"first_name"`
 	LastName  string `sql:"type:varchar(254);unique;not null" json:"last_name"`
 }
