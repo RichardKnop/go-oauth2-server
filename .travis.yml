@@ -17,4 +17,4 @@ before_script:
   - curl -L http://127.0.0.1:4001/v2/keys/config/go_oauth2_server.json -XPUT -d value='{"AccessTokenLifetime":3600,"RefreshTokenLifetime":1209600}'
 
 script:
-  - make install-deps && make test
+  - make test
