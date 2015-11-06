@@ -56,7 +56,7 @@ http://tools.ietf.org/html/rfc6749#section-4.3
 Given you have a username and password, you can get a new access token.
 
 ```
-$ curl localhost:8080/oauth2/api/v1/tokens
+$ curl localhost:8080/oauth2/api/v1/tokens \
   -u test_client_id:test_client_password \
   -d "grant_type=password" \
   -d "username=test_username" \
