@@ -35,5 +35,22 @@ func scopeExists(db *gorm.DB, scope string) bool {
 
 // Returns true if a new scope DOES NOT include anything not in the old one
 func scopeNotGreater(newScope, oldScope string) bool {
+	newScopes := strings.Split(newScope, " ")
+	oldScopes := strings.Split(oldScope, " ")
+	for _, newScope := range newScopes {
+		if !stringInSlice(newScope, oldScopes) {
+			return false
+		}
+	}
+	return true
+}
+
+// Helpful function similar to "x in y" Python construct
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
 	return false
 }
