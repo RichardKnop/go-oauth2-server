@@ -7,12 +7,12 @@ type DatabaseConfig struct {
 	Port         int
 	User         string
 	Password     string
-	DatabaseName string
+	DatabaseName string `json:"database_name"`
 }
 
 // Config stores configuration options
 type Config struct {
 	Database             DatabaseConfig
-	AccessTokenLifetime  int
-	RefreshTokenLifetime int
+	AccessTokenLifetime  int `json:"access_token_lifetime"`
+	RefreshTokenLifetime int `json:"refresh_token_lifetime"`
 }
