@@ -2,7 +2,6 @@ package oauth2
 
 import (
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/RichardKnop/go-oauth2-server/api"
@@ -56,12 +55,12 @@ func password(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *go
 		return
 	}
 
-	grantAccessToken(w, cnf, db, client, user)
+	grantAccessToken(w, cnf, db, client, user, r.FormValue("scope"))
 }
 
 // Grants client credentials access token
 func clientCredentials(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
-	grantAccessToken(w, cnf, db, client, nil)
+	grantAccessToken(w, cnf, db, client, nil, r.FormValue("scope"))
 }
 
 // Refreshes access token
@@ -85,22 +84,32 @@ func refreshToken(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db
 		return
 	}
 
+	requestedScope := r.FormValue("scope")
+	// Requested scope CANNOT include any scope not originally granted
+	if !scopeNotGreater(requestedScope, accessToken.Scope) {
+		api.Error(w, "Invalid scope", http.StatusBadGateway)
+		return
+	}
+
 	// Delete old access / refresh token
 	db.Delete(&refreshToken)
 	db.Delete(&accessToken)
 
-	grantAccessToken(w, cnf, db, &accessToken.Client, &accessToken.User)
+	grantAccessToken(w, cnf, db, &accessToken.Client, &accessToken.User, requestedScope)
 }
 
 // Creates acess token with refresh token (always inside a transaction)
-func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, client *Client, user *User) {
-	var scopes []string
-	db.Model(&Scope{}).Where(&Scope{IsDefault: true}).Pluck("scope", &scopes)
+func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, client *Client, user *User, requestedScope string) {
+	scope, err := getScope(db, requestedScope)
+	if err != nil {
+		api.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	accessToken := AccessToken{
 		AccessToken: uuid.New(),
 		ExpiresAt:   time.Now().Add(time.Duration(cnf.AccessTokenLifetime) * time.Second),
-		Scope:       strings.Join(scopes, " "),
+		Scope:       scope,
 		Client:      *client,
 		RefreshToken: RefreshToken{
 			RefreshToken: uuid.New(),
