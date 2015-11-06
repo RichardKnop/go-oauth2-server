@@ -13,17 +13,9 @@ branches:
   only:
     - master
 
-before_script::
+before_script: |
   - etcdctl mkdir /config
   - etcdctl set /config/go_oauth2_server.json '{
-      "Database": {
-          "Type": "postgres",
-          "Host": "127.0.0.1",
-          "Port": 5432,
-          "User": "go_oauth2_server",
-          "Password": "",
-          "DatabaseName": "go_oauth2_server"
-      },
       "AccessTokenLifetime": 3600,
       "RefreshTokenLifetime": 1209600
   }'
