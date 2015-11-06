@@ -102,11 +102,12 @@ func (suite *TestSuite) SetupTest() {
 // The TearDownTest method will be run after every test in the suite.
 func (suite *TestSuite) TearDownTest() {
 	// Empty all the tables
-	suite.DB.Delete(Client{})
-	suite.DB.Delete(Scope{})
-	suite.DB.Delete(User{})
+	suite.DB.Delete(AccessToken{})
 	suite.DB.Delete(RefreshToken{})
 	suite.DB.Delete(AuthCode{})
+	suite.DB.Delete(Scope{})
+	suite.DB.Delete(User{})
+	suite.DB.Delete(Client{})
 }
 
 // TestTestSuite ...

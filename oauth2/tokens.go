@@ -124,6 +124,8 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 		return
 	}
 
+	// TODO - should we delete old access tokens for this client / user?
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteJson(map[string]interface{}{
 		"id":            accessToken.ID,
