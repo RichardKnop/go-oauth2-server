@@ -24,8 +24,7 @@ func register(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *go
 		return
 	}
 
-	// Case insensitive search, usernames will probably be emails and
-	// foo@bar.com is identical to FOO@BAR.com
+	// Username are case insensitive
 	if db.Where("LOWER(username) = LOWER(?)", user.Username).First(&User{}).RowsAffected > 0 {
 		api.Error(w, fmt.Sprintf("%s already taken", user.Username), http.StatusBadRequest)
 		return

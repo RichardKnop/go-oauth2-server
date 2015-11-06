@@ -4,6 +4,8 @@ import (
 	"log"
 	"testing"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/RichardKnop/go-oauth2-server/api"
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/migrate"
@@ -39,6 +41,22 @@ func (suite *TestSuite) SetupTest() {
 			NewRoutes(config.NewConfig(), suite.DB),
 		)
 	}
+
+	// Insert test client
+	clientSecretHash, _ := bcrypt.GenerateFromPassword([]byte("test_client_secret"), 3)
+	suite.DB.Create(&Client{
+		ClientID: "test_client_id",
+		Password: string(clientSecretHash),
+	})
+
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte("test_password"), 3)
+	// Insert test user
+	suite.DB.Create(&User{
+		Username:  "test_username",
+		Password:  string(passwordHash),
+		FirstName: "John",
+		LastName:  "Doe",
+	})
 }
 
 // TearDown truncates all tables

@@ -10,83 +10,62 @@ import (
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/jinzhu/gorm"
 	"github.com/pborman/uuid"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // Handles all OAuth 2.0 grant types
 func tokens(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
-	grantType := r.FormValue("grant_type")
-
-	supportedGrantTypes := map[string]bool{
-		"client_credentials": true,
-		"password":           true,
-		"refresh_token":      true,
-	}
-
-	if !supportedGrantTypes[grantType] {
+	// Check grant type
+	if !checkGrantType(r) {
 		api.Error(w, "Invalid grant type", http.StatusBadRequest)
 		return
 	}
 
-	if grantType == "password" {
-		password(w, r, cnf, db)
+	// Client authentication required
+	client, err := authClient(r, db)
+	if err != nil {
+		api.UnauthorizedError(w, err.Error())
+		return
 	}
 
-	if grantType == "client_credentials" {
-		clientCredentials(w, r, cnf, db)
+	grants := map[string]func(){
+		"password":           func() { password(w, r, cnf, db, client) },
+		"client_credentials": func() { clientCredentials(w, r, cnf, db, client) },
+		"refresh_token":      func() { refreshToken(w, r, cnf, db, client) },
 	}
+	grants[r.FormValue("grant_type")]()
+}
 
-	if grantType == "refresh_token" {
-		refreshToken(w, r, cnf, db)
+// Checks grant type parameter from posted form data
+func checkGrantType(r *rest.Request) bool {
+	grantTypes := map[string]bool{
+		// "authorization_code": true,
+		// "implicit":           true,
+		"password":           true,
+		"client_credentials": true,
+		"refresh_token":      true,
 	}
+	return grantTypes[r.FormValue("grant_type")]
 }
 
 // Grants user credentials access token
-func password(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
-	username, password, ok := r.BasicAuth()
-	if !ok {
-		username = r.FormValue("username")
-		password = r.FormValue("password")
-	}
-
-	user := User{}
-	if db.Where(&User{Username: username}).First(&user).RecordNotFound() {
-		api.UnauthorizedError(w)
+func password(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
+	// User authentication required
+	user, err := authUser(r, db)
+	if err != nil {
+		api.UnauthorizedError(w, err.Error())
 		return
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		api.UnauthorizedError(w)
-		return
-	}
-
-	grantAccessToken(w, cnf, db, -1, user.ID)
+	grantAccessToken(w, cnf, db, client.ID, user.ID)
 }
 
 // Grants client credentials access token
-func clientCredentials(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
-	clientID, clientSecret, ok := r.BasicAuth()
-	if !ok {
-		clientID = r.FormValue("client_id")
-		clientSecret = r.FormValue("client_secret")
-	}
-
-	client := Client{}
-	if db.Where(&Client{ClientID: clientID}).First(&client).RecordNotFound() {
-		api.UnauthorizedError(w)
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(client.Password), []byte(clientSecret)); err != nil {
-		api.UnauthorizedError(w)
-		return
-	}
-
+func clientCredentials(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
 	grantAccessToken(w, cnf, db, client.ID, -1)
 }
 
 // Refreshes access token
-func refreshToken(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
+func refreshToken(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
 	token := r.FormValue("refresh_token")
 
 	refreshToken := RefreshToken{}
@@ -102,11 +81,13 @@ func refreshToken(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db
 
 	accessToken := AccessToken{}
 	if db.Where(&AccessToken{RefreshTokenID: refreshToken.ID}).First(&accessToken).RecordNotFound() {
-		api.Error(w, "Access token with refresh token not found", http.StatusBadGateway)
+		api.Error(w, "Access token not found", http.StatusBadGateway)
 		return
 	}
 
-	// delete old access / refresh token?
+	// Delete old access / refresh token
+	db.Delete(&refreshToken)
+	db.Delete(&accessToken)
 
 	grantAccessToken(w, cnf, db, accessToken.ClientID, accessToken.UserID)
 }
@@ -132,10 +113,8 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 		AccessToken:    uuid.New(),
 		ExpiresAt:      time.Now().Add(time.Duration(cnf.AccessTokenLifetime) * time.Second),
 		Scope:          strings.Join(scopes, " "),
+		ClientID:       clientID,
 		RefreshTokenID: refreshToken.ID,
-	}
-	if clientID > 0 {
-		accessToken.ClientID = clientID
 	}
 	if userID > 0 {
 		accessToken.UserID = userID

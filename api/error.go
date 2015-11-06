@@ -19,8 +19,8 @@ func Error(w rest.ResponseWriter, error string, code int) {
 
 // UnauthorizedError has to contain WWW-Authenticate header
 // See http://self-issued.info/docs/draft-ietf-oauth-v2-bearer.html#rfc.section.3
-func UnauthorizedError(w rest.ResponseWriter) {
+func UnauthorizedError(w rest.ResponseWriter, err string) {
 	// TODO - include error if the request contained an access token
 	w.Header().Set("WWW-Authenticate", "Bearer realm=areatech_api")
-	Error(w, "Unautorized", http.StatusUnauthorized)
+	Error(w, err, http.StatusUnauthorized)
 }
