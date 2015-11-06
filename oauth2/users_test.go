@@ -154,8 +154,8 @@ func (suite *TestSuite) TestRegister() {
 		map[string]interface{}{
 			"username":   "test_username_2",
 			"password":   "test_password_2",
-			"first_name": "John",
-			"last_name":  "Doe",
+			"first_name": "Harold",
+			"last_name":  "Finch",
 		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
@@ -167,20 +167,6 @@ func (suite *TestSuite) TestRegister() {
 		recorded.Recorder.Code, "Status code should be 200",
 	)
 
-	// Response body
-	expected, _ := json.Marshal(map[string]interface{}{
-		"id":         2,
-		"username":   "test_username_2",
-		"first_name": "John",
-		"last_name":  "Doe",
-	})
-	assert.Equal(
-		suite.T(),
-		string(expected),
-		recorded.Recorder.Body.String(),
-		"Response body should be expected user object",
-	)
-
 	// User record was inserted
 	user := User{}
 	assert.Equal(
@@ -188,6 +174,20 @@ func (suite *TestSuite) TestRegister() {
 		false,
 		suite.DB.Where("LOWER(username) = LOWER(?)", "test_username_2").First(&user).RecordNotFound(),
 		"User should be in the database",
+	)
+
+	// Response body
+	expected, _ := json.Marshal(map[string]interface{}{
+		"id":         user.ID,
+		"username":   "test_username_2",
+		"first_name": "Harold",
+		"last_name":  "Finch",
+	})
+	assert.Equal(
+		suite.T(),
+		string(expected),
+		recorded.Recorder.Body.String(),
+		"Response body should be expected user object",
 	)
 
 	// Password properly hashed

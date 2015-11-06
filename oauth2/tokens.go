@@ -21,7 +21,7 @@ func tokens(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm
 	}
 
 	// Client authentication required
-	client, err := authClient(r, db)
+	client, err := authClient(r.Request, db)
 	if err != nil {
 		api.UnauthorizedError(w, err.Error())
 		return
@@ -50,18 +50,18 @@ func checkGrantType(r *rest.Request) bool {
 // Grants user credentials access token
 func password(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
 	// User authentication required
-	user, err := authUser(r, db)
+	user, err := authUser(r.Request, db)
 	if err != nil {
 		api.UnauthorizedError(w, err.Error())
 		return
 	}
 
-	grantAccessToken(w, cnf, db, client.ID, user.ID)
+	grantAccessToken(w, cnf, db, client, user)
 }
 
 // Grants client credentials access token
 func clientCredentials(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
-	grantAccessToken(w, cnf, db, client.ID, -1)
+	grantAccessToken(w, cnf, db, client, nil)
 }
 
 // Refreshes access token
@@ -80,7 +80,7 @@ func refreshToken(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db
 	}
 
 	accessToken := AccessToken{}
-	if db.Where(&AccessToken{RefreshTokenID: refreshToken.ID}).First(&accessToken).RecordNotFound() {
+	if db.Model(&accessToken).Related(&refreshToken).RecordNotFound() {
 		api.Error(w, "Access token not found", http.StatusBadGateway)
 		return
 	}
@@ -89,43 +89,31 @@ func refreshToken(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db
 	db.Delete(&refreshToken)
 	db.Delete(&accessToken)
 
-	grantAccessToken(w, cnf, db, accessToken.ClientID, accessToken.UserID)
+	grantAccessToken(w, cnf, db, &accessToken.Client, &accessToken.User)
 }
 
 // Creates acess token with refresh token (always inside a transaction)
-func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, clientID, userID int) {
-	tx := db.Begin()
-
-	refreshToken := RefreshToken{
-		RefreshToken: uuid.New(),
-		ExpiresAt:    time.Now().Add(time.Duration(cnf.RefreshTokenLifetime) * time.Second),
-	}
-	if err := tx.Create(&refreshToken).Error; err != nil {
-		tx.Rollback()
-		api.Error(w, "Error saving refresh token", http.StatusInternalServerError)
-		return
-	}
-
+func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, client *Client, user *User) {
 	var scopes []string
 	db.Model(&Scope{}).Where(&Scope{IsDefault: true}).Pluck("scope", &scopes)
 
 	accessToken := AccessToken{
-		AccessToken:    uuid.New(),
-		ExpiresAt:      time.Now().Add(time.Duration(cnf.AccessTokenLifetime) * time.Second),
-		Scope:          strings.Join(scopes, " "),
-		ClientID:       clientID,
-		RefreshTokenID: refreshToken.ID,
+		AccessToken: uuid.New(),
+		ExpiresAt:   time.Now().Add(time.Duration(cnf.AccessTokenLifetime) * time.Second),
+		Scope:       strings.Join(scopes, " "),
+		Client:      *client,
+		RefreshToken: RefreshToken{
+			RefreshToken: uuid.New(),
+			ExpiresAt:    time.Now().Add(time.Duration(cnf.RefreshTokenLifetime) * time.Second),
+		},
 	}
-	if userID > 0 {
-		accessToken.UserID = userID
+	if user != nil {
+		accessToken.User = *user
 	}
-	if err := tx.Create(&accessToken).Error; err != nil {
-		tx.Rollback()
+	if err := db.Create(&accessToken).Error; err != nil {
 		api.Error(w, "Error saving access token", http.StatusInternalServerError)
 		return
 	}
-
-	tx.Commit()
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteJson(map[string]interface{}{
@@ -134,6 +122,6 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 		"expires_in":    cnf.AccessTokenLifetime,
 		"token_type":    "Bearer",
 		"scope":         accessToken.Scope,
-		"refresh_token": refreshToken.RefreshToken,
+		"refresh_token": accessToken.RefreshToken.RefreshToken,
 	})
 }

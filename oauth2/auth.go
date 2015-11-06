@@ -2,14 +2,14 @@ package oauth2
 
 import (
 	"errors"
+	"net/http"
 
-	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
 
 // Checks client credentials from basic HTTP authentication
-func authClient(r *rest.Request, db *gorm.DB) (*Client, error) {
+func authClient(r *http.Request, db *gorm.DB) (*Client, error) {
 	clientID, clientSecret, ok := r.BasicAuth()
 	if !ok {
 		return nil, errors.New("Client authentication required")
@@ -29,7 +29,7 @@ func authClient(r *rest.Request, db *gorm.DB) (*Client, error) {
 }
 
 // Checks user credentials from posted form data
-func authUser(r *rest.Request, db *gorm.DB) (*User, error) {
+func authUser(r *http.Request, db *gorm.DB) (*User, error) {
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 

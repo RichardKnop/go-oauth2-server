@@ -43,12 +43,12 @@ type AccessToken struct {
 	AccessToken    string    `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt      time.Time `sql:"not null"`
 	Scope          string    `sql:"type:varchar(200);not null"`
-	ClientID       int       `sql:"index"`
-	UserID         int       `sql:"index"`
-	RefreshTokenID int       `sql:"index"`
 	Client         Client
+	ClientID       int `sql:"index;not null"`
 	User           User
+	UserID         int `sql:"index"`
 	RefreshToken   RefreshToken
+	RefreshTokenID int `sql:"index"`
 }
 
 // AuthCode ...
@@ -58,10 +58,10 @@ type AuthCode struct {
 	RedirectURI string    `sql:"type:varchar(200)"`
 	ExpiresAt   time.Time `sql:"not null"`
 	Scope       string    `sql:"type:varchar(200);not null"`
-	ClientID    int       `sql:"index;not null"`
-	UserID      int       `sql:"index"`
 	Client      Client
+	ClientID    int `sql:"index;not null"`
 	User        User
+	UserID      int `sql:"index"`
 }
 
 // Validate validates user data
