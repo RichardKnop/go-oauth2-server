@@ -80,12 +80,20 @@ func (suite *TestSuite) SetupTest() {
 
 	// Insert test scopes
 	if err := suite.DB.Create(&Scope{
-		Scope: "foo",
+		Scope:     "foo",
+		IsDefault: true,
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
 	if err := suite.DB.Create(&Scope{
-		Scope: "bar",
+		Scope:     "bar",
+		IsDefault: true,
+	}).Error; err != nil {
+		log.Fatal(err)
+	}
+	if err := suite.DB.Create(&Scope{
+		Scope:     "qux",
+		IsDefault: false,
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
