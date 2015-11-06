@@ -9,14 +9,25 @@ import (
 	_ "github.com/spf13/viper/remote"
 )
 
-var cnf *Config
+// Let's start with sensible defaults
+var cnf = &Config{
+	Database: DatabaseConfig{
+		Type:         "postgres",
+		Host:         "127.0.0.1",
+		Port:         5432,
+		User:         "go_oauth2_server",
+		Password:     "",
+		DatabaseName: "go_oauth2_server",
+	},
+	AccessTokenLifetime:  3600,
+	RefreshTokenLifetime: 1209600,
+}
+var configLoaded bool
 
 // NewConfig loads configuration from etcd and returns *Config struct
 // It also starts a goroutine in the background to keep config up-to-date
 func NewConfig() *Config {
-	if cnf != nil {
-		log.Print("AAAAAAA")
-		log.Print(cnf)
+	if configLoaded {
 		return cnf
 	}
 
@@ -31,11 +42,10 @@ func NewConfig() *Config {
 
 	// Read from remote config the first time.
 	if err := runtimeViper.ReadRemoteConfig(); err != nil {
-		log.Fatal(err)
+		log.Printf("Unable to read remote config: %v", err)
+	} else {
+		runtimeViper.Unmarshal(&cnf)
 	}
-
-	// Unmarshal config
-	runtimeViper.Unmarshal(&cnf)
 
 	// Open a goroutine to watch remote changes forever
 	go func() {
@@ -53,7 +63,6 @@ func NewConfig() *Config {
 		}
 	}()
 
-	log.Print("BBBBBBB")
-	log.Print(cnf)
+	configLoaded = true
 	return cnf
 }
