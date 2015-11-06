@@ -16,9 +16,18 @@
 			"Rev": "2af9d0034afcd83101abb1945f2a65ddbd563719"
 		},
 		{
+			"ImportPath": "github.com/armon/consul-api",
+			"Rev": "dcfedd50ed5334f96adee43fc88518a4f095e15c"
+		},
+		{
 			"ImportPath": "github.com/codegangsta/cli",
 			"Comment": "1.2.0-62-gbf4a526",
 			"Rev": "bf4a526f48af7badd25d2cb02d587e1b01be3b50"
+		},
+		{
+			"ImportPath": "github.com/coreos/go-etcd/etcd",
+			"Comment": "v2.0.0-38-g003851b",
+			"Rev": "003851be7bb0694fe3cc457a49529a19388ee7cf"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
@@ -81,11 +90,48 @@
 			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
 		},
 		{
+			"ImportPath": "github.com/stretchr/testify/require",
+			"Comment": "v1.0-17-g089c718",
+			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/suite",
+			"Comment": "v1.0-17-g089c718",
+			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
+		},
+		{
+			"ImportPath": "github.com/ugorji/go/codec",
+			"Rev": "f1f1a805ed361a0e078bb537e4ea78cd37dcf065"
+		},
+		{
+			"ImportPath": "github.com/xordataexchange/crypt/backend",
+			"Comment": "v0.0.2-17-g749e360",
+			"Rev": "749e360c8f236773f28fc6d3ddfce4a470795227"
+		},
+		{
+			"ImportPath": "github.com/xordataexchange/crypt/config",
+			"Comment": "v0.0.2-17-g749e360",
+			"Rev": "749e360c8f236773f28fc6d3ddfce4a470795227"
+		},
+		{
+			"ImportPath": "github.com/xordataexchange/crypt/encoding/secconf",
+			"Comment": "v0.0.2-17-g749e360",
+			"Rev": "749e360c8f236773f28fc6d3ddfce4a470795227"
+		},
+		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
 			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/blowfish",
+			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/cast5",
+			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
+		},
+		{
+			"ImportPath": "golang.org/x/crypto/openpgp",
 			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
 		},
 		{
