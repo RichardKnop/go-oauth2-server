@@ -125,14 +125,14 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 		return
 	}
 
-	var scopes []Scope
-	db.Where(&Scope{IsDefault: true}).Find(&scopes)
+	var scopes []string
+	db.Model(&Scope{}).Where(&Scope{IsDefault: true}).Pluck("scope", &scopes)
 
 	accessToken := AccessToken{
 		AccessToken:    uuid.New(),
 		ExpiresAt:      time.Now().Add(time.Duration(cnf.AccessTokenLifetime) * time.Second),
+		Scope:          strings.Join(scopes, " "),
 		RefreshTokenID: refreshToken.ID,
-		Scopes:         scopes,
 	}
 	if clientID > 0 {
 		accessToken.ClientID = clientID
@@ -148,18 +148,13 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 
 	tx.Commit()
 
-	scopeStrings := make([]string, len(accessToken.Scopes))
-	for _, scope := range accessToken.Scopes {
-		scopeStrings = append(scopeStrings, scope.Scope)
-	}
-
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteJson(map[string]interface{}{
 		"id":            accessToken.ID,
 		"access_token":  accessToken.AccessToken,
 		"expires_in":    cnf.AccessTokenLifetime,
 		"token_type":    "Bearer",
-		"scope":         strings.Join(scopeStrings, " "),
+		"scope":         accessToken.Scope,
 		"refresh_token": refreshToken.RefreshToken,
 	})
 }

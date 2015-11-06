@@ -172,8 +172,9 @@ func (suite *TestSuite) TestRegister() {
 
 func (suite *TestSuite) TestRegisterUsernameAlreadyTaken() {
 	if err := suite.DB.Create(&User{
-		Username:  "testUSERname",
-		Password:  "doesn't matter doesn't matter doesn't matter doesn't matter doesn't matter doesn't matter doesn't matter",
+		Username: "testUSERname", // test case insensitivity of usernames
+		Password: "doesn't matter doesn't matter doesn't matter doesn't matter " +
+			"doesn't matter doesn't matter doesn't matter",
 		FirstName: "doesn't matter",
 		LastName:  "doesn't matter",
 	}).Error; err != nil {
