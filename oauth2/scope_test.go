@@ -6,6 +6,29 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func (suite *TestSuite) TestGetScope() {
+	scope, err := getScope(suite.DB, "")
+	assert.Nil(suite.T(), err)
+	assert.Equal(
+		suite.T(),
+		"foo bar", scope,
+		"Should return \"foo bar\"",
+	)
+
+	scope, err = getScope(suite.DB, "foo bar qux")
+	assert.Nil(suite.T(), err)
+	assert.Equal(
+		suite.T(),
+		"foo bar qux", scope,
+		"Should return \"foo bar qux\"",
+	)
+
+	scope, err = getScope(suite.DB, "foo bar bogus")
+	if assert.NotNil(suite.T(), err) {
+		assert.Equal(suite.T(), "Invalid scope", err.Error())
+	}
+}
+
 func (suite *TestSuite) TestScopeExists() {
 	assert.Equal(
 		suite.T(),
