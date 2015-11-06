@@ -59,9 +59,9 @@ Given you have a username and password, you can get a new access token.
 
 ```
 $ curl -u test_client_id:test_client_secret localhost:8080/oauth2/api/v1/tokens
-  -d 'grant_type=password' \
+  -d "grant_type=password" \
   -d "username=test_username" \
-  -d "password=test_password' \
+  -d "password=test_password" \
   -d "scope=read_write"
 ```
 
@@ -86,7 +86,7 @@ Given you have a client ID and secret, you can get a new access token.
 
 ```
 $ curl -u test_client_id:test_client_password localhost:8080/oauth2/api/v1/tokens \
-  -d 'grant_type=client_credentials' \
+  -d "grant_type=client_credentials" \
   -d "scope=read_write"
 ```
 
@@ -111,8 +111,8 @@ Let's say you have created a new access token using client or user credentials g
 
 ```
 $ curl -u test_client_id:test_client_password localhost:8080/oauth2/api/v1/tokens \
-  -d 'grant_type=refresh_token" \
-  -d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791'
+  -d "grant_type=refresh_token" \
+  -d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 ```
 
 Response:
