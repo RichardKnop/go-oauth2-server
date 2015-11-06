@@ -144,7 +144,7 @@ You can define your scopes and insert them into scopes table, is_default flag ca
 To register a new user:
 
 ```
-curl localhost:8080/oauth2/api/v1/users \
+$ curl localhost:8080/oauth2/api/v1/users \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testusername",
@@ -173,13 +173,13 @@ According to [Go 1.5 Vendor experiment](https://docs.google.com/document/d/1Bz5-
 To update dependencies during development:
 
 ```
-make update-deps
+$ make update-deps
 ```
 
 To install dependencies:
 
 ```
-make install-deps
+$ make install-deps
 ```
 
 ## Setup
@@ -187,32 +187,31 @@ make install-deps
 If you are developing on OSX, install `etcd`, `Postgres`:
 
 ```
-brew install etcd
-brew install postgres
+$ brew install etcd
+$ brew install postgres
 ```
 
 You might want to create a `Postgres` database:
 
 ```
-createuser --createdb go_oauth2_server
-createdb -U go_microservice_example go_oauth2_server
+$ createuser --createdb go_oauth2_server
+$ createdb -U go_microservice_example go_oauth2_server
 ```
 
 Load a configuration into `etcd`:
 
 ```
-etcdctl mkdir /config
-etcdctl set /config/go_oauth2_server.json '{
-    "Database": {
-        "Type": "postgres",
-        "Host": "127.0.0.1",
-        "Port": 5432,
-        "User": "go_oauth2_server",
-        "Password": "",
-        "DatabaseName": "go_oauth2_server"
-    },
-    "AccessTokenLifetime": 3600,
-    "RefreshTokenLifetime": 1209600
+$ curl -L http://127.0.0.1:4001/v2/keys/config/go_oauth2_server.json -XPUT -d value='{
+  "Database": {
+    "Type": "postgres",
+    "Host": "127.0.0.1",
+    "Port": 5432,
+    "User": "go_oauth2_server",
+    "Password": "",
+    "DatabaseName": "go_oauth2_server"
+  },
+  "AccessTokenLifetime": 3600,
+  "RefreshTokenLifetime": 1209600
 }'
 ```
 
