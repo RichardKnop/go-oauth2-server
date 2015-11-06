@@ -14,7 +14,7 @@ import (
 )
 
 // Handles all OAuth 2.0 grant types
-func tokensHandler(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
+func tokens(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
 	grantType := r.FormValue("grant_type")
 
 	supportedGrantTypes := map[string]bool{

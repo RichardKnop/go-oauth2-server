@@ -8,14 +8,14 @@ import (
 )
 
 func TestNewConfig(t *testing.T) {
-	viper.Set("database_type", "a")
-	viper.Set("database_host", "b")
-	viper.Set("database_port", 1)
-	viper.Set("database_user", "c")
-	viper.Set("database_password", "d")
-	viper.Set("database_name", "e")
-	viper.Set("access_token_lifetime", 2)
-	viper.Set("refresh_token_lifetime", 3)
+	viper.Set("oauth2_database_type", "a")
+	viper.Set("oauth2_database_host", "b")
+	viper.Set("oauth2_database_port", 1)
+	viper.Set("oauth2_database_user", "c")
+	viper.Set("oauth2_database_password", "d")
+	viper.Set("oauth2_database_name", "e")
+	viper.Set("oauth2_access_token_lifetime", 2)
+	viper.Set("oauth2_refresh_token_lifetime", 3)
 
 	cnf := NewConfig()
 

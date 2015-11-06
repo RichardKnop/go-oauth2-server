@@ -54,14 +54,14 @@ Given you have a username and password, you can get a new access token.
 Either by using HTTP Basic Authentication:
 
 ```
-$ curl -u testusername:testpassword localhost:8080/api/v1/tokens
+$ curl -u testusername:testpassword localhost:8080/oauth2/api/v1/tokens
   -d 'grant_type=password'
 ```
 
 Or using POST body:
 
 ```
-$ curl localhost:8000/api/v1/tokens \
+$ curl localhost:8000/api/v1/oauth2/tokens \
   -d 'grant_type=password" \
   -d `"username=testusername" \
   -d "password=testpassword'
@@ -89,14 +89,14 @@ Given you have a client ID and secret, you can get a new access token.
 Either by using HTTP Basic Authentication:
 
 ```
-$ curl -u testclient:testpassword localhost:8080/api/v1/tokens \
+$ curl -u testclient:testpassword localhost:8080/oauth2/api/v1/tokens \
   -d 'grant_type=client_credentials'
 ```
 
 Or using POST body:
 
 ```
-$ curl localhost:8000/api/v1/tokens \
+$ curl localhost:8000/oauth2/api/v1/tokens \
   -d 'grant_type=client_credentials" \
   -d "client_id=testclient" \
   -d "client_secret=testpassword'
@@ -122,7 +122,7 @@ http://tools.ietf.org/html/rfc6749#section-6
 Let's say you have created a new access token using client or user credentials grant type. The response included a refresh token which you can use to get a new access token before your current access token expires.
 
 ```
-$ curl localhost:8080/api/v1/tokens \
+$ curl localhost:8080/oauth2/api/v1/tokens \
   -d 'grant_type=refresh_token" \
   -d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791'
 ```
@@ -156,10 +156,10 @@ TODO
 
 ### Register
 
-To register a new user, POST to `/api/v1/users`:
+To register a new user:
 
 ```
-curl localhost:8080/api/v1/users \
+curl localhost:8080/oauth2/api/v1/users \
   -H "Content-Type: application/json" \
   -d '{
     "username": "testusername",
@@ -212,16 +212,16 @@ make install-deps
 
 The configuration is done via environment variables. Available variables:
 
-* `DATABASE_TYPE` (defaults to `postgres`)
-* `DATABASE_HOST` (defaults to `127.0.0.1`)
-* `DATABASE_PORT` (defaults to `5432`)
-* `DATABASE_USER` (defaults to `go_oauth2_server`)
-* `DATABASE_PASSWORD` (defaults to empty string)
-* `DATABASE_NAME` (defaults to `go_oauth2_server`)
-* `ACCESS_TOKEN_LIFETIME` (defaults to `3600` or 1 hour)
-* `REFRESH_TOKEN_LIFETIME` (defaults to `1209600` or 14 days)
+* `OAUTH2_DATABASE_TYPE` (defaults to `postgres`)
+* `OAUTH2_DATABASE_HOST` (defaults to `127.0.0.1`)
+* `OAUTH2_DATABASE_PORT` (defaults to `5432`)
+* `OAUTH2_DATABASE_USER` (defaults to `go_oauth2_server`)
+* `OAUTH2_DATABASE_PASSWORD` (defaults to empty string)
+* `OAUTH2_DATABASE_NAME` (defaults to `go_oauth2_server`)
+* `OAUTH2_ACCESS_TOKEN_LIFETIME` (defaults to `3600` or 1 hour)
+* `OAUTH2_REFRESH_TOKEN_LIFETIME` (defaults to `1209600` or 14 days)
 
-Variables are not prefixed as this service is intended to run inside a Docker container so there should be no conflict with some other service's configuration.
+Variables are prefixed with `OAUTH2_`.
 
 ## Database
 

@@ -11,7 +11,7 @@ import (
 
 func (suite *TestSuite) TestRegisterUsernameRequired() {
 	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/api/v1/users",
+		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 		map[string]interface{}{
 			"username":   "",
 			"password":   "testpassword",
@@ -39,7 +39,7 @@ func (suite *TestSuite) TestRegisterUsernameRequired() {
 
 func (suite *TestSuite) TestRegisterPasswordRequired() {
 	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/api/v1/users",
+		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 		map[string]interface{}{
 			"username":   "testusername",
 			"password":   "",
@@ -67,7 +67,7 @@ func (suite *TestSuite) TestRegisterPasswordRequired() {
 
 func (suite *TestSuite) TestRegisterFirstNameRequired() {
 	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/api/v1/users",
+		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 		map[string]interface{}{
 			"username":   "testusername",
 			"password":   "testpassword",
@@ -95,7 +95,7 @@ func (suite *TestSuite) TestRegisterFirstNameRequired() {
 
 func (suite *TestSuite) TestRegisterLastNameNameRequired() {
 	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/api/v1/users",
+		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 		map[string]interface{}{
 			"username":   "testusername",
 			"password":   "testpassword",
@@ -123,7 +123,7 @@ func (suite *TestSuite) TestRegisterLastNameNameRequired() {
 
 func (suite *TestSuite) TestRegister() {
 	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/api/v1/users",
+		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 		map[string]interface{}{
 			"username":   "testusername",
 			"password":   "testpassword",
@@ -181,7 +181,7 @@ func (suite *TestSuite) TestRegisterUsernameAlreadyTaken() {
 	}
 
 	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/api/v1/users",
+		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 		map[string]interface{}{
 			"username":   "testusername",
 			"password":   "testpassword",
