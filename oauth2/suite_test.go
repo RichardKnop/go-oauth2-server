@@ -77,6 +77,18 @@ func (suite *TestSuite) SetupTest() {
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
+
+	// Insert test scopes
+	if err := suite.DB.Create(&Scope{
+		Scope: "foo",
+	}).Error; err != nil {
+		log.Fatal(err)
+	}
+	if err := suite.DB.Create(&Scope{
+		Scope: "bar",
+	}).Error; err != nil {
+		log.Fatal(err)
+	}
 }
 
 // The TearDownTest method will be run after every test in the suite.

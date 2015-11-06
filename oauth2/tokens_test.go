@@ -71,7 +71,7 @@ func (suite *TestSuite) TestTokensPassword() {
 		"access_token":  accessToken.AccessToken,
 		"expires_in":    3600,
 		"token_type":    "Bearer",
-		"scope":         "",
+		"scope":         "foo bar",
 		"refresh_token": refreshToken.RefreshToken,
 	})
 	assert.Equal(
