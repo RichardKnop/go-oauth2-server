@@ -14,8 +14,7 @@ branches:
     - master
 
 before_script:
-  - etcdctl mkdir /config
-  - etcdctl set /config/go_oauth2_server.json {"AccessTokenLifetime":3600,"RefreshTokenLifetime":1209600}
+  - curl -L http://127.0.0.1:4001/v2/keys/config/go_oauth2_server.json -XPUT -d value={"AccessTokenLifetime":3600,"RefreshTokenLifetime":1209600}
 
 script:
   - make install-deps && make test
