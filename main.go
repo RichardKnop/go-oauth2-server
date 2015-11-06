@@ -10,7 +10,6 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/RichardKnop/go-oauth2-server/migrate"
 	"github.com/RichardKnop/go-oauth2-server/oauth2"
-	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/codegangsta/cli"
 )
 
@@ -46,19 +45,7 @@ func main() {
 			Usage: "run web server",
 			Action: func(c *cli.Context) {
 				routes := oauth2.NewRoutes(cnf, db)
-				api := api.NewAPI(
-					[]rest.Middleware{
-						&rest.AccessLogApacheMiddleware{
-							Format: rest.CombinedLogFormat,
-						},
-						&rest.TimerMiddleware{},
-						&rest.RecorderMiddleware{},
-						&rest.PoweredByMiddleware{},
-						&rest.RecoverMiddleware{},
-						&rest.GzipMiddleware{},
-					},
-					routes,
-				)
+				api := api.NewAPI(api.ProductionStack, routes)
 				log.Print("Listening on port 8080")
 				log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 			},

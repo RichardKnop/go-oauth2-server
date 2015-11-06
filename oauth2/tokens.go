@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/api"
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/jinzhu/gorm"
@@ -23,7 +24,7 @@ func tokensHandler(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, d
 	}
 
 	if !supportedGrantTypes[grantType] {
-		rest.Error(w, "Invalid grant type", http.StatusBadRequest)
+		api.Error(w, "Invalid grant type", http.StatusBadRequest)
 		return
 	}
 
@@ -50,14 +51,12 @@ func password(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *go
 
 	user := User{}
 	if db.Where(&User{Username: username}).First(&user).RecordNotFound() {
-		w.Header().Set("WWW-Authenticate", "Basic realm=Bearer")
-		rest.Error(w, "Unautorized", http.StatusUnauthorized)
+		api.UnauthorizedError(w)
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		w.Header().Set("WWW-Authenticate", "Basic realm=Bearer")
-		rest.Error(w, "Unautorized", http.StatusUnauthorized)
+		api.UnauthorizedError(w)
 		return
 	}
 
@@ -74,14 +73,12 @@ func clientCredentials(w rest.ResponseWriter, r *rest.Request, cnf *config.Confi
 
 	client := Client{}
 	if db.Where(&Client{ClientID: clientID}).First(&client).RecordNotFound() {
-		w.Header().Set("WWW-Authenticate", "Basic realm=Bearer")
-		rest.Error(w, "Unautorized", http.StatusUnauthorized)
+		api.UnauthorizedError(w)
 		return
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(client.Password), []byte(clientSecret)); err != nil {
-		w.Header().Set("WWW-Authenticate", "Basic realm=Bearer")
-		rest.Error(w, "Unautorized", http.StatusUnauthorized)
+		api.UnauthorizedError(w)
 		return
 	}
 
@@ -94,18 +91,18 @@ func refreshToken(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db
 
 	refreshToken := RefreshToken{}
 	if db.Where(&RefreshToken{RefreshToken: token}).First(&refreshToken).RecordNotFound() {
-		rest.Error(w, "Refresh token not found", http.StatusBadRequest)
+		api.Error(w, "Refresh token not found", http.StatusBadRequest)
 		return
 	}
 
 	if refreshToken.ExpiresAt.After(time.Now()) {
-		rest.Error(w, "Refresh token expired", http.StatusBadRequest)
+		api.Error(w, "Refresh token expired", http.StatusBadRequest)
 		return
 	}
 
 	accessToken := AccessToken{}
 	if db.Where(&AccessToken{RefreshTokenID: refreshToken.ID}).First(&accessToken).RecordNotFound() {
-		rest.Error(w, "Access token with refresh token not found", http.StatusBadGateway)
+		api.Error(w, "Access token with refresh token not found", http.StatusBadGateway)
 		return
 	}
 
@@ -124,7 +121,7 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 	}
 	if err := tx.Create(&refreshToken).Error; err != nil {
 		tx.Rollback()
-		rest.Error(w, "Error saving refresh token", http.StatusInternalServerError)
+		api.Error(w, "Error saving refresh token", http.StatusInternalServerError)
 		return
 	}
 
@@ -145,7 +142,7 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 	}
 	if err := tx.Create(&accessToken).Error; err != nil {
 		tx.Rollback()
-		rest.Error(w, "Error saving access token", http.StatusInternalServerError)
+		api.Error(w, "Error saving access token", http.StatusInternalServerError)
 		return
 	}
 

@@ -31,7 +31,7 @@ func (suite *TestSuite) TestRegisterUsernameRequired() {
 	// Response body
 	assert.Equal(
 		suite.T(),
-		"{\"Error\":\"username required\"}",
+		"{\"error\":\"username required\"}",
 		recorded.Recorder.Body.String(),
 		"Body should be expected JSON error",
 	)
@@ -59,7 +59,7 @@ func (suite *TestSuite) TestRegisterPasswordRequired() {
 	// Response body
 	assert.Equal(
 		suite.T(),
-		"{\"Error\":\"password required\"}",
+		"{\"error\":\"password required\"}",
 		recorded.Recorder.Body.String(),
 		"Body should be expected JSON error",
 	)
@@ -87,7 +87,7 @@ func (suite *TestSuite) TestRegisterFirstNameRequired() {
 	// Response body
 	assert.Equal(
 		suite.T(),
-		"{\"Error\":\"first_name required\"}",
+		"{\"error\":\"first_name required\"}",
 		recorded.Recorder.Body.String(),
 		"Body should be expected JSON error",
 	)
@@ -115,7 +115,7 @@ func (suite *TestSuite) TestRegisterLastNameNameRequired() {
 	// Response body
 	assert.Equal(
 		suite.T(),
-		"{\"Error\":\"last_name required\"}",
+		"{\"error\":\"last_name required\"}",
 		recorded.Recorder.Body.String(),
 		"Body should be expected JSON error",
 	)
@@ -201,7 +201,7 @@ func (suite *TestSuite) TestRegisterUsernameAlreadyTaken() {
 	// Response body
 	assert.Equal(
 		suite.T(),
-		"{\"Error\":\"testusername already taken\"}",
+		"{\"error\":\"testusername already taken\"}",
 		recorded.Recorder.Body.String(),
 		"Body should be expected JSON error",
 	)

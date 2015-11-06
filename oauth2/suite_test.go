@@ -34,17 +34,8 @@ func (suite *TestSuite) SetupTest() {
 	}
 
 	if suite.API == nil {
-		stack := []rest.Middleware{
-			&rest.AccessLogApacheMiddleware{},
-			&rest.TimerMiddleware{},
-			&rest.RecorderMiddleware{},
-			&rest.PoweredByMiddleware{},
-			&rest.RecoverMiddleware{
-				EnableResponseStackTrace: true,
-			},
-		}
 		suite.API = api.NewAPI(
-			stack,
+			api.DevelopmentStack,
 			NewRoutes(config.NewConfig(), suite.DB),
 		)
 	}
