@@ -14,4 +14,4 @@ install-deps:
 	$(DEPS) | xargs -n1 go get -d
 
 test:
-	bash -c 'go list ./... | grep -v vendor | xargs -n1 go test -timeout=3s'
+	bash -c 'go list ./... | grep -v vendor | xargs -n1 go test -timeout=10s'
