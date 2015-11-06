@@ -7,16 +7,15 @@ go:
 
 services:
   - etcd
-  - sqlite3
+  - sqlite
 
 branches:
   only:
     - master
 
-before_script: |
-  etcdctl mkdir /config && etcdctl set /config/go_oauth2_server.json '{
-      "AccessTokenLifetime": 3600,
-      "RefreshTokenLifetime": 1209600
-  }'
+before_script:
+  - etcdctl mkdir /config
+  - etcdctl set /config/go_oauth2_server.json '{"AccessTokenLifetime": 3600, "RefreshTokenLifetime": 1209600}'
+
 script:
   - make install-deps && make test
