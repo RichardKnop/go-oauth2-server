@@ -37,11 +37,13 @@ func scopeExists(db *gorm.DB, scope string) bool {
 func scopeNotGreater(newScope, oldScope string) bool {
 	newScopes := strings.Split(newScope, " ")
 	oldScopes := strings.Split(oldScope, " ")
+
 	for _, newScope := range newScopes {
 		if !stringInSlice(newScope, oldScopes) {
 			return false
 		}
 	}
+
 	return true
 }
 
@@ -52,5 +54,6 @@ func stringInSlice(a string, list []string) bool {
 			return true
 		}
 	}
+
 	return false
 }
