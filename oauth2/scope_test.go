@@ -6,20 +6,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuite) TestGetScope() {
+func (suite *OAuth2TestSuite) TestGetScope() {
 	scope, err := getScope(suite.DB, "")
 	assert.Nil(suite.T(), err)
 	assert.Equal(
-		suite.T(),
-		"foo bar", scope,
+		suite.T(), "foo bar", scope,
 		"Should return \"foo bar\"",
 	)
 
 	scope, err = getScope(suite.DB, "foo bar qux")
 	assert.Nil(suite.T(), err)
 	assert.Equal(
-		suite.T(),
-		"foo bar qux", scope,
+		suite.T(), "foo bar qux", scope,
 		"Should return \"foo bar qux\"",
 	)
 
@@ -29,16 +27,14 @@ func (suite *TestSuite) TestGetScope() {
 	}
 }
 
-func (suite *TestSuite) TestScopeExists() {
+func (suite *OAuth2TestSuite) TestScopeExists() {
 	assert.Equal(
-		suite.T(),
-		true, scopeExists(suite.DB, "foo bar qux"),
+		suite.T(), true, scopeExists(suite.DB, "foo bar qux"),
 		"Should return true",
 	)
 
 	assert.Equal(
-		suite.T(),
-		false, scopeExists(suite.DB, "foo bar bogus"),
+		suite.T(), false, scopeExists(suite.DB, "foo bar bogus"),
 		"Should return false",
 	)
 }

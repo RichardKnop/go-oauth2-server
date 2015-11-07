@@ -11,18 +11,16 @@ import (
 	"github.com/pborman/uuid"
 )
 
-// Creates access token with refresh token
-// Deletes old tokens with the same client and user
 func grantAccessToken(cnf *config.Config, db *gorm.DB, client *Client, user *User, scope string) (*AccessToken, error) {
 	// Fetch old access tokens for later deletion
 	var oldAccessTokens []AccessToken
 	queryParts := []string{"client_id = ?"}
-	args := []interface{}{client.ClientID}
+	args := []interface{}{client.ID}
 	if user != nil {
 		queryParts = append(queryParts, "user_id = ?")
 		args = append(args, user.ID)
 	} else {
-		queryParts = append(queryParts, "ser_id IS NULL")
+		queryParts = append(queryParts, "user_id IS NULL")
 	}
 	db.Where(strings.Join(queryParts, " AND "), args...).Preload("RefreshToken").Find(&oldAccessTokens)
 

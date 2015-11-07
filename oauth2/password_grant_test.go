@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuite) TestPasswordGrant() {
+func (suite *OAuth2TestSuite) TestPasswordGrant() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
 	)

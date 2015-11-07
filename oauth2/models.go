@@ -25,8 +25,6 @@ type User struct {
 	ID        int
 	Username  string `sql:"type:varchar(254);unique;not null"`
 	Password  string `sql:"type:varchar(60);not null"`
-	FirstName string `sql:"type:varchar(254);not null" json:"first_name"`
-	LastName  string `sql:"type:varchar(254);not null" json:"last_name"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

@@ -16,8 +16,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// TestSuite ...
-type TestSuite struct {
+// OAuth2TestSuite ...
+type OAuth2TestSuite struct {
 	suite.Suite
 	DB  *gorm.DB
 	API *rest.Api
@@ -25,7 +25,7 @@ type TestSuite struct {
 
 // The SetupSuite method will be run by testify once, at the very
 // start of the testing suite, before any tests are run.
-func (suite *TestSuite) SetupSuite() {
+func (suite *OAuth2TestSuite) SetupSuite() {
 	// Init in-memory test database
 	db, err := gorm.Open("sqlite3", ":memory:")
 	if err != nil {
@@ -44,12 +44,12 @@ func (suite *TestSuite) SetupSuite() {
 
 // The TearDownSuite method will be run by testify once, at the very
 // end of the testing suite, after all tests have been run.
-func (suite *TestSuite) TearDownSuite() {
+func (suite *OAuth2TestSuite) TearDownSuite() {
 	//
 }
 
 // The SetupTest method will be run before every test in the suite.
-func (suite *TestSuite) SetupTest() {
+func (suite *OAuth2TestSuite) SetupTest() {
 	// Insert test client
 	clientSecretHash, err := bcrypt.GenerateFromPassword([]byte("test_client_secret"), 3)
 	if err != nil {
@@ -69,11 +69,9 @@ func (suite *TestSuite) SetupTest() {
 		log.Fatal(err)
 	}
 	if err := suite.DB.Create(&User{
-		ID:        1,
-		Username:  "test_username",
-		Password:  string(passwordHash),
-		FirstName: "John",
-		LastName:  "Doe",
+		ID:       1,
+		Username: "test_username",
+		Password: string(passwordHash),
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -100,7 +98,7 @@ func (suite *TestSuite) SetupTest() {
 }
 
 // The TearDownTest method will be run after every test in the suite.
-func (suite *TestSuite) TearDownTest() {
+func (suite *OAuth2TestSuite) TearDownTest() {
 	// Empty all the tables
 	suite.DB.Delete(AccessToken{})
 	suite.DB.Delete(RefreshToken{})
@@ -114,5 +112,5 @@ func (suite *TestSuite) TearDownTest() {
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
 func TestTestSuite(t *testing.T) {
-	suite.Run(t, new(TestSuite))
+	suite.Run(t, new(OAuth2TestSuite))
 }

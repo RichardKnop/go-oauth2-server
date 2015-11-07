@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuite) TestInvalidGrantType() {
+func (suite *OAuth2TestSuite) TestInvalidGrantType() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/tokens?grant_type=bogus", nil,
 	)

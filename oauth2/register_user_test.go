@@ -8,14 +8,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (suite *TestSuite) TestRegisterUsernameRequired() {
+func (suite *OAuth2TestSuite) TestRegisterUsernameRequired() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 		map[string]interface{}{
-			"username":   "",
-			"password":   "test_password",
-			"first_name": "John",
-			"last_name":  "Doe",
+			"username": "",
+			"password": "test_password",
 		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
@@ -36,14 +34,12 @@ func (suite *TestSuite) TestRegisterUsernameRequired() {
 	)
 }
 
-func (suite *TestSuite) TestRegisterPasswordRequired() {
+func (suite *OAuth2TestSuite) TestRegisterPasswordRequired() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 		map[string]interface{}{
-			"username":   "test_username",
-			"password":   "",
-			"first_name": "John",
-			"last_name":  "Doe",
+			"username": "test_username",
+			"password": "",
 		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
@@ -64,70 +60,12 @@ func (suite *TestSuite) TestRegisterPasswordRequired() {
 	)
 }
 
-func (suite *TestSuite) TestRegisterFirstNameRequired() {
+func (suite *OAuth2TestSuite) TestRegisterUsernameAlreadyTaken() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 		map[string]interface{}{
-			"username":   "test_username",
-			"password":   "test_password",
-			"first_name": "",
-			"last_name":  "Doe",
-		},
-	)
-	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
-
-	// Status code
-	assert.Equal(
-		suite.T(),
-		400,
-		recorded.Recorder.Code, "Status code should be 400",
-	)
-
-	// Response body
-	assert.Equal(
-		suite.T(),
-		"{\"error\":\"first_name required\"}",
-		recorded.Recorder.Body.String(),
-		"Body should be expected JSON error",
-	)
-}
-
-func (suite *TestSuite) TestRegisterLastNameNameRequired() {
-	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/users",
-		map[string]interface{}{
-			"username":   "test_username",
-			"password":   "test_password",
-			"first_name": "John",
-			"last_name":  "",
-		},
-	)
-	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
-
-	// Status code
-	assert.Equal(
-		suite.T(),
-		400,
-		recorded.Recorder.Code, "Status code should be 400",
-	)
-
-	// Response body
-	assert.Equal(
-		suite.T(),
-		"{\"error\":\"last_name required\"}",
-		recorded.Recorder.Body.String(),
-		"Body should be expected JSON error",
-	)
-}
-
-func (suite *TestSuite) TestRegisterUsernameAlreadyTaken() {
-	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/users",
-		map[string]interface{}{
-			"username":   "test_USERname", // test case insensitivity of usernames
-			"password":   "test_password",
-			"first_name": "John",
-			"last_name":  "Doe",
+			"username": "test_USERname", // test case insensitivity of usernames
+			"password": "test_password",
 		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
@@ -148,14 +86,12 @@ func (suite *TestSuite) TestRegisterUsernameAlreadyTaken() {
 	)
 }
 
-func (suite *TestSuite) TestRegister() {
+func (suite *OAuth2TestSuite) TestRegister() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 		map[string]interface{}{
-			"username":   "test_username_2",
-			"password":   "test_password_2",
-			"first_name": "Harold",
-			"last_name":  "Finch",
+			"username": "test_username_2",
+			"password": "test_password_2",
 		},
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
@@ -178,10 +114,8 @@ func (suite *TestSuite) TestRegister() {
 
 	// Response body
 	expected, _ := json.Marshal(map[string]interface{}{
-		"id":         user.ID,
-		"username":   "test_username_2",
-		"first_name": "Harold",
-		"last_name":  "Finch",
+		"id":       user.ID,
+		"username": "test_username_2",
 	})
 	assert.Equal(
 		suite.T(),

@@ -19,13 +19,13 @@ func refreshTokenGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Confi
 		return
 	}
 
-	if refreshToken.ExpiresAt.After(time.Now()) {
+	if time.Now().After(refreshToken.ExpiresAt) {
 		api.Error(w, "Refresh token expired", http.StatusBadRequest)
 		return
 	}
 
 	oldAccessToken := AccessToken{}
-	if db.Where(&AccessToken{Client: *client, RefreshToken: refreshToken}).Preload("Client").Preload("User").First(&oldAccessToken).RecordNotFound() {
+	if db.Where(&AccessToken{ClientID: client.ID, RefreshTokenID: refreshToken.ID}).Preload("Client").Preload("User").First(&oldAccessToken).RecordNotFound() {
 		api.Error(w, "Access token not found", http.StatusBadRequest)
 		return
 	}

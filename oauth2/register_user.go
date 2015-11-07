@@ -44,9 +44,7 @@ func registerUser(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteJson(map[string]interface{}{
-		"id":         user.ID,
-		"username":   user.Username,
-		"first_name": user.FirstName,
-		"last_name":  user.LastName,
+		"id":       user.ID,
+		"username": user.Username,
 	})
 }

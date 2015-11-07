@@ -17,7 +17,6 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
       * [User Credentials](#user-credentials)
       * [Client Credentials](#client-credentials)
       * [Refreshing Token](#refreshing-token)
-    * [Scope](#scope)
   * [Users](#users)
     * [Register](#register)
 * [Development](#development)
@@ -129,14 +128,6 @@ Response:
 }
 ```
 
-### Scope
-
-http://tools.ietf.org/html/rfc6749#section-3.3
-
-Scope is a space delimited case-sensitive string where each part defines a specific access range. It can be used for ACL.
-
-You can define your scopes and insert them into scopes table, is_default flag can be used to specify default scope.
-
 ## Users
 
 ### Register
@@ -147,10 +138,8 @@ To register a new user:
 $ curl localhost:8080/oauth2/api/v1/users \
   -H "Content-Type: application/json" \
   -d '{
-    "username": "testusername",
-    "password": "password",
-    "first_name": "John",
-    "last_name": "Doe"
+    "username": "test_username",
+    "password": "test_password",
   }'
 ```
 
@@ -158,10 +147,8 @@ Response:
 
 ```json
 {
-  "first_name": "John",
   "id": 1,
-  "last_name": "Doe",
-  "username": "testusername"
+  "username": "test_username"
 }
 ```
 

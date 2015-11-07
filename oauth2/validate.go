@@ -11,13 +11,5 @@ func validateUserData(user *User) error {
 		return errors.New("password required")
 	}
 
-	if user.FirstName == "" {
-		return errors.New("first_name required")
-	}
-
-	if user.LastName == "" {
-		return errors.New("last_name required")
-	}
-
 	return nil
 }

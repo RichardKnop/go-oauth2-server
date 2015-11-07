@@ -5,7 +5,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *TestSuite) TestAuthClientAuthenticationRequired() {
+func (suite *OAuth2TestSuite) TestAuthClientAuthenticationRequired() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 
 	client, err := authClient(r, suite.DB)
@@ -17,7 +17,7 @@ func (suite *TestSuite) TestAuthClientAuthenticationRequired() {
 	}
 }
 
-func (suite *TestSuite) TestAuthClientNotFound() {
+func (suite *OAuth2TestSuite) TestAuthClientNotFound() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("bogus", "test_client_secret")
 
@@ -30,7 +30,7 @@ func (suite *TestSuite) TestAuthClientNotFound() {
 	}
 }
 
-func (suite *TestSuite) TestAuthClientIncorrectSecret() {
+func (suite *OAuth2TestSuite) TestAuthClientIncorrectSecret() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("test_client_id", "bogus")
 
@@ -43,7 +43,7 @@ func (suite *TestSuite) TestAuthClientIncorrectSecret() {
 	}
 }
 
-func (suite *TestSuite) TestAuthClient() {
+func (suite *OAuth2TestSuite) TestAuthClient() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("test_client_id", "test_client_secret")
 
