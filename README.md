@@ -17,8 +17,6 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
       * [User Credentials](#user-credentials)
       * [Client Credentials](#client-credentials)
       * [Refreshing Token](#refreshing-token)
-  * [Users](#users)
-    * [Register](#register)
 * [Development](#development)
   * [Dependencies](#dependencies)
   * [Setup](#setup)
@@ -128,31 +126,8 @@ Response:
 }
 ```
 
-## Users
-
-### Register
-
-To register a new user:
-
-```
-$ curl localhost:8080/oauth2/api/v1/users \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "test_username",
-    "password": "test_password",
-  }'
-```
-
-Response:
-
-```json
-{
-  "id": 1,
-  "username": "test_username"
-}
-```
-
 # Development
+
 ## Dependencies
 
 According to [Go 1.5 Vendor experiment](https://docs.google.com/document/d/1Bz5-UB7g2uPBdOx-rw5t9MxJwkfpx90cqG9AFL0JAYo), all dependencies are stored in a vendor directory. This approach is called "vendoring" and is the best practice for Go projects to lock versions of dependencies in order to achieve reproducible builds.
