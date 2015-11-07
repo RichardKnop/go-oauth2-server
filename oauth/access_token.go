@@ -51,7 +51,6 @@ func grantAccessToken(cnf *config.Config, db *gorm.DB, client *Client, user *Use
 	return &newAccessToken, nil
 }
 
-// Writes access token JSON response
 func respondWithAccessToken(w rest.ResponseWriter, cnf *config.Config, accessToken *AccessToken) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteJson(map[string]interface{}{

@@ -5,20 +5,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OAuth2TestSuite) TestInvalidGrantType() {
+func (suite *OauthTestSuite) TestInvalidGrantType() {
+	// Make a request
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/tokens?grant_type=bogus", nil,
 	)
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
-	// Status code
+	// Check the status code
 	assert.Equal(
 		suite.T(),
 		400,
 		recorded.Recorder.Code, "Status code should be 400",
 	)
 
-	// Response body
+	// Check the response body
 	assert.Equal(
 		suite.T(),
 		"{\"error\":\"Invalid grant type\"}",

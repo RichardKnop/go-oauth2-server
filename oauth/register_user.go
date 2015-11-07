@@ -11,7 +11,6 @@ package oauth
 // 	"golang.org/x/crypto/bcrypt"
 // )
 //
-// // Registers a new user
 // func registerUser(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
 // 	user := User{}
 // 	if err := r.DecodeJsonPayload(&user); err != nil {
@@ -24,7 +23,7 @@ package oauth
 // 		return
 // 	}
 //
-// 	// Username are case insensitive
+// 	// Usernames are case insensitive
 // 	if db.Where("LOWER(username) = LOWER(?)", user.Username).First(&User{}).RowsAffected > 0 {
 // 		api.Error(w, fmt.Sprintf("%s already taken", user.Username), http.StatusBadRequest)
 // 		return

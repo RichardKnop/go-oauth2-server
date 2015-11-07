@@ -8,7 +8,8 @@ package oauth
 // 	"golang.org/x/crypto/bcrypt"
 // )
 //
-// func (suite *OAuth2TestSuite) TestRegisterUsernameAlreadyTaken() {
+// func (suite *OauthTestSuite) TestRegisterUsernameAlreadyTaken() {
+//  // Make a request
 // 	r := test.MakeSimpleRequest(
 // 		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 // 		map[string]interface{}{
@@ -18,14 +19,14 @@ package oauth
 // 	)
 // 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 //
-// 	// Status code
+// 	// Check the status code
 // 	assert.Equal(
 // 		suite.T(),
 // 		400,
 // 		recorded.Recorder.Code, "Status code should be 400",
 // 	)
 //
-// 	// Response body
+// 	// Check the response body
 // 	assert.Equal(
 // 		suite.T(),
 // 		"{\"error\":\"test_USERname already taken\"}",
@@ -34,7 +35,8 @@ package oauth
 // 	)
 // }
 //
-// func (suite *OAuth2TestSuite) TestRegister() {
+// func (suite *OauthTestSuite) TestRegister() {
+//  // Make a request
 // 	r := test.MakeSimpleRequest(
 // 		"POST", "http://1.2.3.4/oauth2/api/v1/users",
 // 		map[string]interface{}{
@@ -44,14 +46,14 @@ package oauth
 // 	)
 // 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 //
-// 	// Status code
+// 	// Check the status code
 // 	assert.Equal(
 // 		suite.T(),
 // 		200,
 // 		recorded.Recorder.Code, "Status code should be 200",
 // 	)
 //
-// 	// User record was inserted
+// 	// Check the user record was inserted
 // 	user := User{}
 // 	assert.Equal(
 // 		suite.T(),
@@ -60,7 +62,7 @@ package oauth
 // 		"User should be in the database",
 // 	)
 //
-// 	// Response body
+// 	// Check the response body
 // 	expected, _ := json.Marshal(map[string]interface{}{
 // 		"id":       user.ID,
 // 		"username": "test_username_2",
@@ -72,7 +74,7 @@ package oauth
 // 		"Response body should be expected user object",
 // 	)
 //
-// 	// Password properly hashed
+// 	// Check the password was properly hashed
 // 	assert.Nil(
 // 		suite.T(),
 // 		bcrypt.CompareHashAndPassword([]byte(user.Password), []byte("test_password_2")),

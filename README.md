@@ -58,7 +58,7 @@ $ curl localhost:8080/oauth2/api/v1/tokens \
   -d "grant_type=password" \
   -d "username=test_username" \
   -d "password=test_password" \
-  -d "scope=read_write"
+  -d "scope=foo bar"
 ```
 
 Response:
@@ -69,7 +69,7 @@ Response:
     "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
     "expires_in": 3600,
     "token_type": "Bearer",
-    "scope": "read_write",
+    "scope": "foo bar",
     "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
@@ -84,7 +84,7 @@ Given you have a client ID and secret, you can get a new access token.
 $ curl localhost:8080/oauth2/api/v1/tokens \
   -u test_client_id:test_client_password \
   -d "grant_type=client_credentials" \
-  -d "scope=read_write"
+  -d "scope=foo bar"
 ```
 
 Response:
@@ -95,7 +95,7 @@ Response:
     "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
     "expires_in": 3600,
     "token_type": "Bearer",
-    "scope": "read_write",
+    "scope": "foo bar",
     "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
@@ -121,7 +121,7 @@ Response:
     "access_token": "1f962bd5-7890-435d-b619-584b6aa32e6c",
     "expires_in": 3600,
     "token_type": "Bearer",
-    "scope": "read_write",
+    "scope": "foo bar",
     "refresh_token": "3a6b45b8-9d29-4cba-8a1b-0093e8a2b933"
 }
 ```

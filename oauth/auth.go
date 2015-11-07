@@ -8,37 +8,41 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// Checks client credentials from basic HTTP authentication
 func authClient(r *http.Request, db *gorm.DB) (*Client, error) {
+	// Get credentials from basic auth
 	clientID, clientSecret, ok := r.BasicAuth()
 	if !ok {
-		return nil, errors.New("Client authentication required")
+		return nil, errors.New("Client credentials required")
 	}
 
+	// Fetch the client
 	client := Client{}
 	// Client IDs are case insensitive
 	if db.Where("LOWER(client_id) = LOWER(?)", clientID).First(&client).RecordNotFound() {
 		return nil, errors.New("Client authentication failed")
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(client.Password), []byte(clientSecret)); err != nil {
+	// Check the secret
+	if err := bcrypt.CompareHashAndPassword([]byte(client.Secret), []byte(clientSecret)); err != nil {
 		return nil, errors.New("Client authentication failed")
 	}
 
 	return &client, nil
 }
 
-// Checks user credentials from posted form data
 func authUser(r *http.Request, db *gorm.DB) (*User, error) {
+	// Get credentials from from the form data
 	username := r.FormValue("username")
 	password := r.FormValue("password")
 
+	// Fetch the user
 	user := User{}
 	// Usernames are case insensitive
 	if db.Where("LOWER(username) = LOWER(?)", username).First(&user).RecordNotFound() {
 		return nil, errors.New("User authentication failed")
 	}
 
+	// Check the password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
 		return nil, errors.New("User authentication failed")
 	}

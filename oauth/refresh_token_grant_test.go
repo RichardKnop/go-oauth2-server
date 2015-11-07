@@ -9,7 +9,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OAuth2TestSuite) TestRefreshTokenGrantNotFound() {
+func (suite *OauthTestSuite) TestRefreshTokenGrantNotFound() {
+	// Make a request
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
 	)
@@ -20,14 +21,14 @@ func (suite *OAuth2TestSuite) TestRefreshTokenGrantNotFound() {
 	}
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
-	// Status code
+	// Check the status code
 	assert.Equal(
 		suite.T(),
 		400,
 		recorded.Recorder.Code, "Status code should be 400",
 	)
 
-	// Response body
+	// Check the response body
 	assert.Equal(
 		suite.T(),
 		"{\"error\":\"Refresh token not found\"}",
@@ -36,7 +37,8 @@ func (suite *OAuth2TestSuite) TestRefreshTokenGrantNotFound() {
 	)
 }
 
-func (suite *OAuth2TestSuite) TestRefreshTokenGrantExpired() {
+func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
+	// Insert a test refresh token
 	if err := suite.DB.Create(&RefreshToken{
 		RefreshToken: "test_refresh_token",
 		ExpiresAt:    time.Now().Add(-1 * time.Second),
@@ -44,6 +46,7 @@ func (suite *OAuth2TestSuite) TestRefreshTokenGrantExpired() {
 		log.Fatal(err)
 	}
 
+	// Make a request
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
 	)
@@ -54,14 +57,14 @@ func (suite *OAuth2TestSuite) TestRefreshTokenGrantExpired() {
 	}
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
-	// Status code
+	// Check the status code
 	assert.Equal(
 		suite.T(),
 		400,
 		recorded.Recorder.Code, "Status code should be 400",
 	)
 
-	// Response body
+	// Check the response body
 	assert.Equal(
 		suite.T(),
 		"{\"error\":\"Refresh token expired\"}",
@@ -70,7 +73,8 @@ func (suite *OAuth2TestSuite) TestRefreshTokenGrantExpired() {
 	)
 }
 
-func (suite *OAuth2TestSuite) TestRefreshTokenGrantAccessTokenNotFound() {
+func (suite *OauthTestSuite) TestRefreshTokenGrantAccessTokenNotFound() {
+	// Insert a test refresh token
 	if err := suite.DB.Create(&RefreshToken{
 		RefreshToken: "test_refresh_token",
 		ExpiresAt:    time.Now().Add(+1 * time.Second),
@@ -78,6 +82,7 @@ func (suite *OAuth2TestSuite) TestRefreshTokenGrantAccessTokenNotFound() {
 		log.Fatal(err)
 	}
 
+	// Make a request
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
 	)
@@ -88,14 +93,14 @@ func (suite *OAuth2TestSuite) TestRefreshTokenGrantAccessTokenNotFound() {
 	}
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
-	// Status code
+	// Check the status code
 	assert.Equal(
 		suite.T(),
 		400,
 		recorded.Recorder.Code, "Status code should be 400",
 	)
 
-	// Response body
+	// Check the response body
 	assert.Equal(
 		suite.T(),
 		"{\"error\":\"Access token not found\"}",

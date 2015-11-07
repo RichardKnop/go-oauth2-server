@@ -8,7 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OAuth2TestSuite) TestClientCredentialsGrant() {
+func (suite *OauthTestSuite) TestClientCredentialsGrant() {
+	// Make a request
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
 	)
@@ -19,14 +20,14 @@ func (suite *OAuth2TestSuite) TestClientCredentialsGrant() {
 	}
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
-	// Status code
+	// Check the status code
 	assert.Equal(
 		suite.T(),
 		200,
 		recorded.Recorder.Code, "Status code should be 200",
 	)
 
-	// Correct data saved to database
+	// Check the correct data was inserted
 	accessToken := AccessToken{}
 	assert.Equal(
 		suite.T(),
@@ -53,7 +54,7 @@ func (suite *OAuth2TestSuite) TestClientCredentialsGrant() {
 		"Access token should have a refresh token",
 	)
 
-	// Response body
+	// Check the response body
 	expected, _ := json.Marshal(map[string]interface{}{
 		"id":            accessToken.ID,
 		"access_token":  accessToken.AccessToken,

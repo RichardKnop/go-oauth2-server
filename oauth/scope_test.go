@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OAuth2TestSuite) TestGetScope() {
+func (suite *OauthTestSuite) TestGetScope() {
 	scope, err := getScope(suite.DB, "")
 	assert.Nil(suite.T(), err)
 	assert.Equal(
@@ -27,7 +27,7 @@ func (suite *OAuth2TestSuite) TestGetScope() {
 	}
 }
 
-func (suite *OAuth2TestSuite) TestScopeExists() {
+func (suite *OauthTestSuite) TestScopeExists() {
 	assert.Equal(
 		suite.T(), true, scopeExists(suite.DB, "foo bar qux"),
 		"Should return true",

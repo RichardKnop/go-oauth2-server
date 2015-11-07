@@ -6,7 +6,7 @@ import "time"
 type Client struct {
 	ID          int
 	ClientID    string `sql:"type:varchar(254);unique;not null"`
-	Password    string `sql:"type:varchar(60);not null"`
+	Secret      string `sql:"type:varchar(60);not null"`
 	RedirectURI string `sql:"type:varchar(200)"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
