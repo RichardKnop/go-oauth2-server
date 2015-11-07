@@ -16,7 +16,7 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
       * [Implicit](#implicit)
       * [User Credentials](#user-credentials)
       * [Client Credentials](#client-credentials)
-      * [Refreshing Token](#refreshing-token)
+      * [Refresh Token](#refresh-token)
 * [Development](#development)
   * [Dependencies](#dependencies)
   * [Setup](#setup)
@@ -100,7 +100,7 @@ Response:
 }
 ```
 
-### Refreshing Token
+#### Refresh Token
 
 http://tools.ietf.org/html/rfc6749#section-6
 
