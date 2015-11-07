@@ -1,4 +1,4 @@
-package oauth2
+package oauth
 
 import (
 	"github.com/ant0ine/go-json-rest/rest/test"

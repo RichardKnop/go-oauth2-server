@@ -1,4 +1,4 @@
-package oauth2
+package oauth
 
 import "time"
 

@@ -1,4 +1,4 @@
-package oauth2
+package oauth
 
 import (
 	"net/http"
@@ -15,9 +15,9 @@ func NewRoutes(cnf *config.Config, db *gorm.DB) []*rest.Route {
 		rest.Post("/oauth2/api/v1/tokens", func(w rest.ResponseWriter, r *rest.Request) {
 			tokensHandler(w, r, cnf, db)
 		}),
-		rest.Post("/oauth2/api/v1/users", func(w rest.ResponseWriter, r *rest.Request) {
-			registerUserHandler(w, r, cnf, db)
-		}),
+		// rest.Post("/oauth2/api/v1/users", func(w rest.ResponseWriter, r *rest.Request) {
+		// 	registerUserHandler(w, r, cnf, db)
+		// }),
 	}
 }
 
@@ -51,9 +51,9 @@ func tokensHandler(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, d
 	grants[r.FormValue("grant_type")]()
 }
 
-// POST /oauth2/api/v1/users
-func registerUserHandler(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
-	// TODO - Require client authentication ?
-
-	registerUser(w, r, cnf, db)
-}
+// // POST /oauth2/api/v1/users
+// func registerUserHandler(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
+// 	// TODO - Require client authentication ?
+//
+// 	registerUser(w, r, cnf, db)
+// }

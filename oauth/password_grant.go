@@ -1,4 +1,4 @@
-package oauth2
+package oauth
 
 import (
 	"net/http"
@@ -9,14 +9,21 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-func clientCredentialsGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
+func passwordGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
+	// User authentication required
+	user, err := authUser(r.Request, db)
+	if err != nil {
+		api.UnauthorizedError(w, err.Error())
+		return
+	}
+
 	scope, err := getScope(db, r.FormValue("scope"))
 	if err != nil {
 		api.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	accessToken, err := grantAccessToken(cnf, db, client, nil, scope)
+	accessToken, err := grantAccessToken(cnf, db, client, user, scope)
 	if err != nil {
 		api.Error(w, err.Error(), http.StatusInternalServerError)
 	}

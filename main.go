@@ -9,7 +9,7 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/RichardKnop/go-oauth2-server/migrate"
-	"github.com/RichardKnop/go-oauth2-server/oauth2"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/codegangsta/cli"
 )
 
@@ -35,7 +35,7 @@ func main() {
 				if err := migrate.Bootstrap(db); err != nil {
 					log.Fatal(err)
 				}
-				if err := oauth2.MigrateAll(db); err != nil {
+				if err := oauth.MigrateAll(db); err != nil {
 					log.Fatal(err)
 				}
 			},
@@ -44,7 +44,7 @@ func main() {
 			Name:  "runserver",
 			Usage: "run web server",
 			Action: func(c *cli.Context) {
-				routes := oauth2.NewRoutes(cnf, db)
+				routes := oauth.NewRoutes(cnf, db)
 				api := api.NewAPI(api.ProductionStack, routes)
 				log.Print("Listening on port 8080")
 				log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
