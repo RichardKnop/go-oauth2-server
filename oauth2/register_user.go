@@ -12,14 +12,14 @@ import (
 )
 
 // Registers a new user
-func register(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
+func registerUser(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
 	user := User{}
 	if err := r.DecodeJsonPayload(&user); err != nil {
 		api.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	if err := user.Validate(); err != nil {
+	if err := validateUserData(&user); err != nil {
 		api.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}

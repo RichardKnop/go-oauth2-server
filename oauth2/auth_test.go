@@ -6,9 +6,7 @@ import (
 )
 
 func (suite *TestSuite) TestAuthClientAuthenticationRequired() {
-	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/tokens?grant_type=password", nil,
-	)
+	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 
 	client, err := authClient(r, suite.DB)
 
@@ -20,9 +18,7 @@ func (suite *TestSuite) TestAuthClientAuthenticationRequired() {
 }
 
 func (suite *TestSuite) TestAuthClientNotFound() {
-	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/tokens?grant_type=password", nil,
-	)
+	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("bogus", "test_client_secret")
 
 	client, err := authClient(r, suite.DB)
@@ -35,9 +31,7 @@ func (suite *TestSuite) TestAuthClientNotFound() {
 }
 
 func (suite *TestSuite) TestAuthClientIncorrectSecret() {
-	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/tokens?grant_type=password", nil,
-	)
+	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("test_client_id", "bogus")
 
 	client, err := authClient(r, suite.DB)
@@ -50,9 +44,7 @@ func (suite *TestSuite) TestAuthClientIncorrectSecret() {
 }
 
 func (suite *TestSuite) TestAuthClient() {
-	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/tokens?grant_type=password", nil,
-	)
+	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("test_client_id", "test_client_secret")
 
 	client, err := authClient(r, suite.DB)

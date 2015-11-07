@@ -107,7 +107,7 @@ Response:
 
 http://tools.ietf.org/html/rfc6749#section-6
 
-Let's say you have created a new access token using client or user credentials grant type. The response included a refresh token which you can use to get a new access token before your current access token expires.
+Let's say you have obtained an access token previously. The response included a refresh token which you can use to get a new access token before your current access token expires.
 
 ```
 $ curl localhost:8080/oauth2/api/v1/tokens \
