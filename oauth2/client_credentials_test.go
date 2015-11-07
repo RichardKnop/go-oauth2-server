@@ -10,11 +10,12 @@ import (
 
 func (suite *TestSuite) TestClientCredentialsGrant() {
 	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/tokens?grant_type=client_credentials", nil,
+		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
 	)
 	r.SetBasicAuth("test_client_id", "test_client_secret")
 	r.PostForm = url.Values{
-		"scope": {"bar qux"},
+		"grant_type": {"client_credentials"},
+		"scope":      {"bar qux"},
 	}
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 

@@ -91,10 +91,6 @@ func refreshToken(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db
 		return
 	}
 
-	// Delete old access / refresh token
-	db.Delete(&refreshToken)
-	db.Delete(&accessToken)
-
 	grantAccessToken(w, cnf, db, &accessToken.Client, &accessToken.User, requestedScope)
 }
 
@@ -106,6 +102,19 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 		return
 	}
 
+	// Fetch old access tokens for later deletion
+	var oldAccessTokens []AccessToken
+	query := "client_id = ?"
+	args := []interface{}{client.ClientID}
+	if user != nil {
+		query += " AND user_id = ?"
+		args = append(args, user.ID)
+	} else {
+		query += " AND user_id IS NULL"
+	}
+	db.Where(query, args...).Preload("RefreshToken").Find(&oldAccessTokens)
+
+	// Create a new access token
 	accessToken := AccessToken{
 		AccessToken: uuid.New(),
 		ExpiresAt:   time.Now().Add(time.Duration(cnf.AccessTokenLifetime) * time.Second),
@@ -124,7 +133,11 @@ func grantAccessToken(w rest.ResponseWriter, cnf *config.Config, db *gorm.DB, cl
 		return
 	}
 
-	// TODO - should we delete old access tokens for this client / user?
+	// Delete old access tokens and their associated refresh tokens
+	for _, oldAccessToken := range oldAccessTokens {
+		db.Delete(&oldAccessToken)
+		db.Delete(&oldAccessToken.RefreshToken)
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteJson(map[string]interface{}{

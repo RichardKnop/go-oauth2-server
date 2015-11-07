@@ -10,12 +10,13 @@ import (
 
 func (suite *TestSuite) TestPasswordGrant() {
 	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/tokens?grant_type=password", nil,
+		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
 	)
 	r.SetBasicAuth("test_client_id", "test_client_secret")
 	r.PostForm = url.Values{
-		"username": {"test_username"},
-		"password": {"test_password"},
+		"grant_type": {"password"},
+		"username":   {"test_username"},
+		"password":   {"test_password"},
 	}
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
