@@ -10,6 +10,8 @@ import (
 )
 
 func passwordGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
+	requestedScope := r.FormValue("scope")
+
 	// Authenticate the user
 	user, err := authUser(r.Request, db)
 	if err != nil {
@@ -18,7 +20,7 @@ func passwordGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, d
 	}
 
 	// Get the scope string
-	scope, err := getScope(db, r.FormValue("scope"))
+	scope, err := getScope(db, requestedScope)
 	if err != nil {
 		api.Error(w, err.Error(), http.StatusBadRequest)
 		return

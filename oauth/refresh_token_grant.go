@@ -47,7 +47,7 @@ func refreshTokenGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Confi
 	}
 
 	// Get the scope string
-	scope, err := getScope(db, r.FormValue("scope"))
+	scope, err := getScope(db, requestedScope)
 	if err != nil {
 		api.Error(w, err.Error(), http.StatusBadRequest)
 		return
