@@ -7,7 +7,10 @@ import (
 )
 
 func (suite *OauthTestSuite) TestGetScope() {
-	scope, err := getScope(suite.DB, "")
+	var scope string
+	var err error
+
+	scope, err = getScope(suite.DB, "")
 	assert.Nil(suite.T(), err)
 	assert.Equal(
 		suite.T(), "foo bar", scope,

@@ -7,12 +7,8 @@ import (
 )
 
 func TestNewAccessToken(t *testing.T) {
-	client := Client{
-		ClientID: "test_client",
-	}
-	user := User{
-		Username: "test_username",
-	}
+	client := Client{ClientID: "test_client"}
+	user := User{Username: "test_username"}
 
 	var accessToken *AccessToken
 

@@ -13,16 +13,7 @@ import (
 
 func grantAccessToken(cnf *config.Config, db *gorm.DB, client *Client, user *User, scope string) (*AccessToken, error) {
 	// Fetch old access tokens for later deletion
-	var oldAccessTokens []AccessToken
-	queryParts := []string{"client_id = ?"}
-	args := []interface{}{client.ID}
-	if user != nil {
-		queryParts = append(queryParts, "user_id = ?")
-		args = append(args, user.ID)
-	} else {
-		queryParts = append(queryParts, "user_id IS NULL")
-	}
-	db.Where(strings.Join(queryParts, " AND "), args...).Preload("RefreshToken").Find(&oldAccessTokens)
+	oldAccessTokens := getAccessTokens(db, client, user)
 
 	// Create a new access token
 	accessToken := newAccessToken(cnf.AccessTokenLifetime, cnf.RefreshTokenLifetime, client, user, scope)
@@ -39,6 +30,24 @@ func grantAccessToken(cnf *config.Config, db *gorm.DB, client *Client, user *Use
 	return accessToken, nil
 }
 
+// Get access tokens by client and user ids
+func getAccessTokens(db *gorm.DB, client *Client, user *User) []AccessToken {
+	var accessTokens []AccessToken
+
+	queryParts := []string{"client_id = ?"}
+	args := []interface{}{client.ID}
+	if user != nil {
+		queryParts = append(queryParts, "user_id = ?")
+		args = append(args, user.ID)
+	} else {
+		queryParts = append(queryParts, "user_id IS NULL")
+	}
+	db.Where(strings.Join(queryParts, " AND "), args...).Preload("Client").Preload("User").Preload("RefreshToken").Find(&accessTokens)
+
+	return accessTokens
+}
+
+// Create a new AccessToken struct
 func newAccessToken(accessTokenLifetime int, refreshTokenLifetime int, client *Client, user *User, scope string) *AccessToken {
 	accessToken := &AccessToken{
 		AccessToken: uuid.New(),
@@ -56,6 +65,7 @@ func newAccessToken(accessTokenLifetime int, refreshTokenLifetime int, client *C
 	return accessToken
 }
 
+// Write AccessToken struct to response as a JSON
 func respondWithAccessToken(w rest.ResponseWriter, cnf *config.Config, accessToken *AccessToken) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteJson(map[string]interface{}{
