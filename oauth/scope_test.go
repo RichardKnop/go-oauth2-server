@@ -41,6 +41,11 @@ func (suite *OauthTestSuite) TestScopeExists() {
 
 func TestScopeNotGreater(t *testing.T) {
 	assert.Equal(
+		t, true, scopeNotGreater("", "foo bar qux"),
+		"Should return true",
+	)
+
+	assert.Equal(
 		t, true, scopeNotGreater("foo", "foo bar qux"),
 		"Should return true",
 	)

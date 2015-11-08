@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -41,6 +42,8 @@ func refreshTokenGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Confi
 	}
 
 	// Requested scope CANNOT include any scope not originally granted
+	log.Print(requestedScope)
+	log.Print(accessToken.Scope)
 	if !scopeNotGreater(requestedScope, accessToken.Scope) {
 		api.Error(w, "Invalid scope", http.StatusBadRequest)
 		return

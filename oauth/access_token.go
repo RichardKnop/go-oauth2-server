@@ -25,20 +25,8 @@ func grantAccessToken(cnf *config.Config, db *gorm.DB, client *Client, user *Use
 	db.Where(strings.Join(queryParts, " AND "), args...).Preload("RefreshToken").Find(&oldAccessTokens)
 
 	// Create a new access token
-	newAccessToken := AccessToken{
-		AccessToken: uuid.New(),
-		ExpiresAt:   time.Now().Add(time.Duration(cnf.AccessTokenLifetime) * time.Second),
-		Scope:       scope,
-		Client:      *client,
-		RefreshToken: RefreshToken{
-			RefreshToken: uuid.New(),
-			ExpiresAt:    time.Now().Add(time.Duration(cnf.RefreshTokenLifetime) * time.Second),
-		},
-	}
-	if user != nil {
-		newAccessToken.User = *user
-	}
-	if err := db.Create(&newAccessToken).Error; err != nil {
+	accessToken := newAccessToken(cnf.AccessTokenLifetime, cnf.RefreshTokenLifetime, client, user, scope)
+	if err := db.Create(accessToken).Error; err != nil {
 		return nil, errors.New("Error saving access token")
 	}
 
@@ -48,7 +36,24 @@ func grantAccessToken(cnf *config.Config, db *gorm.DB, client *Client, user *Use
 		db.Delete(&oldAccessToken.RefreshToken)
 	}
 
-	return &newAccessToken, nil
+	return accessToken, nil
+}
+
+func newAccessToken(accessTokenLifetime int, refreshTokenLifetime int, client *Client, user *User, scope string) *AccessToken {
+	accessToken := &AccessToken{
+		AccessToken: uuid.New(),
+		ExpiresAt:   time.Now().Add(time.Duration(accessTokenLifetime) * time.Second),
+		Scope:       scope,
+		Client:      *client,
+		RefreshToken: RefreshToken{
+			RefreshToken: uuid.New(),
+			ExpiresAt:    time.Now().Add(time.Duration(refreshTokenLifetime) * time.Second),
+		},
+	}
+	if user != nil {
+		accessToken.User = *user
+	}
+	return accessToken
 }
 
 func respondWithAccessToken(w rest.ResponseWriter, cnf *config.Config, accessToken *AccessToken) {

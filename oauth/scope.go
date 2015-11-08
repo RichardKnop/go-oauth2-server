@@ -43,6 +43,11 @@ func scopeExists(db *gorm.DB, requestedScope string) bool {
 }
 
 func scopeNotGreater(newScope, oldScope string) bool {
+	// Empty scope is never greater
+	if newScope == "" {
+		return true
+	}
+
 	// Split the old scope string
 	oldScopes := strings.Split(oldScope, " ")
 
