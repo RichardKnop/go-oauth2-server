@@ -34,6 +34,7 @@ func getDefaultScope(db *gorm.DB) string {
 func scopeExists(db *gorm.DB, requestedScope string) bool {
 	// Split the requested scope string
 	scopes := strings.Split(requestedScope, " ")
+
 	// Count how many of requested scopes exist in the database
 	var count int
 	db.Model(&Scope{}).Where("scope in (?)", scopes).Count(&count)
