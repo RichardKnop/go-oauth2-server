@@ -34,26 +34,30 @@ type User struct {
 
 // RefreshToken ...
 type RefreshToken struct {
-	ID        uint      `gorm:"primary_key"`
-	Token     string    `sql:"type:varchar(40);unique;not null"`
-	ExpiresAt time.Time `sql:"not null"`
-	Scope     string    `sql:"type:varchar(200);not null"`
-	Client    Client
+	ID        uint          `gorm:"primary_key"`
+	Token     string        `sql:"type:varchar(40);unique;not null"`
+	ExpiresAt time.Time     `sql:"not null"`
+	Scope     string        `sql:"type:varchar(200);not null"`
 	ClientID  sql.NullInt64 `sql:"index;not null"`
-	User      User
 	UserID    sql.NullInt64 `sql:"index"`
+	Client    Client
+	User      User
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // AccessToken ...
 type AccessToken struct {
-	ID        uint      `gorm:"primary_key"`
-	Token     string    `sql:"type:varchar(40);unique;not null"`
-	ExpiresAt time.Time `sql:"not null"`
-	Scope     string    `sql:"type:varchar(200);not null"`
-	Client    Client
+	ID        uint          `gorm:"primary_key"`
+	Token     string        `sql:"type:varchar(40);unique;not null"`
+	ExpiresAt time.Time     `sql:"not null"`
+	Scope     string        `sql:"type:varchar(200);not null"`
 	ClientID  sql.NullInt64 `sql:"index;not null"`
-	User      User
 	UserID    sql.NullInt64 `sql:"index"`
+	Client    Client
+	User      User
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 // AuthCode ...
@@ -63,8 +67,10 @@ type AuthCode struct {
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
 	ExpiresAt   time.Time      `sql:"not null"`
 	Scope       string         `sql:"type:varchar(200);not null"`
+	ClientID    sql.NullInt64  `sql:"index;not null"`
+	UserID      sql.NullInt64  `sql:"index"`
 	Client      Client
-	ClientID    sql.NullInt64 `sql:"index;not null"`
 	User        User
-	UserID      sql.NullInt64 `sql:"index"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
