@@ -20,11 +20,11 @@ func clientCredentialsGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.
 	}
 
 	// Create a new access token
-	accessToken, err := grantAccessToken(cnf, db, client, nil, scope)
+	accessToken, refreshToken, err := grantAccessToken(cnf, db, client, nil, scope)
 	if err != nil {
 		api.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	// Write the access token to a JSON response
-	respondWithAccessToken(w, cnf, accessToken)
+	respondWithAccessToken(w, cnf, accessToken, refreshToken)
 }

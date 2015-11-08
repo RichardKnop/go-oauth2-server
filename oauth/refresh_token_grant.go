@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -15,36 +14,21 @@ func refreshTokenGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Confi
 	token := r.FormValue("refresh_token")
 	requestedScope := r.FormValue("scope")
 
-	// Fetch refresh token from the database
-	refreshToken := RefreshToken{}
-	if db.Where(&RefreshToken{RefreshToken: token}).First(&refreshToken).RecordNotFound() {
+	// Fetch a refresh token from the database
+	theRefreshToken := RefreshToken{}
+	if db.Where(&RefreshToken{Token: token, ClientID: client.ID}).Preload("Client").Preload("User").First(&theRefreshToken).RecordNotFound() {
 		api.Error(w, "Refresh token not found", http.StatusBadRequest)
 		return
 	}
 
-	// Check refresh token hasn't expired
-	if time.Now().After(refreshToken.ExpiresAt) {
+	// Check the refresh token hasn't expired
+	if time.Now().After(theRefreshToken.ExpiresAt) {
 		api.Error(w, "Refresh token expired", http.StatusBadRequest)
 		return
 	}
 
-	// Fetch the access token we are going to refresh
-	accessToken := AccessToken{}
-	if db.Where(&AccessToken{RefreshTokenID: refreshToken.ID}).Preload("Client").Preload("User").First(&accessToken).RecordNotFound() {
-		api.Error(w, "Access token not found", http.StatusBadRequest)
-		return
-	}
-
-	// Check the client IDs match
-	if accessToken.Client.ClientID != client.ClientID {
-		api.Error(w, "Client IDs mismatch", http.StatusBadRequest)
-		return
-	}
-
 	// Requested scope CANNOT include any scope not originally granted
-	log.Print(requestedScope)
-	log.Print(accessToken.Scope)
-	if !scopeNotGreater(requestedScope, accessToken.Scope) {
+	if !scopeNotGreater(requestedScope, theRefreshToken.Scope) {
 		api.Error(w, "Invalid scope", http.StatusBadRequest)
 		return
 	}
@@ -57,11 +41,11 @@ func refreshTokenGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Confi
 	}
 
 	// Create a new access token
-	newAccessToken, err := grantAccessToken(cnf, db, &accessToken.Client, &accessToken.User, scope)
+	accessToken, refreshToken, err := grantAccessToken(cnf, db, &theRefreshToken.Client, &theRefreshToken.User, scope)
 	if err != nil {
 		api.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	// Write the access token to a JSON response
-	respondWithAccessToken(w, cnf, newAccessToken)
+	respondWithAccessToken(w, cnf, accessToken, refreshToken)
 }

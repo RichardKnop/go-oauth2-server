@@ -55,6 +55,16 @@ func migrate0001(db *gorm.DB) error {
 			return fmt.Errorf("Error creating auth_codes table: %s", db.Error)
 		}
 
+		// Add foreign key on refresh_tokens.client_id
+		if err := db.Model(&RefreshToken{}).AddForeignKey("client_id", "clients(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on refresh_tokens.client_id for clients(id): %s", db.Error)
+		}
+
+		// Add foreign key on refresh_tokens.user_id
+		if err := db.Model(&RefreshToken{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on refresh_tokens.user_id for users(id): %s", db.Error)
+		}
+
 		// Add foreign key on access_tokens.client_id
 		if err := db.Model(&AccessToken{}).AddForeignKey("client_id", "clients(id)", "RESTRICT", "RESTRICT").Error; err != nil {
 			return fmt.Errorf("Error creating foreign key on access_tokens.client_id for clients(id): %s", db.Error)
@@ -63,11 +73,6 @@ func migrate0001(db *gorm.DB) error {
 		// Add foreign key on access_tokens.user_id
 		if err := db.Model(&AccessToken{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
 			return fmt.Errorf("Error creating foreign key on access_tokens.user_id for users(id): %s", db.Error)
-		}
-
-		// Add foreign key on access_tokens.refresh_token_id
-		if err := db.Model(&AccessToken{}).AddForeignKey("refresh_token_id", "refresh_tokens(id)", "RESTRICT", "RESTRICT").Error; err != nil {
-			return fmt.Errorf("Error creating foreign key on access_tokens.refresh_token_id for refresh_tokens(id): %s", db.Error)
 		}
 
 		// Add foreign key on auth_codes.client_id

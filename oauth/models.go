@@ -31,23 +31,26 @@ type User struct {
 
 // RefreshToken ...
 type RefreshToken struct {
-	ID           int
-	RefreshToken string    `sql:"type:varchar(40);unique;not null"`
-	ExpiresAt    time.Time `sql:"not null"`
+	ID        int
+	Token     string    `sql:"type:varchar(40);unique;not null"`
+	ExpiresAt time.Time `sql:"not null"`
+	Scope     string    `sql:"type:varchar(200);not null"`
+	Client    Client
+	ClientID  int `sql:"index;not null"`
+	User      User
+	UserID    int `sql:"index"`
 }
 
 // AccessToken ...
 type AccessToken struct {
-	ID             int
-	AccessToken    string    `sql:"type:varchar(40);unique;not null"`
-	ExpiresAt      time.Time `sql:"not null"`
-	Scope          string    `sql:"type:varchar(200);not null"`
-	Client         Client
-	ClientID       int `sql:"index;not null"`
-	User           User
-	UserID         int `sql:"index"`
-	RefreshToken   RefreshToken
-	RefreshTokenID int `sql:"index"`
+	ID        int
+	Token     string    `sql:"type:varchar(40);unique;not null"`
+	ExpiresAt time.Time `sql:"not null"`
+	Scope     string    `sql:"type:varchar(200);not null"`
+	Client    Client
+	ClientID  int `sql:"index;not null"`
+	User      User
+	UserID    int `sql:"index"`
 }
 
 // AuthCode ...

@@ -33,36 +33,25 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 	assert.Equal(
 		suite.T(),
 		false,
-		suite.DB.Preload("User").Preload("Client").Preload("RefreshToken").First(&accessToken).RecordNotFound(),
+		suite.DB.First(&accessToken).RecordNotFound(),
 		"Access token should be in the database",
 	)
+	refreshToken := RefreshToken{}
 	assert.Equal(
 		suite.T(),
-		"test_client",
-		accessToken.Client.ClientID,
-		"Access token should belong to test_client",
-	)
-	assert.Equal(
-		suite.T(),
-		"test_username",
-		accessToken.User.Username,
-		"Access token should belong to test_username",
-	)
-	assert.NotEqual(
-		suite.T(),
-		0,
-		accessToken.RefreshToken.ID,
-		"Access token should have a refresh token",
+		false,
+		suite.DB.First(&refreshToken).RecordNotFound(),
+		"Refresh token should be in the database",
 	)
 
 	// Check the response body
 	expected, _ := json.Marshal(map[string]interface{}{
 		"id":            accessToken.ID,
-		"access_token":  accessToken.AccessToken,
+		"access_token":  accessToken.Token,
 		"expires_in":    3600,
 		"token_type":    "Bearer",
 		"scope":         "foo bar",
-		"refresh_token": accessToken.RefreshToken.RefreshToken,
+		"refresh_token": refreshToken.Token,
 	})
 	assert.Equal(
 		suite.T(),
