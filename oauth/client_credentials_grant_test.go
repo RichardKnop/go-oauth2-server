@@ -13,7 +13,7 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 	r := test.MakeSimpleRequest(
 		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
 	)
-	r.SetBasicAuth("test_client_id", "test_client_secret")
+	r.SetBasicAuth("test_client", "test_secret")
 	r.PostForm = url.Values{
 		"grant_type": {"client_credentials"},
 		"scope":      {"bar qux"},
@@ -37,9 +37,9 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 	)
 	assert.Equal(
 		suite.T(),
-		"test_client_id",
+		"test_client",
 		accessToken.Client.ClientID,
-		"Access token should belong to test_client_id",
+		"Access token should belong to test_client",
 	)
 	assert.Equal(
 		suite.T(),

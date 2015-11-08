@@ -23,7 +23,7 @@ func (suite *OauthTestSuite) TestAuthClientCredentialsRequired() {
 
 func (suite *OauthTestSuite) TestAuthClientNotFound() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
-	r.SetBasicAuth("bogus", "test_client_secret")
+	r.SetBasicAuth("bogus", "test_secret")
 
 	client, err := authClient(r, suite.DB)
 
@@ -38,7 +38,7 @@ func (suite *OauthTestSuite) TestAuthClientNotFound() {
 
 func (suite *OauthTestSuite) TestAuthClientIncorrectSecret() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
-	r.SetBasicAuth("test_client_id", "bogus")
+	r.SetBasicAuth("test_client", "bogus")
 
 	client, err := authClient(r, suite.DB)
 
@@ -53,7 +53,7 @@ func (suite *OauthTestSuite) TestAuthClientIncorrectSecret() {
 
 func (suite *OauthTestSuite) TestAuthClient() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
-	r.SetBasicAuth("test_client_id", "test_client_secret")
+	r.SetBasicAuth("test_client", "test_secret")
 
 	client, err := authClient(r, suite.DB)
 
@@ -62,7 +62,7 @@ func (suite *OauthTestSuite) TestAuthClient() {
 
 	// Client should not be nil
 	if assert.NotNil(suite.T(), client) {
-		assert.Equal(suite.T(), "test_client_id", client.ClientID)
+		assert.Equal(suite.T(), "test_client", client.ClientID)
 	}
 }
 

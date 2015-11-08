@@ -19,8 +19,10 @@ import (
 // OauthTestSuite ...
 type OauthTestSuite struct {
 	suite.Suite
-	DB  *gorm.DB
-	API *rest.Api
+	DB     *gorm.DB
+	API    *rest.Api
+	Client *Client
+	User   *User
 }
 
 // The SetupSuite method will be run by testify once, at the very
@@ -51,15 +53,16 @@ func (suite *OauthTestSuite) TearDownSuite() {
 // The SetupTest method will be run before every test in the suite.
 func (suite *OauthTestSuite) SetupTest() {
 	// Insert test client
-	clientSecretHash, err := bcrypt.GenerateFromPassword([]byte("test_client_secret"), 3)
+	clientSecretHash, err := bcrypt.GenerateFromPassword([]byte("test_secret"), 3)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := suite.DB.Create(&Client{
+	suite.Client = &Client{
 		ID:       1,
-		ClientID: "test_client_id",
+		ClientID: "test_client",
 		Secret:   string(clientSecretHash),
-	}).Error; err != nil {
+	}
+	if err := suite.DB.Create(suite.Client).Error; err != nil {
 		log.Fatal(err)
 	}
 
@@ -68,11 +71,12 @@ func (suite *OauthTestSuite) SetupTest() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := suite.DB.Create(&User{
+	suite.User = &User{
 		ID:       1,
 		Username: "test_username",
 		Password: string(passwordHash),
-	}).Error; err != nil {
+	}
+	if err := suite.DB.Create(suite.User).Error; err != nil {
 		log.Fatal(err)
 	}
 
