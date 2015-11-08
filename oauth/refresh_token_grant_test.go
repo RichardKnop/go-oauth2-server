@@ -213,6 +213,12 @@ func (suite *OauthTestSuite) TestClientCredentialsGrantRefresh() {
 		accessToken.User.ID,
 		"Access token should not belong to a user",
 	)
+	assert.NotEqual(
+		suite.T(),
+		0,
+		accessToken.RefreshToken.ID,
+		"Access token should have a refresh token",
+	)
 
 	// Check old tokens got deleted
 	assert.Equal(
