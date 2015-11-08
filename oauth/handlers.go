@@ -22,8 +22,8 @@ func NewRoutes(cnf *config.Config, db *gorm.DB) []*rest.Route {
 func tokensHandler(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB) {
 	// Check the grant type
 	grantTypes := map[string]bool{
-		// "authorization_code": true,
-		// "implicit":           true,
+		"authorization_code": true,
+		"implicit":           true,
 		"password":           true,
 		"client_credentials": true,
 		"refresh_token":      true,
@@ -41,6 +41,8 @@ func tokensHandler(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, d
 	}
 
 	grants := map[string]func(){
+		"authorization_code": func() { authorizationCodeGrant(w, r, cnf, db, client) },
+		"implicit":           func() { implicitGrant(w, r, cnf, db, client) },
 		"password":           func() { passwordGrant(w, r, cnf, db, client) },
 		"client_credentials": func() { clientCredentialsGrant(w, r, cnf, db, client) },
 		"refresh_token":      func() { refreshTokenGrant(w, r, cnf, db, client) },
