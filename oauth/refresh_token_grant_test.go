@@ -12,9 +12,7 @@ import (
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantNotFound() {
 	// Make a request
-	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
-	)
+	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
 	r.SetBasicAuth("test_client", "test_secret")
 	r.PostForm = url.Values{
 		"grant_type":    {"refresh_token"},
@@ -51,9 +49,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
 	}
 
 	// Make a request
-	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
-	)
+	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
 	r.SetBasicAuth("test_client", "test_secret")
 	r.PostForm = url.Values{
 		"grant_type":    {"refresh_token"},
@@ -90,9 +86,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	}
 
 	// Make a request
-	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil,
-	)
+	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
 	r.SetBasicAuth("test_client", "test_secret")
 	r.PostForm = url.Values{
 		"grant_type":    {"refresh_token"},

@@ -1,15 +1,16 @@
 package oauth
 
 import (
+	"net/url"
+
 	"github.com/ant0ine/go-json-rest/rest/test"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestInvalidGrantType() {
 	// Make a request
-	r := test.MakeSimpleRequest(
-		"POST", "http://1.2.3.4/oauth2/api/v1/tokens?grant_type=bogus", nil,
-	)
+	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
+	r.PostForm = url.Values{"grant_type": {"bogus"}}
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
 	// Check the status code
