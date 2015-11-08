@@ -1,28 +1,31 @@
 package oauth
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 // Client ...
 type Client struct {
-	ID          int
-	ClientID    string `sql:"type:varchar(254);unique;not null"`
-	Secret      string `sql:"type:varchar(60);not null"`
-	RedirectURI string `sql:"type:varchar(200)"`
+	ID          uint           `gorm:"primary_key"`
+	ClientID    string         `sql:"type:varchar(254);unique;not null"`
+	Secret      string         `sql:"type:varchar(60);not null"`
+	RedirectURI sql.NullString `sql:"type:varchar(200)"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
 
 // Scope ...
 type Scope struct {
-	ID          int
+	ID          uint   `gorm:"primary_key"`
 	Scope       string `sql:"type:varchar(200);unique;not null"`
-	Description string
+	Description sql.NullString
 	IsDefault   bool `sql:"default:false"`
 }
 
 // User ...
 type User struct {
-	ID        int
+	ID        uint   `gorm:"primary_key"`
 	Username  string `sql:"type:varchar(254);unique;not null"`
 	Password  string `sql:"type:varchar(60);not null"`
 	CreatedAt time.Time
@@ -31,37 +34,37 @@ type User struct {
 
 // RefreshToken ...
 type RefreshToken struct {
-	ID        int
+	ID        uint      `gorm:"primary_key"`
 	Token     string    `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt time.Time `sql:"not null"`
 	Scope     string    `sql:"type:varchar(200);not null"`
 	Client    Client
-	ClientID  int `sql:"index;not null"`
+	ClientID  sql.NullInt64 `sql:"index;not null"`
 	User      User
-	UserID    int `sql:"index"`
+	UserID    sql.NullInt64 `sql:"index"`
 }
 
 // AccessToken ...
 type AccessToken struct {
-	ID        int
+	ID        uint      `gorm:"primary_key"`
 	Token     string    `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt time.Time `sql:"not null"`
 	Scope     string    `sql:"type:varchar(200);not null"`
 	Client    Client
-	ClientID  int `sql:"index;not null"`
+	ClientID  sql.NullInt64 `sql:"index;not null"`
 	User      User
-	UserID    int `sql:"index"`
+	UserID    sql.NullInt64 `sql:"index"`
 }
 
 // AuthCode ...
 type AuthCode struct {
-	ID          int
-	Code        string    `sql:"type:varchar(40);unique;not null"`
-	RedirectURI string    `sql:"type:varchar(200)"`
-	ExpiresAt   time.Time `sql:"not null"`
-	Scope       string    `sql:"type:varchar(200);not null"`
+	ID          uint           `gorm:"primary_key"`
+	Code        string         `sql:"type:varchar(40);unique;not null"`
+	RedirectURI sql.NullString `sql:"type:varchar(200)"`
+	ExpiresAt   time.Time      `sql:"not null"`
+	Scope       string         `sql:"type:varchar(200);not null"`
 	Client      Client
-	ClientID    int `sql:"index;not null"`
+	ClientID    sql.NullInt64 `sql:"index;not null"`
 	User        User
-	UserID      int `sql:"index"`
+	UserID      sql.NullInt64 `sql:"index"`
 }

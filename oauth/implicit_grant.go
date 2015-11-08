@@ -15,7 +15,7 @@ func implicitGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, d
 
 	// Fetch an auth code from the database
 	authCode := AuthCode{}
-	if db.Where(&AuthCode{Code: code, ClientID: client.ID}).First(&authCode).RecordNotFound() {
+	if db.Where("code = ? AND client_id = ?", code, client.ID).First(&authCode).RecordNotFound() {
 		api.Error(w, "Auth code not found", http.StatusBadRequest)
 		return
 	}

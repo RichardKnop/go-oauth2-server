@@ -25,7 +25,7 @@ func getScope(db *gorm.DB, requestedScope string) (string, error) {
 func getDefaultScope(db *gorm.DB) string {
 	// Fetch default scopes
 	var scopes []string
-	db.Model(&Scope{}).Where(&Scope{IsDefault: true}).Pluck("scope", &scopes)
+	db.Model(&Scope{}).Where("is_default = ?", true).Pluck("scope", &scopes)
 
 	// Return space delimited scope string
 	return strings.Join(scopes, " ")

@@ -77,7 +77,8 @@ func deleteExpiredAccessTokens(db *gorm.DB, client *Client, user *User) {
 	queryParts, args := getClientIDUserIDQueryArgs(client, user)
 
 	// Add condition to query only for expired tokens
-	queryParts = append(queryParts, "NOW() >= expires_at")
+	queryParts = append(queryParts, "expires_at <= ?")
+	args = append(args, time.Now())
 
 	// And delete those tokens
 	db.Where(strings.Join(queryParts, " AND "), args...).Delete(&AccessToken{})

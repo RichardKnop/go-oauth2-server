@@ -1,7 +1,10 @@
 package oauth
 
 import (
+	"fmt"
+	"log"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -28,7 +31,7 @@ func TestNewAccessToken(t *testing.T) {
 		"Access token should belong to test_client",
 	)
 	assert.Equal(
-		t, 0, accessToken.User.ID,
+		t, uint(0), accessToken.User.ID,
 		"Access token should not belong to a user",
 	)
 }
@@ -55,7 +58,7 @@ func TestNewRefreshToken(t *testing.T) {
 		"Refresh token should belong to test_client",
 	)
 	assert.Equal(
-		t, 0, refreshToken.User.ID,
+		t, uint(0), refreshToken.User.ID,
 		"Refresh token should not belong to a user",
 	)
 }
@@ -70,7 +73,7 @@ func TestGetClientIDUserIDQueryArgs(t *testing.T) {
 		t, expectedQueryParts, queryParts,
 		"Query parts incorrect",
 	)
-	expectedArgs = []interface{}{1}
+	expectedArgs = []interface{}{uint(1)}
 	assert.Equal(
 		t, expectedArgs, args,
 		"Args incorrect",
@@ -82,81 +85,81 @@ func TestGetClientIDUserIDQueryArgs(t *testing.T) {
 		t, expectedQueryParts, queryParts,
 		"Query parts incorrect",
 	)
-	expectedArgs = []interface{}{1, 2}
+	expectedArgs = []interface{}{uint(1), uint(2)}
 	assert.Equal(
 		t, expectedArgs, args,
 		"Args incorrect",
 	)
 }
 
-// func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
-// 	// Insert test access tokens
-// 	if err := suite.DB.Create(&AccessToken{
-// 		Token:     "test_token_1",
-// 		ExpiresAt: time.Now().Add(-10 * time.Second),
-// 		Client:    *suite.Client,
-// 		User:      *suite.User,
-// 		Scope:     "doesn't matter",
-// 	}).Error; err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	if err := suite.DB.Create(&AccessToken{
-// 		Token:     "test_token_2",
-// 		ExpiresAt: time.Now().Add(-10 * time.Second),
-// 		Client:    *suite.Client,
-// 		Scope:     "doesn't matter",
-// 	}).Error; err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	if err := suite.DB.Create(&AccessToken{
-// 		Token:     "test_token_3",
-// 		ExpiresAt: time.Now().Add(+10 * time.Second),
-// 		Client:    *suite.Client,
-// 		User:      *suite.User,
-// 		Scope:     "doesn't matter",
-// 	}).Error; err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	if err := suite.DB.Create(&AccessToken{
-// 		Token:     "test_token_4",
-// 		ExpiresAt: time.Now().Add(+10 * time.Second),
-// 		Client:    *suite.Client,
-// 		Scope:     "doesn't matter",
-// 	}).Error; err != nil {
-// 		log.Fatal(err)
-// 	}
-//
-// 	// This should only delete test_token_1
-// 	deleteExpiredAccessTokens(suite.DB, suite.Client, suite.User)
-// 	assert.Equal(
-// 		suite.T(),
-// 		true,
-// 		suite.DB.Where(&AccessToken{Token: "test_token_1"}).First(&AccessToken{}).RecordNotFound(),
-// 		"test_token_1 should be deleted",
-// 	)
-// 	for _, token := range []string{"test_token_2", "test_token_3", "test_token_4"} {
-// 		assert.Equal(
-// 			suite.T(),
-// 			false,
-// 			suite.DB.Where(&AccessToken{Token: token}).First(&AccessToken{}).RecordNotFound(),
-// 			fmt.Sprintf("%s should still exist", token),
-// 		)
-// 	}
-//
-// 	// This should only delete test_token_2
-// 	deleteExpiredAccessTokens(suite.DB, suite.Client, nil)
-// 	assert.Equal(
-// 		suite.T(),
-// 		true,
-// 		suite.DB.Where(&AccessToken{Token: "test_token_2"}).First(&AccessToken{}).RecordNotFound(),
-// 		"test_token_2 should be deleted",
-// 	)
-// 	for _, token := range []string{"test_token_3", "test_token_4"} {
-// 		assert.Equal(
-// 			suite.T(),
-// 			false,
-// 			suite.DB.Where(&AccessToken{Token: token}).First(&AccessToken{}).RecordNotFound(),
-// 			fmt.Sprintf("%s should still exist", token),
-// 		)
-// 	}
-// }
+func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
+	// Insert test access tokens
+	if err := suite.DB.Create(&AccessToken{
+		Token:     "test_token_1",
+		ExpiresAt: time.Now().Add(-10 * time.Second),
+		Client:    *suite.Client,
+		User:      *suite.User,
+		Scope:     "doesn't matter",
+	}).Error; err != nil {
+		log.Fatal(err)
+	}
+	if err := suite.DB.Create(&AccessToken{
+		Token:     "test_token_2",
+		ExpiresAt: time.Now().Add(-10 * time.Second),
+		Client:    *suite.Client,
+		Scope:     "doesn't matter",
+	}).Error; err != nil {
+		log.Fatal(err)
+	}
+	if err := suite.DB.Create(&AccessToken{
+		Token:     "test_token_3",
+		ExpiresAt: time.Now().Add(+10 * time.Second),
+		Client:    *suite.Client,
+		User:      *suite.User,
+		Scope:     "doesn't matter",
+	}).Error; err != nil {
+		log.Fatal(err)
+	}
+	if err := suite.DB.Create(&AccessToken{
+		Token:     "test_token_4",
+		ExpiresAt: time.Now().Add(+10 * time.Second),
+		Client:    *suite.Client,
+		Scope:     "doesn't matter",
+	}).Error; err != nil {
+		log.Fatal(err)
+	}
+
+	// This should only delete test_token_1
+	deleteExpiredAccessTokens(suite.DB, suite.Client, suite.User)
+	assert.Equal(
+		suite.T(),
+		true,
+		suite.DB.Where("token = ?", "test_token_1").First(&AccessToken{}).RecordNotFound(),
+		"test_token_1 should be deleted",
+	)
+	for _, token := range []string{"test_token_2", "test_token_3", "test_token_4"} {
+		assert.Equal(
+			suite.T(),
+			false,
+			suite.DB.Where("token = ?", token).First(&AccessToken{}).RecordNotFound(),
+			fmt.Sprintf("%s should still exist", token),
+		)
+	}
+
+	// This should only delete test_token_2
+	deleteExpiredAccessTokens(suite.DB, suite.Client, nil)
+	assert.Equal(
+		suite.T(),
+		true,
+		suite.DB.Where("token = ?", "test_token_2").First(&AccessToken{}).RecordNotFound(),
+		"test_token_2 should be deleted",
+	)
+	for _, token := range []string{"test_token_3", "test_token_4"} {
+		assert.Equal(
+			suite.T(),
+			false,
+			suite.DB.Where("token = ?", token).First(&AccessToken{}).RecordNotFound(),
+			fmt.Sprintf("%s should still exist", token),
+		)
+	}
+}
