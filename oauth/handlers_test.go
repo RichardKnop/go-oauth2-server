@@ -14,17 +14,11 @@ func (suite *OauthTestSuite) TestInvalidGrantType() {
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
 	// Check the status code
-	assert.Equal(
-		suite.T(),
-		400,
-		recorded.Recorder.Code, "Status code should be 400",
-	)
+	assert.Equal(suite.T(), 400, recorded.Recorder.Code)
 
 	// Check the response body
 	assert.Equal(
-		suite.T(),
-		"{\"error\":\"Invalid grant type\"}",
+		suite.T(), "{\"error\":\"Invalid grant type\"}",
 		recorded.Recorder.Body.String(),
-		"Body should be expected JSON error",
 	)
 }

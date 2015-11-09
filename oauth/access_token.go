@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"errors"
-	"strings"
 	"time"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
@@ -22,7 +21,7 @@ func grantAccessToken(cnf *config.Config, db *gorm.DB, client *Client, user *Use
 	}
 
 	// Create or retrieve a refresh token
-	refreshToken, err := getOrCreateRefreshToken(cnf, db, client, user, scope)
+	refreshToken, err := getOrCreateRefreshToken(db, client, user, cnf.RefreshTokenLifetime, scope)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -56,41 +55,20 @@ func newRefreshToken(refreshTokenLifetime int, client *Client, user *User, scope
 	return refreshToken
 }
 
-func getClientIDUserIDQueryArgs(client *Client, user *User) ([]string, []interface{}) {
-	// client_id
-	queryParts := []string{"client_id = ?"}
-	args := []interface{}{client.ID}
-
-	// user_id
-	if user == nil {
-		queryParts = append(queryParts, "user_id IS NULL")
-	} else {
-		queryParts = append(queryParts, "user_id = ?")
-		args = append(args, user.ID)
-	}
-
-	return queryParts, args
-}
-
 func deleteExpiredAccessTokens(db *gorm.DB, client *Client, user *User) {
-	// Build a client/user id part of the query
-	queryParts, args := getClientIDUserIDQueryArgs(client, user)
-
-	// Add condition to query only for expired tokens
-	queryParts = append(queryParts, "expires_at <= ?")
-	args = append(args, time.Now())
-
-	// And delete those tokens
-	db.Where(strings.Join(queryParts, " AND "), args...).Delete(&AccessToken{})
+	db.Where(&AccessToken{
+		ClientID: clientIDOrNull(client),
+		UserID:   userIDOrNull(user),
+	}).Where("expires_at <= ?", time.Now()).Delete(&AccessToken{})
 }
 
-func getOrCreateRefreshToken(cnf *config.Config, db *gorm.DB, client *Client, user *User, scope string) (*RefreshToken, error) {
-	// Build a client/user id part of the query
-	queryParts, args := getClientIDUserIDQueryArgs(client, user)
-
+func getOrCreateRefreshToken(db *gorm.DB, client *Client, user *User, refreshTokenLifetime int, scope string) (*RefreshToken, error) {
 	// Try to fetch an existing refresh token first
 	refreshToken := &RefreshToken{}
-	notFound := db.Where(strings.Join(queryParts, " AND "), args...).First(refreshToken).RecordNotFound()
+	notFound := db.Where(&RefreshToken{
+		ClientID: clientIDOrNull(client),
+		UserID:   userIDOrNull(user),
+	}).First(refreshToken).RecordNotFound()
 
 	// Check if the token is expired, if found
 	var expired bool
@@ -105,7 +83,7 @@ func getOrCreateRefreshToken(cnf *config.Config, db *gorm.DB, client *Client, us
 
 	// Create a new refresh token if it expired or was not found
 	if expired || notFound {
-		refreshToken = newRefreshToken(cnf.RefreshTokenLifetime, client, user, scope)
+		refreshToken = newRefreshToken(refreshTokenLifetime, client, user, scope)
 		if err := db.Create(refreshToken).Error; err != nil {
 			return nil, errors.New("Error saving refresh token")
 		}
@@ -115,7 +93,11 @@ func getOrCreateRefreshToken(cnf *config.Config, db *gorm.DB, client *Client, us
 }
 
 func respondWithAccessToken(w rest.ResponseWriter, cnf *config.Config, accessToken *AccessToken, refreshToken *RefreshToken) {
+	// Content-Type header must set charset in response
+	// See https://github.com/ant0ine/go-json-rest/issues/156
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+
+	// Write access token to response
 	w.WriteJson(map[string]interface{}{
 		"id":            accessToken.ID,
 		"access_token":  accessToken.Token,

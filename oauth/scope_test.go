@@ -12,17 +12,11 @@ func (suite *OauthTestSuite) TestGetScope() {
 
 	scope, err = getScope(suite.DB, "")
 	assert.Nil(suite.T(), err)
-	assert.Equal(
-		suite.T(), "foo bar", scope,
-		"Should return \"foo bar\"",
-	)
+	assert.Equal(suite.T(), "foo bar", scope)
 
 	scope, err = getScope(suite.DB, "foo bar qux")
 	assert.Nil(suite.T(), err)
-	assert.Equal(
-		suite.T(), "foo bar qux", scope,
-		"Should return \"foo bar qux\"",
-	)
+	assert.Equal(suite.T(), "foo bar qux", scope)
 
 	scope, err = getScope(suite.DB, "foo bar bogus")
 	if assert.NotNil(suite.T(), err) {
@@ -31,35 +25,17 @@ func (suite *OauthTestSuite) TestGetScope() {
 }
 
 func (suite *OauthTestSuite) TestScopeExists() {
-	assert.Equal(
-		suite.T(), true, scopeExists(suite.DB, "foo bar qux"),
-		"Should return true",
-	)
-
-	assert.Equal(
-		suite.T(), false, scopeExists(suite.DB, "foo bar bogus"),
-		"Should return false",
-	)
+	assert.True(suite.T(), scopeExists(suite.DB, "foo bar qux"))
+	
+	assert.False(suite.T(), scopeExists(suite.DB, "foo bar bogus"))
 }
 
 func TestScopeNotGreater(t *testing.T) {
-	assert.Equal(
-		t, true, scopeNotGreater("", "foo bar qux"),
-		"Should return true",
-	)
+	assert.True(t, scopeNotGreater("", "foo bar qux"))
 
-	assert.Equal(
-		t, true, scopeNotGreater("foo", "foo bar qux"),
-		"Should return true",
-	)
+	assert.True(t, scopeNotGreater("foo", "foo bar qux"))
 
-	assert.Equal(
-		t, true, scopeNotGreater("foo bar qux", "foo bar qux"),
-		"Should return true",
-	)
+	assert.True(t, scopeNotGreater("foo bar qux", "foo bar qux"))
 
-	assert.Equal(
-		t, false, scopeNotGreater("foo bar qux bogus", "foo bar qux"),
-		"Should return false",
-	)
+	assert.False(t, scopeNotGreater("foo bar qux bogus", "foo bar qux"))
 }

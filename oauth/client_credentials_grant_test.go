@@ -19,27 +19,13 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
 
 	// Check the status code
-	assert.Equal(
-		suite.T(),
-		200,
-		recorded.Recorder.Code, "Status code should be 200",
-	)
+	assert.Equal(suite.T(), 200, recorded.Recorder.Code)
 
 	// Check the correct data was inserted
 	accessToken := AccessToken{}
-	assert.Equal(
-		suite.T(),
-		false,
-		suite.DB.First(&accessToken).RecordNotFound(),
-		"Access token should be in the database",
-	)
+	assert.False(suite.T(), suite.DB.First(&accessToken).RecordNotFound())
 	refreshToken := RefreshToken{}
-	assert.Equal(
-		suite.T(),
-		false,
-		suite.DB.First(&refreshToken).RecordNotFound(),
-		"Refresh token should be in the database",
-	)
+	assert.False(suite.T(), suite.DB.First(&refreshToken).RecordNotFound())
 
 	// Check the response body
 	expected, _ := json.Marshal(map[string]interface{}{
@@ -50,10 +36,5 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 		"scope":         "bar qux",
 		"refresh_token": refreshToken.Token,
 	})
-	assert.Equal(
-		suite.T(),
-		string(expected),
-		recorded.Recorder.Body.String(),
-		"Response body should be expected access token object",
-	)
+	assert.Equal(suite.T(), string(expected), recorded.Recorder.Body.String())
 }

@@ -14,7 +14,10 @@ func authorizationCodeGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.
 
 	// Fetch an auth code from the database
 	authCode := AuthCode{}
-	if db.Where("code = ? AND client_id = ?", code, client.ID).First(&authCode).RecordNotFound() {
+	if db.Where(&AuthCode{
+		Code:     code,
+		ClientID: clientIDOrNull(client),
+	}).First(&authCode).RecordNotFound() {
 		api.Error(w, "Auth code not found", http.StatusBadRequest)
 		return
 	}

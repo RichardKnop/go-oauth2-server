@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"fmt"
 	"log"
 	"testing"
 	"time"
@@ -67,39 +66,8 @@ func TestNewRefreshToken(t *testing.T) {
 	)
 }
 
-func TestGetClientIDUserIDQueryArgs(t *testing.T) {
-	var queryParts, expectedQueryParts []string
-	var args, expectedArgs []interface{}
-
-	// client_id = 1 AND user_id IS NULL
-	queryParts, args = getClientIDUserIDQueryArgs(&Client{ID: 1}, nil)
-	expectedQueryParts = []string{"client_id = ?", "user_id IS NULL"}
-	assert.Equal(
-		t, expectedQueryParts, queryParts,
-		"Query parts incorrect",
-	)
-	expectedArgs = []interface{}{uint(1)}
-	assert.Equal(
-		t, expectedArgs, args,
-		"Args incorrect",
-	)
-
-	// client_id = 1 AND user_id = 2
-	queryParts, args = getClientIDUserIDQueryArgs(&Client{ID: 1}, &User{ID: 2})
-	expectedQueryParts = []string{"client_id = ?", "user_id = ?"}
-	assert.Equal(
-		t, expectedQueryParts, queryParts,
-		"Query parts incorrect",
-	)
-	expectedArgs = []interface{}{uint(1), uint(2)}
-	assert.Equal(
-		t, expectedArgs, args,
-		"Args incorrect",
-	)
-}
-
 func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
-	// Insert test access tokens that are expired
+	// Insert expired test access token with user
 	if err := suite.DB.Create(&AccessToken{
 		Token:     "test_token_1",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
@@ -109,6 +77,8 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
+
+	// Insert expired test access token without user
 	if err := suite.DB.Create(&AccessToken{
 		Token:     "test_token_2",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
@@ -118,7 +88,7 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 		log.Fatal(err)
 	}
 
-	// Insert test access tokens that haven't expired yet
+	// Insert test access token with user
 	if err := suite.DB.Create(&AccessToken{
 		Token:     "test_token_3",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
@@ -128,6 +98,8 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
+
+	// Insert test access token without user
 	if err := suite.DB.Create(&AccessToken{
 		Token:     "test_token_4",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
@@ -141,20 +113,16 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 	deleteExpiredAccessTokens(suite.DB, suite.Client, suite.User)
 
 	// Check the test_token_1 was deleted
-	assert.Equal(
+	assert.True(
 		suite.T(),
-		true,
-		suite.DB.Where("token = ?", "test_token_1").First(&AccessToken{}).RecordNotFound(),
-		"test_token_1 should be deleted",
+		suite.DB.Where(&AccessToken{Token: "test_token_1"}).First(&AccessToken{}).RecordNotFound(),
 	)
 
 	// Check the other three tokens are still around
 	for _, token := range []string{"test_token_2", "test_token_3", "test_token_4"} {
-		assert.Equal(
+		assert.False(
 			suite.T(),
-			false,
-			suite.DB.Where("token = ?", token).First(&AccessToken{}).RecordNotFound(),
-			fmt.Sprintf("%s should still exist", token),
+			suite.DB.Where(&AccessToken{Token: token}).First(&AccessToken{}).RecordNotFound(),
 		)
 	}
 
@@ -162,20 +130,34 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 	deleteExpiredAccessTokens(suite.DB, suite.Client, nil)
 
 	// Check the test_token_2 was deleted
-	assert.Equal(
+	assert.True(
 		suite.T(),
-		true,
-		suite.DB.Where("token = ?", "test_token_2").First(&AccessToken{}).RecordNotFound(),
-		"test_token_2 should be deleted",
+		suite.DB.Where(&AccessToken{Token: "test_token_2"}).First(&AccessToken{}).RecordNotFound(),
 	)
 
 	// Check that last two tokens are still around
 	for _, token := range []string{"test_token_3", "test_token_4"} {
-		assert.Equal(
+		assert.False(
 			suite.T(),
-			false,
-			suite.DB.Where("token = ?", token).First(&AccessToken{}).RecordNotFound(),
-			fmt.Sprintf("%s should still exist", token),
+			suite.DB.Where(&AccessToken{Token: token}).First(&AccessToken{}).RecordNotFound(),
 		)
 	}
 }
+
+// func (suite *OauthTestSuite) TestGetOrCreateRefreshToken() {
+// 	client := Client{ClientID: "test_client"}
+// 	user := User{Username: "test_username"}
+//
+// 	var refreshToken *RefreshToken
+// 	var err error
+//
+// 	// client_id = 1 AND user_id IS NULL
+// 	refreshToken, err = getOrCreateRefreshToken(suite.DB, &client, nil, 1209600, "foo bar")
+// 	assert.Nil(suite.T(), err)
+//
+// 	// client_id = 1 AND user_id = 2
+// 	refreshToken, err = getOrCreateRefreshToken(suite.DB, &client, &user, 1209600, "foo bar")
+// 	assert.Nil(suite.T(), err)
+//
+// 	log.Print(refreshToken)
+// }

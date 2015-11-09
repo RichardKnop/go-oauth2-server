@@ -16,7 +16,10 @@ func refreshTokenGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Confi
 
 	// Fetch a refresh token from the database
 	theRefreshToken := RefreshToken{}
-	if db.Where("token = ? AND client_id = ?", token, client.ID).Preload("Client").Preload("User").First(&theRefreshToken).RecordNotFound() {
+	if db.Where(&RefreshToken{
+		Token:    token,
+		ClientID: clientIDOrNull(client),
+	}).Preload("Client").Preload("User").First(&theRefreshToken).RecordNotFound() {
 		api.Error(w, "Refresh token not found", http.StatusBadRequest)
 		return
 	}
