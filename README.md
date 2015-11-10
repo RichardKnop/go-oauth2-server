@@ -43,8 +43,8 @@ TODO (obtaining an authorization code)
 Once you have an authorization code, you can exchange it for an access token:
 
 ```
-$ curl localhost:8080/oauth/api/v1/tokens \
-  -u test_client_id:test_client_password \
+$ curl -v localhost:8080/oauth/api/v1/tokens \
+  -u test_client:test_secret \
   -d "grant_type=authorization_code" \
   -d "code=AUTHORIZATION_CODE"
 ```
@@ -75,12 +75,12 @@ http://tools.ietf.org/html/rfc6749#section-4.3
 Given you have a username and password, you can get a new access token.
 
 ```
-$ curl localhost:8080/oauth/api/v1/tokens \
-  -u test_client_id:test_client_password \
+$ curl -v localhost:8080/oauth/api/v1/tokens \
+  -u test_client:test_secret \
   -d "grant_type=password" \
   -d "username=test_username" \
   -d "password=test_password" \
-  -d "scope=foo bar"
+  -d "scope=read_write"
 ```
 
 Response:
@@ -103,10 +103,10 @@ http://tools.ietf.org/html/rfc6749#section-4.4
 Given you have a client ID and secret, you can get a new access token.
 
 ```
-$ curl localhost:8080/oauth/api/v1/tokens \
-  -u test_client_id:test_client_password \
+$ curl -v localhost:8080/oauth/api/v1/tokens \
+  -u test_client:test_secret \
   -d "grant_type=client_credentials" \
-  -d "scope=foo bar"
+  -d "scope=read_write"
 ```
 
 Response:
@@ -129,8 +129,8 @@ http://tools.ietf.org/html/rfc6749#section-6
 Let's say you have obtained an access token previously. The response included a refresh token which you can use to get a new access token before your current access token expires.
 
 ```
-$ curl localhost:8080/oauth/api/v1/tokens \
-  -u test_client_id:test_client_password \
+$ curl -v localhost:8080/oauth/api/v1/tokens \
+  -u test_client:test_secret \
   -d "grant_type=refresh_token" \
   -d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 ```
@@ -212,6 +212,17 @@ And finally, run the app:
 
 ```
 $ go run main.go runserver
+```
+
+You might want to insert some test data if you are testing locally using curl:
+
+```sql
+insert into scopes(scope, is_default) values('read', true);
+insert into scopes(scope, is_default) values('read_write', false);
+
+insert into clients(client_id, secret) values('test_client', '$2a$10$CUoGytf1pR7CC6Y043gt/.vFJUV4IRqvH5R6F0VfITP8s2TqrQ.4e');
+
+insert into users(username, password) values('test_username', '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS');
 ```
 
 ## Testing
