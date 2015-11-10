@@ -10,7 +10,7 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
 * [Index](#index)
 * [API](#api)
   * [OAuth 2.0](#oauth-20)
-    * [Client Authentication](#client-authorization)
+    * [Client Authentication](#client-authentication)
     * [Grant Types](#grant-types)
       * [Authorization Code](#authorization-code)
       * [Implicit](#implicit)
