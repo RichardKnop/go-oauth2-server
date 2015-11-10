@@ -38,13 +38,35 @@ Clients must authenticate with client credentials (client ID and secret) when is
 
 http://tools.ietf.org/html/rfc6749#section-4.1
 
-TODO
+TODO (obtaining an authorization code)
+
+Once you have an authorization code, you can exchange it for an access token:
+
+```
+$ curl localhost:8080/oauth2/api/v1/tokens \
+  -u test_client_id:test_client_password \
+  -d "grant_type=authorization_code" \
+  -d "code=AUTHORIZATION_CODE"
+```
+
+Response:
+
+```json
+{
+    "id": 1,
+    "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+    "expires_in": 3600,
+    "token_type": "Bearer",
+    "scope": "foo bar",
+    "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+}
+```
 
 #### Implicit
 
 http://tools.ietf.org/html/rfc6749#section-4.2
 
-TODO
+Very similar to the authorization code but an access token is returned in URL fragment without a need to make an additional API request to exchange the authorization code for an access token.
 
 #### User Credentials
 

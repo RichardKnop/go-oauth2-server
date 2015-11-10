@@ -15,7 +15,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type oauthTestSuite struct {
+// OauthTestSuite needs to be exported so the tests run
+type OauthTestSuite struct {
 	suite.Suite
 	cnf     *config.Config
 	db      *gorm.DB
@@ -27,7 +28,7 @@ type oauthTestSuite struct {
 
 // The SetupSuite method will be run by testify once, at the very
 // start of the testing suite, before any tests are run.
-func (suite *oauthTestSuite) SetupSuite() {
+func (suite *OauthTestSuite) SetupSuite() {
 	suite.cnf = config.NewConfig()
 
 	// Init in-memory test database
@@ -44,7 +45,7 @@ func (suite *oauthTestSuite) SetupSuite() {
 	// Init an API app
 	suite.service = &service{cnf: suite.cnf, db: suite.db}
 	api := rest.NewApi()
-	api.Use(rest.DefaultDevStack...)
+	api.Use([]rest.Middleware{}...)
 	router, err := rest.MakeRouter(NewRoutes(suite.cnf, suite.db)...)
 	if err != nil {
 		log.Fatal(err)
@@ -55,12 +56,12 @@ func (suite *oauthTestSuite) SetupSuite() {
 
 // The TearDownSuite method will be run by testify once, at the very
 // end of the testing suite, after all tests have been run.
-func (suite *oauthTestSuite) TearDownSuite() {
+func (suite *OauthTestSuite) TearDownSuite() {
 	//
 }
 
 // The SetupTest method will be run before every test in the suite.
-func (suite *oauthTestSuite) SetupTest() {
+func (suite *OauthTestSuite) SetupTest() {
 	// Insert a test client
 	clientSecretHash, err := bcrypt.GenerateFromPassword([]byte("test_secret"), 3)
 	if err != nil {
@@ -111,19 +112,19 @@ func (suite *oauthTestSuite) SetupTest() {
 }
 
 // The TearDownTest method will be run after every test in the suite.
-func (suite *oauthTestSuite) TearDownTest() {
+func (suite *OauthTestSuite) TearDownTest() {
 	// Empty all the tables
 	suite.db.Delete(AccessToken{})
 	suite.db.Delete(RefreshToken{})
-	suite.db.Delete(AuthCode{})
+	suite.db.Delete(AuthorizationCode{})
 	suite.db.Delete(Scope{})
 	suite.db.Delete(User{})
 	suite.db.Delete(Client{})
 }
 
-// TestoauthTestSuite ...
+// TestOauthTestSuite ...
 // In order for 'go test' to run this suite, we need to create
 // a normal test function and pass our suite to suite.Run
-func TestoauthTestSuite(t *testing.T) {
-	suite.Run(t, new(oauthTestSuite))
+func TestOauthTestSuite(t *testing.T) {
+	suite.Run(t, new(OauthTestSuite))
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *oauthTestSuite) TestAuthClientCredentialsRequired() {
+func (suite *OauthTestSuite) TestAuthClientCredentialsRequired() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 
 	client, err := suite.service.authClient(r)
@@ -21,7 +21,7 @@ func (suite *oauthTestSuite) TestAuthClientCredentialsRequired() {
 	}
 }
 
-func (suite *oauthTestSuite) TestAuthClientNotFound() {
+func (suite *OauthTestSuite) TestAuthClientNotFound() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("bogus", "test_secret")
 
@@ -36,7 +36,7 @@ func (suite *oauthTestSuite) TestAuthClientNotFound() {
 	}
 }
 
-func (suite *oauthTestSuite) TestAuthClientIncorrectSecret() {
+func (suite *OauthTestSuite) TestAuthClientIncorrectSecret() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("test_client", "bogus")
 
@@ -51,7 +51,7 @@ func (suite *oauthTestSuite) TestAuthClientIncorrectSecret() {
 	}
 }
 
-func (suite *oauthTestSuite) TestAuthClient() {
+func (suite *OauthTestSuite) TestAuthClient() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("test_client", "test_secret")
 
@@ -66,7 +66,7 @@ func (suite *oauthTestSuite) TestAuthClient() {
 	}
 }
 
-func (suite *oauthTestSuite) TestAuthUserUsernameNotFound() {
+func (suite *OauthTestSuite) TestAuthUserUsernameNotFound() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.PostForm = url.Values{
 		"username": {"bogus"},
@@ -84,7 +84,7 @@ func (suite *oauthTestSuite) TestAuthUserUsernameNotFound() {
 	}
 }
 
-func (suite *oauthTestSuite) TestAuthUserIncorrectPassword() {
+func (suite *OauthTestSuite) TestAuthUserIncorrectPassword() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.PostForm = url.Values{
 		"username": {"test_username"},
@@ -102,7 +102,7 @@ func (suite *oauthTestSuite) TestAuthUserIncorrectPassword() {
 	}
 }
 
-func (suite *oauthTestSuite) TestAuthUser() {
+func (suite *OauthTestSuite) TestAuthUser() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.PostForm = url.Values{
 		"username": {"test_username"},

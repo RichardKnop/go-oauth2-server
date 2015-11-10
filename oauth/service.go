@@ -20,7 +20,6 @@ func (s *service) handleTokens(w rest.ResponseWriter, r *rest.Request) {
 	// Check the grant type
 	grantTypes := map[string]bool{
 		"authorization_code": true,
-		"implicit":           true,
 		"password":           true,
 		"client_credentials": true,
 		"refresh_token":      true,
@@ -39,7 +38,6 @@ func (s *service) handleTokens(w rest.ResponseWriter, r *rest.Request) {
 
 	grants := map[string]func(){
 		"authorization_code": func() { s.authorizationCodeGrant(w, r, client) },
-		"implicit":           func() { s.implicitGrant(w, r, client) },
 		"password":           func() { s.passwordGrant(w, r, client) },
 		"client_credentials": func() { s.clientCredentialsGrant(w, r, client) },
 		"refresh_token":      func() { s.refreshTokenGrant(w, r, client) },

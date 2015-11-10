@@ -45,7 +45,16 @@ func main() {
 			Usage: "run web server",
 			Action: func(c *cli.Context) {
 				api := rest.NewApi()
-				api.Use(rest.DefaultProdStack...)
+				api.Use([]rest.Middleware{
+					&rest.AccessLogApacheMiddleware{
+						Format: rest.CombinedLogFormat,
+					},
+					&rest.TimerMiddleware{},
+					&rest.RecorderMiddleware{},
+					&rest.PoweredByMiddleware{},
+					&rest.RecoverMiddleware{},
+					&rest.GzipMiddleware{},
+				}...)
 				router, err := rest.MakeRouter(oauth.NewRoutes(cnf, db)...)
 				if err != nil {
 					log.Fatal(err)

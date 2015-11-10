@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *oauthTestSuite) TestDeleteExpiredAccessTokens() {
+func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 	// Insert expired test access token with user
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_1",
@@ -85,7 +85,7 @@ func (suite *oauthTestSuite) TestDeleteExpiredAccessTokens() {
 	}
 }
 
-// func (suite *oauthTestSuite) TestGetOrCreateRefreshToken() {
+// func (suite *OauthTestSuite) TestGetOrCreateRefreshToken() {
 // 	client := Client{ClientID: "test_client"}
 // 	user := User{Username: "test_username"}
 //

@@ -51,8 +51,8 @@ func migrate0001(db *gorm.DB) error {
 		}
 
 		// Create auth_codes table
-		if err := db.CreateTable(&AuthCode{}).Error; err != nil {
-			return fmt.Errorf("Error creating auth_codes table: %s", db.Error)
+		if err := db.CreateTable(&AuthorizationCode{}).Error; err != nil {
+			return fmt.Errorf("Error creating authorization_codes table: %s", db.Error)
 		}
 
 		// Add foreign key on refresh_tokens.client_id
@@ -75,14 +75,14 @@ func migrate0001(db *gorm.DB) error {
 			return fmt.Errorf("Error creating foreign key on access_tokens.user_id for users(id): %s", db.Error)
 		}
 
-		// Add foreign key on auth_codes.client_id
-		if err := db.Model(&AuthCode{}).AddForeignKey("client_id", "clients(id)", "RESTRICT", "RESTRICT").Error; err != nil {
-			return fmt.Errorf("Error creating foreign key on auth_codes.client_id for clients(id): %s", db.Error)
+		// Add foreign key on authorization_codes.client_id
+		if err := db.Model(&AuthorizationCode{}).AddForeignKey("client_id", "clients(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on authorization_codes.client_id for clients(id): %s", db.Error)
 		}
 
-		// Add foreign key on auth_codes.user_id
-		if err := db.Model(&AuthCode{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
-			return fmt.Errorf("Error creating foreign key on auth_codes.user_id for users(id): %s", db.Error)
+		// Add foreign key on authorization_codes.user_id
+		if err := db.Model(&AuthorizationCode{}).AddForeignKey("user_id", "users(id)", "RESTRICT", "RESTRICT").Error; err != nil {
+			return fmt.Errorf("Error creating foreign key on authorization_codes.user_id for users(id): %s", db.Error)
 		}
 
 		// Save a record to migrations table,

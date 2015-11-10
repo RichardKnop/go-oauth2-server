@@ -15,4 +15,5 @@ type Config struct {
 	Database             DatabaseConfig
 	AccessTokenLifetime  int
 	RefreshTokenLifetime int
+	AuthCodeLifetime     int
 }

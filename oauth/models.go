@@ -63,8 +63,8 @@ type AccessToken struct {
 	UpdatedAt time.Time
 }
 
-// AuthCode ...
-type AuthCode struct {
+// AuthorizationCode ...
+type AuthorizationCode struct {
 	ID          uint           `gorm:"primary_key"`
 	Code        string         `sql:"type:varchar(40);unique;not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`

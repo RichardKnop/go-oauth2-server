@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *oauthTestSuite) TestGetScope() {
+func (suite *OauthTestSuite) TestGetScope() {
 	var scope string
 	var err error
 
@@ -24,7 +24,7 @@ func (suite *oauthTestSuite) TestGetScope() {
 	}
 }
 
-func (suite *oauthTestSuite) TestScopeExists() {
+func (suite *OauthTestSuite) TestScopeExists() {
 	assert.True(suite.T(), suite.service.scopeExists("foo bar qux"))
 
 	assert.False(suite.T(), suite.service.scopeExists("foo bar bogus"))
