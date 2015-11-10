@@ -10,7 +10,7 @@ func (s *service) grantAccessToken(client *Client, user *User, scope string) (*A
 	s.deleteExpiredAccessTokens(client, user)
 
 	// Create a new access token
-	accessToken := newAccessToken(s.cnf.AccessTokenLifetime, client, user, scope)
+	accessToken := newAccessToken(s.cnf.Oauth.AccessTokenLifetime, client, user, scope)
 	if err := s.db.Create(accessToken).Error; err != nil {
 		return nil, nil, errors.New("Error saving access token")
 	}
@@ -52,7 +52,7 @@ func (s *service) getOrCreateRefreshToken(client *Client, user *User, scope stri
 
 	// Create a new refresh token if it expired or was not found
 	if expired || notFound {
-		refreshToken = newRefreshToken(s.cnf.RefreshTokenLifetime, client, user, scope)
+		refreshToken = newRefreshToken(s.cnf.Oauth.RefreshTokenLifetime, client, user, scope)
 		if err := s.db.Create(refreshToken).Error; err != nil {
 			return nil, errors.New("Error saving refresh token")
 		}

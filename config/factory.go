@@ -19,9 +19,11 @@ var cnf = &Config{
 		Password:     "",
 		DatabaseName: "go_oauth2_server",
 	},
-	AccessTokenLifetime:  3600,    // 1 hour
-	RefreshTokenLifetime: 1209600, // 14 days
-	AuthCodeLifetime:     3600,    // 1 hour
+	Oauth: OauthConfig{
+		AccessTokenLifetime:  3600,    // 1 hour
+		RefreshTokenLifetime: 1209600, // 14 days
+		AuthCodeLifetime:     3600,    // TODO - should this be less than 1 hour?
+	},
 }
 var configLoaded bool
 

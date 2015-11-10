@@ -10,10 +10,15 @@ type DatabaseConfig struct {
 	DatabaseName string
 }
 
-// Config stores configuration options
-type Config struct {
-	Database             DatabaseConfig
+// OauthConfig stores oauth service configuration options
+type OauthConfig struct {
 	AccessTokenLifetime  int
 	RefreshTokenLifetime int
 	AuthCodeLifetime     int
+}
+
+// Config stores all configuration options
+type Config struct {
+	Database DatabaseConfig
+	Oauth    OauthConfig
 }

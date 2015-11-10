@@ -1,14 +1,18 @@
 package oauth
 
 import (
+	"log"
+	"net/http"
 	"net/url"
 
-	"github.com/ant0ine/go-json-rest/rest/test"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestAuthClientCredentialsRequired() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	client, err := suite.service.authClient(r)
 
@@ -22,7 +26,10 @@ func (suite *OauthTestSuite) TestAuthClientCredentialsRequired() {
 }
 
 func (suite *OauthTestSuite) TestAuthClientNotFound() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.SetBasicAuth("bogus", "test_secret")
 
 	client, err := suite.service.authClient(r)
@@ -37,7 +44,10 @@ func (suite *OauthTestSuite) TestAuthClientNotFound() {
 }
 
 func (suite *OauthTestSuite) TestAuthClientIncorrectSecret() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.SetBasicAuth("test_client", "bogus")
 
 	client, err := suite.service.authClient(r)
@@ -52,7 +62,10 @@ func (suite *OauthTestSuite) TestAuthClientIncorrectSecret() {
 }
 
 func (suite *OauthTestSuite) TestAuthClient() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.SetBasicAuth("test_client", "test_secret")
 
 	client, err := suite.service.authClient(r)
@@ -67,7 +80,10 @@ func (suite *OauthTestSuite) TestAuthClient() {
 }
 
 func (suite *OauthTestSuite) TestAuthUserUsernameNotFound() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.PostForm = url.Values{
 		"username": {"bogus"},
 		"password": {"test_password"},
@@ -85,7 +101,10 @@ func (suite *OauthTestSuite) TestAuthUserUsernameNotFound() {
 }
 
 func (suite *OauthTestSuite) TestAuthUserIncorrectPassword() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.PostForm = url.Values{
 		"username": {"test_username"},
 		"password": {"bogus"},
@@ -103,7 +122,10 @@ func (suite *OauthTestSuite) TestAuthUserIncorrectPassword() {
 }
 
 func (suite *OauthTestSuite) TestAuthUser() {
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.PostForm = url.Values{
 		"username": {"test_username"},
 		"password": {"test_password"},

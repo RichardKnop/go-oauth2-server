@@ -3,31 +3,35 @@ package oauth
 import (
 	"encoding/json"
 	"log"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
+	"strings"
 	"time"
 
-	"github.com/ant0ine/go-json-rest/rest/test"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantNotFound() {
 	// Make a request
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
-	r.SetBasicAuth("test_client", "test_secret")
+	r, err := http.NewRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.PostForm = url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"bogus"},
 	}
-	recorded := test.RunRequest(suite.T(), suite.api.MakeHandler(), r)
+
+	w := httptest.NewRecorder()
+	suite.service.refreshTokenGrant(w, r, suite.client)
 
 	// Check the status code
-	assert.Equal(suite.T(), 400, recorded.Recorder.Code)
+	assert.Equal(suite.T(), 400, w.Code)
 
 	// Check the response body
-	assert.Equal(
-		suite.T(), "{\"error\":\"Refresh token not found\"}",
-		recorded.Recorder.Body.String(),
-	)
+	expected := "{\"error\":\"Refresh token not found\"}"
+	assert.Equal(suite.T(), expected, strings.TrimSpace(w.Body.String()))
 }
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
@@ -43,22 +47,24 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
 	}
 
 	// Make a request
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
-	r.SetBasicAuth("test_client", "test_secret")
+	r, err := http.NewRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.PostForm = url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"test_refresh_token"},
 	}
-	recorded := test.RunRequest(suite.T(), suite.api.MakeHandler(), r)
+
+	w := httptest.NewRecorder()
+	suite.service.refreshTokenGrant(w, r, suite.client)
 
 	// Check the status code
-	assert.Equal(suite.T(), 400, recorded.Recorder.Code)
+	assert.Equal(suite.T(), 400, w.Code)
 
 	// Check the response body
-	assert.Equal(
-		suite.T(), "{\"error\":\"Refresh token expired\"}",
-		recorded.Recorder.Body.String(),
-	)
+	expected := "{\"error\":\"Refresh token expired\"}"
+	assert.Equal(suite.T(), expected, strings.TrimSpace(w.Body.String()))
 }
 
 func (suite *OauthTestSuite) TestRefreshTokenGrant() {
@@ -74,16 +80,20 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	}
 
 	// Make a request
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
-	r.SetBasicAuth("test_client", "test_secret")
+	r, err := http.NewRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.PostForm = url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"test_refresh_token"},
 	}
-	recorded := test.RunRequest(suite.T(), suite.api.MakeHandler(), r)
+
+	w := httptest.NewRecorder()
+	suite.service.refreshTokenGrant(w, r, suite.client)
 
 	// Check the status code
-	assert.Equal(suite.T(), 200, recorded.Recorder.Code)
+	assert.Equal(suite.T(), 200, w.Code)
 
 	// Check the correct data was inserted
 	accessToken := AccessToken{}
@@ -98,5 +108,5 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 		"scope":         "foo bar",
 		"refresh_token": "test_refresh_token",
 	})
-	assert.Equal(suite.T(), string(expected), recorded.Recorder.Body.String())
+	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 }

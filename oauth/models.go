@@ -2,9 +2,10 @@ package oauth
 
 import (
 	"database/sql"
+	"net/http"
 	"time"
 
-	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/RichardKnop/go-oauth2-server/json"
 	"github.com/pborman/uuid"
 )
 
@@ -83,10 +84,14 @@ func newAccessToken(accessTokenLifetime int, client *Client, user *User, scope s
 		Token:     uuid.New(),
 		ExpiresAt: time.Now().Add(time.Duration(accessTokenLifetime) * time.Second),
 		Scope:     scope,
-		Client:    *client,
+	}
+	if client != nil {
+		accessToken.Client = *client
+		accessToken.ClientID = clientIDOrNull(client)
 	}
 	if user != nil {
 		accessToken.User = *user
+		accessToken.UserID = userIDOrNull(user)
 	}
 	return accessToken
 }
@@ -97,25 +102,26 @@ func newRefreshToken(refreshTokenLifetime int, client *Client, user *User, scope
 		ExpiresAt: time.Now().Add(time.Duration(refreshTokenLifetime) * time.Second),
 		Scope:     scope,
 		Client:    *client,
+		ClientID:  clientIDOrNull(client),
+	}
+	if client != nil {
+		refreshToken.Client = *client
+		refreshToken.ClientID = clientIDOrNull(client)
 	}
 	if user != nil {
 		refreshToken.User = *user
+		refreshToken.UserID = userIDOrNull(user)
 	}
 	return refreshToken
 }
 
-func writeAccessToken(w rest.ResponseWriter, accessTokenLifetime int, accessToken *AccessToken, refreshToken *RefreshToken) {
-	// Content-Type header must set charset in response
-	// See https://github.com/ant0ine/go-json-rest/issues/156
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	// Write access token to response
-	w.WriteJson(map[string]interface{}{
+func writeJSON(w http.ResponseWriter, accessTokenLifetime int, accessToken *AccessToken, refreshToken *RefreshToken) {
+	json.WriteJSON(w, map[string]interface{}{
 		"id":            accessToken.ID,
 		"access_token":  accessToken.Token,
 		"expires_in":    accessTokenLifetime,
 		"token_type":    "Bearer",
 		"scope":         accessToken.Scope,
 		"refresh_token": refreshToken.Token,
-	})
+	}, 200)
 }

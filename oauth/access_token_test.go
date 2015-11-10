@@ -8,7 +8,7 @@ import (
 )
 
 func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
-	// Insert expired test access token with user
+	// Insert an expired test access token with a user
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_1",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
@@ -19,7 +19,7 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 		log.Fatal(err)
 	}
 
-	// Insert expired test access token without user
+	// Insert an expired test access token without a user
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_2",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
@@ -29,7 +29,7 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 		log.Fatal(err)
 	}
 
-	// Insert test access token with user
+	// Insert a test access token with a user
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_3",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
@@ -40,7 +40,7 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 		log.Fatal(err)
 	}
 
-	// Insert test access token without user
+	// Insert a test access token without a user
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_4",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
@@ -56,14 +56,16 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 	// Check the test_token_1 was deleted
 	assert.True(
 		suite.T(),
-		suite.db.Where(&AccessToken{Token: "test_token_1"}).First(&AccessToken{}).RecordNotFound(),
+		suite.db.Where(&AccessToken{Token: "test_token_1"}).
+			First(&AccessToken{}).RecordNotFound(),
 	)
 
 	// Check the other three tokens are still around
 	for _, token := range []string{"test_token_2", "test_token_3", "test_token_4"} {
 		assert.False(
 			suite.T(),
-			suite.db.Where(&AccessToken{Token: token}).First(&AccessToken{}).RecordNotFound(),
+			suite.db.Where(&AccessToken{Token: token}).
+				First(&AccessToken{}).RecordNotFound(),
 		)
 	}
 
@@ -73,14 +75,16 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 	// Check the test_token_2 was deleted
 	assert.True(
 		suite.T(),
-		suite.db.Where(&AccessToken{Token: "test_token_2"}).First(&AccessToken{}).RecordNotFound(),
+		suite.db.Where(&AccessToken{Token: "test_token_2"}).
+			First(&AccessToken{}).RecordNotFound(),
 	)
 
 	// Check that last two tokens are still around
 	for _, token := range []string{"test_token_3", "test_token_4"} {
 		assert.False(
 			suite.T(),
-			suite.db.Where(&AccessToken{Token: token}).First(&AccessToken{}).RecordNotFound(),
+			suite.db.Where(&AccessToken{Token: token}).
+				First(&AccessToken{}).RecordNotFound(),
 		)
 	}
 }

@@ -2,25 +2,32 @@ package oauth
 
 import (
 	"encoding/json"
+	"log"
+	"net/http"
+	"net/http/httptest"
 	"net/url"
+	"strings"
 
-	"github.com/ant0ine/go-json-rest/rest/test"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestPasswordGrant() {
 	// Make a request
-	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
-	r.SetBasicAuth("test_client", "test_secret")
+	r, err := http.NewRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 	r.PostForm = url.Values{
 		"grant_type": {"password"},
 		"username":   {"test_username"},
 		"password":   {"test_password"},
 	}
-	recorded := test.RunRequest(suite.T(), suite.api.MakeHandler(), r)
+
+	w := httptest.NewRecorder()
+	suite.service.passwordGrant(w, r, suite.client)
 
 	// Check the status code
-	assert.Equal(suite.T(), 200, recorded.Recorder.Code)
+	assert.Equal(suite.T(), 200, w.Code)
 
 	// Check the correct data was inserted
 	accessToken := AccessToken{}
@@ -37,5 +44,5 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 		"scope":         "foo bar",
 		"refresh_token": refreshToken.Token,
 	})
-	assert.Equal(suite.T(), string(expected), recorded.Recorder.Body.String())
+	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 }

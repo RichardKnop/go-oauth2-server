@@ -11,11 +11,6 @@
 			"Rev": "056c9bc7be7190eaa7715723883caffa5f8fa3e4"
 		},
 		{
-			"ImportPath": "github.com/ant0ine/go-json-rest/rest",
-			"Comment": "v3.2.0-11-g2af9d00",
-			"Rev": "2af9d0034afcd83101abb1945f2a65ddbd563719"
-		},
-		{
 			"ImportPath": "github.com/armon/consul-api",
 			"Rev": "dcfedd50ed5334f96adee43fc88518a4f095e15c"
 		},
@@ -25,9 +20,22 @@
 			"Rev": "bf4a526f48af7badd25d2cb02d587e1b01be3b50"
 		},
 		{
+			"ImportPath": "github.com/codegangsta/negroni",
+			"Comment": "v0.1-4-ga13766a",
+			"Rev": "a13766a8c2572caeb14341b7de158aff2fd00fa9"
+		},
+		{
 			"ImportPath": "github.com/coreos/go-etcd/etcd",
 			"Comment": "v2.0.0-38-g003851b",
 			"Rev": "003851be7bb0694fe3cc457a49529a19388ee7cf"
+		},
+		{
+			"ImportPath": "github.com/gorilla/context",
+			"Rev": "708054d61e5a2918b9f4e9700000ee611dcf03f5"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Rev": "b08c5fcf14d01cb0c20ddf70157f54d4a2c3a38a"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",

@@ -7,8 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/migrate"
-	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/RichardKnop/go-oauth2-server/migrations"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 	// sqlite driver
@@ -21,7 +20,6 @@ type OauthTestSuite struct {
 	cnf     *config.Config
 	db      *gorm.DB
 	service *service
-	api     *rest.Api
 	client  *Client
 	user    *User
 }
@@ -39,19 +37,10 @@ func (suite *OauthTestSuite) SetupSuite() {
 	suite.db = &db
 
 	// Run all migrations
-	migrate.Bootstrap(suite.db)
+	migrations.Bootstrap(suite.db)
 	MigrateAll(suite.db)
 
-	// Init an API app
 	suite.service = &service{cnf: suite.cnf, db: suite.db}
-	api := rest.NewApi()
-	api.Use([]rest.Middleware{}...)
-	router, err := rest.MakeRouter(NewRoutes(suite.cnf, suite.db)...)
-	if err != nil {
-		log.Fatal(err)
-	}
-	api.SetApp(router)
-	suite.api = api
 }
 
 // The TearDownSuite method will be run by testify once, at the very

@@ -30,7 +30,7 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
 
 http://tools.ietf.org/html/rfc6749#section-3.2.1
 
-Clients must authenticate with client credentials (client ID and secret) when issuing requests to `/oauth2/api/v1/tokens` endpoint. Basic HTTP authentication should be used.
+Clients must authenticate with client credentials (client ID and secret) when issuing requests to `/oauth/api/v1/tokens` endpoint. Basic HTTP authentication should be used.
 
 ### Grant Types
 
@@ -43,7 +43,7 @@ TODO (obtaining an authorization code)
 Once you have an authorization code, you can exchange it for an access token:
 
 ```
-$ curl localhost:8080/oauth2/api/v1/tokens \
+$ curl localhost:8080/oauth/api/v1/tokens \
   -u test_client_id:test_client_password \
   -d "grant_type=authorization_code" \
   -d "code=AUTHORIZATION_CODE"
@@ -75,7 +75,7 @@ http://tools.ietf.org/html/rfc6749#section-4.3
 Given you have a username and password, you can get a new access token.
 
 ```
-$ curl localhost:8080/oauth2/api/v1/tokens \
+$ curl localhost:8080/oauth/api/v1/tokens \
   -u test_client_id:test_client_password \
   -d "grant_type=password" \
   -d "username=test_username" \
@@ -103,7 +103,7 @@ http://tools.ietf.org/html/rfc6749#section-4.4
 Given you have a client ID and secret, you can get a new access token.
 
 ```
-$ curl localhost:8080/oauth2/api/v1/tokens \
+$ curl localhost:8080/oauth/api/v1/tokens \
   -u test_client_id:test_client_password \
   -d "grant_type=client_credentials" \
   -d "scope=foo bar"
@@ -129,7 +129,7 @@ http://tools.ietf.org/html/rfc6749#section-6
 Let's say you have obtained an access token previously. The response included a refresh token which you can use to get a new access token before your current access token expires.
 
 ```
-$ curl localhost:8080/oauth2/api/v1/tokens \
+$ curl localhost:8080/oauth/api/v1/tokens \
   -u test_client_id:test_client_password \
   -d "grant_type=refresh_token" \
   -d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791"
@@ -194,9 +194,24 @@ $ curl -L http://127.0.0.1:4001/v2/keys/config/go_oauth2_server.json -XPUT -d va
     "Password": "",
     "DatabaseName": "go_oauth2_server"
   },
-  "AccessTokenLifetime": 3600,
-  "RefreshTokenLifetime": 1209600
+  "Oauth": {
+    "AccessTokenLifetime": 3600,
+    "RefreshTokenLifetime": 1209600,
+    "AuthCodeLifetime": 3600  
+  }
 }'
+```
+
+Run migrations:
+
+```
+$ go run main.go migrate
+```
+
+And finally, run the app:
+
+```
+$ go run main.go runserver
 ```
 
 ## Testing

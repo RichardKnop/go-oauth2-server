@@ -1,6 +1,8 @@
 package oauth
 
-import "database/sql"
+import (
+	"database/sql"
+)
 
 // Helpful function similar to "x in y" Python construct
 func stringInSlice(a string, list []string) bool {
