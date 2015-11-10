@@ -20,6 +20,7 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
 * [Development](#development)
   * [Dependencies](#dependencies)
   * [Setup](#setup)
+  * [Test Data](#test-data)
   * [Testing](#Testing)
 
 # API
@@ -213,6 +214,8 @@ And finally, run the app:
 ```
 $ go run main.go runserver
 ```
+
+## Test Data
 
 You might want to insert some test data if you are testing locally using curl:
 
