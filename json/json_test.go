@@ -25,7 +25,7 @@ func TestWriteJSON(t *testing.T) {
 
 func TestError(t *testing.T) {
 	w := httptest.NewRecorder()
-	Error(w, "soemthing went wrong", 500)
+	Error(w, "something went wrong", 500)
 
 	assert.Equal(t, 500, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
