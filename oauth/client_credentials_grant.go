@@ -3,28 +3,26 @@ package oauth
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/api"
-	"github.com/RichardKnop/go-oauth2-server/config"
+	"github.com/RichardKnop/go-oauth2-server/errors"
 	"github.com/ant0ine/go-json-rest/rest"
-	"github.com/jinzhu/gorm"
 )
 
-func clientCredentialsGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
+func (s *service) clientCredentialsGrant(w rest.ResponseWriter, r *rest.Request, client *Client) {
 	requestedScope := r.FormValue("scope")
 
 	// Get the scope string
-	scope, err := getScope(db, requestedScope)
+	scope, err := s.getScope(requestedScope)
 	if err != nil {
-		api.Error(w, err.Error(), http.StatusBadRequest)
+		errors.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := grantAccessToken(cnf, db, client, nil, scope)
+	accessToken, refreshToken, err := s.grantAccessToken(client, nil, scope)
 	if err != nil {
-		api.Error(w, err.Error(), http.StatusInternalServerError)
+		errors.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	// Write the access token to a JSON response
-	respondWithAccessToken(w, cnf, accessToken, refreshToken)
+	writeAccessToken(w, s.cnf.AccessTokenLifetime, accessToken, refreshToken)
 }

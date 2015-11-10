@@ -3,25 +3,20 @@ package oauth
 import (
 	"errors"
 	"time"
-
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/ant0ine/go-json-rest/rest"
-	"github.com/jinzhu/gorm"
-	"github.com/pborman/uuid"
 )
 
-func grantAccessToken(cnf *config.Config, db *gorm.DB, client *Client, user *User, scope string) (*AccessToken, *RefreshToken, error) {
+func (s *service) grantAccessToken(client *Client, user *User, scope string) (*AccessToken, *RefreshToken, error) {
 	// Delete expired access tokens
-	deleteExpiredAccessTokens(db, client, user)
+	s.deleteExpiredAccessTokens(client, user)
 
 	// Create a new access token
-	accessToken := newAccessToken(cnf.AccessTokenLifetime, client, user, scope)
-	if err := db.Create(accessToken).Error; err != nil {
+	accessToken := newAccessToken(s.cnf.AccessTokenLifetime, client, user, scope)
+	if err := s.db.Create(accessToken).Error; err != nil {
 		return nil, nil, errors.New("Error saving access token")
 	}
 
 	// Create or retrieve a refresh token
-	refreshToken, err := getOrCreateRefreshToken(db, client, user, cnf.RefreshTokenLifetime, scope)
+	refreshToken, err := s.getOrCreateRefreshToken(client, user, scope)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -29,43 +24,17 @@ func grantAccessToken(cnf *config.Config, db *gorm.DB, client *Client, user *Use
 	return accessToken, refreshToken, nil
 }
 
-func newAccessToken(accessTokenLifetime int, client *Client, user *User, scope string) *AccessToken {
-	accessToken := &AccessToken{
-		Token:     uuid.New(),
-		ExpiresAt: time.Now().Add(time.Duration(accessTokenLifetime) * time.Second),
-		Scope:     scope,
-		Client:    *client,
-	}
-	if user != nil {
-		accessToken.User = *user
-	}
-	return accessToken
-}
-
-func newRefreshToken(refreshTokenLifetime int, client *Client, user *User, scope string) *RefreshToken {
-	refreshToken := &RefreshToken{
-		Token:     uuid.New(),
-		ExpiresAt: time.Now().Add(time.Duration(refreshTokenLifetime) * time.Second),
-		Scope:     scope,
-		Client:    *client,
-	}
-	if user != nil {
-		refreshToken.User = *user
-	}
-	return refreshToken
-}
-
-func deleteExpiredAccessTokens(db *gorm.DB, client *Client, user *User) {
-	db.Where(&AccessToken{
+func (s *service) deleteExpiredAccessTokens(client *Client, user *User) {
+	s.db.Where(&AccessToken{
 		ClientID: clientIDOrNull(client),
 		UserID:   userIDOrNull(user),
 	}).Where("expires_at <= ?", time.Now()).Delete(&AccessToken{})
 }
 
-func getOrCreateRefreshToken(db *gorm.DB, client *Client, user *User, refreshTokenLifetime int, scope string) (*RefreshToken, error) {
+func (s *service) getOrCreateRefreshToken(client *Client, user *User, scope string) (*RefreshToken, error) {
 	// Try to fetch an existing refresh token first
 	refreshToken := &RefreshToken{}
-	notFound := db.Where(&RefreshToken{
+	notFound := s.db.Where(&RefreshToken{
 		ClientID: clientIDOrNull(client),
 		UserID:   userIDOrNull(user),
 	}).First(refreshToken).RecordNotFound()
@@ -78,32 +47,16 @@ func getOrCreateRefreshToken(db *gorm.DB, client *Client, user *User, refreshTok
 
 	// If the refresh token has expired, delete it
 	if expired {
-		db.Delete(refreshToken)
+		s.db.Delete(refreshToken)
 	}
 
 	// Create a new refresh token if it expired or was not found
 	if expired || notFound {
-		refreshToken = newRefreshToken(refreshTokenLifetime, client, user, scope)
-		if err := db.Create(refreshToken).Error; err != nil {
+		refreshToken = newRefreshToken(s.cnf.RefreshTokenLifetime, client, user, scope)
+		if err := s.db.Create(refreshToken).Error; err != nil {
 			return nil, errors.New("Error saving refresh token")
 		}
 	}
 
 	return refreshToken, nil
-}
-
-func respondWithAccessToken(w rest.ResponseWriter, cnf *config.Config, accessToken *AccessToken, refreshToken *RefreshToken) {
-	// Content-Type header must set charset in response
-	// See https://github.com/ant0ine/go-json-rest/issues/156
-	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
-
-	// Write access token to response
-	w.WriteJson(map[string]interface{}{
-		"id":            accessToken.ID,
-		"access_token":  accessToken.Token,
-		"expires_in":    cnf.AccessTokenLifetime,
-		"token_type":    "Bearer",
-		"scope":         accessToken.Scope,
-		"refresh_token": refreshToken.Token,
-	})
 }

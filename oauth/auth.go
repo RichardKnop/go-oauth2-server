@@ -4,11 +4,10 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
 
-func authClient(r *http.Request, db *gorm.DB) (*Client, error) {
+func (s *service) authClient(r *http.Request) (*Client, error) {
 	// Get credentials from basic auth
 	clientID, clientSecret, ok := r.BasicAuth()
 	if !ok {
@@ -18,7 +17,7 @@ func authClient(r *http.Request, db *gorm.DB) (*Client, error) {
 	// Fetch the client
 	client := Client{}
 	// Client IDs are case insensitive
-	if db.Where("LOWER(client_id) = LOWER(?)", clientID).First(&client).RecordNotFound() {
+	if s.db.Where("LOWER(client_id) = LOWER(?)", clientID).First(&client).RecordNotFound() {
 		return nil, errors.New("Client authentication failed")
 	}
 
@@ -30,7 +29,7 @@ func authClient(r *http.Request, db *gorm.DB) (*Client, error) {
 	return &client, nil
 }
 
-func authUser(r *http.Request, db *gorm.DB) (*User, error) {
+func (s *service) authUser(r *http.Request) (*User, error) {
 	// Get credentials from from the form data
 	username := r.FormValue("username")
 	password := r.FormValue("password")
@@ -38,7 +37,7 @@ func authUser(r *http.Request, db *gorm.DB) (*User, error) {
 	// Fetch the user
 	user := User{}
 	// Usernames are case insensitive
-	if db.Where("LOWER(username) = LOWER(?)", username).First(&user).RecordNotFound() {
+	if s.db.Where("LOWER(username) = LOWER(?)", username).First(&user).RecordNotFound() {
 		return nil, errors.New("User authentication failed")
 	}
 

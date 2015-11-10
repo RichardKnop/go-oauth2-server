@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OauthTestSuite) TestRefreshTokenGrantNotFound() {
+func (suite *oauthTestSuite) TestRefreshTokenGrantNotFound() {
 	// Make a request
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
 	r.SetBasicAuth("test_client", "test_secret")
@@ -18,7 +18,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantNotFound() {
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"bogus"},
 	}
-	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
+	recorded := test.RunRequest(suite.T(), suite.api.MakeHandler(), r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 400, recorded.Recorder.Code)
@@ -30,13 +30,13 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantNotFound() {
 	)
 }
 
-func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
+func (suite *oauthTestSuite) TestRefreshTokenGrantExpired() {
 	// Insert a test refresh token
-	if err := suite.DB.Create(&RefreshToken{
+	if err := suite.db.Create(&RefreshToken{
 		Token:     "test_refresh_token",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
-		Client:    *suite.Client,
-		User:      *suite.User,
+		Client:    *suite.client,
+		User:      *suite.user,
 		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
@@ -49,7 +49,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"test_refresh_token"},
 	}
-	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
+	recorded := test.RunRequest(suite.T(), suite.api.MakeHandler(), r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 400, recorded.Recorder.Code)
@@ -61,13 +61,13 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
 	)
 }
 
-func (suite *OauthTestSuite) TestRefreshTokenGrant() {
+func (suite *oauthTestSuite) TestRefreshTokenGrant() {
 	// Insert a test refresh token
-	if err := suite.DB.Create(&RefreshToken{
+	if err := suite.db.Create(&RefreshToken{
 		Token:     "test_refresh_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    *suite.Client,
-		User:      *suite.User,
+		Client:    *suite.client,
+		User:      *suite.user,
 		Scope:     "foo bar",
 	}).Error; err != nil {
 		log.Fatal(err)
@@ -80,14 +80,14 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"test_refresh_token"},
 	}
-	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
+	recorded := test.RunRequest(suite.T(), suite.api.MakeHandler(), r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, recorded.Recorder.Code)
 
 	// Check the correct data was inserted
 	accessToken := AccessToken{}
-	assert.False(suite.T(), suite.DB.First(&accessToken).RecordNotFound())
+	assert.False(suite.T(), suite.db.First(&accessToken).RecordNotFound())
 
 	// Check the response body
 	expected, _ := json.Marshal(map[string]interface{}{

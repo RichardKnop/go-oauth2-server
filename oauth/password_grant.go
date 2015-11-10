@@ -3,35 +3,33 @@ package oauth
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/api"
-	"github.com/RichardKnop/go-oauth2-server/config"
+	"github.com/RichardKnop/go-oauth2-server/errors"
 	"github.com/ant0ine/go-json-rest/rest"
-	"github.com/jinzhu/gorm"
 )
 
-func passwordGrant(w rest.ResponseWriter, r *rest.Request, cnf *config.Config, db *gorm.DB, client *Client) {
+func (s *service) passwordGrant(w rest.ResponseWriter, r *rest.Request, client *Client) {
 	requestedScope := r.FormValue("scope")
 
 	// Authenticate the user
-	user, err := authUser(r.Request, db)
+	user, err := s.authUser(r.Request)
 	if err != nil {
-		api.UnauthorizedError(w, err.Error())
+		errors.UnauthorizedError(w, err.Error())
 		return
 	}
 
 	// Get the scope string
-	scope, err := getScope(db, requestedScope)
+	scope, err := s.getScope(requestedScope)
 	if err != nil {
-		api.Error(w, err.Error(), http.StatusBadRequest)
+		errors.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := grantAccessToken(cnf, db, client, user, scope)
+	accessToken, refreshToken, err := s.grantAccessToken(client, user, scope)
 	if err != nil {
-		api.Error(w, err.Error(), http.StatusInternalServerError)
+		errors.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	// Write the access token to a JSON response
-	respondWithAccessToken(w, cnf, accessToken, refreshToken)
+	writeAccessToken(w, s.cnf.AccessTokenLifetime, accessToken, refreshToken)
 }

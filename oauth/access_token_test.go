@@ -2,149 +2,90 @@ package oauth
 
 import (
 	"log"
-	"testing"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewAccessToken(t *testing.T) {
-	client := Client{ClientID: "test_client"}
-	user := User{Username: "test_username"}
-
-	var accessToken *AccessToken
-
-	// With user
-	accessToken = newAccessToken(3600, &client, &user, "doesn't matter")
-	assert.Equal(
-		t, "test_client", accessToken.Client.ClientID,
-		"Access token should belong to test_client",
-	)
-	assert.Equal(
-		t, "test_username", accessToken.User.Username,
-		"Access token should belong to test_username",
-	)
-
-	// Without user
-	accessToken = newAccessToken(3600, &client, nil, "doesn't matter")
-	assert.Equal(
-		t, "test_client", accessToken.Client.ClientID,
-		"Access token should belong to test_client",
-	)
-	assert.Equal(
-		t, uint(0), accessToken.User.ID,
-		"Access token should not belong to a user",
-	)
-}
-
-func TestNewRefreshToken(t *testing.T) {
-	client := Client{ClientID: "test_client"}
-	user := User{Username: "test_username"}
-
-	var refreshToken *RefreshToken
-
-	// With user
-	refreshToken = newRefreshToken(3600, &client, &user, "doesn't matter")
-	assert.Equal(
-		t, "test_client", refreshToken.Client.ClientID,
-		"Refresh token should belong to test_client",
-	)
-	assert.Equal(
-		t, "test_username", refreshToken.User.Username,
-		"Refresh token should belong to test_username",
-	)
-
-	// Without user
-	refreshToken = newRefreshToken(3600, &client, nil, "doesn't matter")
-	assert.Equal(
-		t, "test_client", refreshToken.Client.ClientID,
-		"Refresh token should belong to test_client",
-	)
-	assert.Equal(
-		t, uint(0), refreshToken.User.ID,
-		"Refresh token should not belong to a user",
-	)
-}
-
-func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
+func (suite *oauthTestSuite) TestDeleteExpiredAccessTokens() {
 	// Insert expired test access token with user
-	if err := suite.DB.Create(&AccessToken{
+	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_1",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
-		Client:    *suite.Client,
-		User:      *suite.User,
+		Client:    *suite.client,
+		User:      *suite.user,
 		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	// Insert expired test access token without user
-	if err := suite.DB.Create(&AccessToken{
+	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_2",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
-		Client:    *suite.Client,
+		Client:    *suite.client,
 		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	// Insert test access token with user
-	if err := suite.DB.Create(&AccessToken{
+	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_3",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    *suite.Client,
-		User:      *suite.User,
+		Client:    *suite.client,
+		User:      *suite.user,
 		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	// Insert test access token without user
-	if err := suite.DB.Create(&AccessToken{
+	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_4",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    *suite.Client,
+		Client:    *suite.client,
 		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	// This should only delete test_token_1
-	deleteExpiredAccessTokens(suite.DB, suite.Client, suite.User)
+	suite.service.deleteExpiredAccessTokens(suite.client, suite.user)
 
 	// Check the test_token_1 was deleted
 	assert.True(
 		suite.T(),
-		suite.DB.Where(&AccessToken{Token: "test_token_1"}).First(&AccessToken{}).RecordNotFound(),
+		suite.db.Where(&AccessToken{Token: "test_token_1"}).First(&AccessToken{}).RecordNotFound(),
 	)
 
 	// Check the other three tokens are still around
 	for _, token := range []string{"test_token_2", "test_token_3", "test_token_4"} {
 		assert.False(
 			suite.T(),
-			suite.DB.Where(&AccessToken{Token: token}).First(&AccessToken{}).RecordNotFound(),
+			suite.db.Where(&AccessToken{Token: token}).First(&AccessToken{}).RecordNotFound(),
 		)
 	}
 
 	// This should only delete test_token_2
-	deleteExpiredAccessTokens(suite.DB, suite.Client, nil)
+	suite.service.deleteExpiredAccessTokens(suite.client, nil)
 
 	// Check the test_token_2 was deleted
 	assert.True(
 		suite.T(),
-		suite.DB.Where(&AccessToken{Token: "test_token_2"}).First(&AccessToken{}).RecordNotFound(),
+		suite.db.Where(&AccessToken{Token: "test_token_2"}).First(&AccessToken{}).RecordNotFound(),
 	)
 
 	// Check that last two tokens are still around
 	for _, token := range []string{"test_token_3", "test_token_4"} {
 		assert.False(
 			suite.T(),
-			suite.DB.Where(&AccessToken{Token: token}).First(&AccessToken{}).RecordNotFound(),
+			suite.db.Where(&AccessToken{Token: token}).First(&AccessToken{}).RecordNotFound(),
 		)
 	}
 }
 
-// func (suite *OauthTestSuite) TestGetOrCreateRefreshToken() {
+// func (suite *oauthTestSuite) TestGetOrCreateRefreshToken() {
 // 	client := Client{ClientID: "test_client"}
 // 	user := User{Username: "test_username"}
 //

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OauthTestSuite) TestPasswordGrant() {
+func (suite *oauthTestSuite) TestPasswordGrant() {
 	// Make a request
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
 	r.SetBasicAuth("test_client", "test_secret")
@@ -17,16 +17,16 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 		"username":   {"test_username"},
 		"password":   {"test_password"},
 	}
-	recorded := test.RunRequest(suite.T(), suite.API.MakeHandler(), r)
+	recorded := test.RunRequest(suite.T(), suite.api.MakeHandler(), r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, recorded.Recorder.Code)
 
 	// Check the correct data was inserted
 	accessToken := AccessToken{}
-	assert.False(suite.T(), suite.DB.First(&accessToken).RecordNotFound())
+	assert.False(suite.T(), suite.db.First(&accessToken).RecordNotFound())
 	refreshToken := RefreshToken{}
-	assert.False(suite.T(), suite.DB.First(&refreshToken).RecordNotFound())
+	assert.False(suite.T(), suite.db.First(&refreshToken).RecordNotFound())
 
 	// Check the response body
 	expected, _ := json.Marshal(map[string]interface{}{

@@ -3,18 +3,16 @@ package oauth
 import (
 	"errors"
 	"strings"
-
-	"github.com/jinzhu/gorm"
 )
 
-func getScope(db *gorm.DB, requestedScope string) (string, error) {
+func (s *service) getScope(requestedScope string) (string, error) {
 	// Return the default scope if the requested scope is empty
 	if requestedScope == "" {
-		return getDefaultScope(db), nil
+		return s.getDefaultScope(), nil
 	}
 
 	// If the requested scope exists in the database, return it
-	if scopeExists(db, requestedScope) {
+	if s.scopeExists(requestedScope) {
 		return requestedScope, nil
 	}
 
@@ -22,28 +20,28 @@ func getScope(db *gorm.DB, requestedScope string) (string, error) {
 	return "", errors.New("Invalid scope")
 }
 
-func getDefaultScope(db *gorm.DB) string {
+func (s *service) getDefaultScope() string {
 	// Fetch default scopes
 	var scopes []string
-	db.Model(&Scope{}).Where(&Scope{IsDefault: true}).Pluck("scope", &scopes)
+	s.db.Model(&Scope{}).Where(&Scope{IsDefault: true}).Pluck("scope", &scopes)
 
 	// Return space delimited scope string
 	return strings.Join(scopes, " ")
 }
 
-func scopeExists(db *gorm.DB, requestedScope string) bool {
+func (s *service) scopeExists(requestedScope string) bool {
 	// Split the requested scope string
 	scopes := strings.Split(requestedScope, " ")
 
 	// Count how many of requested scopes exist in the database
 	var count int
-	db.Model(&Scope{}).Where("scope in (?)", scopes).Count(&count)
+	s.db.Model(&Scope{}).Where("scope in (?)", scopes).Count(&count)
 
 	// Return true only if all requested scopes found
 	return count == len(scopes)
 }
 
-func scopeNotGreater(newScope, oldScope string) bool {
+func (s *service) scopeNotGreater(newScope, oldScope string) bool {
 	// Empty scope is never greater
 	if newScope == "" {
 		return true

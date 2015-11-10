@@ -7,10 +7,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OauthTestSuite) TestAuthClientCredentialsRequired() {
+func (suite *oauthTestSuite) TestAuthClientCredentialsRequired() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 
-	client, err := authClient(r, suite.DB)
+	client, err := suite.service.authClient(r)
 
 	// Client should be nil
 	assert.Nil(suite.T(), client)
@@ -21,11 +21,11 @@ func (suite *OauthTestSuite) TestAuthClientCredentialsRequired() {
 	}
 }
 
-func (suite *OauthTestSuite) TestAuthClientNotFound() {
+func (suite *oauthTestSuite) TestAuthClientNotFound() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("bogus", "test_secret")
 
-	client, err := authClient(r, suite.DB)
+	client, err := suite.service.authClient(r)
 
 	// Client should be nil
 	assert.Nil(suite.T(), client)
@@ -36,11 +36,11 @@ func (suite *OauthTestSuite) TestAuthClientNotFound() {
 	}
 }
 
-func (suite *OauthTestSuite) TestAuthClientIncorrectSecret() {
+func (suite *oauthTestSuite) TestAuthClientIncorrectSecret() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("test_client", "bogus")
 
-	client, err := authClient(r, suite.DB)
+	client, err := suite.service.authClient(r)
 
 	// Client should be nil
 	assert.Nil(suite.T(), client)
@@ -51,11 +51,11 @@ func (suite *OauthTestSuite) TestAuthClientIncorrectSecret() {
 	}
 }
 
-func (suite *OauthTestSuite) TestAuthClient() {
+func (suite *oauthTestSuite) TestAuthClient() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.SetBasicAuth("test_client", "test_secret")
 
-	client, err := authClient(r, suite.DB)
+	client, err := suite.service.authClient(r)
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)
@@ -66,14 +66,14 @@ func (suite *OauthTestSuite) TestAuthClient() {
 	}
 }
 
-func (suite *OauthTestSuite) TestAuthPasswordNotFound() {
+func (suite *oauthTestSuite) TestAuthUserUsernameNotFound() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.PostForm = url.Values{
 		"username": {"bogus"},
 		"password": {"test_password"},
 	}
 
-	user, err := authUser(r, suite.DB)
+	user, err := suite.service.authUser(r)
 
 	// User should be nil
 	assert.Nil(suite.T(), user)
@@ -84,14 +84,14 @@ func (suite *OauthTestSuite) TestAuthPasswordNotFound() {
 	}
 }
 
-func (suite *OauthTestSuite) TestAuthUserIncorrectPassword() {
+func (suite *oauthTestSuite) TestAuthUserIncorrectPassword() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.PostForm = url.Values{
 		"username": {"test_username"},
 		"password": {"bogus"},
 	}
 
-	user, err := authUser(r, suite.DB)
+	user, err := suite.service.authUser(r)
 
 	// User should be nil
 	assert.Nil(suite.T(), user)
@@ -102,14 +102,14 @@ func (suite *OauthTestSuite) TestAuthUserIncorrectPassword() {
 	}
 }
 
-func (suite *OauthTestSuite) TestAuthUser() {
+func (suite *oauthTestSuite) TestAuthUser() {
 	r := test.MakeSimpleRequest("POST", "http://1.2.3.4/something", nil)
 	r.PostForm = url.Values{
 		"username": {"test_username"},
 		"password": {"test_password"},
 	}
 
-	user, err := authUser(r, suite.DB)
+	user, err := suite.service.authUser(r)
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)

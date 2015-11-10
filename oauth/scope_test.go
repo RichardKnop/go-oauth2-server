@@ -6,36 +6,38 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OauthTestSuite) TestGetScope() {
+func (suite *oauthTestSuite) TestGetScope() {
 	var scope string
 	var err error
 
-	scope, err = getScope(suite.DB, "")
+	scope, err = suite.service.getScope("")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), "foo bar", scope)
 
-	scope, err = getScope(suite.DB, "foo bar qux")
+	scope, err = suite.service.getScope("foo bar qux")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), "foo bar qux", scope)
 
-	scope, err = getScope(suite.DB, "foo bar bogus")
+	scope, err = suite.service.getScope("foo bar bogus")
 	if assert.NotNil(suite.T(), err) {
 		assert.Equal(suite.T(), "Invalid scope", err.Error())
 	}
 }
 
-func (suite *OauthTestSuite) TestScopeExists() {
-	assert.True(suite.T(), scopeExists(suite.DB, "foo bar qux"))
-	
-	assert.False(suite.T(), scopeExists(suite.DB, "foo bar bogus"))
+func (suite *oauthTestSuite) TestScopeExists() {
+	assert.True(suite.T(), suite.service.scopeExists("foo bar qux"))
+
+	assert.False(suite.T(), suite.service.scopeExists("foo bar bogus"))
 }
 
 func TestScopeNotGreater(t *testing.T) {
-	assert.True(t, scopeNotGreater("", "foo bar qux"))
+	s := &service{}
 
-	assert.True(t, scopeNotGreater("foo", "foo bar qux"))
+	assert.True(t, s.scopeNotGreater("", "foo bar qux"))
 
-	assert.True(t, scopeNotGreater("foo bar qux", "foo bar qux"))
+	assert.True(t, s.scopeNotGreater("foo", "foo bar qux"))
 
-	assert.False(t, scopeNotGreater("foo bar qux bogus", "foo bar qux"))
+	assert.True(t, s.scopeNotGreater("foo bar qux", "foo bar qux"))
+
+	assert.False(t, s.scopeNotGreater("foo bar qux bogus", "foo bar qux"))
 }

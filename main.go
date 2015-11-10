@@ -5,11 +5,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/RichardKnop/go-oauth2-server/api"
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/RichardKnop/go-oauth2-server/migrate"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/codegangsta/cli"
 )
 
@@ -44,8 +44,13 @@ func main() {
 			Name:  "runserver",
 			Usage: "run web server",
 			Action: func(c *cli.Context) {
-				routes := oauth.NewRoutes(cnf, db)
-				api := api.NewAPI(api.ProductionStack, routes)
+				api := rest.NewApi()
+				api.Use(rest.DefaultProdStack...)
+				router, err := rest.MakeRouter(oauth.NewRoutes(cnf, db)...)
+				if err != nil {
+					log.Fatal(err)
+				}
+				api.SetApp(router)
 				log.Print("Listening on port 8080")
 				log.Fatal(http.ListenAndServe(":8080", api.MakeHandler()))
 			},
