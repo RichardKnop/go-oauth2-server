@@ -74,7 +74,7 @@ func runServer() {
 	// Add routes for the oauth service
 	for _, route := range oauth.Routes {
 		router.PathPrefix("/oauth").Subrouter().
-			Methods(route.Method).
+			Methods(route.Methods...).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(route.HandlerFunc)
