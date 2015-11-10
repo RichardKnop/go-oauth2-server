@@ -8,6 +8,7 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/RichardKnop/go-oauth2-server/migrations"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/web"
 	"github.com/codegangsta/cli"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
@@ -71,9 +72,19 @@ func runServer() {
 
 	// Create a router instance
 	router := mux.NewRouter().StrictSlash(true)
+
 	// Add routes for the oauth service
 	for _, route := range oauth.Routes {
 		router.PathPrefix("/oauth").Subrouter().
+			Methods(route.Methods...).
+			Path(route.Pattern).
+			Name(route.Name).
+			Handler(route.HandlerFunc)
+	}
+
+	// Add routes for web pages
+	for _, route := range web.Routes {
+		router.PathPrefix("/web").Subrouter().
 			Methods(route.Methods...).
 			Path(route.Pattern).
 			Name(route.Name).

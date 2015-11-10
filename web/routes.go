@@ -9,19 +9,19 @@ var Routes = []routes.Route{
 	routes.Route{
 		Name:        "Register",
 		Methods:     []string{"GET", "POST"},
-		Pattern:     "/web/v1/register",
+		Pattern:     "/v1/register",
 		HandlerFunc: register,
 	},
 	routes.Route{
 		Name:        "Login",
 		Methods:     []string{"GET", "POST"},
-		Pattern:     "/web/v1/login",
+		Pattern:     "/v1/login",
 		HandlerFunc: login,
 	},
 	routes.Route{
 		Name:        "Authorize",
 		Methods:     []string{"GET"},
-		Pattern:     "/web/v1/authorize",
+		Pattern:     "/v1/authorize",
 		HandlerFunc: authorize,
 	},
 }
