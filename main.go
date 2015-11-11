@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/RichardKnop/go-oauth2-server/accounts"
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/RichardKnop/go-oauth2-server/migrations"
@@ -67,7 +68,10 @@ func migrate(db *gorm.DB) {
 
 func runServer(cnf *config.Config, db *gorm.DB) {
 	// Initialise the oauth service
-	oauth.NewService(cnf, db)
+	oauthService := oauth.NewService(cnf, db)
+
+	// Initialise the accounts service
+	accounts.NewService(cnf, db, oauthService)
 
 	// Start a negroni app
 	n := negroni.Classic()

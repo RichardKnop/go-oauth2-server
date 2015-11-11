@@ -4,8 +4,6 @@ import (
 	"log"
 	"testing"
 
-	"golang.org/x/crypto/bcrypt"
-
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/migrations"
 	"github.com/jinzhu/gorm"
@@ -40,6 +38,7 @@ func (suite *OauthTestSuite) SetupSuite() {
 	migrations.Bootstrap(suite.db)
 	MigrateAll(suite.db)
 
+	// Initialise the service
 	suite.service = &Service{cnf: suite.cnf, db: suite.db}
 }
 
@@ -52,32 +51,18 @@ func (suite *OauthTestSuite) TearDownSuite() {
 // The SetupTest method will be run before every test in the suite.
 func (suite *OauthTestSuite) SetupTest() {
 	// Insert a test client
-	clientSecretHash, err := bcrypt.GenerateFromPassword([]byte("test_secret"), 3)
+	client, err := suite.service.CreateClient("test_client", "test_secret")
 	if err != nil {
 		log.Fatal(err)
 	}
-	suite.client = &Client{
-		ID:       1,
-		ClientID: "test_client",
-		Secret:   string(clientSecretHash),
-	}
-	if err := suite.db.Create(suite.client).Error; err != nil {
-		log.Fatal(err)
-	}
+	suite.client = client
 
 	// Insert a test user
-	passwordHash, err := bcrypt.GenerateFromPassword([]byte("test_password"), 3)
+	user, err := suite.service.CreateUser("test_username", "test_password")
 	if err != nil {
 		log.Fatal(err)
 	}
-	suite.user = &User{
-		ID:       1,
-		Username: "test_username",
-		Password: string(passwordHash),
-	}
-	if err := suite.db.Create(suite.user).Error; err != nil {
-		log.Fatal(err)
-	}
+	suite.user = user
 
 	// Insert test scopes
 	if err := suite.db.Create(&Scope{
