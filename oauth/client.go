@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"errors"
+	"log"
 )
 
 // AuthClient authenticates client
@@ -31,6 +32,7 @@ func (s *Service) CreateClient(clientID, secret string) (*Client, error) {
 		Secret:   string(secretHash),
 	}
 	if err := s.db.Create(client).Error; err != nil {
+		log.Print(err)
 		return nil, errors.New("Error saving client to database")
 	}
 	return client, nil

@@ -21,11 +21,14 @@ func Bootstrap(db *gorm.DB) error {
 	migrationName := "0000_bootstrap"
 
 	migration := new(Migration)
-	found := !db.LogMode(false).Where(Migration{
+	// Using Error instead of RecordNotFound because we want to check
+	// if the migrations table exists. This is different from later migrations
+	// where we query the already create migrations table.
+	exists := nil == db.LogMode(false).Where(Migration{
 		Name: migrationName,
-	}).First(migration).RecordNotFound()
+	}).First(migration).Error
 
-	if found {
+	if exists {
 		log.Printf("Skipping %s migration", migrationName)
 		return nil
 	}
