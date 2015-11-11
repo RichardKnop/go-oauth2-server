@@ -16,7 +16,8 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	// Authenticate the user
 	user, err := s.AuthUser(username, password)
 	if err != nil {
-		json.UnauthorizedError(w, err.Error())
+		// For security reasons, return a general error message
+		json.UnauthorizedError(w, "User authentication required")
 		return
 	}
 

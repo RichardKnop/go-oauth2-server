@@ -30,10 +30,10 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 	assert.Equal(suite.T(), 200, w.Code)
 
 	// Check the correct data was inserted
-	accessToken := AccessToken{}
-	assert.False(suite.T(), suite.db.First(&accessToken).RecordNotFound())
-	refreshToken := RefreshToken{}
-	assert.False(suite.T(), suite.db.First(&refreshToken).RecordNotFound())
+	accessToken := new(AccessToken)
+	assert.False(suite.T(), suite.db.First(accessToken).RecordNotFound())
+	refreshToken := new(RefreshToken)
+	assert.False(suite.T(), suite.db.First(refreshToken).RecordNotFound())
 
 	// Check the response body
 	expected, _ := json.Marshal(map[string]interface{}{

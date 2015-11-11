@@ -31,13 +31,13 @@ func (suite *OauthTestSuite) TestScopeExists() {
 }
 
 func TestScopeNotGreater(t *testing.T) {
-	s := &Service{}
+	service := new(Service)
 
-	assert.True(t, s.scopeNotGreater("", "foo bar qux"))
+	assert.True(t, service.scopeNotGreater("", "foo bar qux"))
 
-	assert.True(t, s.scopeNotGreater("foo", "foo bar qux"))
+	assert.True(t, service.scopeNotGreater("foo", "foo bar qux"))
 
-	assert.True(t, s.scopeNotGreater("foo bar qux", "foo bar qux"))
+	assert.True(t, service.scopeNotGreater("foo bar qux", "foo bar qux"))
 
-	assert.False(t, s.scopeNotGreater("foo bar qux bogus", "foo bar qux"))
+	assert.False(t, service.scopeNotGreater("foo bar qux bogus", "foo bar qux"))
 }

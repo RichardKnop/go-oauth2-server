@@ -12,11 +12,11 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 	requestedScope := r.FormValue("scope")
 
 	// Fetch a refresh token from the database
-	theRefreshToken := RefreshToken{}
-	if s.db.Where(&RefreshToken{
+	theRefreshToken := new(RefreshToken)
+	if s.db.Where(RefreshToken{
 		Token:    token,
 		ClientID: clientIDOrNull(client),
-	}).Preload("Client").Preload("User").First(&theRefreshToken).RecordNotFound() {
+	}).Preload("Client").Preload("User").First(theRefreshToken).RecordNotFound() {
 		json.Error(w, "Refresh token not found", http.StatusBadRequest)
 		return
 	}
@@ -41,7 +41,11 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := s.grantAccessToken(&theRefreshToken.Client, &theRefreshToken.User, scope)
+	accessToken, refreshToken, err := s.grantAccessToken(
+		theRefreshToken.Client,
+		theRefreshToken.User,
+		scope,
+	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
 	}

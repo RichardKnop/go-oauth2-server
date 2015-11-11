@@ -12,7 +12,7 @@ func (suite *OauthTestSuite) TestAuthClientNotFound() {
 
 	// Error should not be nil
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Client authentication failed", err.Error())
+		assert.Equal(suite.T(), "Client not found", err.Error())
 	}
 }
 
@@ -24,7 +24,7 @@ func (suite *OauthTestSuite) TestAuthClientIncorrectSecret() {
 
 	// Error should not be nil
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Client authentication failed", err.Error())
+		assert.Equal(suite.T(), "Invalid secret", err.Error())
 	}
 }
 

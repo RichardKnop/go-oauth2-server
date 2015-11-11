@@ -9,12 +9,12 @@ func (s *Service) AuthClient(clientID, secret string) (*Client, error) {
 	// Fetch the client
 	client, err := s.findClientByClientID(clientID)
 	if err != nil {
-		return nil, errors.New("Client authentication failed")
+		return nil, errors.New("Client not found")
 	}
 
 	// Verify the secret
 	if verifyPassword(client.Secret, secret) != nil {
-		return nil, errors.New("Client authentication failed")
+		return nil, errors.New("Invalid secret")
 	}
 
 	return client, nil
@@ -26,21 +26,21 @@ func (s *Service) CreateClient(clientID, secret string) (*Client, error) {
 	if err != nil {
 		return nil, errors.New("Bcrypt error")
 	}
-	client := Client{
+	client := &Client{
 		ClientID: clientID,
 		Secret:   string(secretHash),
 	}
-	if err := s.db.Create(&client).Error; err != nil {
+	if err := s.db.Create(client).Error; err != nil {
 		return nil, errors.New("Error saving client to database")
 	}
-	return &client, nil
+	return client, nil
 }
 
 func (s *Service) findClientByClientID(clientID string) (*Client, error) {
 	// Client IDs are case insensitive
-	client := Client{}
-	if s.db.Where("LOWER(client_id) = LOWER(?)", clientID).First(&client).RecordNotFound() {
+	client := new(Client)
+	if s.db.Where("LOWER(client_id) = LOWER(?)", clientID).First(client).RecordNotFound() {
 		return nil, errors.New("Client not found")
 	}
-	return &client, nil
+	return client, nil
 }

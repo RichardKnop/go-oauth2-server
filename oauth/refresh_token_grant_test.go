@@ -39,8 +39,8 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
 	if err := suite.db.Create(&RefreshToken{
 		Token:     "test_refresh_token",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
-		Client:    *suite.client,
-		User:      *suite.user,
+		Client:    suite.client,
+		User:      suite.user,
 		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
@@ -72,8 +72,8 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	if err := suite.db.Create(&RefreshToken{
 		Token:     "test_refresh_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    *suite.client,
-		User:      *suite.user,
+		Client:    suite.client,
+		User:      suite.user,
 		Scope:     "foo bar",
 	}).Error; err != nil {
 		log.Fatal(err)
@@ -96,8 +96,8 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	assert.Equal(suite.T(), 200, w.Code)
 
 	// Check the correct data was inserted
-	accessToken := AccessToken{}
-	assert.False(suite.T(), suite.db.First(&accessToken).RecordNotFound())
+	accessToken := new(AccessToken)
+	assert.False(suite.T(), suite.db.First(accessToken).RecordNotFound())
 
 	// Check the response body
 	expected, _ := json.Marshal(map[string]interface{}{

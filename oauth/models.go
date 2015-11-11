@@ -44,8 +44,8 @@ type RefreshToken struct {
 	Scope     string        `sql:"type:varchar(200);not null"`
 	ClientID  sql.NullInt64 `sql:"index;not null"`
 	UserID    sql.NullInt64 `sql:"index"`
-	Client    Client
-	User      User
+	Client    *Client
+	User      *User
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -58,8 +58,8 @@ type AccessToken struct {
 	Scope     string        `sql:"type:varchar(200);not null"`
 	ClientID  sql.NullInt64 `sql:"index;not null"`
 	UserID    sql.NullInt64 `sql:"index"`
-	Client    Client
-	User      User
+	Client    *Client
+	User      *User
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -73,8 +73,8 @@ type AuthorizationCode struct {
 	Scope       string         `sql:"type:varchar(200);not null"`
 	ClientID    sql.NullInt64  `sql:"index;not null"`
 	UserID      sql.NullInt64  `sql:"index"`
-	Client      Client
-	User        User
+	Client      *Client
+	User        *User
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -86,11 +86,11 @@ func newAccessToken(accessTokenLifetime int, client *Client, user *User, scope s
 		Scope:     scope,
 	}
 	if client != nil {
-		accessToken.Client = *client
+		accessToken.Client = client
 		accessToken.ClientID = clientIDOrNull(client)
 	}
 	if user != nil {
-		accessToken.User = *user
+		accessToken.User = user
 		accessToken.UserID = userIDOrNull(user)
 	}
 	return accessToken
@@ -101,15 +101,14 @@ func newRefreshToken(refreshTokenLifetime int, client *Client, user *User, scope
 		Token:     uuid.New(),
 		ExpiresAt: time.Now().Add(time.Duration(refreshTokenLifetime) * time.Second),
 		Scope:     scope,
-		Client:    *client,
 		ClientID:  clientIDOrNull(client),
 	}
 	if client != nil {
-		refreshToken.Client = *client
+		refreshToken.Client = client
 		refreshToken.ClientID = clientIDOrNull(client)
 	}
 	if user != nil {
-		refreshToken.User = *user
+		refreshToken.User = user
 		refreshToken.UserID = userIDOrNull(user)
 	}
 	return refreshToken

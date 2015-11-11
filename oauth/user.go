@@ -15,12 +15,12 @@ func (s *Service) AuthUser(username, password string) (*User, error) {
 	// Fetch the user
 	user, err := s.findUserByUsername(username)
 	if err != nil {
-		return nil, errors.New("User authentication failed")
+		return nil, errors.New("User not found")
 	}
 
 	// Verify the password
 	if verifyPassword(user.Password, password) != nil {
-		return nil, errors.New("User authentication failed")
+		return nil, errors.New("Invalid password")
 	}
 
 	return user, nil
@@ -44,9 +44,9 @@ func (s *Service) CreateUser(username, password string) (*User, error) {
 
 func (s *Service) findUserByUsername(username string) (*User, error) {
 	// Usernames are case insensitive
-	user := User{}
-	if s.db.Where("LOWER(username) = LOWER(?)", username).First(&user).RecordNotFound() {
+	user := new(User)
+	if s.db.Where("LOWER(username) = LOWER(?)", username).First(user).RecordNotFound() {
 		return nil, errors.New("User not found")
 	}
-	return &user, nil
+	return user, nil
 }

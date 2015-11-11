@@ -12,7 +12,7 @@ func (suite *OauthTestSuite) TestAuthUserUsernameNotFound() {
 
 	// Error should not be nil
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "User authentication failed", err.Error())
+		assert.Equal(suite.T(), "User not found", err.Error())
 	}
 }
 
@@ -24,7 +24,7 @@ func (suite *OauthTestSuite) TestAuthUserIncorrectPassword() {
 
 	// Error should not be nil
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "User authentication failed", err.Error())
+		assert.Equal(suite.T(), "Invalid password", err.Error())
 	}
 }
 

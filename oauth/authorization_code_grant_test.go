@@ -39,7 +39,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	if err := suite.db.Create(&AuthorizationCode{
 		Code:      "test_auth_code",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    *suite.client,
+		Client:    suite.client,
 		Scope:     "foo bar",
 	}).Error; err != nil {
 		log.Fatal(err)
@@ -62,10 +62,10 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	assert.Equal(suite.T(), 200, w.Code)
 
 	// Check the correct data was inserted
-	accessToken := AccessToken{}
-	assert.False(suite.T(), suite.db.First(&accessToken).RecordNotFound())
-	refreshToken := RefreshToken{}
-	assert.False(suite.T(), suite.db.First(&refreshToken).RecordNotFound())
+	accessToken := new(AccessToken)
+	assert.False(suite.T(), suite.db.First(accessToken).RecordNotFound())
+	refreshToken := new(RefreshToken)
+	assert.False(suite.T(), suite.db.First(refreshToken).RecordNotFound())
 
 	// Check the response body
 	expected, _ := json.Marshal(map[string]interface{}{
@@ -79,5 +79,5 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 
 	// Check the authorization code was deleted
-	assert.True(suite.T(), suite.db.First(&AuthorizationCode{}).RecordNotFound())
+	assert.True(suite.T(), suite.db.First(new(AuthorizationCode)).RecordNotFound())
 }

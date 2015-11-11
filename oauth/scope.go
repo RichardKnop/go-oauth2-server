@@ -23,7 +23,7 @@ func (s *Service) getScope(requestedScope string) (string, error) {
 func (s *Service) getDefaultScope() string {
 	// Fetch default scopes
 	var scopes []string
-	s.db.Model(&Scope{}).Where(&Scope{IsDefault: true}).Pluck("scope", &scopes)
+	s.db.Model(new(Scope)).Where(Scope{IsDefault: true}).Pluck("scope", &scopes)
 
 	// Return space delimited scope string
 	return strings.Join(scopes, " ")
@@ -35,7 +35,7 @@ func (s *Service) scopeExists(requestedScope string) bool {
 
 	// Count how many of requested scopes exist in the database
 	var count int
-	s.db.Model(&Scope{}).Where("scope in (?)", scopes).Count(&count)
+	s.db.Model(new(Scope)).Where("scope in (?)", scopes).Count(&count)
 
 	// Return true only if all requested scopes found
 	return count == len(scopes)

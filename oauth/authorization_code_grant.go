@@ -10,17 +10,21 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 	code := r.FormValue("code")
 
 	// Fetch an auth code from the database
-	authorizationCode := AuthorizationCode{}
-	if s.db.Where(&AuthorizationCode{
+	authorizationCode := new(AuthorizationCode)
+	if s.db.Where(AuthorizationCode{
 		Code:     code,
 		ClientID: clientIDOrNull(client),
-	}).Preload("Client").Preload("User").First(&authorizationCode).RecordNotFound() {
+	}).Preload("Client").Preload("User").First(authorizationCode).RecordNotFound() {
 		json.Error(w, "Authorization code not found", http.StatusBadRequest)
 		return
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := s.grantAccessToken(&authorizationCode.Client, &authorizationCode.User, authorizationCode.Scope)
+	accessToken, refreshToken, err := s.grantAccessToken(
+		authorizationCode.Client,
+		authorizationCode.User,
+		authorizationCode.Scope,
+	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
 	}
