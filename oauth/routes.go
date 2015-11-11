@@ -9,7 +9,7 @@ var Routes = []routes.Route{
 	routes.Route{
 		Name:        "Tokens",
 		Methods:     []string{"POST"},
-		Pattern:     "/api/v1/tokens",
+		Pattern:     "/tokens",
 		HandlerFunc: handleTokens,
 	},
 }

@@ -81,7 +81,7 @@ func runServer(cnf *config.Config, db *gorm.DB) {
 
 	// Add routes for the oauth service
 	for _, route := range oauth.Routes {
-		router.PathPrefix("/oauth").Subrouter().
+		router.PathPrefix("/oauth/api/v1").Subrouter().
 			Methods(route.Methods...).
 			Path(route.Pattern).
 			Name(route.Name).
