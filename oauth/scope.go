@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func (s *service) getScope(requestedScope string) (string, error) {
+func (s *Service) getScope(requestedScope string) (string, error) {
 	// Return the default scope if the requested scope is empty
 	if requestedScope == "" {
 		return s.getDefaultScope(), nil
@@ -20,7 +20,7 @@ func (s *service) getScope(requestedScope string) (string, error) {
 	return "", errors.New("Invalid scope")
 }
 
-func (s *service) getDefaultScope() string {
+func (s *Service) getDefaultScope() string {
 	// Fetch default scopes
 	var scopes []string
 	s.db.Model(&Scope{}).Where(&Scope{IsDefault: true}).Pluck("scope", &scopes)
@@ -29,7 +29,7 @@ func (s *service) getDefaultScope() string {
 	return strings.Join(scopes, " ")
 }
 
-func (s *service) scopeExists(requestedScope string) bool {
+func (s *Service) scopeExists(requestedScope string) bool {
 	// Split the requested scope string
 	scopes := strings.Split(requestedScope, " ")
 
@@ -41,7 +41,7 @@ func (s *service) scopeExists(requestedScope string) bool {
 	return count == len(scopes)
 }
 
-func (s *service) scopeNotGreater(newScope, oldScope string) bool {
+func (s *Service) scopeNotGreater(newScope, oldScope string) bool {
 	// Empty scope is never greater
 	if newScope == "" {
 		return true

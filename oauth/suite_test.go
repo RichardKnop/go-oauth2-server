@@ -19,7 +19,7 @@ type OauthTestSuite struct {
 	suite.Suite
 	cnf     *config.Config
 	db      *gorm.DB
-	service *service
+	service *Service
 	client  *Client
 	user    *User
 }
@@ -40,7 +40,7 @@ func (suite *OauthTestSuite) SetupSuite() {
 	migrations.Bootstrap(suite.db)
 	MigrateAll(suite.db)
 
-	suite.service = &service{cnf: suite.cnf, db: suite.db}
+	suite.service = &Service{cnf: suite.cnf, db: suite.db}
 }
 
 // The TearDownSuite method will be run by testify once, at the very

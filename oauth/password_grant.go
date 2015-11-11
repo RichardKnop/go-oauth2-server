@@ -6,11 +6,15 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/json"
 )
 
-func (s *service) passwordGrant(w http.ResponseWriter, r *http.Request, client *Client) {
+func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	requestedScope := r.FormValue("scope")
 
+	// Get user credentials from from the form data
+	username := r.FormValue("username")
+	password := r.FormValue("password")
+
 	// Authenticate the user
-	user, err := s.authUser(r)
+	user, err := s.AuthUser(username, password)
 	if err != nil {
 		json.UnauthorizedError(w, err.Error())
 		return

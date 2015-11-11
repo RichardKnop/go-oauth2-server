@@ -6,7 +6,7 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/json"
 )
 
-func (s *service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request, client *Client) {
+func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	requestedScope := r.FormValue("scope")
 
 	// Get the scope string

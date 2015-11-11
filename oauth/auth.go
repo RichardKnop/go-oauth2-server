@@ -2,18 +2,12 @@ package oauth
 
 import (
 	"errors"
-	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
 )
 
-func (s *service) authClient(r *http.Request) (*Client, error) {
-	// Get credentials from basic auth
-	clientID, clientSecret, ok := r.BasicAuth()
-	if !ok {
-		return nil, errors.New("Client credentials required")
-	}
-
+// AuthClient authenticates client
+func (s *Service) AuthClient(clientID, clientSecret string) (*Client, error) {
 	// Fetch the client
 	client := Client{}
 	// Client IDs are case insensitive
@@ -29,11 +23,8 @@ func (s *service) authClient(r *http.Request) (*Client, error) {
 	return &client, nil
 }
 
-func (s *service) authUser(r *http.Request) (*User, error) {
-	// Get credentials from from the form data
-	username := r.FormValue("username")
-	password := r.FormValue("password")
-
+// AuthUser authenticates user
+func (s *Service) AuthUser(username, password string) (*User, error) {
 	// Fetch the user
 	user := User{}
 	// Usernames are case insensitive

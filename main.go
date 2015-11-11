@@ -46,8 +46,7 @@ func main() {
 			Name:  "runserver",
 			Usage: "run web server",
 			Action: func(c *cli.Context) {
-				oauth.InitService(cnf, db)
-				runServer()
+				runServer(cnf, db)
 			},
 		},
 	}
@@ -66,7 +65,10 @@ func migrate(db *gorm.DB) {
 	}
 }
 
-func runServer() {
+func runServer(cnf *config.Config, db *gorm.DB) {
+	// Initialise the oauth service
+	oauth.NewService(cnf, db)
+
 	// Start a negroni app
 	n := negroni.Classic()
 

@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (s *service) grantAccessToken(client *Client, user *User, scope string) (*AccessToken, *RefreshToken, error) {
+func (s *Service) grantAccessToken(client *Client, user *User, scope string) (*AccessToken, *RefreshToken, error) {
 	// Delete expired access tokens
 	s.deleteExpiredAccessTokens(client, user)
 
@@ -24,14 +24,14 @@ func (s *service) grantAccessToken(client *Client, user *User, scope string) (*A
 	return accessToken, refreshToken, nil
 }
 
-func (s *service) deleteExpiredAccessTokens(client *Client, user *User) {
+func (s *Service) deleteExpiredAccessTokens(client *Client, user *User) {
 	s.db.Where(&AccessToken{
 		ClientID: clientIDOrNull(client),
 		UserID:   userIDOrNull(user),
 	}).Where("expires_at <= ?", time.Now()).Delete(&AccessToken{})
 }
 
-func (s *service) getOrCreateRefreshToken(client *Client, user *User, scope string) (*RefreshToken, error) {
+func (s *Service) getOrCreateRefreshToken(client *Client, user *User, scope string) (*RefreshToken, error) {
 	// Try to fetch an existing refresh token first
 	refreshToken := &RefreshToken{}
 	notFound := s.db.Where(&RefreshToken{

@@ -14,7 +14,7 @@ import (
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantNotFound() {
 	// Make a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,7 +47,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
 	}
 
 	// Make a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,7 +80,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	}
 
 	// Make a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/oauth2/api/v1/tokens", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
 	if err != nil {
 		log.Fatal(err)
 	}

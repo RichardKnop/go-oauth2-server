@@ -6,7 +6,7 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/json"
 )
 
-func (s *service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
+func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	code := r.FormValue("code")
 
 	// Fetch an auth code from the database

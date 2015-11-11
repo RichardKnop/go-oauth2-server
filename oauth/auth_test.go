@@ -1,38 +1,9 @@
 package oauth
 
-import (
-	"log"
-	"net/http"
-	"net/url"
-
-	"github.com/stretchr/testify/assert"
-)
-
-func (suite *OauthTestSuite) TestAuthClientCredentialsRequired() {
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	client, err := suite.service.authClient(r)
-
-	// Client should be nil
-	assert.Nil(suite.T(), client)
-
-	// Error should not be nil
-	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Client credentials required", err.Error())
-	}
-}
+import "github.com/stretchr/testify/assert"
 
 func (suite *OauthTestSuite) TestAuthClientNotFound() {
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	r.SetBasicAuth("bogus", "test_secret")
-
-	client, err := suite.service.authClient(r)
+	client, err := suite.service.AuthClient("bogus", "test_secret")
 
 	// Client should be nil
 	assert.Nil(suite.T(), client)
@@ -44,13 +15,7 @@ func (suite *OauthTestSuite) TestAuthClientNotFound() {
 }
 
 func (suite *OauthTestSuite) TestAuthClientIncorrectSecret() {
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	r.SetBasicAuth("test_client", "bogus")
-
-	client, err := suite.service.authClient(r)
+	client, err := suite.service.AuthClient("test_client", "bogus")
 
 	// Client should be nil
 	assert.Nil(suite.T(), client)
@@ -62,13 +27,7 @@ func (suite *OauthTestSuite) TestAuthClientIncorrectSecret() {
 }
 
 func (suite *OauthTestSuite) TestAuthClient() {
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	r.SetBasicAuth("test_client", "test_secret")
-
-	client, err := suite.service.authClient(r)
+	client, err := suite.service.AuthClient("test_client", "test_secret")
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)
@@ -80,16 +39,7 @@ func (suite *OauthTestSuite) TestAuthClient() {
 }
 
 func (suite *OauthTestSuite) TestAuthUserUsernameNotFound() {
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	r.PostForm = url.Values{
-		"username": {"bogus"},
-		"password": {"test_password"},
-	}
-
-	user, err := suite.service.authUser(r)
+	user, err := suite.service.AuthUser("bogus", "test_password")
 
 	// User should be nil
 	assert.Nil(suite.T(), user)
@@ -101,16 +51,7 @@ func (suite *OauthTestSuite) TestAuthUserUsernameNotFound() {
 }
 
 func (suite *OauthTestSuite) TestAuthUserIncorrectPassword() {
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	r.PostForm = url.Values{
-		"username": {"test_username"},
-		"password": {"bogus"},
-	}
-
-	user, err := suite.service.authUser(r)
+	user, err := suite.service.AuthUser("test_username", "bogus")
 
 	// User should be nil
 	assert.Nil(suite.T(), user)
@@ -122,16 +63,7 @@ func (suite *OauthTestSuite) TestAuthUserIncorrectPassword() {
 }
 
 func (suite *OauthTestSuite) TestAuthUser() {
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	r.PostForm = url.Values{
-		"username": {"test_username"},
-		"password": {"test_password"},
-	}
-
-	user, err := suite.service.authUser(r)
+	user, err := suite.service.AuthUser("test_username", "test_password")
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)

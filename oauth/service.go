@@ -5,15 +5,21 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// service struct keeps config and db objects to avoid passing them around
-type service struct {
+// Service struct keeps config and db objects to avoid passing them around
+type Service struct {
 	cnf *config.Config
 	db  *gorm.DB
 }
 
-var s *service
+var s *Service
 
-// InitService starts a new service instance
-func InitService(cnf *config.Config, db *gorm.DB) {
-	s = &service{cnf: cnf, db: db}
+// NewService starts a new Service instance
+func NewService(cnf *config.Config, db *gorm.DB) *Service {
+	s = &Service{cnf: cnf, db: db}
+	return s
+}
+
+// GetService returns internal Service instance
+func GetService() *Service {
+	return s
 }

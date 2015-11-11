@@ -7,7 +7,7 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/json"
 )
 
-func (s *service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, client *Client) {
+func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	token := r.FormValue("refresh_token")
 	requestedScope := r.FormValue("scope")
 
