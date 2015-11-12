@@ -14,8 +14,9 @@ func registerForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{}
+	log.Print("Flashes: ")
+	log.Print(session.Flashes())
 	if flashes := session.Flashes(); len(flashes) > 0 {
-		log.Print(flashes)
 		data["error"] = flashes[0]
 	}
 

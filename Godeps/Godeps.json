@@ -38,6 +38,14 @@
 			"Rev": "b08c5fcf14d01cb0c20ddf70157f54d4a2c3a38a"
 		},
 		{
+			"ImportPath": "github.com/gorilla/securecookie",
+			"Rev": "e95799a481bbcc3d01c2ad5178524cb8bec9f370"
+		},
+		{
+			"ImportPath": "github.com/gorilla/sessions",
+			"Rev": "f7261893ca3ea922c30eabe742c036d2c1de6e0a"
+		},
+		{
 			"ImportPath": "github.com/jinzhu/gorm",
 			"Rev": "ede940e82d978b7f414dc05f7de1e2d33702e6c0"
 		},
