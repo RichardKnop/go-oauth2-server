@@ -199,7 +199,8 @@ $ curl -L http://127.0.0.1:4001/v2/keys/config/go_oauth2_server.json -XPUT -d va
     "AccessTokenLifetime": 3600,
     "RefreshTokenLifetime": 1209600,
     "AuthCodeLifetime": 3600  
-  }
+  },
+  "SessionSecret": "some_session_secret"
 }'
 ```
 

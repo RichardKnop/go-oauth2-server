@@ -7,19 +7,31 @@ import (
 // Routes for web pages
 var Routes = []routes.Route{
 	routes.Route{
-		Name:        "Register",
-		Methods:     []string{"GET", "POST"},
+		Name:        "register",
+		Methods:     []string{"POST"},
 		Pattern:     "/register",
 		HandlerFunc: register,
 	},
 	routes.Route{
-		Name:        "Login",
-		Methods:     []string{"GET", "POST"},
+		Name:        "register_form",
+		Methods:     []string{"GET"},
+		Pattern:     "/register",
+		HandlerFunc: registerForm,
+	},
+	routes.Route{
+		Name:        "login",
+		Methods:     []string{"POST"},
 		Pattern:     "/login",
 		HandlerFunc: login,
 	},
 	routes.Route{
-		Name:        "Authorize",
+		Name:        "login_form",
+		Methods:     []string{"GET"},
+		Pattern:     "/login",
+		HandlerFunc: loginForm,
+	},
+	routes.Route{
+		Name:        "authorize",
 		Methods:     []string{"GET"},
 		Pattern:     "/authorize",
 		HandlerFunc: authorize,

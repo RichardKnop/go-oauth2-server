@@ -29,7 +29,7 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := s.grantAccessToken(client, user, scope)
+	accessToken, refreshToken, err := s.GrantAccessToken(client, user, scope)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
 	}

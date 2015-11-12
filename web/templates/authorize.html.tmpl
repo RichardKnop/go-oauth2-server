@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <html lang="en">
 <head>
@@ -17,7 +17,7 @@
   <p>{{.error}}</p>
   {{end}}
   Do you want to authorize {{.clientID}} to use your credentials?
-  <form action="{{.action}}" method="post">
+  <form action="/web/authorize" method="post">
       <p><input type="submit" value="Yes"> <input type="submit" value="No"></p>
   </form>
 </body>

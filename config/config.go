@@ -19,6 +19,7 @@ type OauthConfig struct {
 
 // Config stores all configuration options
 type Config struct {
-	Database DatabaseConfig
-	Oauth    OauthConfig
+	Database      DatabaseConfig
+	Oauth         OauthConfig
+	SessionSecret string
 }

@@ -17,7 +17,7 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := s.grantAccessToken(client, nil, scope)
+	accessToken, refreshToken, err := s.GrantAccessToken(client, nil, scope)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
 	}

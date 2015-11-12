@@ -92,21 +92,3 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 		assert.False(suite.T(), notFound)
 	}
 }
-
-// func (suite *OauthTestSuite) TestGetOrCreateRefreshToken() {
-// 	client := Client{ClientID: "test_client"}
-// 	user := User{Username: "test_username"}
-//
-// 	var refreshToken *RefreshToken
-// 	var err error
-//
-// 	// client_id = 1 AND user_id IS NULL
-// 	refreshToken, err = getOrCreateRefreshToken(suite.DB, &client, nil, 1209600, "foo bar")
-// 	assert.Nil(suite.T(), err)
-//
-// 	// client_id = 1 AND user_id = 2
-// 	refreshToken, err = getOrCreateRefreshToken(suite.DB, &client, &user, 1209600, "foo bar")
-// 	assert.Nil(suite.T(), err)
-//
-// 	log.Print(refreshToken)
-// }

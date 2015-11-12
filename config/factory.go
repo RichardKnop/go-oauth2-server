@@ -24,6 +24,7 @@ var cnf = &Config{
 		RefreshTokenLifetime: 1209600, // 14 days
 		AuthCodeLifetime:     3600,    // TODO - should this be less than 1 hour?
 	},
+	SessionSecret: "some_session_secret",
 }
 var configLoaded bool
 

@@ -4,31 +4,54 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-
-	"github.com/RichardKnop/go-oauth2-server/accounts"
 )
 
-func login(w http.ResponseWriter, r *http.Request) {
-	accountsService := accounts.GetService()
-	data := map[string]interface{}{}
-
-	if r.Method == "POST" {
-		r.ParseForm()
-		user, err := accountsService.Login(r.Form["username"][0], r.Form["password"][0])
-		if err != nil {
-			data["error"] = err.Error()
-			renderLogin(w, r, data)
-			return
-		}
-
-		log.Print(user)
-		// probably redirect to a page specified in the query string
+func loginForm(w http.ResponseWriter, r *http.Request) {
+	session, err := sessionStore.Get(r, "areatech")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	renderLogin(w, r, data)
-}
+	data := map[string]interface{}{}
+	if flashes := session.Flashes(); len(flashes) > 0 {
+		log.Print(flashes)
+		data["error"] = flashes[0]
+	}
 
-func renderLogin(w http.ResponseWriter, r *http.Request, data map[string]interface{}) {
 	tmpl, _ := template.ParseFiles("web/templates/login.html.tmpl")
 	tmpl.Execute(w, data)
+}
+
+func login(w http.ResponseWriter, r *http.Request) {
+	session, err := sessionStore.Get(r, "areatech")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	r.ParseForm()
+	username := r.Form["username"][0]
+	password := r.Form["password"][0]
+
+	_, err = oauthService.AuthUser(username, password)
+	log.Print(err)
+
+	if err != nil {
+		session.AddFlash(err.Error())
+		http.Redirect(w, r, "/web/register", http.StatusFound)
+		return
+	}
+
+	// client := &oauth.Client{} // TODO
+	// return s.oauthService.GrantAccessToken(client, user, "read_write")
+	// accessToken, refreshToken, err := accounts.GetService().Login(
+	// 	r.Form["username"][0],
+	// 	r.Form["password"][0],
+	// )
+	//
+	// log.Print(accessToken)
+	// log.Print(refreshToken)
+	// log.Print(err)
+	// // TODO
 }

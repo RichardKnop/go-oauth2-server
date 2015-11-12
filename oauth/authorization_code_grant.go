@@ -20,7 +20,7 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := s.grantAccessToken(
+	accessToken, refreshToken, err := s.GrantAccessToken(
 		authorizationCode.Client,
 		authorizationCode.User,
 		authorizationCode.Scope,

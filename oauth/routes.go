@@ -7,7 +7,7 @@ import (
 // Routes for the oauth service
 var Routes = []routes.Route{
 	routes.Route{
-		Name:        "Tokens",
+		Name:        "oauth_tokens",
 		Methods:     []string{"POST"},
 		Pattern:     "/tokens",
 		HandlerFunc: handleTokens,

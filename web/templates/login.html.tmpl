@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 
 <html lang="en">
 <head>
@@ -16,13 +16,13 @@
   {{if .error}}
   <p>{{.error}}</p>
   {{end}}
-  <form action="{{.action}}" method="post">
+  <form action="/web/login" method="post">
       <p>
-        <label for="username">Username</label><br>
+        <label for="username" autofocus required>Username</label><br>
         <input type="text" name="username" id="username">
       </p>
       <p>
-        <label for="password">Password</label><br>
+        <label for="password" required>Password</label><br>
         <input type="password" name="password" id="password">
       </p>
       <p><input type="submit" value="Login"></p>

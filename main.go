@@ -71,7 +71,10 @@ func runServer(cnf *config.Config, db *gorm.DB) {
 	oauthService := oauth.NewService(cnf, db)
 
 	// Initialise the accounts service
-	accounts.NewService(cnf, db, oauthService)
+	_ = accounts.NewService(cnf, db, oauthService)
+
+	// Bootstrap the web app
+	web.Bootstrap(cnf.SessionSecret, oauthService)
 
 	// Start a negroni app
 	n := negroni.Classic()

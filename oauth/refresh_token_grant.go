@@ -41,7 +41,7 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := s.grantAccessToken(
+	accessToken, refreshToken, err := s.GrantAccessToken(
 		theRefreshToken.Client,
 		theRefreshToken.User,
 		scope,
