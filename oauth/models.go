@@ -72,7 +72,7 @@ type AuthorizationCode struct {
 	ExpiresAt   time.Time      `sql:"not null"`
 	Scope       string         `sql:"type:varchar(200);not null"`
 	ClientID    sql.NullInt64  `sql:"index;not null"`
-	UserID      sql.NullInt64  `sql:"index"`
+	UserID      sql.NullInt64  `sql:"index;not null"`
 	Client      *Client
 	User        *User
 	CreatedAt   time.Time

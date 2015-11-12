@@ -7,7 +7,7 @@ import (
 )
 
 func registerForm(w http.ResponseWriter, r *http.Request) {
-	session, err := sessionStore.Get(r, "areatech")
+	session, err := getSession(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -24,7 +24,7 @@ func registerForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
-	session, err := sessionStore.Get(r, "areatech")
+	session, err := getSession(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -35,8 +35,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 	password := r.Form["password"][0]
 
 	if oauthService.UserExists(username) {
-		session.AddFlash("Username already taken")
-		session.Save(r, w)
+		addFlashMessage(session, r, w, "Username already taken")
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}
@@ -45,8 +44,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 	log.Print(err)
 
 	if err != nil {
-		session.AddFlash(err.Error())
-		session.Save(r, w)
+		addFlashMessage(session, r, w, err.Error())
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}

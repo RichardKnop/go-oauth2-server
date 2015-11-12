@@ -7,7 +7,7 @@ import (
 )
 
 func loginForm(w http.ResponseWriter, r *http.Request) {
-	session, err := sessionStore.Get(r, "areatech")
+	session, err := getSession(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -24,7 +24,7 @@ func loginForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	session, err := sessionStore.Get(r, "areatech")
+	session, err := getSession(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

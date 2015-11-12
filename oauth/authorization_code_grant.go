@@ -9,7 +9,7 @@ import (
 func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	code := r.FormValue("code")
 
-	// Fetch an auth code from the database
+	// Fetch the auth code from the database
 	authorizationCode := new(AuthorizationCode)
 	if s.db.Where(AuthorizationCode{
 		Code:     code,

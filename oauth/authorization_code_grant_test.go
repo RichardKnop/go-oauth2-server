@@ -40,6 +40,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 		Code:      "test_auth_code",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
+		User:      suite.user,
 		Scope:     "foo bar",
 	}).Error; err != nil {
 		log.Fatal(err)

@@ -9,7 +9,9 @@ import (
 	_ "github.com/spf13/viper/remote"
 )
 
-// Let's start with sensible defaults
+var configLoaded bool
+
+// Let's start with some sensible defaults
 var cnf = &Config{
 	Database: DatabaseConfig{
 		Type:         "postgres",
@@ -24,9 +26,17 @@ var cnf = &Config{
 		RefreshTokenLifetime: 1209600, // 14 days
 		AuthCodeLifetime:     3600,    // TODO - should this be less than 1 hour?
 	},
-	SessionSecret: "some_session_secret",
+	Session: SessionConfig{
+		Secret:   "test_secret",
+		Path:     "/",
+		MaxAge:   86400 * 7, // 7 days
+		HTTPOnly: true,
+	},
+	TrustedClient: TrustedClientConfig{
+		ClientID: "test_client",
+		Secret:   "test_secret",
+	},
 }
-var configLoaded bool
 
 // NewConfig loads configuration from etcd and returns *Config struct
 // It also starts a goroutine in the background to keep config up-to-date
