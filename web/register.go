@@ -14,10 +14,9 @@ func registerForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data := map[string]interface{}{}
-	log.Print("Flashes: ")
-	log.Print(session.Flashes())
 	if flashes := session.Flashes(); len(flashes) > 0 {
 		data["error"] = flashes[0]
+		session.Save(r, w)
 	}
 
 	tmpl, _ := template.ParseFiles("web/templates/register.html.tmpl")
@@ -36,8 +35,8 @@ func register(w http.ResponseWriter, r *http.Request) {
 	password := r.Form["password"][0]
 
 	if oauthService.UserExists(username) {
-		log.Print("Username already taken")
 		session.AddFlash("Username already taken")
+		session.Save(r, w)
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}
@@ -47,6 +46,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		session.AddFlash(err.Error())
+		session.Save(r, w)
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}

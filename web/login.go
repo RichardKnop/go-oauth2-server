@@ -15,8 +15,8 @@ func loginForm(w http.ResponseWriter, r *http.Request) {
 
 	data := map[string]interface{}{}
 	if flashes := session.Flashes(); len(flashes) > 0 {
-		log.Print(flashes)
 		data["error"] = flashes[0]
+		session.Save(r, w)
 	}
 
 	tmpl, _ := template.ParseFiles("web/templates/login.html.tmpl")
@@ -39,6 +39,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		session.AddFlash(err.Error())
+		session.Save(r, w)
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}
