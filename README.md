@@ -79,7 +79,7 @@ Given you have a username and password, you can get a new access token.
 $ curl -v localhost:8080/oauth/api/v1/tokens \
   -u test_client:test_secret \
   -d "grant_type=password" \
-  -d "username=test_username" \
+  -d "username=test@username" \
   -d "password=test_password" \
   -d "scope=read_write"
 ```
@@ -235,7 +235,7 @@ insert into scopes(scope, is_default) values('read_write', false);
 
 insert into clients(client_id, secret) values('test_client', '$2a$10$CUoGytf1pR7CC6Y043gt/.vFJUV4IRqvH5R6F0VfITP8s2TqrQ.4e');
 
-insert into users(username, password) values('test_username', '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS');
+insert into users(username, password) values('test@username', '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS');
 ```
 
 ## Testing

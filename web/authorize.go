@@ -13,7 +13,7 @@ func authorizeForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseType := r.URL.Query().Get("response_type")
-	if responseType != "code" {
+	if responseType != "code" && responseType != "token" {
 		http.Error(w, "Invalid response_type", http.StatusBadRequest)
 		return
 	}
@@ -43,7 +43,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	responseType := r.URL.Query().Get("response_type")
-	if responseType != "code" {
+	if responseType != "code" && responseType != "token" {
 		http.Error(w, "Invalid response_type", http.StatusBadRequest)
 		return
 	}

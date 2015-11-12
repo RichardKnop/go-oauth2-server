@@ -58,7 +58,7 @@ func (suite *OauthTestSuite) SetupTest() {
 	suite.client = client
 
 	// Insert a test user
-	user, err := suite.service.CreateUser("test_username", "test_password")
+	user, err := suite.service.CreateUser("test@username", "test_password")
 	if err != nil {
 		log.Fatal(err)
 	}

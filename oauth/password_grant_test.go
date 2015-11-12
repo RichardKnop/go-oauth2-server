@@ -19,7 +19,7 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 	}
 	r.PostForm = url.Values{
 		"grant_type": {"password"},
-		"username":   {"test_username"},
+		"username":   {"test@username"},
 		"password":   {"test_password"},
 	}
 

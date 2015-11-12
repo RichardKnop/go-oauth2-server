@@ -25,7 +25,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	r.ParseForm()
-	username := r.Form["username"][0]
+	username := r.Form["email"][0]
 	password := r.Form["password"][0]
 
 	_, err = oauthService.AuthUser(username, password)
