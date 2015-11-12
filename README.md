@@ -203,7 +203,7 @@ $ curl -L http://127.0.0.1:4001/v2/keys/config/go_oauth2_server.json -XPUT -d va
   "Session": {
     "Secret": "test_secret",
     "Path": "/",
-    "MaxAge": 86400 * 7,
+    "MaxAge": 604800,
     "HTTPOnly": true
   },
   "TrustedClient": {

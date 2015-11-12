@@ -1,10 +1,6 @@
 package web
 
-import (
-	"html/template"
-	"log"
-	"net/http"
-)
+import "net/http"
 
 func registerForm(w http.ResponseWriter, r *http.Request) {
 	session, err := getSession(r)
@@ -13,14 +9,9 @@ func registerForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]interface{}{}
-	if flashes := session.Flashes(); len(flashes) > 0 {
-		data["error"] = flashes[0]
-		session.Save(r, w)
-	}
-
-	tmpl, _ := template.ParseFiles("web/templates/register.html.tmpl")
-	tmpl.Execute(w, data)
+	renderTemplate(w, "register.tmpl", map[string]interface{}{
+		"error": getLastFlashMessage(session, r, w),
+	})
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +32,6 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, err = oauthService.CreateUser(username, password)
-	log.Print(err)
 
 	if err != nil {
 		addFlashMessage(session, r, w, err.Error())

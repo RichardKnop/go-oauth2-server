@@ -1,7 +1,6 @@
 package web
 
 import (
-	"html/template"
 	"log"
 	"net/http"
 )
@@ -13,14 +12,9 @@ func loginForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	data := map[string]interface{}{}
-	if flashes := session.Flashes(); len(flashes) > 0 {
-		data["error"] = flashes[0]
-		session.Save(r, w)
-	}
-
-	tmpl, _ := template.ParseFiles("web/templates/login.html.tmpl")
-	tmpl.Execute(w, data)
+	renderTemplate(w, "login.tmpl", map[string]interface{}{
+		"error": getLastFlashMessage(session, r, w),
+	})
 }
 
 func login(w http.ResponseWriter, r *http.Request) {

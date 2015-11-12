@@ -1,0 +1,20 @@
+{{ define "title"}}Log In{{ end }}
+
+{{ define "links" }}
+<link href="/styles.css" rel="stylesheet">
+{{ end }}
+
+{{ define "content" }}
+<div class="container">
+
+  <form class="form-signin" action="/web/login" method="post">
+    <h2 class="form-signin-heading">Authorize {{ .client_id }}</h2>
+    {{if .error }}
+    <p>{{ .error }}</p>
+    {{ end }}
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Yes</button>
+    <button class="btn btn-lg btn-danger btn-block" type="submit">No</button>
+  </form>
+
+</div> <!-- /container -->
+{{ end }}
