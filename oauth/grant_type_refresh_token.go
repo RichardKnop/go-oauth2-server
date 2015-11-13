@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/json"
+	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, client *Client) {
@@ -31,7 +32,7 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 	}
 
 	// Requested scope CANNOT include any scope not originally granted
-	if !s.scopeNotGreater(scope, theRefreshToken.Scope) {
+	if !util.SpaceDelimitedStringNotGreater(scope, theRefreshToken.Scope) {
 		json.Error(w, "Requested scope cannot be greater", http.StatusBadRequest)
 		return
 	}

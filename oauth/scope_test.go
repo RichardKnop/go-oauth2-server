@@ -1,8 +1,6 @@
 package oauth
 
 import (
-	"testing"
-
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,20 +22,12 @@ func (suite *OauthTestSuite) TestGetScope() {
 	}
 }
 
+func (suite *OauthTestSuite) TestGetDefaultScope() {
+	assert.Equal(suite.T(), "foo bar", s.getDefaultScope())
+}
+
 func (suite *OauthTestSuite) TestScopeExists() {
 	assert.True(suite.T(), suite.service.scopeExists("foo bar qux"))
 
 	assert.False(suite.T(), suite.service.scopeExists("foo bar bogus"))
-}
-
-func TestScopeNotGreater(t *testing.T) {
-	service := new(Service)
-
-	assert.True(t, service.scopeNotGreater("", "foo bar qux"))
-
-	assert.True(t, service.scopeNotGreater("foo", "foo bar qux"))
-
-	assert.True(t, service.scopeNotGreater("foo bar qux", "foo bar qux"))
-
-	assert.False(t, service.scopeNotGreater("foo bar qux bogus", "foo bar qux"))
 }
