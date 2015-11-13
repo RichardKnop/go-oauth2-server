@@ -28,18 +28,18 @@ func (suite *OauthTestSuite) SetupSuite() {
 	suite.cnf = config.NewConfig()
 
 	// Init in-memory test database
-	db, err := gorm.Open("sqlite3", ":memory:")
+	inMemoryDB, err := gorm.Open("sqlite3", ":memory:")
 	if err != nil {
 		log.Fatal(err)
 	}
-	suite.db = &db
+	suite.db = &inMemoryDB
 
 	// Run all migrations
 	migrations.Bootstrap(suite.db)
 	MigrateAll(suite.db)
 
 	// Initialise the service
-	suite.service = &Service{cnf: suite.cnf, db: suite.db}
+	suite.service = NewService(suite.cnf, suite.db)
 }
 
 // The TearDownSuite method will be run by testify once, at the very
@@ -65,23 +65,18 @@ func (suite *OauthTestSuite) SetupTest() {
 	suite.user = user
 
 	// Insert test scopes
-	if err := suite.db.Create(&Scope{
-		Scope:     "foo",
-		IsDefault: true,
-	}).Error; err != nil {
-		log.Fatal(err)
+	testScopes := map[string]bool{
+		"foo": true,
+		"bar": true,
+		"qux": false,
 	}
-	if err := suite.db.Create(&Scope{
-		Scope:     "bar",
-		IsDefault: true,
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
-	if err := suite.db.Create(&Scope{
-		Scope:     "qux",
-		IsDefault: false,
-	}).Error; err != nil {
-		log.Fatal(err)
+	for scope, isDefault := range testScopes {
+		if err := suite.db.Create(&Scope{
+			Scope:     scope,
+			IsDefault: isDefault,
+		}).Error; err != nil {
+			log.Fatal(err)
+		}
 	}
 }
 

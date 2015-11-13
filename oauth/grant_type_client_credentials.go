@@ -7,17 +7,27 @@ import (
 )
 
 func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request, client *Client) {
-	requestedScope := r.FormValue("scope")
+	// Double check the grant type
+	if r.FormValue("grant_type") != "client_credentials" {
+		json.Error(w, "Invalid grant type", http.StatusBadRequest)
+		return
+	}
 
 	// Get the scope string
-	scope, err := s.getScope(requestedScope)
+	scope, err := s.getScope(r.FormValue("scope"))
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := s.GrantAccessToken(client, nil, scope)
+	accessToken, err := s.GrantAccessToken(client, nil, scope)
+	if err != nil {
+		json.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	// Create or retrieve a refresh token
+	refreshToken, err := s.GetOrCreateRefreshToken(client, nil, scope)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
 	}

@@ -7,20 +7,34 @@ import (
 )
 
 func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
-	code := r.FormValue("code")
+	// Double check the grant type
+	if r.FormValue("grant_type") != "authorization_code" {
+		json.Error(w, "Invalid grant type", http.StatusBadRequest)
+		return
+	}
 
 	// Fetch the auth code from the database
-	authorizationCode := new(AuthorizationCode)
-	if s.db.Where(AuthorizationCode{
-		Code:     code,
-		ClientID: clientIDOrNull(client),
-	}).Preload("Client").Preload("User").First(authorizationCode).RecordNotFound() {
-		json.Error(w, "Authorization code not found", http.StatusBadRequest)
+	authorizationCode, err := s.getValidAuthorizationCode(
+		r.FormValue("code"),
+		client,
+	)
+	if err != nil {
+		json.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := s.GrantAccessToken(
+	accessToken, err := s.GrantAccessToken(
+		authorizationCode.Client,
+		authorizationCode.User,
+		authorizationCode.Scope,
+	)
+	if err != nil {
+		json.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	// Create or retrieve a refresh token
+	refreshToken, err := s.GetOrCreateRefreshToken(
 		authorizationCode.Client,
 		authorizationCode.User,
 		authorizationCode.Scope,

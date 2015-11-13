@@ -12,36 +12,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OauthTestSuite) TestRefreshTokenGrantNotFound() {
-	// Make a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	r.PostForm = url.Values{
-		"grant_type":    {"refresh_token"},
-		"refresh_token": {"bogus"},
-	}
-
-	w := httptest.NewRecorder()
-	suite.service.refreshTokenGrant(w, r, suite.client)
-
-	// Check the status code
-	assert.Equal(suite.T(), 400, w.Code)
-
-	// Check the response body
-	expected := "{\"error\":\"Refresh token not found\"}"
-	assert.Equal(suite.T(), expected, strings.TrimSpace(w.Body.String()))
-}
-
-func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
+func (suite *OauthTestSuite) TestTestRefreshTokenGrantScopeCannotBeGreater() {
 	// Insert a test refresh token
 	if err := suite.db.Create(&RefreshToken{
 		Token:     "test_refresh_token",
-		ExpiresAt: time.Now().Add(-10 * time.Second),
+		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "doesn't matter",
+		Scope:     "foo bar",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -54,6 +32,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
 	r.PostForm = url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"test_refresh_token"},
+		"scope":         {"foo bar qux"},
 	}
 
 	w := httptest.NewRecorder()
@@ -63,8 +42,10 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExpired() {
 	assert.Equal(suite.T(), 400, w.Code)
 
 	// Check the response body
-	expected := "{\"error\":\"Refresh token expired\"}"
-	assert.Equal(suite.T(), expected, strings.TrimSpace(w.Body.String()))
+	assert.Equal(
+		suite.T(), "{\"error\":\"Requested scope cannot be greater\"}",
+		strings.TrimSpace(w.Body.String()),
+	)
 }
 
 func (suite *OauthTestSuite) TestRefreshTokenGrant() {
@@ -87,6 +68,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	r.PostForm = url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"test_refresh_token"},
+		"scope":         {"foo bar"},
 	}
 
 	w := httptest.NewRecorder()

@@ -7,6 +7,7 @@ import (
 )
 
 func TestVerifyPassword(t *testing.T) {
+	// Test valid passwords
 	assert.Nil(t, verifyPassword(
 		"$2a$10$CUoGytf1pR7CC6Y043gt/.vFJUV4IRqvH5R6F0VfITP8s2TqrQ.4e",
 		"test_secret",
@@ -17,5 +18,6 @@ func TestVerifyPassword(t *testing.T) {
 		"test_password",
 	))
 
+	// Test invalid password
 	assert.NotNil(t, verifyPassword("bogus", "password"))
 }

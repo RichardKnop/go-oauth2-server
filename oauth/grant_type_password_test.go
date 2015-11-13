@@ -21,6 +21,7 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 		"grant_type": {"password"},
 		"username":   {"test@username"},
 		"password":   {"test_password"},
+		"scope":      {"foo"},
 	}
 
 	w := httptest.NewRecorder()
@@ -41,7 +42,7 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 		"access_token":  accessToken.Token,
 		"expires_in":    3600,
 		"token_type":    "Bearer",
-		"scope":         "foo bar",
+		"scope":         "foo",
 		"refresh_token": refreshToken.Token,
 	})
 	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))

@@ -7,7 +7,11 @@ import (
 )
 
 func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *Client) {
-	requestedScope := r.FormValue("scope")
+	// Double check the grant type
+	if r.FormValue("grant_type") != "password" {
+		json.Error(w, "Invalid grant type", http.StatusBadRequest)
+		return
+	}
 
 	// Get user credentials from from the form data
 	username := r.FormValue("username")
@@ -22,14 +26,20 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	}
 
 	// Get the scope string
-	scope, err := s.getScope(requestedScope)
+	scope, err := s.getScope(r.FormValue("scope"))
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Create a new access token
-	accessToken, refreshToken, err := s.GrantAccessToken(client, user, scope)
+	accessToken, err := s.GrantAccessToken(client, user, scope)
+	if err != nil {
+		json.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	// Create or retrieve a refresh token
+	refreshToken, err := s.GetOrCreateRefreshToken(client, user, scope)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
 	}

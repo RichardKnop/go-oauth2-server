@@ -19,7 +19,7 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 	}
 	r.PostForm = url.Values{
 		"grant_type": {"client_credentials"},
-		"scope":      {"bar qux"},
+		"scope":      {"foo"},
 	}
 
 	w := httptest.NewRecorder()
@@ -40,7 +40,7 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 		"access_token":  accessToken.Token,
 		"expires_in":    3600,
 		"token_type":    "Bearer",
-		"scope":         "bar qux",
+		"scope":         "foo",
 		"refresh_token": refreshToken.Token,
 	})
 	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
