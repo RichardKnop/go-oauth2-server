@@ -13,11 +13,11 @@ func TestStringInSlice(t *testing.T) {
 }
 
 func TestSpaceDelimitedStringNotGreater(t *testing.T) {
-	assert.True(t, SpaceDelimitedStringNotGreater("", "foo bar qux"))
+	assert.True(t, SpaceDelimitedStringNotGreater("", "bar foo qux"))
 
-	assert.True(t, SpaceDelimitedStringNotGreater("foo", "foo bar qux"))
+	assert.True(t, SpaceDelimitedStringNotGreater("foo", "bar foo qux"))
 
-	assert.True(t, SpaceDelimitedStringNotGreater("foo bar qux", "foo bar qux"))
+	assert.True(t, SpaceDelimitedStringNotGreater("bar foo qux", "foo bar qux"))
 
-	assert.False(t, SpaceDelimitedStringNotGreater("foo bar qux bogus", "foo bar qux"))
+	assert.False(t, SpaceDelimitedStringNotGreater("foo bar qux bogus", "bar foo qux"))
 }

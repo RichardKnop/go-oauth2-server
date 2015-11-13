@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"errors"
+	"sort"
 	"strings"
 )
 
@@ -25,7 +26,10 @@ func (s *Service) getDefaultScope() string {
 	var scopes []string
 	s.db.Model(new(Scope)).Where(Scope{
 		IsDefault: true,
-	}).Order("id").Pluck("scope", &scopes)
+	}).Pluck("scope", &scopes)
+
+	// Sort the scopes alphabetically
+	sort.Strings(scopes)
 
 	// Return space delimited scope string
 	return strings.Join(scopes, " ")

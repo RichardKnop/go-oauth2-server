@@ -12,26 +12,26 @@ func (suite *OauthTestSuite) TestGetScope() {
 	// the default scope should be returned
 	scope, err = suite.service.getScope("")
 	assert.Nil(suite.T(), err)
-	assert.Equal(suite.T(), "foo bar", scope)
+	assert.Equal(suite.T(), "bar foo", scope)
 
 	// When the requested scope is valid, it should be returned
-	scope, err = suite.service.getScope("foo bar qux")
+	scope, err = suite.service.getScope("bar foo qux")
 	assert.Nil(suite.T(), err)
-	assert.Equal(suite.T(), "foo bar qux", scope)
+	assert.Equal(suite.T(), "bar foo qux", scope)
 
 	// When the requested scope is invalid, an error should be returned
-	scope, err = suite.service.getScope("foo bar bogus")
+	scope, err = suite.service.getScope("bar foo bogus")
 	if assert.NotNil(suite.T(), err) {
 		assert.Equal(suite.T(), "Invalid scope", err.Error())
 	}
 }
 
 func (suite *OauthTestSuite) TestGetDefaultScope() {
-	assert.Equal(suite.T(), "foo bar", s.getDefaultScope())
+	assert.Equal(suite.T(), "bar foo", s.getDefaultScope())
 }
 
 func (suite *OauthTestSuite) TestScopeExists() {
-	assert.True(suite.T(), suite.service.scopeExists("foo bar qux"))
+	assert.True(suite.T(), suite.service.scopeExists("bar foo qux"))
 
-	assert.False(suite.T(), suite.service.scopeExists("foo bar bogus"))
+	assert.False(suite.T(), suite.service.scopeExists("bar foo bogus"))
 }
