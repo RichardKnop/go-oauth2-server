@@ -4,16 +4,6 @@ import (
 	"database/sql"
 )
 
-// Helpful function similar to "x in y" Python construct
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 // Returns properly confiigured sql.NullInt64 for Client foreign keys
 func clientIDOrNull(client *Client) sql.NullInt64 {
 	if client == nil {

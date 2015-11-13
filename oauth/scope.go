@@ -3,6 +3,8 @@ package oauth
 import (
 	"errors"
 	"strings"
+
+	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 func (s *Service) getScope(requestedScope string) (string, error) {
@@ -25,7 +27,7 @@ func (s *Service) getDefaultScope() string {
 	var scopes []string
 	s.db.Model(new(Scope)).Where(Scope{
 		IsDefault: true,
-	}).Order("scope").Pluck("scope", &scopes)
+	}).Order("id").Pluck("scope", &scopes)
 
 	// Return space delimited scope string
 	return strings.Join(scopes, " ")
@@ -55,7 +57,7 @@ func (s *Service) scopeNotGreater(newScope, oldScope string) bool {
 	// Iterate over new scopes
 	for _, newScope := range strings.Split(newScope, " ") {
 		// If the new scope was not part of the old scope string, return false
-		if !stringInSlice(newScope, oldScopes) {
+		if !util.StringInSlice(newScope, oldScopes) {
 			return false
 		}
 	}
