@@ -23,7 +23,9 @@ func (s *Service) getScope(requestedScope string) (string, error) {
 func (s *Service) getDefaultScope() string {
 	// Fetch default scopes
 	var scopes []string
-	s.db.Model(new(Scope)).Where(Scope{IsDefault: true}).Pluck("scope", &scopes)
+	s.db.Model(new(Scope)).Where(Scope{
+		IsDefault: true,
+	}).Order("scope").Pluck("scope", &scopes)
 
 	// Return space delimited scope string
 	return strings.Join(scopes, " ")
