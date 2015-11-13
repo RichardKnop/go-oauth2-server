@@ -57,8 +57,9 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 	suite.service.deleteExpiredAccessTokens(suite.client, suite.user)
 
 	// Check the test_token_1 was deleted
-	notFound = suite.db.Where(AccessToken{Token: "test_token_1"}).
-		First(&AccessToken{}).RecordNotFound()
+	notFound = suite.db.Where(AccessToken{
+		Token: "test_token_1",
+	}).First(&AccessToken{}).RecordNotFound()
 	assert.True(suite.T(), notFound)
 
 	// Check the other three tokens are still around
@@ -68,8 +69,9 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 		"test_token_4",
 	}
 	for _, token := range existingTokens {
-		notFound = suite.db.Where(AccessToken{Token: token}).
-			First(new(AccessToken)).RecordNotFound()
+		notFound = suite.db.Where(AccessToken{
+			Token: token,
+		}).First(new(AccessToken)).RecordNotFound()
 		assert.False(suite.T(), notFound)
 	}
 
@@ -77,8 +79,9 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 	suite.service.deleteExpiredAccessTokens(suite.client, nil)
 
 	// Check the test_token_2 was deleted
-	notFound = suite.db.Where(AccessToken{Token: "test_token_2"}).
-		First(new(AccessToken)).RecordNotFound()
+	notFound = suite.db.Where(AccessToken{
+		Token: "test_token_2",
+	}).First(new(AccessToken)).RecordNotFound()
 	assert.True(suite.T(), notFound)
 
 	// Check that last two tokens are still around
@@ -87,8 +90,9 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokens() {
 		"test_token_4",
 	}
 	for _, token := range existingTokens {
-		notFound := suite.db.Where(AccessToken{Token: token}).
-			First(new(AccessToken)).RecordNotFound()
+		notFound := suite.db.Where(AccessToken{
+			Token: token,
+		}).First(new(AccessToken)).RecordNotFound()
 		assert.False(suite.T(), notFound)
 	}
 }

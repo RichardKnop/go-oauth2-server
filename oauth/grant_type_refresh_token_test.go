@@ -15,7 +15,7 @@ import (
 func (suite *OauthTestSuite) TestTestRefreshTokenGrantScopeCannotBeGreater() {
 	// Insert a test refresh token
 	if err := suite.db.Create(&RefreshToken{
-		Token:     "test_refresh_token",
+		Token:     "test_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
@@ -31,7 +31,7 @@ func (suite *OauthTestSuite) TestTestRefreshTokenGrantScopeCannotBeGreater() {
 	}
 	r.PostForm = url.Values{
 		"grant_type":    {"refresh_token"},
-		"refresh_token": {"test_refresh_token"},
+		"refresh_token": {"test_token"},
 		"scope":         {"foo bar qux"},
 	}
 
@@ -51,7 +51,7 @@ func (suite *OauthTestSuite) TestTestRefreshTokenGrantScopeCannotBeGreater() {
 func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	// Insert a test refresh token
 	if err := suite.db.Create(&RefreshToken{
-		Token:     "test_refresh_token",
+		Token:     "test_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
@@ -67,7 +67,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	}
 	r.PostForm = url.Values{
 		"grant_type":    {"refresh_token"},
-		"refresh_token": {"test_refresh_token"},
+		"refresh_token": {"test_token"},
 		"scope":         {"foo bar"},
 	}
 
@@ -88,7 +88,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 		"expires_in":    3600,
 		"token_type":    "Bearer",
 		"scope":         "foo bar",
-		"refresh_token": "test_refresh_token",
+		"refresh_token": "test_token",
 	})
 	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 }

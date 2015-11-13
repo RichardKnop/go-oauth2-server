@@ -1,9 +1,6 @@
 package oauth
 
 import (
-	// "log"
-	// "time"
-
 	"log"
 	"time"
 

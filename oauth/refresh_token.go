@@ -10,14 +10,14 @@ import (
 func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, scope string) (*RefreshToken, error) {
 	// Try to fetch an existing refresh token first
 	refreshToken := new(RefreshToken)
-	notFound := s.db.Where(RefreshToken{
+	found := !s.db.Where(RefreshToken{
 		ClientID: clientIDOrNull(client),
 		UserID:   userIDOrNull(user),
 	}).First(refreshToken).RecordNotFound()
 
 	// Check if the token is expired, if found
 	var expired bool
-	if !notFound {
+	if found {
 		expired = time.Now().After(refreshToken.ExpiresAt)
 	}
 
@@ -27,7 +27,7 @@ func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, scope stri
 	}
 
 	// Create a new refresh token if it expired or was not found
-	if expired || notFound {
+	if expired || !found {
 		refreshToken = newRefreshToken(
 			s.cnf.Oauth.RefreshTokenLifetime,
 			client,
