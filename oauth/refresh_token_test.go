@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"database/sql/driver"
 	"log"
 	"time"
 
@@ -8,8 +9,47 @@ import (
 )
 
 func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
-	// Since there is no token, a new one should be created and returned
-	refreshToken, err := suite.service.GetOrCreateRefreshToken(
+	var refreshToken *RefreshToken
+	var err error
+	var tokens []*RefreshToken
+	var v driver.Value
+
+	// Since there is no client only token,
+	// a new one should be created and returned
+	refreshToken, err = suite.service.GetOrCreateRefreshToken(
+		suite.client,
+		nil,
+		"foo",
+	)
+
+	// Error should be nil
+	assert.Nil(suite.T(), err)
+
+	// Fetch all refresh tokens
+	s.db.Preload("Client").Preload("User").Find(&tokens)
+
+	// There should be just one right now
+	assert.Equal(suite.T(), 1, len(tokens))
+
+	// Correct refresh token object should be returned
+	assert.NotNil(suite.T(), refreshToken)
+	assert.Equal(suite.T(), tokens[0].Token, refreshToken.Token)
+
+	// Client id should be set
+	assert.True(suite.T(), tokens[0].ClientID.Valid)
+	v, err = tokens[0].ClientID.Value()
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), int64(suite.client.ID), v)
+
+	// User id should be nil
+	assert.False(suite.T(), tokens[0].UserID.Valid)
+	v, err = tokens[0].UserID.Value()
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), nil, v)
+
+	// Since there is no user specific token,
+	// a new one should be created and returned
+	refreshToken, err = suite.service.GetOrCreateRefreshToken(
 		suite.client,
 		suite.user,
 		"foo",
@@ -18,18 +58,27 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	// Error should be nil
 	assert.Nil(suite.T(), err)
 
-	// There should be just one refresh token
-	var count int
-	var tokens []*RefreshToken
-	s.db.Where(RefreshToken{
-		ClientID: clientIDOrNull(suite.client),
-		UserID:   userIDOrNull(suite.user),
-	}).Find(&tokens).Count(&count)
-	assert.Equal(suite.T(), 1, count)
+	// Fetch all refresh tokens
+	s.db.Preload("Client").Preload("User").Find(&tokens)
+
+	// There should be 2 tokens now
+	assert.Equal(suite.T(), 2, len(tokens))
 
 	// Correct refresh token object should be returned
 	assert.NotNil(suite.T(), refreshToken)
-	assert.Equal(suite.T(), tokens[0].Token, refreshToken.Token)
+	assert.Equal(suite.T(), tokens[1].Token, refreshToken.Token)
+
+	// Client id should be set
+	assert.True(suite.T(), tokens[1].ClientID.Valid)
+	v, err = tokens[1].ClientID.Value()
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), int64(suite.client.ID), v)
+
+	// User id should be set
+	assert.True(suite.T(), tokens[1].UserID.Valid)
+	v, err = tokens[1].UserID.Value()
+	assert.Nil(suite.T(), err)
+	assert.Equal(suite.T(), int64(suite.user.ID), v)
 }
 
 func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
