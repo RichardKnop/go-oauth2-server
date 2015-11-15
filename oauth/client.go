@@ -8,7 +8,7 @@ import (
 // AuthClient authenticates client
 func (s *Service) AuthClient(clientID, secret string) (*Client, error) {
 	// Fetch the client
-	client, err := s.findClientByClientID(clientID)
+	client, err := s.FindClientByClientID(clientID)
 	if err != nil {
 		return nil, errors.New("Client not found")
 	}
@@ -38,7 +38,8 @@ func (s *Service) CreateClient(clientID, secret string) (*Client, error) {
 	return client, nil
 }
 
-func (s *Service) findClientByClientID(clientID string) (*Client, error) {
+// FindClientByClientID looks up a client by client id
+func (s *Service) FindClientByClientID(clientID string) (*Client, error) {
 	// Client IDs are case insensitive
 	client := new(Client)
 	if s.db.Where("LOWER(client_id) = LOWER(?)", clientID).First(client).RecordNotFound() {

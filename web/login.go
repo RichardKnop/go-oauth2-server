@@ -6,47 +6,78 @@ import (
 )
 
 func loginForm(w http.ResponseWriter, r *http.Request) {
-	session, err := getSession(r)
-	if err != nil {
+	// Initialise a new session service
+	sessionService := newSessionService(s.cnf)
+	if err := sessionService.initSession(r); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Render the template
 	renderTemplate(w, "login.tmpl", map[string]interface{}{
-		"error": getLastFlashMessage(session, r, w),
+		"error": sessionService.getLastFlashMessage(r, w),
 	})
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	session, err := getSession(r)
-	if err != nil {
+	// Initialise a new session service
+	sessionService := newSessionService(s.cnf)
+	if err := sessionService.initSession(r); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Parse the submitted form data
 	r.ParseForm()
 	username := r.Form["email"][0]
 	password := r.Form["password"][0]
 
-	_, err = oauthService.AuthUser(username, password)
-	log.Print(err)
-
+	// Fetch the trusted client
+	client, err := s.oauthService.FindClientByClientID(s.cnf.TrustedClient.ClientID)
 	if err != nil {
-		session.AddFlash(err.Error())
-		session.Save(r, w)
-		http.Redirect(w, r, "/web/register", http.StatusFound)
+		sessionService.addFlashMessage(err.Error(), r, w)
+		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
 
-	// client := &oauth.Client{} // TODO
-	// return s.oauthService.GrantAccessToken(client, user, "read_write")
-	// accessToken, refreshToken, err := accounts.GetService().Login(
-	// 	r.Form["username"][0],
-	// 	r.Form["password"][0],
-	// )
-	//
-	// log.Print(accessToken)
-	// log.Print(refreshToken)
-	// log.Print(err)
-	// // TODO
+	// Authenticate the user
+	user, err := s.oauthService.AuthUser(username, password)
+	if err != nil {
+		sessionService.addFlashMessage(err.Error(), r, w)
+		http.Redirect(w, r, "/web/login", http.StatusFound)
+		return
+	}
+
+	// Default scope
+	scope := "read_write"
+
+	// Grant an access token
+	accessToken, err := s.oauthService.GrantAccessToken(
+		client,
+		user,
+		scope,
+	)
+	if err != nil {
+		sessionService.addFlashMessage(err.Error(), r, w)
+		http.Redirect(w, r, "/web/login", http.StatusFound)
+		return
+	}
+
+	// Get a refresh token
+	refreshToken, err := s.oauthService.GetOrCreateRefreshToken(
+		client,
+		user,
+		scope,
+	)
+	if err != nil {
+		sessionService.addFlashMessage(err.Error(), r, w)
+		http.Redirect(w, r, "/web/login", http.StatusFound)
+		return
+	}
+
+	// TODO - store access and refresh token in the session
+
+	log.Print(accessToken)
+	log.Print(refreshToken)
+	// http.Redirect(w, r, "/web/authorize", http.StatusFound)
 }

@@ -8,7 +8,7 @@
 <div class="container">
 
   <form class="form-signin" action="/web/login" method="post">
-    <h2 class="form-signin-heading">Authorize {{ .client_id }}</h2>
+    <h2 class="form-signin-heading">Authorize {{ .client.ClientID }}</h2>
     {{if .error }}
     <p>{{ .error }}</p>
     {{ end }}
