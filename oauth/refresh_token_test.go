@@ -26,7 +26,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	assert.Nil(suite.T(), err)
 
 	// Fetch all refresh tokens
-	s.db.Preload("Client").Preload("User").Find(&tokens)
+	suite.service.db.Preload("Client").Preload("User").Find(&tokens)
 
 	// There should be just one right now
 	assert.Equal(suite.T(), 1, len(tokens))
@@ -59,7 +59,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	assert.Nil(suite.T(), err)
 
 	// Fetch all refresh tokens
-	s.db.Preload("Client").Preload("User").Find(&tokens)
+	suite.service.db.Preload("Client").Preload("User").Find(&tokens)
 
 	// There should be 2 tokens now
 	assert.Equal(suite.T(), 2, len(tokens))
@@ -108,7 +108,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	assert.Nil(suite.T(), err)
 
 	// Fetch all refresh tokens
-	s.db.Preload("Client").Preload("User").Find(&tokens)
+	suite.service.db.Preload("Client").Preload("User").Find(&tokens)
 
 	// There should be just one token right now
 	assert.Equal(suite.T(), 1, len(tokens))
@@ -154,7 +154,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	assert.Nil(suite.T(), err)
 
 	// Fetch all refresh tokens
-	s.db.Preload("Client").Preload("User").Find(&tokens)
+	suite.service.db.Preload("Client").Preload("User").Find(&tokens)
 
 	// There should be 2 tokens now
 	assert.Equal(suite.T(), 2, len(tokens))
@@ -206,7 +206,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	assert.Nil(suite.T(), err)
 
 	// Fetch all refresh tokens
-	s.db.Preload("Client").Preload("User").Find(&tokens)
+	suite.service.db.Preload("Client").Preload("User").Find(&tokens)
 
 	// There should be just one token right now
 	assert.Equal(suite.T(), 1, len(tokens))
@@ -252,7 +252,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	assert.Nil(suite.T(), err)
 
 	// Fetch all refresh tokens
-	s.db.Preload("Client").Preload("User").Find(&tokens)
+	suite.service.db.Preload("Client").Preload("User").Find(&tokens)
 
 	// There should be 2 tokens now
 	assert.Equal(suite.T(), 2, len(tokens))
@@ -277,7 +277,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 }
 
 func (suite *OauthTestSuite) TestGetValidRefreshTokenNotFound() {
-	refreshToken, err := s.getValidRefreshToken(
+	refreshToken, err := suite.service.getValidRefreshToken(
 		"bogus",      // refresh token
 		suite.client, // client
 	)
@@ -303,7 +303,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshTokenExpired() {
 		log.Fatal(err)
 	}
 
-	refreshToken, err := s.getValidRefreshToken(
+	refreshToken, err := suite.service.getValidRefreshToken(
 		"test_token", // refresh token
 		suite.client, // client
 	)
@@ -329,7 +329,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 		log.Fatal(err)
 	}
 
-	refreshToken, err := s.getValidRefreshToken(
+	refreshToken, err := suite.service.getValidRefreshToken(
 		"test_token", // refresh token
 		suite.client, // client
 	)

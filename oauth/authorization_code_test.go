@@ -8,7 +8,7 @@ import (
 )
 
 func (suite *OauthTestSuite) TestGetValidAuthorizationCodeNotFound() {
-	authorizationCode, err := s.getValidAuthorizationCode(
+	authorizationCode, err := suite.service.getValidAuthorizationCode(
 		"bogus",      // authorization code
 		suite.client, // client
 	)
@@ -34,7 +34,7 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCodeExpired() {
 		log.Fatal(err)
 	}
 
-	authorizationCode, err := s.getValidAuthorizationCode(
+	authorizationCode, err := suite.service.getValidAuthorizationCode(
 		"test_authorization_code", // authorization code
 		suite.client,              // client
 	)
@@ -60,7 +60,7 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
 		log.Fatal(err)
 	}
 
-	authorizationCode, err := s.getValidAuthorizationCode(
+	authorizationCode, err := suite.service.getValidAuthorizationCode(
 		"test_code",  // authorization code
 		suite.client, // client
 	)

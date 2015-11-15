@@ -3,23 +3,23 @@ package web
 import "net/http"
 
 func registerForm(w http.ResponseWriter, r *http.Request) {
-	// Initialise a new session service
-	sessionService := newSessionService(s.cnf)
-	if err := sessionService.initSession(r); err != nil {
+	// Initialise the session service
+	sessionService := newSessionService(theService.cnf, r, w)
+	if err := sessionService.initSession("user_session"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Render the template
 	renderTemplate(w, "register.tmpl", map[string]interface{}{
-		"error": sessionService.getFlashMessage(r, w),
+		"error": sessionService.getFlashMessage(),
 	})
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
-	// Initialise a new session service
-	sessionService := newSessionService(s.cnf)
-	if err := sessionService.initSession(r); err != nil {
+	// Initialise the session service
+	sessionService := newSessionService(theService.cnf, r, w)
+	if err := sessionService.initSession("user_session"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -30,16 +30,16 @@ func register(w http.ResponseWriter, r *http.Request) {
 	password := r.Form["password"][0]
 
 	// Check that the submitted email hasn't been registered already
-	if s.oauthService.UserExists(username) {
-		sessionService.setFlashMessage("Email already taken", r, w)
+	if theService.oauthService.UserExists(username) {
+		sessionService.setFlashMessage("Email already taken")
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}
 
 	// Create a user
-	_, err := s.oauthService.CreateUser(username, password)
+	_, err := theService.oauthService.CreateUser(username, password)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}

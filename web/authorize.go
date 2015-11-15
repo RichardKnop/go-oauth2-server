@@ -6,9 +6,9 @@ import (
 )
 
 func authorizeForm(w http.ResponseWriter, r *http.Request) {
-	// Initialise a new session service
-	sessionService := newSessionService(s.cnf)
-	if err := sessionService.initSession(r); err != nil {
+	// Initialise the session service
+	sessionService := newSessionService(theService.cnf, r, w)
+	if err := sessionService.initSession("user_session"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -33,24 +33,24 @@ func authorizeForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch the client
-	client, err := s.oauthService.FindClientByClientID(clientID)
+	client, err := theService.oauthService.FindClientByClientID(clientID)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/authorize", http.StatusFound)
 		return
 	}
 
 	// Render the template
 	renderTemplate(w, "authorize.tmpl", map[string]interface{}{
-		"error":  sessionService.getFlashMessage(r, w),
+		"error":  sessionService.getFlashMessage(),
 		"client": client,
 	})
 }
 
 func authorize(w http.ResponseWriter, r *http.Request) {
-	// Initialise a new session service
-	sessionService := newSessionService(s.cnf)
-	if err := sessionService.initSession(r); err != nil {
+	// Initialise the session service
+	sessionService := newSessionService(theService.cnf, r, w)
+	if err := sessionService.initSession("user_session"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -75,9 +75,9 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch the client
-	client, err := s.oauthService.FindClientByClientID(clientID)
+	client, err := theService.oauthService.FindClientByClientID(clientID)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/authorize", http.StatusFound)
 		return
 	}

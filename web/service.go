@@ -11,18 +11,18 @@ type Service struct {
 	oauthService *oauth.Service
 }
 
-var s *Service
+var theService *Service
 
 // NewService starts a new Service instance
 func NewService(cnf *config.Config, oauthService *oauth.Service) *Service {
-	s = &Service{
+	theService = &Service{
 		cnf:          cnf,
 		oauthService: oauthService,
 	}
-	return s
+	return theService
 }
 
 // GetService returns internal Service instance
 func GetService() *Service {
-	return s
+	return theService
 }

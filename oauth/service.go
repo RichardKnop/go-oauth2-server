@@ -11,15 +11,15 @@ type Service struct {
 	db  *gorm.DB
 }
 
-var s *Service
+var theService *Service
 
 // NewService starts a new Service instance
 func NewService(cnf *config.Config, db *gorm.DB) *Service {
-	s = &Service{cnf: cnf, db: db}
-	return s
+	theService = &Service{cnf: cnf, db: db}
+	return theService
 }
 
 // GetService returns internal Service instance
 func GetService() *Service {
-	return s
+	return theService
 }

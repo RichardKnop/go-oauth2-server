@@ -28,18 +28,29 @@ func handleTokens(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authenticate the client
-	client, err := s.AuthClient(clientID, clientSecret)
+	client, err := theService.AuthClient(clientID, clientSecret)
 	if err != nil {
 		// For security reasons, return a general error message
 		json.UnauthorizedError(w, "Client authentication required")
 		return
 	}
 
+	// Map of grant types against handler functions
 	grants := map[string]func(){
-		"authorization_code": func() { s.authorizationCodeGrant(w, r, client) },
-		"password":           func() { s.passwordGrant(w, r, client) },
-		"client_credentials": func() { s.clientCredentialsGrant(w, r, client) },
-		"refresh_token":      func() { s.refreshTokenGrant(w, r, client) },
+		"authorization_code": func() {
+			theService.authorizationCodeGrant(w, r, client)
+		},
+		"password": func() {
+			theService.passwordGrant(w, r, client)
+		},
+		"client_credentials": func() {
+			theService.clientCredentialsGrant(w, r, client)
+		},
+		"refresh_token": func() {
+			theService.refreshTokenGrant(w, r, client)
+		},
 	}
+
+	// Execute the correct function based on the grant type
 	grants[r.FormValue("grant_type")]()
 }

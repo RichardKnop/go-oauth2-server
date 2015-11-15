@@ -27,7 +27,7 @@ func (suite *OauthTestSuite) TestGetScope() {
 }
 
 func (suite *OauthTestSuite) TestGetDefaultScope() {
-	assert.Equal(suite.T(), "bar foo", s.getDefaultScope())
+	assert.Equal(suite.T(), "bar foo", suite.service.getDefaultScope())
 }
 
 func (suite *OauthTestSuite) TestScopeExists() {

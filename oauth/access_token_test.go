@@ -15,7 +15,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	var v driver.Value
 
 	// Grant a client only access token
-	accessToken, err = s.GrantAccessToken(
+	accessToken, err = suite.service.GrantAccessToken(
 		suite.client,
 		nil,
 		"doesn't matter",
@@ -27,7 +27,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		s.db.Preload("Client").Preload("User").Find(&tokens)
+		suite.service.db.Preload("Client").Preload("User").Find(&tokens)
 
 		// There should be just one right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -49,7 +49,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	}
 
 	// Grant a user specific access token
-	accessToken, err = s.GrantAccessToken(
+	accessToken, err = suite.service.GrantAccessToken(
 		suite.client,
 		suite.user,
 		"doesn't matter",
@@ -61,7 +61,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		s.db.Preload("Client").Preload("User").Find(&tokens)
+		suite.service.db.Preload("Client").Preload("User").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))

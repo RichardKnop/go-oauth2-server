@@ -6,23 +6,23 @@ import (
 )
 
 func loginForm(w http.ResponseWriter, r *http.Request) {
-	// Initialise a new session service
-	sessionService := newSessionService(s.cnf)
-	if err := sessionService.initSession(r); err != nil {
+	// Initialise the session service
+	sessionService := newSessionService(theService.cnf, r, w)
+	if err := sessionService.initSession("user_session"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Render the template
 	renderTemplate(w, "login.tmpl", map[string]interface{}{
-		"error": sessionService.getFlashMessage(r, w),
+		"error": sessionService.getFlashMessage(),
 	})
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	// Initialise a new session service
-	sessionService := newSessionService(s.cnf)
-	if err := sessionService.initSession(r); err != nil {
+	// Initialise the session service
+	sessionService := newSessionService(theService.cnf, r, w)
+	if err := sessionService.initSession("user_session"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -33,17 +33,19 @@ func login(w http.ResponseWriter, r *http.Request) {
 	password := r.Form["password"][0]
 
 	// Fetch the trusted client
-	client, err := s.oauthService.FindClientByClientID(s.cnf.TrustedClient.ClientID)
+	client, err := theService.oauthService.FindClientByClientID(
+		theService.cnf.TrustedClient.ClientID,
+	)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
 
 	// Authenticate the user
-	user, err := s.oauthService.AuthUser(username, password)
+	user, err := theService.oauthService.AuthUser(username, password)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
@@ -52,25 +54,25 @@ func login(w http.ResponseWriter, r *http.Request) {
 	scope := "read_write"
 
 	// Grant an access token
-	accessToken, err := s.oauthService.GrantAccessToken(
+	accessToken, err := theService.oauthService.GrantAccessToken(
 		client,
 		user,
 		scope,
 	)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
 
 	// Get a refresh token
-	refreshToken, err := s.oauthService.GetOrCreateRefreshToken(
+	refreshToken, err := theService.oauthService.GetOrCreateRefreshToken(
 		client,
 		user,
 		scope,
 	)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}

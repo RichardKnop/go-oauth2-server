@@ -8,7 +8,7 @@ import (
 )
 
 func (suite *OauthTestSuite) TestAuthenticateNotFound() {
-	accessToken, err := s.Authenticate("bogus")
+	accessToken, err := suite.service.Authenticate("bogus")
 
 	// Access token should be nil
 	assert.Nil(suite.T(), accessToken)
@@ -31,7 +31,7 @@ func (suite *OauthTestSuite) TestAuthenticateExpired() {
 		log.Fatal(err)
 	}
 
-	accessToken, err := s.Authenticate("test_token")
+	accessToken, err := suite.service.Authenticate("test_token")
 
 	// Access token should be nil
 	assert.Nil(suite.T(), accessToken)
@@ -54,7 +54,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 		log.Fatal(err)
 	}
 
-	accessToken, err := s.Authenticate("test_token")
+	accessToken, err := suite.service.Authenticate("test_token")
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)
