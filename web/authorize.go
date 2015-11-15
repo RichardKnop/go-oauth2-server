@@ -35,14 +35,14 @@ func authorizeForm(w http.ResponseWriter, r *http.Request) {
 	// Fetch the client
 	client, err := s.oauthService.FindClientByClientID(clientID)
 	if err != nil {
-		sessionService.addFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error(), r, w)
 		http.Redirect(w, r, "/web/authorize", http.StatusFound)
 		return
 	}
 
 	// Render the template
 	renderTemplate(w, "authorize.tmpl", map[string]interface{}{
-		"error":  sessionService.getLastFlashMessage(r, w),
+		"error":  sessionService.getFlashMessage(r, w),
 		"client": client,
 	})
 }
@@ -77,7 +77,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	// Fetch the client
 	client, err := s.oauthService.FindClientByClientID(clientID)
 	if err != nil {
-		sessionService.addFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error(), r, w)
 		http.Redirect(w, r, "/web/authorize", http.StatusFound)
 		return
 	}

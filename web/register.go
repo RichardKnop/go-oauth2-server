@@ -12,7 +12,7 @@ func registerForm(w http.ResponseWriter, r *http.Request) {
 
 	// Render the template
 	renderTemplate(w, "register.tmpl", map[string]interface{}{
-		"error": sessionService.getLastFlashMessage(r, w),
+		"error": sessionService.getFlashMessage(r, w),
 	})
 }
 
@@ -31,7 +31,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 	// Check that the submitted email hasn't been registered already
 	if s.oauthService.UserExists(username) {
-		sessionService.addFlashMessage("Email already taken", r, w)
+		sessionService.setFlashMessage("Email already taken", r, w)
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}
@@ -39,7 +39,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 	// Create a user
 	_, err := s.oauthService.CreateUser(username, password)
 	if err != nil {
-		sessionService.addFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error(), r, w)
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}

@@ -7,6 +7,9 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+// A name used to identify the user session
+var sessionName = "user_session"
+
 // sessionService wraps session functionality
 type sessionService struct {
 	sessionStore   sessions.Store
@@ -28,8 +31,9 @@ func newSessionService(cnf *config.Config) *sessionService {
 	}
 }
 
+// Initialises session named
 func (s *sessionService) initSession(r *http.Request) error {
-	session, err := s.sessionStore.Get(r, "areatech")
+	session, err := s.sessionStore.Get(r, sessionName)
 	if err != nil {
 		return err
 	}
@@ -37,13 +41,16 @@ func (s *sessionService) initSession(r *http.Request) error {
 	return nil
 }
 
-func (s *sessionService) addFlashMessage(msg string, r *http.Request, w http.ResponseWriter) {
+// Sets a flash message, useful for displaying an error after 302 redirection
+func (s *sessionService) setFlashMessage(msg string, r *http.Request, w http.ResponseWriter) {
 	s.session.AddFlash(msg)
 	s.session.Save(r, w)
 }
 
-func (s *sessionService) getLastFlashMessage(r *http.Request, w http.ResponseWriter) interface{} {
+// Returns a flash message previously added with setFlashMessage or nil
+func (s *sessionService) getFlashMessage(r *http.Request, w http.ResponseWriter) interface{} {
 	if flashes := s.session.Flashes(); len(flashes) > 0 {
+		// We need to save the session, otherwise the flash message won't be removed
 		s.session.Save(r, w)
 		return flashes[0]
 	}

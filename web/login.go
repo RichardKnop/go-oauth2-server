@@ -15,7 +15,7 @@ func loginForm(w http.ResponseWriter, r *http.Request) {
 
 	// Render the template
 	renderTemplate(w, "login.tmpl", map[string]interface{}{
-		"error": sessionService.getLastFlashMessage(r, w),
+		"error": sessionService.getFlashMessage(r, w),
 	})
 }
 
@@ -35,7 +35,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	// Fetch the trusted client
 	client, err := s.oauthService.FindClientByClientID(s.cnf.TrustedClient.ClientID)
 	if err != nil {
-		sessionService.addFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error(), r, w)
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
@@ -43,7 +43,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	// Authenticate the user
 	user, err := s.oauthService.AuthUser(username, password)
 	if err != nil {
-		sessionService.addFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error(), r, w)
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
@@ -58,7 +58,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		scope,
 	)
 	if err != nil {
-		sessionService.addFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error(), r, w)
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
@@ -70,7 +70,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		scope,
 	)
 	if err != nil {
-		sessionService.addFlashMessage(err.Error(), r, w)
+		sessionService.setFlashMessage(err.Error(), r, w)
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
