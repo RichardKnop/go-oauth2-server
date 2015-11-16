@@ -15,7 +15,7 @@ func authorizeForm(w http.ResponseWriter, r *http.Request) {
 		w,
 		theService.oauthService,
 	)
-	if err := sessionService.InitSession("user_session"); err != nil {
+	if err := sessionService.InitUserSession(); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -68,7 +68,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 		w,
 		theService.oauthService,
 	)
-	if err := sessionService.InitSession("user_session"); err != nil {
+	if err := sessionService.InitUserSession(); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

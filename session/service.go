@@ -51,9 +51,9 @@ func NewService(cnf *config.Config, r *http.Request, w http.ResponseWriter, oaut
 	}
 }
 
-// InitSession initialises a new session by name
-func (s *Service) InitSession(name string) error {
-	session, err := s.sessionStore.Get(s.r, name)
+// InitUserSession initialises a new user session
+func (s *Service) InitUserSession() error {
+	session, err := s.sessionStore.Get(s.r, "user_session")
 	if err != nil {
 		return err
 	}
