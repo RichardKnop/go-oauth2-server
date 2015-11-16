@@ -31,6 +31,12 @@ var Routes = []routes.Route{
 		HandlerFunc: login,
 	},
 	routes.Route{
+		Name:        "logout",
+		Methods:     []string{"GET"},
+		Pattern:     "/logout",
+		HandlerFunc: logout,
+	},
+	routes.Route{
 		Name:        "authorize_form",
 		Methods:     []string{"GET"},
 		Pattern:     "/authorize",

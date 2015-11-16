@@ -20,43 +20,44 @@ func authorizeForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// if the user is not logged in, redirect to the login page
+	// If the user is not logged in, redirect to the login page
 	if err := sessionService.IsLoggedIn(); err != nil {
-		http.Redirect(w, r, "/web/login", http.StatusFound)
+		http.Redirect(w, r, "/web/login?"+r.URL.Query().Encode(), http.StatusFound)
 		return
 	}
 
-	// Get required parameters from the query string
-	responseType := r.URL.Query().Get("response_type")
-	clientID := r.URL.Query().Get("client_id")
-	redirectURI := r.URL.Query().Get("redirect_uri")
-	scope := r.URL.Query().Get("scope")
-	state := r.URL.Query().Get("state")
+	// If there is a flash message, just render the template with the error
+	if err := sessionService.GetFlashMessage(); err != nil {
+		renderTemplate(w, "authorize.tmpl", map[string]interface{}{"error": err})
+		return
+	}
 
-	log.Print(responseType)
-	log.Print(clientID)
-	log.Print(redirectURI)
-	log.Print(scope)
-	log.Print(state)
+	// Parse the form so r.Form becomes available
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Check the response_type is either "code" or "token"
+	responseType := r.Form.Get("response_type")
 	if responseType != "code" && responseType != "token" {
 		http.Error(w, "Invalid response_type", http.StatusBadRequest)
 		return
 	}
 
 	// Fetch the client
-	client, err := theService.oauthService.FindClientByClientID(clientID)
+	client, err := theService.oauthService.FindClientByClientID(
+		r.Form.Get("client_id"),
+	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
-		http.Redirect(w, r, "/web/authorize", http.StatusFound)
+		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
 
 	// Render the template
 	renderTemplate(w, "authorize.tmpl", map[string]interface{}{
-		"error":  sessionService.GetFlashMessage(),
-		"client": client,
+		"clientID": client.ClientID,
 	})
 }
 
@@ -73,12 +74,24 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// If the user is not logged in, redirect to the login page
+	if err := sessionService.IsLoggedIn(); err != nil {
+		http.Redirect(w, r, "/web/login?"+r.URL.Query().Encode(), http.StatusFound)
+		return
+	}
+
+	// Parse the form so r.Form becomes available
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	// Get required parameters from the query string
-	responseType := r.URL.Query().Get("response_type")
-	clientID := r.URL.Query().Get("client_id")
-	redirectURI := r.URL.Query().Get("redirect_uri")
-	scope := r.URL.Query().Get("scope")
-	state := r.URL.Query().Get("state")
+	responseType := r.Form.Get("response_type")
+	clientID := r.Form.Get("client_id")
+	redirectURI := r.Form.Get("redirect_uri")
+	scope := r.Form.Get("scope")
+	state := r.Form.Get("state")
 
 	log.Print(responseType)
 	log.Print(clientID)
@@ -96,7 +109,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	client, err := theService.oauthService.FindClientByClientID(clientID)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
-		http.Redirect(w, r, "/web/authorize", http.StatusFound)
+		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
 

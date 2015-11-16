@@ -38,26 +38,30 @@ func register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse the submitted form data
-	r.ParseForm()
-	username := r.Form["email"][0]
-	password := r.Form["password"][0]
+	// Parse the form so r.Form becomes available
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Check that the submitted email hasn't been registered already
-	if theService.oauthService.UserExists(username) {
+	if theService.oauthService.UserExists(r.Form.Get("email")) {
 		sessionService.SetFlashMessage("Email already taken")
-		http.Redirect(w, r, "/web/register", http.StatusFound)
+		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
 
 	// Create a user
-	_, err := theService.oauthService.CreateUser(username, password)
+	_, err := theService.oauthService.CreateUser(
+		r.Form.Get("email"),
+		r.Form.Get("password"),
+	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
-		http.Redirect(w, r, "/web/register", http.StatusFound)
+		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
 
 	// Redirect to the login page
-	http.Redirect(w, r, "/web/login", http.StatusFound)
+	http.Redirect(w, r, "/web/login?"+r.URL.Query().Encode(), http.StatusFound)
 }

@@ -1,13 +1,9 @@
 {{ define "title"}}Log In{{ end }}
 
-{{ define "links" }}
-<link href="/styles.css" rel="stylesheet">
-{{ end }}
-
 {{ define "content" }}
 <div class="container">
 
-  <form class="form-signin" action="/web/login" method="post">
+  <form class="form-signin" action="" method="post">
     <h2 class="form-signin-heading">Please log in</h2>
     {{ if .error }}
     <p>{{ .error }}</p>

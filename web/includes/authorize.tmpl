@@ -1,20 +1,21 @@
-{{ define "title"}}Log In{{ end }}
-
-{{ define "links" }}
-<link href="/styles.css" rel="stylesheet">
-{{ end }}
+{{ define "title"}}Authorize{{ end }}
 
 {{ define "content" }}
-<div class="container">
-
-  <form class="form-signin" action="/web/login" method="post">
-    <h2 class="form-signin-heading">Authorize {{ .client.ClientID }}</h2>
-    {{if .error }}
-    <p>{{ .error }}</p>
+<div class="jumbotron">
+  <form action="" method="post">
+    {{ if .error }}
+    <p class="lead">{{ .error }}</p>
+    {{ else }}
+    <p class="lead">Client <b>{{ .clientID }}</b> would like to perform actions on your behalf</p>
+    <div class="row">
+      <div class="col-md-6">
+        <button class="btn btn-lg btn-block btn-primary" name="authorize" value="1">Authorize</button>
+      </div>
+      <div class="col-md-6">
+        <button class="btn btn-lg btn-block btn-danger" name="decline" value="0">Decline</button>
+      </div>
+    </div>
     {{ end }}
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Yes</button>
-    <button class="btn btn-lg btn-danger btn-block" type="submit">No</button>
   </form>
-
-</div> <!-- /container -->
+</div>
 {{ end }}

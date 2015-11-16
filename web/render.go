@@ -3,7 +3,6 @@ package web
 import (
 	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"path/filepath"
 
@@ -21,18 +20,17 @@ func init() {
 
 	bufpool = bpool.NewBufferPool(64)
 
-	layouts, err := filepath.Glob("web/layouts/*.tmpl")
-	if err != nil {
-		log.Fatal(err)
+	layoutTemplates := map[string][]string{
+		"web/layouts/outside.tmpl": []string{
+			"web/includes/register.tmpl",
+			"web/includes/login.tmpl",
+		},
+		"web/layouts/inside.tmpl": []string{
+			"web/includes/authorize.tmpl",
+		},
 	}
 
-	includes, err := filepath.Glob("web/includes/*.tmpl")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Generate our templates map from our layouts/ and includes/ directories
-	for _, layout := range layouts {
+	for layout, includes := range layoutTemplates {
 		for _, include := range includes {
 			files := []string{include, layout}
 			templates[filepath.Base(include)] = template.Must(template.ParseFiles(files...))

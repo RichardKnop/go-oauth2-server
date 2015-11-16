@@ -38,26 +38,30 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Parse the submitted form data
-	r.ParseForm()
-	username := r.Form["email"][0]
-	password := r.Form["password"][0]
+	// Parse the form so r.Form becomes available
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
-	// Fetch the trusted client
+	// Fetch the client
 	client, err := theService.oauthService.FindClientByClientID(
-		theService.cnf.TrustedClient.ClientID,
+		r.Form.Get("client_id"),
 	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
-		http.Redirect(w, r, "/web/login", http.StatusFound)
+		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
 
 	// Authenticate the user
-	user, err := theService.oauthService.AuthUser(username, password)
+	user, err := theService.oauthService.AuthUser(
+		r.Form.Get("email"),
+		r.Form.Get("password"),
+	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
-		http.Redirect(w, r, "/web/login", http.StatusFound)
+		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
 
@@ -72,7 +76,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
-		http.Redirect(w, r, "/web/login", http.StatusFound)
+		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
 
@@ -84,7 +88,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
-		http.Redirect(w, r, "/web/login", http.StatusFound)
+		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
 
@@ -96,10 +100,10 @@ func login(w http.ResponseWriter, r *http.Request) {
 		RefreshToken: refreshToken,
 	}); err != nil {
 		sessionService.SetFlashMessage(err.Error())
-		http.Redirect(w, r, "/web/login", http.StatusFound)
+		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
 
 	// Redirect to the authorize page
-	http.Redirect(w, r, "/web/authorize", http.StatusFound)
+	http.Redirect(w, r, "/web/authorize?"+r.URL.Query().Encode(), http.StatusFound)
 }
