@@ -3,38 +3,17 @@ package web
 import (
 	"log"
 	"net/http"
-
-	"github.com/RichardKnop/go-oauth2-server/session"
 )
 
 func authorizeForm(w http.ResponseWriter, r *http.Request) {
-	// Initialise the session service
-	sessionService := session.NewService(
-		theService.cnf,
-		r,
-		w,
-		theService.oauthService,
-	)
-	if err := sessionService.InitUserSession(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// If the user is not logged in, redirect to the login page
-	if err := sessionService.IsLoggedIn(); err != nil {
-		http.Redirect(w, r, "/web/login?"+r.URL.Query().Encode(), http.StatusFound)
+	sessionService := loginRequired(w, r)
+	if sessionService == nil {
 		return
 	}
 
 	// If there is a flash message, just render the template with the error
 	if err := sessionService.GetFlashMessage(); err != nil {
 		renderTemplate(w, "authorize.tmpl", map[string]interface{}{"error": err})
-		return
-	}
-
-	// Parse the form so r.Form becomes available
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -62,27 +41,8 @@ func authorizeForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func authorize(w http.ResponseWriter, r *http.Request) {
-	// Initialise the session service
-	sessionService := session.NewService(
-		theService.cnf,
-		r,
-		w,
-		theService.oauthService,
-	)
-	if err := sessionService.InitUserSession(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// If the user is not logged in, redirect to the login page
-	if err := sessionService.IsLoggedIn(); err != nil {
-		http.Redirect(w, r, "/web/login?"+r.URL.Query().Encode(), http.StatusFound)
-		return
-	}
-
-	// Parse the form so r.Form becomes available
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	sessionService := loginRequired(w, r)
+	if sessionService == nil {
 		return
 	}
 

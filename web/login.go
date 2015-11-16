@@ -7,15 +7,8 @@ import (
 )
 
 func loginForm(w http.ResponseWriter, r *http.Request) {
-	// Initialise the session service
-	sessionService := session.NewService(
-		theService.cnf,
-		r,
-		w,
-		theService.oauthService,
-	)
-	if err := sessionService.InitUserSession(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	sessionService := noLoginRequired(w, r)
+	if sessionService == nil {
 		return
 	}
 
@@ -26,21 +19,8 @@ func loginForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	// Initialise the session service
-	sessionService := session.NewService(
-		theService.cnf,
-		r,
-		w,
-		theService.oauthService,
-	)
-	if err := sessionService.InitUserSession(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Parse the form so r.Form becomes available
-	if err := r.ParseForm(); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	sessionService := noLoginRequired(w, r)
+	if sessionService == nil {
 		return
 	}
 
@@ -105,5 +85,5 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirect to the authorize page
-	http.Redirect(w, r, "/web/authorize?"+r.URL.Query().Encode(), http.StatusFound)
+	redirectAndKeepQueryString("/web/authorize", w, r)
 }
