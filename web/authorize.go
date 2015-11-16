@@ -13,6 +13,12 @@ func authorizeForm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// if the user is not logged in, redirect to the login page
+	if err := sessionService.isLoggedIn(); err != nil {
+		http.Redirect(w, r, "/web/login", http.StatusFound)
+		return
+	}
+
 	// Get required parameters from the query string
 	responseType := r.URL.Query().Get("response_type")
 	clientID := r.URL.Query().Get("client_id")

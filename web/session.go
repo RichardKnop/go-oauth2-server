@@ -3,9 +3,11 @@ package web
 import (
 	"encoding/gob"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/gorilla/sessions"
 )
 
@@ -16,6 +18,7 @@ type sessionService struct {
 	sessionStore   sessions.Store
 	sessionOptions *sessions.Options
 	session        *sessions.Session
+	oauthService   *oauth.Service
 }
 
 // userSession has user data stored in a session after logging in
@@ -54,6 +57,24 @@ func (s *sessionService) initSession(name string) error {
 		return err
 	}
 	s.session = session
+	return nil
+}
+
+// Is user logged in?
+func (s *sessionService) isLoggedIn() error {
+	userSession, err := s.getUser()
+	log.Print(userSession)
+	log.Print(err)
+	if err != nil {
+		return err
+	}
+
+	if err = s.oauthService.Authenticate(userSession.accessToken); err != nil {
+		log.Print(err)
+		// TODO try to refresh the token
+		return err
+	}
+
 	return nil
 }
 
