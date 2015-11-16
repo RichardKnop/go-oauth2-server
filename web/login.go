@@ -1,28 +1,39 @@
 package web
 
 import (
-	"log"
 	"net/http"
+
+	"github.com/RichardKnop/go-oauth2-server/session"
 )
 
 func loginForm(w http.ResponseWriter, r *http.Request) {
 	// Initialise the session service
-	sessionService := newSessionService(theService.cnf, r, w)
-	if err := sessionService.initSession("user_session"); err != nil {
+	sessionService := session.NewService(
+		theService.cnf,
+		r,
+		w,
+		theService.oauthService,
+	)
+	if err := sessionService.InitSession("user_session"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Render the template
 	renderTemplate(w, "login.tmpl", map[string]interface{}{
-		"error": sessionService.getFlashMessage(),
+		"error": sessionService.GetFlashMessage(),
 	})
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
 	// Initialise the session service
-	sessionService := newSessionService(theService.cnf, r, w)
-	if err := sessionService.initSession("user_session"); err != nil {
+	sessionService := session.NewService(
+		theService.cnf,
+		r,
+		w,
+		theService.oauthService,
+	)
+	if err := sessionService.InitSession("user_session"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -37,7 +48,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		theService.cnf.TrustedClient.ClientID,
 	)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error())
+		sessionService.SetFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
@@ -45,7 +56,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	// Authenticate the user
 	user, err := theService.oauthService.AuthUser(username, password)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error())
+		sessionService.SetFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
@@ -60,7 +71,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 		scope,
 	)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error())
+		sessionService.SetFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
@@ -72,14 +83,23 @@ func login(w http.ResponseWriter, r *http.Request) {
 		scope,
 	)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error())
+		sessionService.SetFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/login", http.StatusFound)
 		return
 	}
 
-	// TODO - store access and refresh token in the session
+	// Log in the user and store the user session in a cookie
+	if err := sessionService.LogIn(&session.UserSession{
+		UserID:       user.ID,
+		Username:     user.Username,
+		AccessToken:  accessToken.Token,
+		RefreshToken: refreshToken.Token,
+	}); err != nil {
+		sessionService.SetFlashMessage(err.Error())
+		http.Redirect(w, r, "/web/login", http.StatusFound)
+		return
+	}
 
-	log.Print(accessToken)
-	log.Print(refreshToken)
-	// http.Redirect(w, r, "/web/authorize", http.StatusFound)
+	// Redirect to the authorize page
+	http.Redirect(w, r, "/web/authorize", http.StatusFound)
 }

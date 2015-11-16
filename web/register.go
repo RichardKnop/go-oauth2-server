@@ -1,25 +1,39 @@
 package web
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/RichardKnop/go-oauth2-server/session"
+)
 
 func registerForm(w http.ResponseWriter, r *http.Request) {
 	// Initialise the session service
-	sessionService := newSessionService(theService.cnf, r, w)
-	if err := sessionService.initSession("user_session"); err != nil {
+	sessionService := session.NewService(
+		theService.cnf,
+		r,
+		w,
+		theService.oauthService,
+	)
+	if err := sessionService.InitSession("user_session"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Render the template
 	renderTemplate(w, "register.tmpl", map[string]interface{}{
-		"error": sessionService.getFlashMessage(),
+		"error": sessionService.GetFlashMessage(),
 	})
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
 	// Initialise the session service
-	sessionService := newSessionService(theService.cnf, r, w)
-	if err := sessionService.initSession("user_session"); err != nil {
+	sessionService := session.NewService(
+		theService.cnf,
+		r,
+		w,
+		theService.oauthService,
+	)
+	if err := sessionService.InitSession("user_session"); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -31,7 +45,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 	// Check that the submitted email hasn't been registered already
 	if theService.oauthService.UserExists(username) {
-		sessionService.setFlashMessage("Email already taken")
+		sessionService.SetFlashMessage("Email already taken")
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}
@@ -39,7 +53,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 	// Create a user
 	_, err := theService.oauthService.CreateUser(username, password)
 	if err != nil {
-		sessionService.setFlashMessage(err.Error())
+		sessionService.SetFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/register", http.StatusFound)
 		return
 	}
