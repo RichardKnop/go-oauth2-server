@@ -276,8 +276,8 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	assert.Equal(suite.T(), int64(suite.user.ID), v)
 }
 
-func (suite *OauthTestSuite) TestGetValidRefreshTokenNotFound() {
-	refreshToken, err := suite.service.getValidRefreshToken(
+func (suite *OauthTestSuite) TestValidateRefreshTokenNotFound() {
+	refreshToken, err := suite.service.ValidateRefreshToken(
 		"bogus",      // refresh token
 		suite.client, // client
 	)
@@ -291,7 +291,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshTokenNotFound() {
 	}
 }
 
-func (suite *OauthTestSuite) TestGetValidRefreshTokenExpired() {
+func (suite *OauthTestSuite) TestValidateRefreshTokenExpired() {
 	// Insert a test refresh token
 	if err := suite.db.Create(&RefreshToken{
 		Token:     "test_token",
@@ -303,7 +303,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshTokenExpired() {
 		log.Fatal(err)
 	}
 
-	refreshToken, err := suite.service.getValidRefreshToken(
+	refreshToken, err := suite.service.ValidateRefreshToken(
 		"test_token", // refresh token
 		suite.client, // client
 	)
@@ -317,7 +317,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshTokenExpired() {
 	}
 }
 
-func (suite *OauthTestSuite) TestGetValidRefreshToken() {
+func (suite *OauthTestSuite) TestValidateRefreshToken() {
 	// Insert a test refresh token
 	if err := suite.db.Create(&RefreshToken{
 		Token:     "test_token",
@@ -329,7 +329,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 		log.Fatal(err)
 	}
 
-	refreshToken, err := suite.service.getValidRefreshToken(
+	refreshToken, err := suite.service.ValidateRefreshToken(
 		"test_token", // refresh token
 		suite.client, // client
 	)

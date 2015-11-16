@@ -3,7 +3,6 @@ package session
 import (
 	"encoding/gob"
 	"errors"
-	"log"
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
@@ -23,10 +22,10 @@ type Service struct {
 
 // UserSession has user data stored in a session after logging in
 type UserSession struct {
-	UserID       uint
-	Username     string
-	AccessToken  string
-	RefreshToken string
+	Client       *oauth.Client
+	User         *oauth.User
+	AccessToken  *oauth.AccessToken
+	RefreshToken *oauth.RefreshToken
 }
 
 func init() {
@@ -70,13 +69,12 @@ func (s *Service) IsLoggedIn() error {
 		return errors.New("User session type assertion error")
 	}
 
-	log.Print(userSession)
-
-	// Try to authenticate against the oauth service
-	if err := s.oauthService.Authenticate(userSession.AccessToken); err != nil {
-		log.Print(err)
-		// TODO try to refresh the token
-		return err
+	// Try to authenticate with the stored access token
+	if err := s.oauthService.Authenticate(userSession.AccessToken.Token); err != nil {
+		// Now let's try refreshing the access token with the stored refresh token
+		if err := s.refreshToken(userSession); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -84,6 +82,10 @@ func (s *Service) IsLoggedIn() error {
 
 // LogIn logs the user in and stores the user session in a cookie
 func (s *Service) LogIn(userSession *UserSession) error {
+	// Make sure we store any sensitive information in the session
+	userSession.Client.Secret = ""
+	userSession.User.Password = ""
+	// Save the user session
 	s.session.Values["user"] = userSession
 	return s.session.Save(s.r, s.w)
 }
@@ -108,4 +110,42 @@ func (s *Service) GetFlashMessage() interface{} {
 		return flashes[0]
 	}
 	return nil
+}
+
+// Tries to use the stored refresh token to obtain a new access token
+func (s *Service) refreshToken(userSession *UserSession) error {
+	// Validate the refresh token
+	theRefreshToken, err := s.oauthService.ValidateRefreshToken(
+		userSession.RefreshToken.Token,
+		userSession.Client,
+	)
+	if err != nil {
+		return err
+	}
+
+	// Grant an access token
+	accessToken, err := s.oauthService.GrantAccessToken(
+		userSession.Client,
+		userSession.User,
+		theRefreshToken.Scope,
+	)
+	if err != nil {
+		return err
+	}
+
+	// Get a refresh token
+	refreshToken, err := s.oauthService.GetOrCreateRefreshToken(
+		userSession.Client,
+		userSession.User,
+		theRefreshToken.Scope,
+	)
+	if err != nil {
+		return err
+	}
+
+	// Update the user session
+	userSession.AccessToken = accessToken
+	userSession.RefreshToken = refreshToken
+	s.session.Values["user"] = userSession
+	return s.session.Save(s.r, s.w)
 }

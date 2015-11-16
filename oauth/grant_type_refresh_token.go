@@ -14,8 +14,8 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 		return
 	}
 
-	// Validate the refresh request
-	theRefreshToken, err := s.getValidRefreshToken(
+	// Validate the refresh token
+	theRefreshToken, err := s.ValidateRefreshToken(
 		r.FormValue("refresh_token"),
 		client,
 	)

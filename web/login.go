@@ -90,10 +90,10 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 	// Log in the user and store the user session in a cookie
 	if err := sessionService.LogIn(&session.UserSession{
-		UserID:       user.ID,
-		Username:     user.Username,
-		AccessToken:  accessToken.Token,
-		RefreshToken: refreshToken.Token,
+		Client:       client,
+		User:         user,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 	}); err != nil {
 		sessionService.SetFlashMessage(err.Error())
 		http.Redirect(w, r, "/web/login", http.StatusFound)
