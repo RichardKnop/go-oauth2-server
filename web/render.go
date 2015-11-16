@@ -21,12 +21,12 @@ func init() {
 	bufpool = bpool.NewBufferPool(64)
 
 	layoutTemplates := map[string][]string{
-		"web/layouts/outside.tmpl": []string{
-			"web/includes/register.tmpl",
-			"web/includes/login.tmpl",
+		"web/layouts/outside.html": []string{
+			"web/includes/register.html",
+			"web/includes/login.html",
 		},
-		"web/layouts/inside.tmpl": []string{
-			"web/includes/authorize.tmpl",
+		"web/layouts/inside.html": []string{
+			"web/includes/authorize.html",
 		},
 	}
 

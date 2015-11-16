@@ -1,36 +1,32 @@
 package web
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/session"
 )
 
 func loginForm(w http.ResponseWriter, r *http.Request) {
-	sessionService := noLoginRequired(w, r)
-	if sessionService == nil {
+	// Get the session service from the request context
+	sessionService, err := getSessionService(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Render the template
-	renderTemplate(w, "login.tmpl", map[string]interface{}{
-		"error": sessionService.GetFlashMessage(),
+	renderTemplate(w, "login.html", map[string]interface{}{
+		"error":       sessionService.GetFlashMessage(),
+		"queryString": getQueryString(r),
 	})
 }
 
 func login(w http.ResponseWriter, r *http.Request) {
-	sessionService := noLoginRequired(w, r)
-	if sessionService == nil {
-		return
-	}
-
-	// Fetch the client
-	client, err := theService.oauthService.FindClientByClientID(
-		r.Form.Get("client_id"),
-	)
+	// Get the session service from the request context
+	sessionService, err := getSessionService(r)
 	if err != nil {
-		sessionService.SetFlashMessage(err.Error())
-		http.Redirect(w, r, r.RequestURI, http.StatusFound)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -45,8 +41,20 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Default scope
-	scope := "read_write"
+	// Get the scope string
+	scope, err := theService.oauthService.GetScope(r.Form.Get("scope"))
+	if err != nil {
+		sessionService.SetFlashMessage(err.Error())
+		http.Redirect(w, r, r.RequestURI, http.StatusFound)
+		return
+	}
+
+	// Get the client from the request context
+	client, err := getClient(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Grant an access token
 	accessToken, err := theService.oauthService.GrantAccessToken(
@@ -73,12 +81,14 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Log in the user and store the user session in a cookie
-	if err := sessionService.LogIn(&session.UserSession{
-		Client:       client,
-		User:         user,
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}); err != nil {
+	userSession := &session.UserSession{
+		ClientID:     client.ClientID,
+		Username:     user.Username,
+		AccessToken:  accessToken.Token,
+		RefreshToken: refreshToken.Token,
+	}
+	if err := sessionService.SetUserSession(userSession); err != nil {
+		log.Print(err)
 		sessionService.SetFlashMessage(err.Error())
 		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return

@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/gorilla/sessions"
 )
 
@@ -17,15 +16,14 @@ type Service struct {
 	session        *sessions.Session
 	r              *http.Request
 	w              http.ResponseWriter
-	oauthService   *oauth.Service
 }
 
 // UserSession has user data stored in a session after logging in
 type UserSession struct {
-	Client       *oauth.Client
-	User         *oauth.User
-	AccessToken  *oauth.AccessToken
-	RefreshToken *oauth.RefreshToken
+	ClientID     string
+	Username     string
+	AccessToken  string
+	RefreshToken string
 }
 
 func init() {
@@ -34,7 +32,7 @@ func init() {
 }
 
 // NewService starts a new Service instance
-func NewService(cnf *config.Config, r *http.Request, w http.ResponseWriter, oauthService *oauth.Service) *Service {
+func NewService(cnf *config.Config, r *http.Request, w http.ResponseWriter) *Service {
 	return &Service{
 		// Session cookie storage
 		sessionStore: sessions.NewCookieStore([]byte(cnf.Session.Secret)),
@@ -44,15 +42,14 @@ func NewService(cnf *config.Config, r *http.Request, w http.ResponseWriter, oaut
 			MaxAge:   cnf.Session.MaxAge,
 			HttpOnly: cnf.Session.HTTPOnly,
 		},
-		r:            r,
-		w:            w,
-		oauthService: oauthService,
+		r: r,
+		w: w,
 	}
 }
 
-// InitUserSession initialises a new user session
-func (s *Service) InitUserSession() error {
-	session, err := s.sessionStore.Get(s.r, "user_session")
+// StartUserSession starts a new user session
+func (s *Service) StartUserSession() error {
+	session, err := s.sessionStore.Get(s.r, "session")
 	if err != nil {
 		return err
 	}
@@ -60,39 +57,27 @@ func (s *Service) InitUserSession() error {
 	return nil
 }
 
-// IsLoggedIn retrieves the user session and authenticates against the oauth
-func (s *Service) IsLoggedIn() error {
+// GetUserSession returns the user session
+func (s *Service) GetUserSession() (*UserSession, error) {
 	// Retrieve our user session struct and type-assert it
-	var userSession = new(UserSession)
 	userSession, ok := s.session.Values["user"].(*UserSession)
 	if !ok {
-		return errors.New("User session type assertion error")
+		return nil, errors.New("User session type assertion error")
 	}
 
-	// Try to authenticate with the stored access token
-	if err := s.oauthService.Authenticate(userSession.AccessToken.Token); err != nil {
-		// Now let's try refreshing the access token with the stored refresh token
-		if err := s.refreshToken(userSession); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return userSession, nil
 }
 
-// LogIn logs the user in and stores the user session in a cookie
-func (s *Service) LogIn(userSession *UserSession) error {
-	// Make sure we store any sensitive information in the session
-	userSession.Client.Secret = ""
-	userSession.User.Password = ""
-	// Save the user session
+// SetUserSession saves the user session
+func (s *Service) SetUserSession(userSession *UserSession) error {
 	s.session.Values["user"] = userSession
 	return s.session.Save(s.r, s.w)
 }
 
-// LogOut clears the user session
-func (s *Service) LogOut() {
+// ClearUserSession deletes the user session
+func (s *Service) ClearUserSession() error {
 	delete(s.session.Values, "user")
+	return s.session.Save(s.r, s.w)
 }
 
 // SetFlashMessage sets a flash message,
@@ -110,42 +95,4 @@ func (s *Service) GetFlashMessage() interface{} {
 		return flashes[0]
 	}
 	return nil
-}
-
-// Tries to use the stored refresh token to obtain a new access token
-func (s *Service) refreshToken(userSession *UserSession) error {
-	// Validate the refresh token
-	theRefreshToken, err := s.oauthService.ValidateRefreshToken(
-		userSession.RefreshToken.Token,
-		userSession.Client,
-	)
-	if err != nil {
-		return err
-	}
-
-	// Grant an access token
-	accessToken, err := s.oauthService.GrantAccessToken(
-		userSession.Client,
-		userSession.User,
-		theRefreshToken.Scope,
-	)
-	if err != nil {
-		return err
-	}
-
-	// Get a refresh token
-	refreshToken, err := s.oauthService.GetOrCreateRefreshToken(
-		userSession.Client,
-		userSession.User,
-		theRefreshToken.Scope,
-	)
-	if err != nil {
-		return err
-	}
-
-	// Update the user session
-	userSession.AccessToken = accessToken
-	userSession.RefreshToken = refreshToken
-	s.session.Values["user"] = userSession
-	return s.session.Save(s.r, s.w)
 }

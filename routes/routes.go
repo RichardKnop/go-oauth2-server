@@ -1,6 +1,10 @@
 package routes
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/codegangsta/negroni"
+)
 
 // Route ...
 type Route struct {
@@ -8,4 +12,5 @@ type Route struct {
 	Methods     []string
 	Pattern     string
 	HandlerFunc http.HandlerFunc
+	Middlewares []negroni.Handler
 }

@@ -84,14 +84,14 @@ func newAccessToken(accessTokenLifetime int, client *Client, user *User, scope s
 		Token:     uuid.New(),
 		ExpiresAt: time.Now().Add(time.Duration(accessTokenLifetime) * time.Second),
 		Scope:     scope,
+		ClientID:  clientIDOrNull(client),
+		UserID:    userIDOrNull(user),
 	}
 	if client != nil {
 		accessToken.Client = client
-		accessToken.ClientID = clientIDOrNull(client)
 	}
 	if user != nil {
 		accessToken.User = user
-		accessToken.UserID = userIDOrNull(user)
 	}
 	return accessToken
 }
@@ -102,16 +102,32 @@ func newRefreshToken(refreshTokenLifetime int, client *Client, user *User, scope
 		ExpiresAt: time.Now().Add(time.Duration(refreshTokenLifetime) * time.Second),
 		Scope:     scope,
 		ClientID:  clientIDOrNull(client),
+		UserID:    userIDOrNull(user),
 	}
 	if client != nil {
 		refreshToken.Client = client
-		refreshToken.ClientID = clientIDOrNull(client)
 	}
 	if user != nil {
 		refreshToken.User = user
-		refreshToken.UserID = userIDOrNull(user)
 	}
 	return refreshToken
+}
+
+func newAuthorizationCode(authorizationCodeLifetime int, client *Client, user *User, scope string) *AuthorizationCode {
+	authorizationCode := &AuthorizationCode{
+		Code:      uuid.New(),
+		ExpiresAt: time.Now().Add(time.Duration(authorizationCodeLifetime) * time.Second),
+		Scope:     scope,
+		ClientID:  clientIDOrNull(client),
+		UserID:    userIDOrNull(user),
+	}
+	if client != nil {
+		authorizationCode.Client = client
+	}
+	if user != nil {
+		authorizationCode.User = user
+	}
+	return authorizationCode
 }
 
 func writeJSON(w http.ResponseWriter, accessTokenLifetime int, accessToken *AccessToken, refreshToken *RefreshToken) {

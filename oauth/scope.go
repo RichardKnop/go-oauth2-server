@@ -6,7 +6,9 @@ import (
 	"strings"
 )
 
-func (s *Service) getScope(requestedScope string) (string, error) {
+// GetScope takes a requested scope and, if it's empty, returns the default
+// scope, if not empty, it validates the requested scope
+func (s *Service) GetScope(requestedScope string) (string, error) {
 	// Return the default scope if the requested scope is empty
 	if requestedScope == "" {
 		return s.getDefaultScope(), nil

@@ -10,17 +10,17 @@ func (suite *OauthTestSuite) TestGetScope() {
 
 	// When the requested scope is an empty string,
 	// the default scope should be returned
-	scope, err = suite.service.getScope("")
+	scope, err = suite.service.GetScope("")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), "bar foo", scope)
 
 	// When the requested scope is valid, it should be returned
-	scope, err = suite.service.getScope("bar foo qux")
+	scope, err = suite.service.GetScope("bar foo qux")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), "bar foo qux", scope)
 
 	// When the requested scope is invalid, an error should be returned
-	scope, err = suite.service.getScope("bar foo bogus")
+	scope, err = suite.service.GetScope("bar foo bogus")
 	if assert.NotNil(suite.T(), err) {
 		assert.Equal(suite.T(), "Invalid scope", err.Error())
 	}

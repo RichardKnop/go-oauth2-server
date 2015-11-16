@@ -6,14 +6,14 @@ import (
 
 // UserExists returns true if user exists
 func (s *Service) UserExists(username string) bool {
-	_, err := s.findUserByUsername(username)
+	_, err := s.FindUserByUsername(username)
 	return err == nil
 }
 
 // AuthUser authenticates user
 func (s *Service) AuthUser(username, password string) (*User, error) {
 	// Fetch the user
-	user, err := s.findUserByUsername(username)
+	user, err := s.FindUserByUsername(username)
 	if err != nil {
 		return nil, errors.New("User not found")
 	}
@@ -42,7 +42,8 @@ func (s *Service) CreateUser(username, password string) (*User, error) {
 	return &user, nil
 }
 
-func (s *Service) findUserByUsername(username string) (*User, error) {
+// FindUserByUsername looks up a user by username
+func (s *Service) FindUserByUsername(username string) (*User, error) {
 	// Usernames are case insensitive
 	user := new(User)
 	if s.db.Where("LOWER(username) = LOWER(?)", username).First(user).RecordNotFound() {

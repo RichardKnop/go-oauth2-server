@@ -8,8 +8,8 @@
 
   <title>{{ template "title" . }}</title>
 
-  <!-- Latest compiled and minified CSS -->
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="/css/bootstrap.min.css">
 
   <link href="/css/outside.css" rel="stylesheet">
 
@@ -23,8 +23,16 @@
   <![endif]-->
 </head>
 <body>
-    {{ template "content" . }}
-    {{ template "scripts" . }}
+  {{ template "content" . }}
+
+  <!-- Bootstrap core JavaScript
+  ================================================== -->
+  <!-- Placed at the end of the document so the pages load faster -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="/js/bootstrap.min.js"></script>
+  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+  <script src="/js/ie10-viewport-bug-workaround.js"></script>
+  {{ template "scripts" . }}
 </body>
 </html>
 {{ end }}

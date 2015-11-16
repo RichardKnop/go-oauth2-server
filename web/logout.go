@@ -5,13 +5,15 @@ import (
 )
 
 func logout(w http.ResponseWriter, r *http.Request) {
-	sessionService := loginRequired(w, r)
-	if sessionService == nil {
+	// Get the session service from the request context
+	sessionService, err := getSessionService(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Logout the user
-	sessionService.LogOut()
+	// Delete the user session
+	sessionService.ClearUserSession()
 
 	// Redirect back to the login page
 	redirectAndKeepQueryString("/web/login", w, r)

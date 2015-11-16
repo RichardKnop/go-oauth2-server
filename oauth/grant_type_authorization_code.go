@@ -7,12 +7,6 @@ import (
 )
 
 func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
-	// Double check the grant type
-	if r.Form.Get("grant_type") != "authorization_code" {
-		json.Error(w, "Invalid grant type", http.StatusBadRequest)
-		return
-	}
-
 	// Fetch the auth code from the database
 	authorizationCode, err := s.getValidAuthorizationCode(
 		r.Form.Get("code"),

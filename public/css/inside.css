@@ -1,68 +1,39 @@
-/* Space out content a bit */
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
 body {
-  padding-top: 40px;
-  padding-bottom: 40px;
-  background-color: #eee;
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  background-color: #f5f5f5;
 }
 
-/* Everything but the jumbotron gets side spacing for mobile first views */
-.header,
-.footer {
+
+/* Custom page CSS
+-------------------------------------------------- */
+/* Not required for template or sticky footer method. */
+
+body > .container {
+  padding: 60px 15px 0;
+}
+.container .text-muted {
+  margin: 20px 0;
+}
+
+.footer > .container {
   padding-right: 15px;
   padding-left: 15px;
 }
 
-/* Custom page header */
-.header {
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e5e5e5;
-}
-/* Make the masthead heading the same height as the navigation */
-.header h3 {
-  margin-top: 0;
-  margin-bottom: 0;
-  line-height: 40px;
-}
-
-/* Custom page footer */
-.footer {
-  padding-top: 19px;
-  color: #777;
-  border-top: 1px solid #e5e5e5;
-}
-
-/* Customize container */
-@media (min-width: 768px) {
-  .container {
-    max-width: 730px;
-  }
-}
-
-/* Main content area */
-.jumbotron {
-  text-align: center;
-  border-bottom: 1px solid #e5e5e5;
-  background: white;
-}
-.jumbotron .btn {
-  padding: 14px 24px;
-  font-size: 18px;
-}
-
-/* Responsive: Portrait tablets and up */
-@media screen and (min-width: 768px) {
-  /* Remove the padding we set earlier */
-  .header,
-  .footer {
-    padding-right: 0;
-    padding-left: 0;
-  }
-  /* Space out the masthead */
-  .header {
-    margin-bottom: 30px;
-  }
-  /* Remove the bottom border on the jumbotron for visual effect */
-  .jumbotron {
-    border-bottom: 0;
-  }
+code {
+  font-size: 80%;
 }

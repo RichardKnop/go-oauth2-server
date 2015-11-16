@@ -1,21 +1,24 @@
 {{ define "title"}}Authorize{{ end }}
 
 {{ define "content" }}
-<div class="jumbotron">
+<div class="container">
+  <div class="page-header">
+    <h1>Authorize</h1>
+  </div>
+  <p class="lead">Client <b>{{ .clientID }}</b> would like to perform actions on your behalf</p>
+  {{ if .error }}
+  <div class="alert alert-danger" role="alert">{{ .error }}div>
+  {{ else }}
   <form action="" method="post">
-    {{ if .error }}
-    <p class="lead">{{ .error }}</p>
-    {{ else }}
-    <p class="lead">Client <b>{{ .clientID }}</b> would like to perform actions on your behalf</p>
     <div class="row">
-      <div class="col-md-6">
+      <div class="col-md-2 col-sm-4">
         <button class="btn btn-lg btn-block btn-primary" name="authorize" value="1">Authorize</button>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-2 col-sm-4">
         <button class="btn btn-lg btn-block btn-danger" name="decline" value="0">Decline</button>
       </div>
     </div>
-    {{ end }}
   </form>
+  {{ end }}
 </div>
 {{ end }}

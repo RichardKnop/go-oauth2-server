@@ -3,20 +3,25 @@ package web
 import "net/http"
 
 func registerForm(w http.ResponseWriter, r *http.Request) {
-	sessionService := noLoginRequired(w, r)
-	if sessionService == nil {
+	// Get the session service from the request context
+	sessionService, err := getSessionService(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	// Render the template
-	renderTemplate(w, "register.tmpl", map[string]interface{}{
-		"error": sessionService.GetFlashMessage(),
+	renderTemplate(w, "register.html", map[string]interface{}{
+		"error":       sessionService.GetFlashMessage(),
+		"queryString": getQueryString(r),
 	})
 }
 
 func register(w http.ResponseWriter, r *http.Request) {
-	sessionService := noLoginRequired(w, r)
-	if sessionService == nil {
+	// Get the session service from the request context
+	sessionService, err := getSessionService(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -28,7 +33,7 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a user
-	_, err := theService.oauthService.CreateUser(
+	_, err = theService.oauthService.CreateUser(
 		r.Form.Get("email"),
 		r.Form.Get("password"),
 	)

@@ -38,7 +38,7 @@ func (s *Service) CreateClient(clientID, secret string) (*Client, error) {
 	return client, nil
 }
 
-// FindClientByClientID looks up a client by client id
+// FindClientByClientID looks up a client by client ID
 func (s *Service) FindClientByClientID(clientID string) (*Client, error) {
 	// Client IDs are case insensitive
 	client := new(Client)

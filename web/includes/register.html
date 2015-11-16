@@ -4,16 +4,16 @@
 <div class="container">
 
   <form class="form-signin" action="" method="post">
-    <h2 class="form-signin-heading">Please register</h2>
+    <h2 class="form-signin-heading">Register</h2>
     {{ if .error }}
-    <p>{{ .error }}</p>
+    <p class="text-danger">{{ .error }}</p>
     {{ end }}
     <label for="inputEmail" class="sr-only">Email address</label>
     <input type="email" name="email" id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
     <label for="inputPassword" class="sr-only">Password</label>
     <input type="password" name="password" id="inputPassword" class="form-control" placeholder="Password" required>
     <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
-    <p>Already registered? <a href="/web/login">Log in</a>
+    <p>Already registered? <a href="/web/login{{ .queryString }}">Log in</a>
   </form>
 
 </div> <!-- /container -->

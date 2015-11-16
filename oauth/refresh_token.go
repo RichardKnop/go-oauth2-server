@@ -13,7 +13,7 @@ func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, scope stri
 	found := !s.db.Where(RefreshToken{
 		ClientID: clientIDOrNull(client),
 		UserID:   userIDOrNull(user),
-	}).First(refreshToken).RecordNotFound()
+	}).Preload("Client").Preload("User").First(refreshToken).RecordNotFound()
 
 	// Check if the token is expired, if found
 	var expired bool

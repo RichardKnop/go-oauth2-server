@@ -1,11 +1,53 @@
 package oauth
 
 import (
+	"database/sql/driver"
 	"log"
 	"time"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
+	var authorizationCode *AuthorizationCode
+	var err error
+	var codes []*AuthorizationCode
+	var v driver.Value
+
+	// Grant an authorization code
+	authorizationCode, err = suite.service.GrantAuthorizationCode(
+		suite.client,
+		suite.user,
+		"doesn't matter",
+	)
+
+	// Error should be Nil
+	assert.Nil(suite.T(), err)
+
+	// Correct authorization code object should be returned
+	if assert.NotNil(suite.T(), authorizationCode) {
+		// Fetch all access tokens
+		suite.service.db.Preload("Client").Preload("User").Find(&codes)
+
+		// There should be just one right now
+		assert.Equal(suite.T(), 1, len(codes))
+
+		// And the code should match the one returned by the grant method
+		assert.Equal(suite.T(), codes[0].Code, authorizationCode.Code)
+
+		// Client id should be set
+		assert.True(suite.T(), codes[0].ClientID.Valid)
+		v, err = codes[0].ClientID.Value()
+		assert.Nil(suite.T(), err)
+		assert.Equal(suite.T(), int64(suite.client.ID), v)
+
+		// User id should be set
+		assert.True(suite.T(), codes[0].UserID.Valid)
+		v, err = codes[0].UserID.Value()
+		assert.Nil(suite.T(), err)
+		assert.Equal(suite.T(), int64(suite.user.ID), v)
+	}
+}
 
 func (suite *OauthTestSuite) TestGetValidAuthorizationCodeNotFound() {
 	authorizationCode, err := suite.service.getValidAuthorizationCode(
