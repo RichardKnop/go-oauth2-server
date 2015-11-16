@@ -12,12 +12,12 @@ import (
 )
 
 func (suite *OauthTestSuite) TestClientCredentialsGrant() {
-	// Make a request
+	// Prepare a request object
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	r.PostForm = url.Values{
+	r.Form = url.Values{
 		"grant_type": {"client_credentials"},
 		"scope":      {"foo"},
 	}

@@ -8,13 +8,13 @@ import (
 
 func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	// Double check the grant type
-	if r.FormValue("grant_type") != "client_credentials" {
+	if r.Form.Get("grant_type") != "client_credentials" {
 		json.Error(w, "Invalid grant type", http.StatusBadRequest)
 		return
 	}
 
 	// Get the scope string
-	scope, err := s.getScope(r.FormValue("scope"))
+	scope, err := s.getScope(r.Form.Get("scope"))
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusBadRequest)
 		return

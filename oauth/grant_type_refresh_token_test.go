@@ -24,12 +24,12 @@ func (suite *OauthTestSuite) TestTestRefreshTokenGrantScopeCannotBeGreater() {
 		log.Fatal(err)
 	}
 
-	// Make a request
+	// Prepare a request object
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
-	r.PostForm = url.Values{
+	r.Form = url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"test_token"},
 		"scope":         {"bar foo qux"},
@@ -65,7 +65,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	r.PostForm = url.Values{
+	r.Form = url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"test_token"},
 		"scope":         {"bar foo"},

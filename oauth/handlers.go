@@ -6,16 +6,25 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/json"
 )
 
+// Map of grant types against handler functions
+var grantTypes = map[string]func(w http.ResponseWriter, r *http.Request, client *Client){
+	"authorization_code": theService.authorizationCodeGrant,
+	"password":           theService.passwordGrant,
+	"client_credentials": theService.clientCredentialsGrant,
+	"refresh_token":      theService.refreshTokenGrant,
+}
+
 // Handles all OAuth 2.0 grant types (POST /oauth2/api/v1/tokens
 func handleTokens(w http.ResponseWriter, r *http.Request) {
-	// Check the grant type
-	grantTypes := map[string]bool{
-		"authorization_code": true,
-		"password":           true,
-		"client_credentials": true,
-		"refresh_token":      true,
+	// Parse the form so r.Form becomes available
+	if err := r.ParseForm(); err != nil {
+		json.Error(w, "Parse form error", http.StatusInternalServerError)
+		return
 	}
-	if !grantTypes[r.FormValue("grant_type")] {
+
+	// Check the grant type
+	grantHandler, ok := grantTypes[r.Form.Get("grant_type")]
+	if !ok {
 		json.Error(w, "Invalid grant type", http.StatusBadRequest)
 		return
 	}
@@ -35,22 +44,6 @@ func handleTokens(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Map of grant types against handler functions
-	grants := map[string]func(){
-		"authorization_code": func() {
-			theService.authorizationCodeGrant(w, r, client)
-		},
-		"password": func() {
-			theService.passwordGrant(w, r, client)
-		},
-		"client_credentials": func() {
-			theService.clientCredentialsGrant(w, r, client)
-		},
-		"refresh_token": func() {
-			theService.refreshTokenGrant(w, r, client)
-		},
-	}
-
 	// Execute the correct function based on the grant type
-	grants[r.FormValue("grant_type")]()
+	grantHandler(w, r, client)
 }

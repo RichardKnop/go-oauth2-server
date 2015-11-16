@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/json"
@@ -9,14 +10,15 @@ import (
 
 func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	// Double check the grant type
-	if r.FormValue("grant_type") != "refresh_token" {
+	log.Print(r.Form)
+	if r.Form.Get("grant_type") != "refresh_token" {
 		json.Error(w, "Invalid grant type", http.StatusBadRequest)
 		return
 	}
 
 	// Validate the refresh token
 	theRefreshToken, err := s.ValidateRefreshToken(
-		r.FormValue("refresh_token"),
+		r.Form.Get("refresh_token"),
 		client,
 	)
 	if err != nil {
@@ -25,7 +27,7 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 	}
 
 	// Get the scope string
-	scope, err := s.getScope(r.FormValue("scope"))
+	scope, err := s.getScope(r.Form.Get("scope"))
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusBadRequest)
 		return
