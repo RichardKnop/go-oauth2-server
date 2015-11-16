@@ -39,7 +39,31 @@ Clients must authenticate with client credentials (client ID and secret) when is
 
 http://tools.ietf.org/html/rfc6749#section-4.1
 
-TODO (obtaining an authorization code)
+First, you need to send a user to the authorization page with proper parameters, e.g.:
+
+```
+http://localhost:8080/web/authorize?client_id=test_client&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=code&state=somestate
+```
+
+The user will have to register and log in he/she you hasn't done so yet:
+
+![Log In page screenshot](https://raw.githubusercontent.com/RichardKnop/assets/master/go-oauth2-server/login_screenshot.png)
+
+After logging in, the user will be presented with an authorization page where he/she can accept or decline to authorize the client to act on his/her behalf:
+
+![Authorize page screenshot](https://raw.githubusercontent.com/RichardKnop/assets/master/go-oauth2-server/authorize_screenshot.png)
+
+If the user declines, the user agent will be redirected to the `redirect_uri` with error parameter in the query string, e.g.:
+
+```
+https://www.example.com/?error=access_denied&state=somestate
+```
+
+Given the user accepts, the user agent will be redirected to the `redirect_uri` and the authorization code will be in the query string, e.g.:
+
+```
+https://www.example.com/?code=7afb1c55-76e4-4c76-adb7-9d657cb47a27&state=somestate
+```
 
 Once you have an authorization code, you can exchange it for an access token:
 
@@ -47,7 +71,7 @@ Once you have an authorization code, you can exchange it for an access token:
 $ curl -v localhost:8080/oauth/api/v1/tokens \
   -u test_client:test_secret \
   -d "grant_type=authorization_code" \
-  -d "code=AUTHORIZATION_CODE"
+  -d "code=7afb1c55-76e4-4c76-adb7-9d657cb47a27"
 ```
 
 Response:
@@ -68,6 +92,24 @@ Response:
 http://tools.ietf.org/html/rfc6749#section-4.2
 
 Very similar to the authorization code but an access token is returned in URL fragment without a need to make an additional API request to exchange the authorization code for an access token.
+
+So the user would be sent to the authorize page with `response_type` parameter set to `token`, e.g.:
+
+```
+http://localhost:8080/web/authorize?client_id=test_client&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=token&state=somestate
+```
+
+If the user declines, the user agent will be redirected to the `redirect_uri` with error parameter in the query string, e.g.:
+
+```
+https://www.example.com/?error=access_denied&state=somestate
+```
+
+Given the user accepts, the user agent will be redirected to the `redirect_uri` and the access token will be directly in the URL:
+
+```
+https://www.example.com/?access_token=087902d5-29e7-417b-a339-b57a60d6742a&expires_in=3600&refresh_token=6531b6ae-6db4-4aa6-934f-486807c697f2&state=somestate&token_type=Bearer
+```
 
 #### User Credentials
 

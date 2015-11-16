@@ -3,17 +3,29 @@ package web
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 )
 
 // Redirects to a new path while keeping current request's query string
-func redirectAndKeepQueryString(path string, w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, fmt.Sprintf("%s%s", path, getQueryString(r)), http.StatusFound)
+func redirectWithQueryString(to string, query url.Values, w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, fmt.Sprintf("%s%s", to, getQueryString(query)), http.StatusFound)
 }
 
 // Returns string encoded query string of the request
-func getQueryString(r *http.Request) string {
-	if len(r.URL.Query()) > 0 {
-		return fmt.Sprintf("?%s", r.URL.Query().Encode())
+func getQueryString(query url.Values) string {
+	encoded := query.Encode()
+	if len(encoded) > 0 {
+		encoded = fmt.Sprintf("?%s", encoded)
 	}
-	return ""
+	return encoded
+}
+
+// Helper function to handle redirecting failed or declined authorization
+func authorizeErrorRedirect(w http.ResponseWriter, r *http.Request, redirectURI *url.URL, err, state string) {
+	query := redirectURI.Query()
+	query.Set("error", err)
+	if state != "" {
+		query.Set("state", state)
+	}
+	redirectWithQueryString(redirectURI.String(), query, w, r)
 }

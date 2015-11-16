@@ -21,3 +21,12 @@ func userIDOrNull(user *User) sql.NullInt64 {
 
 	return sql.NullInt64{Int64: int64(user.ID), Valid: true}
 }
+
+// Returns properly confiigured sql.NullString
+func stringOrNull(str string) sql.NullString {
+	if str == "" {
+		return sql.NullString{String: "", Valid: false}
+	}
+
+	return sql.NullString{String: str, Valid: true}
+}

@@ -19,6 +19,7 @@ func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
 		suite.client,
 		suite.user,
 		"doesn't matter",
+		"doesn't matter",
 	)
 
 	// Error should be Nil

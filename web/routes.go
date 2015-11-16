@@ -36,7 +36,6 @@ var Routes = []routes.Route{
 		Middlewares: []negroni.Handler{
 			new(parseFormMiddleware),
 			new(guestMiddleware),
-			new(clientMiddleware),
 		},
 	},
 	routes.Route{
@@ -47,7 +46,6 @@ var Routes = []routes.Route{
 		Middlewares: []negroni.Handler{
 			new(parseFormMiddleware),
 			new(guestMiddleware),
-			new(clientMiddleware),
 		},
 	},
 	routes.Route{

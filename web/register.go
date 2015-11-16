@@ -13,7 +13,7 @@ func registerForm(w http.ResponseWriter, r *http.Request) {
 	// Render the template
 	renderTemplate(w, "register.html", map[string]interface{}{
 		"error":       sessionService.GetFlashMessage(),
-		"queryString": getQueryString(r),
+		"queryString": getQueryString(r.URL.Query()),
 	})
 }
 
@@ -44,5 +44,5 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirect to the login page
-	redirectAndKeepQueryString("/web/login", w, r)
+	redirectWithQueryString("/web/login", r.URL.Query(), w, r)
 }

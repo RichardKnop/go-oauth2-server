@@ -18,7 +18,7 @@ func loginForm(w http.ResponseWriter, r *http.Request) {
 	// Render the template
 	renderTemplate(w, "login.html", map[string]interface{}{
 		"error":       sessionService.GetFlashMessage(),
-		"queryString": getQueryString(r),
+		"queryString": getQueryString(r.URL.Query()),
 	})
 }
 
@@ -49,8 +49,10 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get the client from the request context
-	client, err := getClient(r)
+	// Fetch the trusted client
+	client, err := theService.oauthService.FindClientByClientID(
+		theService.cnf.TrustedClient.ClientID,
+	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -95,5 +97,5 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Redirect to the authorize page
-	redirectAndKeepQueryString("/web/authorize", w, r)
+	redirectWithQueryString("/web/authorize", r.URL.Query(), w, r)
 }

@@ -6,12 +6,13 @@ import (
 )
 
 // GrantAuthorizationCode grants a new authorization code
-func (s *Service) GrantAuthorizationCode(client *Client, user *User, scope string) (*AuthorizationCode, error) {
+func (s *Service) GrantAuthorizationCode(client *Client, user *User, redirectURI, scope string) (*AuthorizationCode, error) {
 	// Create a new authorization code
 	authorizationCode := newAuthorizationCode(
 		s.cnf.Oauth.AuthCodeLifetime,
 		client,
 		user,
+		redirectURI,
 		scope,
 	)
 	if err := s.db.Create(authorizationCode).Error; err != nil {

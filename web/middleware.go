@@ -58,13 +58,13 @@ func (m *loggedInMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, n
 	// Try to get a user session
 	userSession, err := sessionService.GetUserSession()
 	if err != nil {
-		redirectAndKeepQueryString("/web/login", w, r)
+		redirectWithQueryString("/web/login", r.URL.Query(), w, r)
 		return
 	}
 
 	// Authenticate
 	if err := authenticate(userSession); err != nil {
-		redirectAndKeepQueryString("/web/login", w, r)
+		redirectWithQueryString("/web/login", r.URL.Query(), w, r)
 		return
 	}
 

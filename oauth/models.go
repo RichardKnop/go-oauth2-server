@@ -113,13 +113,14 @@ func newRefreshToken(refreshTokenLifetime int, client *Client, user *User, scope
 	return refreshToken
 }
 
-func newAuthorizationCode(authorizationCodeLifetime int, client *Client, user *User, scope string) *AuthorizationCode {
+func newAuthorizationCode(authorizationCodeLifetime int, client *Client, user *User, redirectURI, scope string) *AuthorizationCode {
 	authorizationCode := &AuthorizationCode{
-		Code:      uuid.New(),
-		ExpiresAt: time.Now().Add(time.Duration(authorizationCodeLifetime) * time.Second),
-		Scope:     scope,
-		ClientID:  clientIDOrNull(client),
-		UserID:    userIDOrNull(user),
+		Code:        uuid.New(),
+		ExpiresAt:   time.Now().Add(time.Duration(authorizationCodeLifetime) * time.Second),
+		RedirectURI: stringOrNull(redirectURI),
+		Scope:       scope,
+		ClientID:    clientIDOrNull(client),
+		UserID:      userIDOrNull(user),
 	}
 	if client != nil {
 		authorizationCode.Client = client

@@ -64,3 +64,31 @@ func TestUserIDOrNull(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), value)
 }
+
+func TestStringOrNull(t *testing.T) {
+	var nullString sql.NullString
+	var value driver.Value
+	var err error
+
+	// When the string is empty
+	nullString = stringOrNull("")
+
+	// nullString.Valid should be false
+	assert.False(t, nullString.Valid)
+
+	// nullString.Value() should return nil
+	value, err = nullString.Value()
+	assert.Nil(t, err)
+	assert.Nil(t, value)
+
+	// When the string is not empty
+	nullString = stringOrNull("foo")
+
+	// nullString.Valid should be true
+	assert.True(t, nullString.Valid)
+
+	// nullString.Value() should return the string
+	value, err = nullString.Value()
+	assert.Nil(t, err)
+	assert.Equal(t, "foo", value)
+}

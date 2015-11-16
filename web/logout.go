@@ -1,8 +1,6 @@
 package web
 
-import (
-	"net/http"
-)
+import "net/http"
 
 func logout(w http.ResponseWriter, r *http.Request) {
 	// Get the session service from the request context
@@ -16,5 +14,5 @@ func logout(w http.ResponseWriter, r *http.Request) {
 	sessionService.ClearUserSession()
 
 	// Redirect back to the login page
-	redirectAndKeepQueryString("/web/login", w, r)
+	redirectWithQueryString("/web/login", r.URL.Query(), w, r)
 }
