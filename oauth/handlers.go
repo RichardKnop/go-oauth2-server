@@ -18,7 +18,7 @@ var grantTypes = map[string]func(w http.ResponseWriter, r *http.Request, client 
 func handleTokens(w http.ResponseWriter, r *http.Request) {
 	// Parse the form so r.Form becomes available
 	if err := r.ParseForm(); err != nil {
-		json.Error(w, "Parse form error", http.StatusInternalServerError)
+		json.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
