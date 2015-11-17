@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/json"
+	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
@@ -17,30 +18,32 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	// Redirect URI must match if it was used to obtain the code
-	if stringOrNull(r.Form.Get("redirect_uri")) != authorizationCode.RedirectURI {
+	// Redirect URI must match if it was used to obtain the authorization code
+	if util.StringOrNull(r.Form.Get("redirect_uri")) != authorizationCode.RedirectURI {
 		json.Error(w, "Invalid redirect URI", http.StatusBadRequest)
 		return
 	}
 
 	// Create a new access token
 	accessToken, err := s.GrantAccessToken(
-		authorizationCode.Client,
-		authorizationCode.User,
-		authorizationCode.Scope,
+		authorizationCode.Client, // client
+		authorizationCode.User,   // user
+		authorizationCode.Scope,  // scope
 	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Create or retrieve a refresh token
 	refreshToken, err := s.GetOrCreateRefreshToken(
-		authorizationCode.Client,
-		authorizationCode.User,
-		authorizationCode.Scope,
+		authorizationCode.Client, // client
+		authorizationCode.User,   // user
+		authorizationCode.Scope,  // scope
 	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Delete the authorization code

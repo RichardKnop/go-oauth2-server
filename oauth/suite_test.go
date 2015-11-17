@@ -52,9 +52,9 @@ func (suite *OauthTestSuite) TearDownSuite() {
 func (suite *OauthTestSuite) SetupTest() {
 	// Insert a test client
 	client, err := suite.service.CreateClient(
-		"test_client",
-		"test_secret",
-		"https://www.example.com",
+		"test_client",             // client id
+		"test_secret",             // client secret
+		"https://www.example.com", // redirect URI
 	)
 	if err != nil {
 		log.Fatal(err)
@@ -62,7 +62,10 @@ func (suite *OauthTestSuite) SetupTest() {
 	suite.client = client
 
 	// Insert a test user
-	user, err := suite.service.CreateUser("test@username", "test_password")
+	user, err := suite.service.CreateUser(
+		"test@username", // username
+		"test_password", // password
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -87,9 +90,9 @@ func (suite *OauthTestSuite) SetupTest() {
 // The TearDownTest method will be run after every test in the suite.
 func (suite *OauthTestSuite) TearDownTest() {
 	// Empty all the tables
-	suite.db.Delete(AccessToken{})
-	suite.db.Delete(RefreshToken{})
 	suite.db.Delete(AuthorizationCode{})
+	suite.db.Delete(RefreshToken{})
+	suite.db.Delete(AccessToken{})
 	suite.db.Delete(Scope{})
 	suite.db.Delete(User{})
 	suite.db.Delete(Client{})

@@ -1,6 +1,27 @@
 package util
 
-import "strings"
+import (
+	"database/sql"
+	"strings"
+)
+
+// IntOrNull returns properly confiigured sql.NullInt64
+func IntOrNull(n int64) sql.NullInt64 {
+	if n < 1 {
+		return sql.NullInt64{Int64: 0, Valid: false}
+	}
+
+	return sql.NullInt64{Int64: int64(n), Valid: true}
+}
+
+// StringOrNull returns properly confiigured sql.NullString
+func StringOrNull(str string) sql.NullString {
+	if str == "" {
+		return sql.NullString{String: "", Valid: false}
+	}
+
+	return sql.NullString{String: str, Valid: true}
+}
 
 // StringInSlice is a function similar to "x in y" Python construct
 func StringInSlice(a string, list []string) bool {

@@ -17,9 +17,9 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	// Since there is no client only token,
 	// a new one should be created and returned
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
-		suite.client,
-		nil,
-		"foo",
+		suite.client, // client
+		new(User),    // empty User object
+		"foo",        // scope
 	)
 
 	// Error should be nil
@@ -50,9 +50,9 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	// Since there is no user specific token,
 	// a new one should be created and returned
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
-		suite.client,
-		suite.user,
-		"foo",
+		suite.client, // client
+		suite.user,   // user
+		"foo",        // scope
 	)
 
 	// Error should be nil
@@ -98,9 +98,9 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 
 	// Since the current client only token is valid, this should just return it
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
-		suite.client,
-		nil,
-		"foo",
+		suite.client, // client
+		new(User),    // empty User object
+		"foo",        // scope
 	)
 
 	// Error should be nil
@@ -143,9 +143,9 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Since the current user specific only token is valid,
 	// this should just return it
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
-		suite.client,
-		suite.user,
-		"foo",
+		suite.client, // client
+		suite.user,   // user
+		"foo",        // scope
 	)
 
 	// Error should be nil
@@ -194,9 +194,9 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Since the current client only token is expired,
 	// this should delete it and create and return a new one
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
-		suite.client,
-		nil,
-		"foo",
+		suite.client, // client
+		new(User),    // empty User object
+		"foo",        // scope
 	)
 
 	// Error should be nil
@@ -239,9 +239,9 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Since the current user specific token is expired,
 	// this should delete it and create and return a new one
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
-		suite.client,
-		suite.user,
-		"foo",
+		suite.client, // client
+		suite.user,   // user
+		"foo",        // scope
 	)
 
 	// Error should be nil

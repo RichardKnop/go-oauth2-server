@@ -3,6 +3,8 @@ package oauth
 import (
 	"errors"
 	"log"
+
+	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 // AuthClient authenticates client
@@ -30,7 +32,7 @@ func (s *Service) CreateClient(clientID, secret, redirectURI string) (*Client, e
 	client := &Client{
 		ClientID:    clientID,
 		Secret:      string(secretHash),
-		RedirectURI: stringOrNull(redirectURI),
+		RedirectURI: util.StringOrNull(redirectURI),
 	}
 	if err := s.db.Create(client).Error; err != nil {
 		log.Print(err)

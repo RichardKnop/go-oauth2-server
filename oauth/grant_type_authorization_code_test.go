@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -19,7 +20,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 		ExpiresAt:   time.Now().Add(+10 * time.Second),
 		Client:      suite.client,
 		User:        suite.user,
-		RedirectURI: stringOrNull("https://www.example.com"),
+		RedirectURI: util.StringOrNull("https://www.example.com"),
 		Scope:       "foo",
 	}).Error; err != nil {
 		log.Fatal(err)
@@ -55,7 +56,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 		ExpiresAt:   time.Now().Add(+10 * time.Second),
 		Client:      suite.client,
 		User:        suite.user,
-		RedirectURI: stringOrNull("https://www.example.com"),
+		RedirectURI: util.StringOrNull("https://www.example.com"),
 		Scope:       "foo",
 	}).Error; err != nil {
 		log.Fatal(err)

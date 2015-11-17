@@ -3,6 +3,8 @@ package oauth
 import (
 	"errors"
 	"time"
+
+	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 // GrantAuthorizationCode grants a new authorization code
@@ -27,7 +29,7 @@ func (s *Service) getValidAuthorizationCode(code string, client *Client) (*Autho
 	authorizationCode := new(AuthorizationCode)
 	if s.db.Where(AuthorizationCode{
 		Code:     code,
-		ClientID: clientIDOrNull(client),
+		ClientID: util.IntOrNull(client.ID),
 	}).Preload("Client").Preload("User").First(authorizationCode).RecordNotFound() {
 		return nil, errors.New("Authorization code not found")
 	}

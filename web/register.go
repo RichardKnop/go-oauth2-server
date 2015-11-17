@@ -34,8 +34,8 @@ func register(w http.ResponseWriter, r *http.Request) {
 
 	// Create a user
 	_, err = theService.oauthService.CreateUser(
-		r.Form.Get("email"),
-		r.Form.Get("password"),
+		r.Form.Get("email"),    // username
+		r.Form.Get("password"), // password
 	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())

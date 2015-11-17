@@ -6,12 +6,13 @@ import (
 	"time"
 
 	"github.com/RichardKnop/go-oauth2-server/json"
+	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/pborman/uuid"
 )
 
 // Client ...
 type Client struct {
-	ID          uint           `gorm:"primary_key"`
+	ID          int64          `gorm:"primary_key"`
 	ClientID    string         `sql:"type:varchar(254);unique;not null"`
 	Secret      string         `sql:"type:varchar(60);not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
@@ -21,7 +22,7 @@ type Client struct {
 
 // Scope ...
 type Scope struct {
-	ID          uint   `gorm:"primary_key"`
+	ID          int64  `gorm:"primary_key"`
 	Scope       string `sql:"type:varchar(200);unique;not null"`
 	Description sql.NullString
 	IsDefault   bool `sql:"default:false"`
@@ -29,7 +30,7 @@ type Scope struct {
 
 // User ...
 type User struct {
-	ID        uint   `gorm:"primary_key"`
+	ID        int64  `gorm:"primary_key"`
 	Username  string `sql:"type:varchar(254);unique;not null"`
 	Password  string `sql:"type:varchar(60);not null"`
 	CreatedAt time.Time
@@ -38,7 +39,7 @@ type User struct {
 
 // RefreshToken ...
 type RefreshToken struct {
-	ID        uint          `gorm:"primary_key"`
+	ID        int64         `gorm:"primary_key"`
 	Token     string        `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt time.Time     `sql:"not null"`
 	Scope     string        `sql:"type:varchar(200);not null"`
@@ -52,7 +53,7 @@ type RefreshToken struct {
 
 // AccessToken ...
 type AccessToken struct {
-	ID        uint          `gorm:"primary_key"`
+	ID        int64         `gorm:"primary_key"`
 	Token     string        `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt time.Time     `sql:"not null"`
 	Scope     string        `sql:"type:varchar(200);not null"`
@@ -66,7 +67,7 @@ type AccessToken struct {
 
 // AuthorizationCode ...
 type AuthorizationCode struct {
-	ID          uint           `gorm:"primary_key"`
+	ID          int64          `gorm:"primary_key"`
 	Code        string         `sql:"type:varchar(40);unique;not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
 	ExpiresAt   time.Time      `sql:"not null"`
@@ -80,65 +81,71 @@ type AuthorizationCode struct {
 }
 
 // Creates new AccessToken instance
-func newAccessToken(accessTokenLifetime int, client *Client, user *User, scope string) *AccessToken {
+func newAccessToken(expiresIn int, client *Client, user *User, scope string) *AccessToken {
+	clientID := util.IntOrNull(client.ID)
+	userID := util.IntOrNull(user.ID)
 	accessToken := &AccessToken{
 		Token:     uuid.New(),
-		ExpiresAt: time.Now().Add(time.Duration(accessTokenLifetime) * time.Second),
+		ExpiresAt: time.Now().Add(time.Duration(expiresIn) * time.Second),
 		Scope:     scope,
-		ClientID:  clientIDOrNull(client),
-		UserID:    userIDOrNull(user),
+		ClientID:  clientID,
+		UserID:    userID,
 	}
-	if client != nil {
+	if clientID.Valid {
 		accessToken.Client = client
 	}
-	if user != nil {
+	if userID.Valid {
 		accessToken.User = user
 	}
 	return accessToken
 }
 
 // Creates new RefreshToken instance
-func newRefreshToken(refreshTokenLifetime int, client *Client, user *User, scope string) *RefreshToken {
+func newRefreshToken(expiresIn int, client *Client, user *User, scope string) *RefreshToken {
+	clientID := util.IntOrNull(client.ID)
+	userID := util.IntOrNull(user.ID)
 	refreshToken := &RefreshToken{
 		Token:     uuid.New(),
-		ExpiresAt: time.Now().Add(time.Duration(refreshTokenLifetime) * time.Second),
+		ExpiresAt: time.Now().Add(time.Duration(expiresIn) * time.Second),
 		Scope:     scope,
-		ClientID:  clientIDOrNull(client),
-		UserID:    userIDOrNull(user),
+		ClientID:  clientID,
+		UserID:    userID,
 	}
-	if client != nil {
+	if clientID.Valid {
 		refreshToken.Client = client
 	}
-	if user != nil {
+	if userID.Valid {
 		refreshToken.User = user
 	}
 	return refreshToken
 }
 
 // Creates new AuthorizationCode instance
-func newAuthorizationCode(authorizationCodeLifetime int, client *Client, user *User, redirectURI, scope string) *AuthorizationCode {
+func newAuthorizationCode(expiresIn int, client *Client, user *User, redirectURI, scope string) *AuthorizationCode {
+	clientID := util.IntOrNull(client.ID)
+	userID := util.IntOrNull(user.ID)
 	authorizationCode := &AuthorizationCode{
 		Code:        uuid.New(),
-		ExpiresAt:   time.Now().Add(time.Duration(authorizationCodeLifetime) * time.Second),
-		RedirectURI: stringOrNull(redirectURI),
+		ExpiresAt:   time.Now().Add(time.Duration(expiresIn) * time.Second),
+		RedirectURI: util.StringOrNull(redirectURI),
 		Scope:       scope,
-		ClientID:    clientIDOrNull(client),
-		UserID:      userIDOrNull(user),
+		ClientID:    clientID,
+		UserID:      userID,
 	}
-	if client != nil {
+	if clientID.Valid {
 		authorizationCode.Client = client
 	}
-	if user != nil {
+	if userID.Valid {
 		authorizationCode.User = user
 	}
 	return authorizationCode
 }
 
-func writeJSON(w http.ResponseWriter, accessTokenLifetime int, accessToken *AccessToken, refreshToken *RefreshToken) {
+func writeJSON(w http.ResponseWriter, expiresIn int, accessToken *AccessToken, refreshToken *RefreshToken) {
 	json.WriteJSON(w, map[string]interface{}{
 		"id":            accessToken.ID,
 		"access_token":  accessToken.Token,
-		"expires_in":    accessTokenLifetime,
+		"expires_in":    expiresIn,
 		"token_type":    "Bearer",
 		"scope":         accessToken.Scope,
 		"refresh_token": refreshToken.Token,

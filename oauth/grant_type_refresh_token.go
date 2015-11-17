@@ -10,8 +10,8 @@ import (
 func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	// Validate the refresh token
 	theRefreshToken, err := s.ValidateRefreshToken(
-		r.Form.Get("refresh_token"),
-		client,
+		r.Form.Get("refresh_token"), // refresh token
+		client, // client
 	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusBadRequest)
@@ -33,22 +33,24 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 
 	// Create a new access token
 	accessToken, err := s.GrantAccessToken(
-		theRefreshToken.Client,
-		theRefreshToken.User,
-		scope,
+		theRefreshToken.Client, // client
+		theRefreshToken.User,   // user
+		scope,                  // scope
 	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Create or retrieve a refresh token
 	refreshToken, err := s.GetOrCreateRefreshToken(
-		theRefreshToken.Client,
-		theRefreshToken.User,
-		scope,
+		theRefreshToken.Client, // client
+		theRefreshToken.User,   // user
+		scope,                  // scope
 	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Write the access token to a JSON response

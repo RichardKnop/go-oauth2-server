@@ -3,6 +3,8 @@ package oauth
 import (
 	"errors"
 	"time"
+
+	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 // GrantAccessToken grants a new access token
@@ -28,7 +30,7 @@ func (s *Service) GrantAccessToken(client *Client, user *User, scope string) (*A
 // deleteExpiredAccessTokens deletes expired access tokens
 func (s *Service) deleteExpiredAccessTokens(client *Client, user *User) {
 	s.db.Where(AccessToken{
-		ClientID: clientIDOrNull(client),
-		UserID:   userIDOrNull(user),
+		ClientID: util.IntOrNull(client.ID),
+		UserID:   util.IntOrNull(user.ID),
 	}).Where("expires_at <= ?", time.Now()).Delete(new(AccessToken))
 }

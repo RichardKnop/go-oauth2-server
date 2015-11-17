@@ -16,7 +16,12 @@ func TestNewAccessToken(t *testing.T) {
 	var err error
 
 	// When user object is nil
-	accessToken = newAccessToken(3600, &client, nil, "scope doesn't matter")
+	accessToken = newAccessToken(
+		3600,                   // expires in
+		&client,                // client
+		new(User),              // empty User object
+		"scope doesn't matter", // scope
+	)
 
 	// accessToken.ClientID.Valid should be true
 	assert.True(t, accessToken.ClientID.Valid)
@@ -35,7 +40,12 @@ func TestNewAccessToken(t *testing.T) {
 	assert.Nil(t, value)
 
 	// When user object is not nil
-	accessToken = newAccessToken(3600, &client, &user, "scope doesn't matter")
+	accessToken = newAccessToken(
+		3600,    // expires in
+		&client, // client
+		&user,   // user
+		"scope doesn't matter", // scope
+	)
 
 	// accessToken.ClientID.Valid should be true
 	assert.True(t, accessToken.ClientID.Valid)
@@ -63,7 +73,12 @@ func TestNewRefreshToken(t *testing.T) {
 	var err error
 
 	// When user object is nil
-	refreshToken = newRefreshToken(1209600, &client, nil, "scope doesn't matter")
+	refreshToken = newRefreshToken(
+		1209600,                // expires in
+		&client,                // client
+		new(User),              // empty User object
+		"scope doesn't matter", // scope
+	)
 
 	// refreshToken.ClientID.Valid should be true
 	assert.True(t, refreshToken.ClientID.Valid)
@@ -82,7 +97,12 @@ func TestNewRefreshToken(t *testing.T) {
 	assert.Nil(t, value)
 
 	// When user object is not nil
-	refreshToken = newRefreshToken(1209600, &client, &user, "scope doesn't matter")
+	refreshToken = newRefreshToken(
+		1209600, // expires in
+		&client, // client
+		&user,   // user
+		"scope doesn't matter", // scope
+	)
 
 	// accessToken.ClientID.Valid should be true
 	assert.True(t, refreshToken.ClientID.Valid)
@@ -111,11 +131,11 @@ func TestNewAuthorizationCode(t *testing.T) {
 
 	// When user object is not nil
 	authorizationCode = newAuthorizationCode(
-		3600,
-		&client,
-		&user,
-		"redirect URI doesn't matter",
-		"scope doesn't matter",
+		3600,    // expires in
+		&client, // client
+		&user,   // user
+		"redirect URI doesn't matter", // redirect URI
+		"scope doesn't matter",        // scope
 	)
 
 	// authorizationCode.ClientID.Valid should be true

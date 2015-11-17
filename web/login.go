@@ -1,7 +1,6 @@
 package web
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/session"
@@ -32,8 +31,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 	// Authenticate the user
 	user, err := theService.oauthService.AuthUser(
-		r.Form.Get("email"),
-		r.Form.Get("password"),
+		r.Form.Get("email"),    // username
+		r.Form.Get("password"), // password
 	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
@@ -60,9 +59,9 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 	// Grant an access token
 	accessToken, err := theService.oauthService.GrantAccessToken(
-		client,
-		user,
-		scope,
+		client, // client
+		user,   // user
+		scope,  // scope
 	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
@@ -72,9 +71,9 @@ func login(w http.ResponseWriter, r *http.Request) {
 
 	// Get a refresh token
 	refreshToken, err := theService.oauthService.GetOrCreateRefreshToken(
-		client,
-		user,
-		scope,
+		client, // client
+		user,   // user
+		scope,  // scope
 	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
@@ -90,7 +89,6 @@ func login(w http.ResponseWriter, r *http.Request) {
 		RefreshToken: refreshToken.Token,
 	}
 	if err := sessionService.SetUserSession(userSession); err != nil {
-		log.Print(err)
 		sessionService.SetFlashMessage(err.Error())
 		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return

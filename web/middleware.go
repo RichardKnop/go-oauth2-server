@@ -82,7 +82,7 @@ type clientMiddleware struct{}
 func (m *clientMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	// Fetch the client
 	client, err := theService.oauthService.FindClientByClientID(
-		r.Form.Get("client_id"),
+		r.Form.Get("client_id"), // client ID
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -105,7 +105,7 @@ func authenticate(userSession *session.UserSession) error {
 
 	// Fetch the client
 	client, err := theService.oauthService.FindClientByClientID(
-		userSession.ClientID,
+		userSession.ClientID, // client ID
 	)
 	if err != nil {
 		return err
@@ -113,8 +113,8 @@ func authenticate(userSession *session.UserSession) error {
 
 	// Validate the refresh token
 	theRefreshToken, err := theService.oauthService.ValidateRefreshToken(
-		userSession.RefreshToken,
-		client,
+		userSession.RefreshToken, // refresh token
+		client, // client
 	)
 	if err != nil {
 		return err
@@ -122,9 +122,9 @@ func authenticate(userSession *session.UserSession) error {
 
 	// Create a new access token
 	accessToken, err := theService.oauthService.GrantAccessToken(
-		theRefreshToken.Client,
-		theRefreshToken.User,
-		theRefreshToken.Scope,
+		theRefreshToken.Client, // client
+		theRefreshToken.User,   // user
+		theRefreshToken.Scope,  // scope
 	)
 	if err != nil {
 		return err
@@ -132,9 +132,9 @@ func authenticate(userSession *session.UserSession) error {
 
 	// Create or retrieve a refresh token
 	refreshToken, err := theService.oauthService.GetOrCreateRefreshToken(
-		theRefreshToken.Client,
-		theRefreshToken.User,
-		theRefreshToken.Scope,
+		theRefreshToken.Client, // client
+		theRefreshToken.User,   // user
+		theRefreshToken.Scope,  // scope
 	)
 	if err != nil {
 		return err

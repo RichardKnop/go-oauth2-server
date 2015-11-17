@@ -110,10 +110,10 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	if responseType == "code" {
 		// Create a new authorization code
 		authorizationCode, err := theService.oauthService.GrantAuthorizationCode(
-			client,
-			user,
-			r.Form.Get("redirect_uri"),
-			scope,
+			client, // client
+			user,   // user
+			r.Form.Get("redirect_uri"), // redirect URI
+			scope, // scope
 		)
 		if err != nil {
 			log.Print(err)
@@ -136,9 +136,9 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	if responseType == "token" {
 		// Grant an access token
 		accessToken, err := theService.oauthService.GrantAccessToken(
-			client,
-			user,
-			scope,
+			client, // client
+			user,   // user
+			scope,  // scope
 		)
 		if err != nil {
 			log.Print(err)

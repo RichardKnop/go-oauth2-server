@@ -17,7 +17,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Grant a client only access token
 	accessToken, err = suite.service.GrantAccessToken(
 		suite.client,
-		nil,
+		new(User), // empty User object
 		"scope doesn't matter",
 	)
 
@@ -126,7 +126,10 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	var existingTokens []string
 
 	// This should only delete test_token_1
-	suite.service.deleteExpiredAccessTokens(suite.client, suite.user)
+	suite.service.deleteExpiredAccessTokens(
+		suite.client, // client
+		suite.user,   // user
+	)
 
 	// Check the test_token_1 was deleted
 	notFound = suite.db.Where(AccessToken{
@@ -148,7 +151,10 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	}
 
 	// This should only delete test_token_2
-	suite.service.deleteExpiredAccessTokens(suite.client, nil)
+	suite.service.deleteExpiredAccessTokens(
+		suite.client, // client
+		new(User),    // empty User object
+	)
 
 	// Check the test_token_2 was deleted
 	notFound = suite.db.Where(AccessToken{

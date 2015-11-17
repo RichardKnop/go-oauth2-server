@@ -15,15 +15,25 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 	}
 
 	// Create a new access token
-	accessToken, err := s.GrantAccessToken(client, nil, scope)
+	accessToken, err := s.GrantAccessToken(
+		client,    // client
+		new(User), // empty User object
+		scope,     // scope
+	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Create or retrieve a refresh token
-	refreshToken, err := s.GetOrCreateRefreshToken(client, nil, scope)
+	refreshToken, err := s.GetOrCreateRefreshToken(
+		client,    // client
+		new(User), // empty User object
+		scope,     // scope
+	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Write the access token to a JSON response

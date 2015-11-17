@@ -23,13 +23,21 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	}
 
 	// Create a new access token
-	accessToken, err := s.GrantAccessToken(client, user, scope)
+	accessToken, err := s.GrantAccessToken(
+		client, // client
+		user,   // user
+		scope,  // scope
+	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 
 	// Create or retrieve a refresh token
-	refreshToken, err := s.GetOrCreateRefreshToken(client, user, scope)
+	refreshToken, err := s.GetOrCreateRefreshToken(
+		client,
+		user,
+		scope,
+	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
 	}
