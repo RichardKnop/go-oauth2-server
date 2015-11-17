@@ -11,11 +11,11 @@ import (
 func (s *Service) GrantAuthorizationCode(client *Client, user *User, redirectURI, scope string) (*AuthorizationCode, error) {
 	// Create a new authorization code
 	authorizationCode := newAuthorizationCode(
-		s.cnf.Oauth.AuthCodeLifetime,
-		client,
-		user,
-		redirectURI,
-		scope,
+		s.cnf.Oauth.AuthCodeLifetime, // expires in
+		client,      // client
+		user,        // user
+		redirectURI, // redirect URI
+		scope,       // scope
 	)
 	if err := s.db.Create(authorizationCode).Error; err != nil {
 		return nil, errors.New("Error saving authorization code")
@@ -24,6 +24,7 @@ func (s *Service) GrantAuthorizationCode(client *Client, user *User, redirectURI
 	return authorizationCode, nil
 }
 
+// getValidAuthorizationCode returns a valid non expired authorization code
 func (s *Service) getValidAuthorizationCode(code string, client *Client) (*AuthorizationCode, error) {
 	// Fetch the auth code from the database
 	authorizationCode := new(AuthorizationCode)

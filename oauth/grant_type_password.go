@@ -7,8 +7,12 @@ import (
 )
 
 func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *Client) {
+	// Get user credentials from form data
+	username := r.Form.Get("username") // usually an email
+	password := r.Form.Get("password")
+
 	// Authenticate the user
-	user, err := s.AuthUser(r.Form.Get("username"), r.Form.Get("password"))
+	user, err := s.AuthUser(username, password)
 	if err != nil {
 		// For security reasons, return a general error message
 		json.UnauthorizedError(w, "User authentication required")
@@ -16,7 +20,7 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	}
 
 	// Get the scope string
-	scope, err := s.GetScope(r.Form["scope"][0])
+	scope, err := s.GetScope(r.Form.Get("scope"))
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -34,9 +38,9 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 
 	// Create or retrieve a refresh token
 	refreshToken, err := s.GetOrCreateRefreshToken(
-		client,
-		user,
-		scope,
+		client, // client
+		user,   // user
+		scope,  // scope
 	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)

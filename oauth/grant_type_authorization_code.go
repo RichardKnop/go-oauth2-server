@@ -8,10 +8,10 @@ import (
 )
 
 func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
-	// Fetch the auth code from the database
+	// Fetch the authorization code
 	authorizationCode, err := s.getValidAuthorizationCode(
-		r.Form.Get("code"),
-		client,
+		r.Form.Get("code"), // authorization code
+		client,             // client
 	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusBadRequest)

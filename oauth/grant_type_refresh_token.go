@@ -8,8 +8,8 @@ import (
 )
 
 func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, client *Client) {
-	// Validate the refresh token
-	theRefreshToken, err := s.ValidateRefreshToken(
+	// Fetch the refresh token
+	theRefreshToken, err := s.GetValidRefreshToken(
 		r.Form.Get("refresh_token"), // refresh token
 		client, // client
 	)

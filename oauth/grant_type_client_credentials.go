@@ -17,7 +17,7 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 	// Create a new access token
 	accessToken, err := s.GrantAccessToken(
 		client,    // client
-		new(User), // empty User object
+		new(User), // empty user
 		scope,     // scope
 	)
 	if err != nil {
@@ -28,7 +28,7 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 	// Create or retrieve a refresh token
 	refreshToken, err := s.GetOrCreateRefreshToken(
 		client,    // client
-		new(User), // empty User object
+		new(User), // empty user
 		scope,     // scope
 	)
 	if err != nil {

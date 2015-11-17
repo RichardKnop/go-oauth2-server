@@ -44,8 +44,8 @@ func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, scope stri
 	return refreshToken, nil
 }
 
-// ValidateRefreshToken checks the refresh token exists and is not expired
-func (s *Service) ValidateRefreshToken(token string, client *Client) (*RefreshToken, error) {
+// GetValidRefreshToken return a valid non expired refresh token
+func (s *Service) GetValidRefreshToken(token string, client *Client) (*RefreshToken, error) {
 	// Fetch the refresh token from the database
 	refreshToken := new(RefreshToken)
 	if s.db.Where(RefreshToken{

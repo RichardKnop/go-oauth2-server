@@ -7,18 +7,17 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
-// GrantAccessToken grants a new access token
-// while also deleting any old tokens
+// GrantAccessToken deletes old tokens and grants a new access token
 func (s *Service) GrantAccessToken(client *Client, user *User, scope string) (*AccessToken, error) {
 	// Delete expired access tokens
 	s.deleteExpiredAccessTokens(client, user)
 
 	// Create a new access token
 	accessToken := newAccessToken(
-		s.cnf.Oauth.AccessTokenLifetime,
-		client,
-		user,
-		scope,
+		s.cnf.Oauth.AccessTokenLifetime, // expires in
+		client, // client
+		user,   // user
+		scope,  // scope
 	)
 	if err := s.db.Create(accessToken).Error; err != nil {
 		return nil, errors.New("Error saving access token")

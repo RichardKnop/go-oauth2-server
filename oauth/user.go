@@ -2,6 +2,8 @@ package oauth
 
 import (
 	"errors"
+
+	"github.com/RichardKnop/go-oauth2-server/password"
 )
 
 // UserExists returns true if user exists
@@ -11,7 +13,7 @@ func (s *Service) UserExists(username string) bool {
 }
 
 // AuthUser authenticates user
-func (s *Service) AuthUser(username, password string) (*User, error) {
+func (s *Service) AuthUser(username, thePassword string) (*User, error) {
 	// Fetch the user
 	user, err := s.FindUserByUsername(username)
 	if err != nil {
@@ -19,7 +21,7 @@ func (s *Service) AuthUser(username, password string) (*User, error) {
 	}
 
 	// Verify the password
-	if verifyPassword(user.Password, password) != nil {
+	if password.VerifyPassword(user.Password, thePassword) != nil {
 		return nil, errors.New("Invalid password")
 	}
 
@@ -27,8 +29,8 @@ func (s *Service) AuthUser(username, password string) (*User, error) {
 }
 
 // CreateUser saves a new user to database
-func (s *Service) CreateUser(username, password string) (*User, error) {
-	passwordHash, err := hashPassword(password)
+func (s *Service) CreateUser(username, thePassword string) (*User, error) {
+	passwordHash, err := password.HashPassword(thePassword)
 	if err != nil {
 		return nil, errors.New("Bcrypt error")
 	}

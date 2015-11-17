@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
+func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	// Insert a test authorization code
 	if err := suite.db.Create(&AuthorizationCode{
 		Code:        "test_code",
@@ -36,7 +36,10 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 		"code":       {"test_code"},
 	}
 
-	w := httptest.NewRecorder()
+	var w *httptest.ResponseRecorder
+
+	// First we will test an invalid redirect URI error
+	w = httptest.NewRecorder()
 	suite.service.authorizationCodeGrant(w, r, suite.client)
 
 	// Check the status code
@@ -47,33 +50,12 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 		suite.T(), "{\"error\":\"Invalid redirect URI\"}",
 		strings.TrimSpace(w.Body.String()),
 	)
-}
 
-func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
-	// Insert a test authorization code
-	if err := suite.db.Create(&AuthorizationCode{
-		Code:        "test_code",
-		ExpiresAt:   time.Now().Add(+10 * time.Second),
-		Client:      suite.client,
-		User:        suite.user,
-		RedirectURI: util.StringOrNull("https://www.example.com"),
-		Scope:       "foo",
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
+	// Now add the redirect URI parameter
+	r.Form.Set("redirect_uri", "https://www.example.com")
 
-	// Prepare a request object
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-	r.Form = url.Values{
-		"grant_type":   {"authorization_code"},
-		"code":         {"test_code"},
-		"redirect_uri": {"https://www.example.com"},
-	}
-
-	w := httptest.NewRecorder()
+	// And test a successful case
+	w = httptest.NewRecorder()
 	suite.service.authorizationCodeGrant(w, r, suite.client)
 
 	// Check the status code

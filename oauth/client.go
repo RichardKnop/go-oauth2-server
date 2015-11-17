@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 
+	"github.com/RichardKnop/go-oauth2-server/password"
 	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
@@ -16,7 +17,7 @@ func (s *Service) AuthClient(clientID, secret string) (*Client, error) {
 	}
 
 	// Verify the secret
-	if verifyPassword(client.Secret, secret) != nil {
+	if password.VerifyPassword(client.Secret, secret) != nil {
 		return nil, errors.New("Invalid secret")
 	}
 
@@ -25,7 +26,7 @@ func (s *Service) AuthClient(clientID, secret string) (*Client, error) {
 
 // CreateClient saves a new client to database
 func (s *Service) CreateClient(clientID, secret, redirectURI string) (*Client, error) {
-	secretHash, err := hashPassword(secret)
+	secretHash, err := password.HashPassword(secret)
 	if err != nil {
 		return nil, errors.New("Bcrypt error")
 	}

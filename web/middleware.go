@@ -112,7 +112,7 @@ func authenticate(userSession *session.UserSession) error {
 	}
 
 	// Validate the refresh token
-	theRefreshToken, err := theService.oauthService.ValidateRefreshToken(
+	theRefreshToken, err := theService.oauthService.GetValidRefreshToken(
 		userSession.RefreshToken, // refresh token
 		client, // client
 	)
