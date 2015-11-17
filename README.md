@@ -2,7 +2,7 @@
 
 # Go OAuth2 Server
 
-This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3). Excerpts from the specification are included in this README file to describe different grant types. Please read the full spec for more detailed information. 
+This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3). Excerpts from the specification are included in this README file to describe different grant types. Please read the full spec for more detailed information.
 
 # Index
 
@@ -201,7 +201,7 @@ The user-agent executes the script provided by the web-hosted client resource lo
 
 The user-agent passes the access token to the client.
 
-#### Resource Owner Password Credentials Grant
+#### Resource Owner Password Credentials
 
 http://tools.ietf.org/html/rfc6749#section-4.3
 
