@@ -34,6 +34,7 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Create or retrieve a refresh token
@@ -44,6 +45,7 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Write the access token to a JSON response

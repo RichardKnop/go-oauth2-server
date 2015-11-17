@@ -80,7 +80,7 @@ type AuthorizationCode struct {
 	UpdatedAt   time.Time
 }
 
-// Creates new AccessToken instance
+// newAccessToken creates new AccessToken instance
 func newAccessToken(expiresIn int, client *Client, user *User, scope string) *AccessToken {
 	clientID := util.IntOrNull(client.ID)
 	userID := util.IntOrNull(user.ID)
@@ -100,7 +100,7 @@ func newAccessToken(expiresIn int, client *Client, user *User, scope string) *Ac
 	return accessToken
 }
 
-// Creates new RefreshToken instance
+// newRefreshToken creates new RefreshToken instance
 func newRefreshToken(expiresIn int, client *Client, user *User, scope string) *RefreshToken {
 	clientID := util.IntOrNull(client.ID)
 	userID := util.IntOrNull(user.ID)
@@ -120,7 +120,7 @@ func newRefreshToken(expiresIn int, client *Client, user *User, scope string) *R
 	return refreshToken
 }
 
-// Creates new AuthorizationCode instance
+// newAuthorizationCode creates new AuthorizationCode instance
 func newAuthorizationCode(expiresIn int, client *Client, user *User, redirectURI, scope string) *AuthorizationCode {
 	clientID := util.IntOrNull(client.ID)
 	userID := util.IntOrNull(user.ID)

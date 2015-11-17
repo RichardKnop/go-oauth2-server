@@ -7,8 +7,8 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
-// GetOrCreateRefreshToken retrieves an existing token or creates a new one
-// If the retrieved token is expired, it is deleted and a new one created
+// GetOrCreateRefreshToken retrieves an existing refresh token, if expired,
+// the token gets deleted and new refresh token is created
 func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, scope string) (*RefreshToken, error) {
 	// Try to fetch an existing refresh token first
 	refreshToken := new(RefreshToken)
@@ -44,7 +44,7 @@ func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, scope stri
 	return refreshToken, nil
 }
 
-// GetValidRefreshToken return a valid non expired refresh token
+// GetValidRefreshToken returns a valid non expired refresh token
 func (s *Service) GetValidRefreshToken(token string, client *Client) (*RefreshToken, error) {
 	// Fetch the refresh token from the database
 	refreshToken := new(RefreshToken)
