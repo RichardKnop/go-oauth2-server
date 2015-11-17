@@ -16,7 +16,7 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
       * [Implicit](#implicit)
       * [Resource Owner Password Credentials](#resource-owner-password-credentials)
       * [Client Credentials](#client-credentials)
-    * [Refreshing And Access Token](#refreshing-an-access-token)
+    * [Refreshing An Access Token](#refreshing-an-access-token)
 * [Development](#development)
   * [Dependencies](#dependencies)
   * [Setup](#setup)
