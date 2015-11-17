@@ -12,14 +12,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
+func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 	// Insert a test authorization code
 	if err := suite.db.Create(&AuthorizationCode{
-		Code:      "test_code",
-		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.client,
-		User:      suite.user,
-		Scope:     "foo",
+		Code:        "test_code",
+		ExpiresAt:   time.Now().Add(+10 * time.Second),
+		Client:      suite.client,
+		User:        suite.user,
+		RedirectURI: stringOrNull("https://www.example.com"),
+		Scope:       "foo",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -32,7 +33,43 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	r.Form = url.Values{
 		"grant_type": {"authorization_code"},
 		"code":       {"test_code"},
-		"scope":      {"foo"},
+	}
+
+	w := httptest.NewRecorder()
+	suite.service.authorizationCodeGrant(w, r, suite.client)
+
+	// Check the status code
+	assert.Equal(suite.T(), 400, w.Code)
+
+	// Check the response body
+	assert.Equal(
+		suite.T(), "{\"error\":\"Invalid redirect URI\"}",
+		strings.TrimSpace(w.Body.String()),
+	)
+}
+
+func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
+	// Insert a test authorization code
+	if err := suite.db.Create(&AuthorizationCode{
+		Code:        "test_code",
+		ExpiresAt:   time.Now().Add(+10 * time.Second),
+		Client:      suite.client,
+		User:        suite.user,
+		RedirectURI: stringOrNull("https://www.example.com"),
+		Scope:       "foo",
+	}).Error; err != nil {
+		log.Fatal(err)
+	}
+
+	// Prepare a request object
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	r.Form = url.Values{
+		"grant_type":   {"authorization_code"},
+		"code":         {"test_code"},
+		"redirect_uri": {"https://www.example.com"},
 	}
 
 	w := httptest.NewRecorder()

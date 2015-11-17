@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"fmt"
 	"reflect"
+	"strings"
 	"time"
 
 	"github.com/lib/pq/hstore"
@@ -52,11 +53,28 @@ func (postgres) SqlTag(value reflect.Value, size int, autoIncrease bool) string 
 			return "hstore"
 		}
 	default:
-		if _, ok := value.Interface().([]byte); ok {
+		if isByteArrayOrSlice(value) {
 			return "bytea"
+		} else if isUUID(value) {
+			return "uuid"
 		}
 	}
 	panic(fmt.Sprintf("invalid sql type %s (%s) for postgres", value.Type().Name(), value.Kind().String()))
+}
+
+var byteType = reflect.TypeOf(uint8(0))
+
+func isByteArrayOrSlice(value reflect.Value) bool {
+	return (value.Kind() == reflect.Array || value.Kind() == reflect.Slice) && value.Type().Elem() == byteType
+}
+
+func isUUID(value reflect.Value) bool {
+	if value.Kind() != reflect.Array || value.Type().Len() != 16 {
+		return false
+	}
+	typename := value.Type().Name()
+	lower := strings.ToLower(typename)
+	return "uuid" == lower || "guid" == lower
 }
 
 func (s postgres) ReturningStr(tableName, key string) string {

@@ -103,7 +103,8 @@ The client requests an access token from the authorization server's token endpoi
 $ curl -v localhost:8080/oauth/api/v1/tokens \
   -u test_client:test_secret \
   -d "grant_type=authorization_code" \
-  -d "code=7afb1c55-76e4-4c76-adb7-9d657cb47a27"
+  -d "code=7afb1c55-76e4-4c76-adb7-9d657cb47a27" \
+  -d "redirect_uri=https://www.example.com"
 ```
 The authorization server authenticates the client, validates the authorization code, and ensures that the redirection URI received matches the URI used to redirect the client before. If valid, the authorization server responds back with an access token and, optionally, a refresh token.
 

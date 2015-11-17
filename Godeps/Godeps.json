@@ -47,7 +47,7 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "ede940e82d978b7f414dc05f7de1e2d33702e6c0"
+			"Rev": "2f9abdcf0231d7b14d38203efb1708db718e2fa1"
 		},
 		{
 			"ImportPath": "github.com/kr/pretty",
@@ -121,7 +121,7 @@
 		},
 		{
 			"ImportPath": "github.com/ugorji/go/codec",
-			"Rev": "f1f1a805ed361a0e078bb537e4ea78cd37dcf065"
+			"Rev": "1a8bf87a90ddcdc7deaa0038f127ac62135fdd58"
 		},
 		{
 			"ImportPath": "github.com/xordataexchange/crypt/backend",
@@ -140,19 +140,19 @@
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
-			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
+			"Rev": "346896d57731cb5670b36c6178fc5519f3225980"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/blowfish",
-			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
+			"Rev": "346896d57731cb5670b36c6178fc5519f3225980"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/cast5",
-			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
+			"Rev": "346896d57731cb5670b36c6178fc5519f3225980"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/openpgp",
-			"Rev": "c8b9e6388ef638d5a8a9d865c634befdc46a6784"
+			"Rev": "346896d57731cb5670b36c6178fc5519f3225980"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",

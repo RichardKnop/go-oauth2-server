@@ -16,7 +16,7 @@ func TestNewAccessToken(t *testing.T) {
 	var err error
 
 	// When user object is nil
-	accessToken = newAccessToken(3600, &client, nil, "doesn't matter")
+	accessToken = newAccessToken(3600, &client, nil, "scope doesn't matter")
 
 	// accessToken.ClientID.Valid should be true
 	assert.True(t, accessToken.ClientID.Valid)
@@ -35,7 +35,7 @@ func TestNewAccessToken(t *testing.T) {
 	assert.Nil(t, value)
 
 	// When user object is not nil
-	accessToken = newAccessToken(3600, &client, &user, "doesn't matter")
+	accessToken = newAccessToken(3600, &client, &user, "scope doesn't matter")
 
 	// accessToken.ClientID.Valid should be true
 	assert.True(t, accessToken.ClientID.Valid)
@@ -63,7 +63,7 @@ func TestNewRefreshToken(t *testing.T) {
 	var err error
 
 	// When user object is nil
-	refreshToken = newRefreshToken(1209600, &client, nil, "doesn't matter")
+	refreshToken = newRefreshToken(1209600, &client, nil, "scope doesn't matter")
 
 	// refreshToken.ClientID.Valid should be true
 	assert.True(t, refreshToken.ClientID.Valid)
@@ -82,7 +82,7 @@ func TestNewRefreshToken(t *testing.T) {
 	assert.Nil(t, value)
 
 	// When user object is not nil
-	refreshToken = newRefreshToken(1209600, &client, &user, "doesn't matter")
+	refreshToken = newRefreshToken(1209600, &client, &user, "scope doesn't matter")
 
 	// accessToken.ClientID.Valid should be true
 	assert.True(t, refreshToken.ClientID.Valid)
@@ -114,8 +114,8 @@ func TestNewAuthorizationCode(t *testing.T) {
 		3600,
 		&client,
 		&user,
-		"doesn't matter",
-		"doesn't matter",
+		"redirect URI doesn't matter",
+		"scope doesn't matter",
 	)
 
 	// authorizationCode.ClientID.Valid should be true

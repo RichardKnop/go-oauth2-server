@@ -18,8 +18,8 @@ func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
 	authorizationCode, err = suite.service.GrantAuthorizationCode(
 		suite.client,
 		suite.user,
-		"doesn't matter",
-		"doesn't matter",
+		"redirect URI doesn't matter",
+		"scope doesn't matter",
 	)
 
 	// Error should be Nil
@@ -54,7 +54,6 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCodeNotFound() {
 	authorizationCode, err := suite.service.getValidAuthorizationCode(
 		"bogus",      // authorization code
 		suite.client, // client
-		"",           // redirect URI
 	)
 
 	// Authorization code should be nil
@@ -69,19 +68,17 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCodeNotFound() {
 func (suite *OauthTestSuite) TestGetValidAuthorizationCodeExpired() {
 	// Insert a test authorization code
 	if err := suite.db.Create(&AuthorizationCode{
-		Code:      "test_authorization_code",
+		Code:      "test_code",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	authorizationCode, err := suite.service.getValidAuthorizationCode(
-		"test_authorization_code", // authorization code
-		suite.client,              // client
-		"",                        // redirect URI
+		"test_code",  // authorization code
+		suite.client, // client
 	)
 
 	// Authorization code should be nil
@@ -100,7 +97,6 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -108,7 +104,6 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
 	authorizationCode, err := suite.service.getValidAuthorizationCode(
 		"test_code",  // authorization code
 		suite.client, // client
-		"",           // redirect URI
 	)
 
 	// Error should be nil

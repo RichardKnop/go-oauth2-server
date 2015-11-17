@@ -22,14 +22,15 @@ func (s *Service) AuthClient(clientID, secret string) (*Client, error) {
 }
 
 // CreateClient saves a new client to database
-func (s *Service) CreateClient(clientID, secret string) (*Client, error) {
+func (s *Service) CreateClient(clientID, secret, redirectURI string) (*Client, error) {
 	secretHash, err := hashPassword(secret)
 	if err != nil {
 		return nil, errors.New("Bcrypt error")
 	}
 	client := &Client{
-		ClientID: clientID,
-		Secret:   string(secretHash),
+		ClientID:    clientID,
+		Secret:      string(secretHash),
+		RedirectURI: stringOrNull(redirectURI),
 	}
 	if err := s.db.Create(client).Error; err != nil {
 		log.Print(err)

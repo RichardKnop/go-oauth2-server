@@ -1225,7 +1225,7 @@ type Animal struct {
 }
 ```
 
-If you have defined a default value in the `sql` tag, the generated create SQl will ignore these fields if it is blank.
+If you have defined a default value in the `sql` tag, the generated create SQL will ignore these fields if it is blank.
 
 Eg.
 
@@ -1290,6 +1290,10 @@ db.Where("email = ?", "x@example.org").Attrs(User{RegisteredIp: "111.111.111.111
 * <http://github.com/jinzhu>
 * <wosmvp@gmail.com>
 * <http://twitter.com/zhangjinzhu>
+
+# Contributors
+
+https://github.com/jinzhu/gorm/graphs/contributors
 
 ## License
 

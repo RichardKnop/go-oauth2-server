@@ -16,7 +16,7 @@ func Bootstrap(db *gorm.DB) error {
 	// Using Error instead of RecordNotFound because we want to check
 	// if the migrations table exists. This is different from later migrations
 	// where we query the already create migrations table.
-	exists := nil == db.LogMode(false).Where(Migration{
+	exists := nil == db.Where(Migration{
 		Name: migrationName,
 	}).First(migration).Error
 

@@ -79,6 +79,7 @@ type AuthorizationCode struct {
 	UpdatedAt   time.Time
 }
 
+// Creates new AccessToken instance
 func newAccessToken(accessTokenLifetime int, client *Client, user *User, scope string) *AccessToken {
 	accessToken := &AccessToken{
 		Token:     uuid.New(),
@@ -96,6 +97,7 @@ func newAccessToken(accessTokenLifetime int, client *Client, user *User, scope s
 	return accessToken
 }
 
+// Creates new RefreshToken instance
 func newRefreshToken(refreshTokenLifetime int, client *Client, user *User, scope string) *RefreshToken {
 	refreshToken := &RefreshToken{
 		Token:     uuid.New(),
@@ -113,6 +115,7 @@ func newRefreshToken(refreshTokenLifetime int, client *Client, user *User, scope
 	return refreshToken
 }
 
+// Creates new AuthorizationCode instance
 func newAuthorizationCode(authorizationCodeLifetime int, client *Client, user *User, redirectURI, scope string) *AuthorizationCode {
 	authorizationCode := &AuthorizationCode{
 		Code:        uuid.New(),

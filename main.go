@@ -39,6 +39,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	// Disable logging
+	db.LogMode(false)
 
 	// Set the CLI app commands
 	cliApp.Commands = []cli.Command{

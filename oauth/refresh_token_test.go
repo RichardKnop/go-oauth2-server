@@ -92,7 +92,6 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -137,7 +136,6 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -189,7 +187,6 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.client,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -235,7 +232,6 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -298,7 +294,6 @@ func (suite *OauthTestSuite) TestValidateRefreshTokenExpired() {
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -324,7 +319,6 @@ func (suite *OauthTestSuite) TestValidateRefreshToken() {
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}

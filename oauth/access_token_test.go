@@ -18,7 +18,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	accessToken, err = suite.service.GrantAccessToken(
 		suite.client,
 		nil,
-		"doesn't matter",
+		"scope doesn't matter",
 	)
 
 	// Error should be Nil
@@ -52,7 +52,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	accessToken, err = suite.service.GrantAccessToken(
 		suite.client,
 		suite.user,
-		"doesn't matter",
+		"scope doesn't matter",
 	)
 
 	// Error should be Nil
@@ -90,7 +90,6 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -100,7 +99,6 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 		Token:     "test_token_2",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.client,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -111,7 +109,6 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -121,7 +118,6 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 		Token:     "test_token_4",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
-		Scope:     "doesn't matter",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}

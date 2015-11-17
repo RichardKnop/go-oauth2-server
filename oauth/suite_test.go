@@ -51,7 +51,11 @@ func (suite *OauthTestSuite) TearDownSuite() {
 // The SetupTest method will be run before every test in the suite.
 func (suite *OauthTestSuite) SetupTest() {
 	// Insert a test client
-	client, err := suite.service.CreateClient("test_client", "test_secret")
+	client, err := suite.service.CreateClient(
+		"test_client",
+		"test_secret",
+		"https://www.example.com",
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
