@@ -11,6 +11,11 @@ func redirectWithQueryString(to string, query url.Values, w http.ResponseWriter,
 	http.Redirect(w, r, fmt.Sprintf("%s%s", to, getQueryString(query)), http.StatusFound)
 }
 
+// Redirects to a new path with the query string moved to the URL fragment
+func redirectWithFragment(to string, query url.Values, w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, fmt.Sprintf("%s#%s", to, query.Encode()), http.StatusFound)
+}
+
 // Returns string encoded query string of the request
 func getQueryString(query url.Values) string {
 	encoded := query.Encode()
@@ -21,11 +26,16 @@ func getQueryString(query url.Values) string {
 }
 
 // Helper function to handle redirecting failed or declined authorization
-func authorizeErrorRedirect(w http.ResponseWriter, r *http.Request, redirectURI *url.URL, err, state string) {
+func errorRedirect(w http.ResponseWriter, r *http.Request, redirectURI *url.URL, err, state, responseType string) {
 	query := redirectURI.Query()
 	query.Set("error", err)
 	if state != "" {
 		query.Set("state", state)
 	}
-	redirectWithQueryString(redirectURI.String(), query, w, r)
+	if responseType == "code" {
+		redirectWithQueryString(redirectURI.String(), query, w, r)
+	}
+	if responseType == "token" {
+		redirectWithFragment(redirectURI.String(), query, w, r)
+	}
 }

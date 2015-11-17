@@ -11,6 +11,8 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 	authorizationCode, err := s.getValidAuthorizationCode(
 		r.Form.Get("code"),
 		client,
+		// redirect_uri must match if it was used to obtain the code
+		r.Form.Get("redirect_uri"),
 	)
 	if err != nil {
 		json.Error(w, err.Error(), http.StatusBadRequest)

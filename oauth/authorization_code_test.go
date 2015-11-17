@@ -54,6 +54,7 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCodeNotFound() {
 	authorizationCode, err := suite.service.getValidAuthorizationCode(
 		"bogus",      // authorization code
 		suite.client, // client
+		"",           // redirect URI
 	)
 
 	// Authorization code should be nil
@@ -80,6 +81,7 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCodeExpired() {
 	authorizationCode, err := suite.service.getValidAuthorizationCode(
 		"test_authorization_code", // authorization code
 		suite.client,              // client
+		"",                        // redirect URI
 	)
 
 	// Authorization code should be nil
@@ -106,6 +108,7 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
 	authorizationCode, err := suite.service.getValidAuthorizationCode(
 		"test_code",  // authorization code
 		suite.client, // client
+		"",           // redirect URI
 	)
 
 	// Error should be nil

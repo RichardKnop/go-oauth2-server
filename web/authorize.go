@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -34,14 +35,37 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Get the client from the request context
 	client, err := getClient(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Get the user session
+	userSession, err := sessionService.GetUserSession()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Fetch the user
+	user, err := theService.oauthService.FindUserByUsername(
+		userSession.Username,
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Check the response_type is either "code" or "token"
+	responseType := r.Form.Get("response_type")
+	if responseType != "code" && responseType != "token" {
+		http.Error(w, "Invalid response type", http.StatusBadRequest)
 		return
 	}
 
@@ -69,37 +93,14 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	// The resource owner or authorization server denied the request
 	declined := strings.ToLower(r.Form.Get("authorize")) != "authorize"
 	if declined {
-		authorizeErrorRedirect(w, r, parsedRedirectURI, "access_denied", state)
-		return
-	}
-
-	// Check the response_type is either "code" or "token"
-	responseType := r.Form.Get("response_type")
-	if responseType != "code" && responseType != "token" {
-		authorizeErrorRedirect(w, r, parsedRedirectURI, "unsupported_response_type", state)
+		errorRedirect(w, r, parsedRedirectURI, "access_denied", state, responseType)
 		return
 	}
 
 	// Check the requested scope
 	scope, err := theService.oauthService.GetScope(r.Form.Get("scope"))
 	if err != nil {
-		authorizeErrorRedirect(w, r, parsedRedirectURI, "invalid_scope", state)
-		return
-	}
-
-	// Get the user session
-	userSession, err := sessionService.GetUserSession()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Fetch the user
-	user, err := theService.oauthService.FindUserByUsername(
-		userSession.Username,
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		errorRedirect(w, r, parsedRedirectURI, "invalid_scope", state, responseType)
 		return
 	}
 
@@ -111,16 +112,24 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 		authorizationCode, err := theService.oauthService.GrantAuthorizationCode(
 			client,
 			user,
-			parsedRedirectURI.String(),
+			r.Form.Get("redirect_uri"),
 			scope,
 		)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Print(err)
+			errorRedirect(w, r, parsedRedirectURI, "server_error", state, responseType)
 			return
 		}
 
 		// Set query string params for the redirection URL
 		query.Set("code", authorizationCode.Code)
+		// Add state param if present (recommended)
+		if state != "" {
+			query.Set("state", state)
+		}
+		// And we're done here, redirect
+		redirectWithQueryString(parsedRedirectURI.String(), query, w, r)
+		return
 	}
 
 	// When response_type == "token", we will directly grant an access token
@@ -132,18 +141,8 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 			scope,
 		)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Get a refresh token
-		refreshToken, err := theService.oauthService.GetOrCreateRefreshToken(
-			client,
-			user,
-			scope,
-		)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			log.Print(err)
+			errorRedirect(w, r, parsedRedirectURI, "server_error", state, responseType)
 			return
 		}
 
@@ -151,13 +150,11 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 		query.Set("access_token", accessToken.Token)
 		query.Set("expires_in", fmt.Sprintf("%d", theService.cnf.Oauth.AccessTokenLifetime))
 		query.Set("token_type", "Bearer")
-		query.Set("refresh_token", refreshToken.Token)
+		// Add state param if present (recommended)
+		if state != "" {
+			query.Set("state", state)
+		}
+		// And we're done here, redirect
+		redirectWithFragment(parsedRedirectURI.String(), query, w, r)
 	}
-
-	// Add state param if present (recommended)
-	if state != "" {
-		query.Set("state", state)
-	}
-	// And we're done here, redirect
-	redirectWithQueryString(parsedRedirectURI.String(), query, w, r)
 }

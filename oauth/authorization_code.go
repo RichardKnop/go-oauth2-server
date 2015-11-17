@@ -22,12 +22,13 @@ func (s *Service) GrantAuthorizationCode(client *Client, user *User, redirectURI
 	return authorizationCode, nil
 }
 
-func (s *Service) getValidAuthorizationCode(code string, client *Client) (*AuthorizationCode, error) {
+func (s *Service) getValidAuthorizationCode(code string, client *Client, redirectURI string) (*AuthorizationCode, error) {
 	// Fetch the auth code from the database
 	authorizationCode := new(AuthorizationCode)
 	if s.db.Where(AuthorizationCode{
-		Code:     code,
-		ClientID: clientIDOrNull(client),
+		Code:        code,
+		ClientID:    clientIDOrNull(client),
+		RedirectURI: stringOrNull(redirectURI),
 	}).Preload("Client").Preload("User").First(authorizationCode).RecordNotFound() {
 		return nil, errors.New("Authorization code not found")
 	}
