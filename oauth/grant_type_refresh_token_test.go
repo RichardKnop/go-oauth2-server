@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OauthTestSuite) TestTestRefreshTokenGrantScopeCannotBeGreater() {
+func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 	// Insert a test refresh token
 	if err := suite.db.Create(&RefreshToken{
 		Token:     "test_token",
