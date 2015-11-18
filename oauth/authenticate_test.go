@@ -23,7 +23,6 @@ func (suite *OauthTestSuite) TestAuthenticateExpired() {
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "foo",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +42,6 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.client,
 		User:      suite.user,
-		Scope:     "foo",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}

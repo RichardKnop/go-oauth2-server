@@ -73,9 +73,8 @@ func (suite *OauthTestSuite) SetupTest() {
 
 	// Insert test scopes
 	testScopes := map[string]bool{
-		"foo": true,
-		"bar": true,
-		"qux": false,
+		"read":       true,
+		"read_write": false,
 	}
 	for scope, isDefault := range testScopes {
 		if err := suite.db.Create(&Scope{

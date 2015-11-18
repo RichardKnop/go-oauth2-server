@@ -19,7 +19,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
 		suite.client, // client
 		new(User),    // empty user
-		"foo",        // scope
+		"read_write", // scope
 	)
 
 	// Error should be nil
@@ -52,7 +52,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
 		suite.client, // client
 		suite.user,   // user
-		"foo",        // scope
+		"read_write", // scope
 	)
 
 	// Error should be nil
@@ -100,7 +100,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
 		suite.client, // client
 		new(User),    // empty user
-		"foo",        // scope
+		"read_write", // scope
 	)
 
 	// Error should be nil
@@ -145,7 +145,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
 		suite.client, // client
 		suite.user,   // user
-		"foo",        // scope
+		"read_write", // scope
 	)
 
 	// Error should be nil
@@ -196,7 +196,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
 		suite.client, // client
 		new(User),    // empty user
-		"foo",        // scope
+		"read_write", // scope
 	)
 
 	// Error should be nil
@@ -241,7 +241,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
 		suite.client, // client
 		suite.user,   // user
-		"foo",        // scope
+		"read_write", // scope
 	)
 
 	// Error should be nil

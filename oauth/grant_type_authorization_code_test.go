@@ -21,7 +21,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 		Client:      suite.client,
 		User:        suite.user,
 		RedirectURI: util.StringOrNull("https://www.example.com"),
-		Scope:       "foo",
+		Scope:       "read_write",
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -73,7 +73,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 		"access_token":  accessToken.Token,
 		"expires_in":    3600,
 		"token_type":    "Bearer",
-		"scope":         "foo",
+		"scope":         "read_write",
 		"refresh_token": refreshToken.Token,
 	})
 	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
