@@ -77,7 +77,7 @@ The authorization code grant type is used to obtain both access tokens and refre
 The client initiates the flow by directing the resource owner's user-agent to the authorization endpoint. The client includes its client identifier, requested scope, local state, and a redirection URI to which the authorization server will send the user-agent back once access is granted (or denied).
 
 ```
-http://localhost:8080/web/authorize?client_id=test_client&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=code&state=somestate
+http://localhost:8080/web/authorize?client_id=test_client&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=code&state=somestate&scope=read_write
 ```
 
 The authorization server authenticates the resource owner (via the user-agent).
@@ -119,7 +119,7 @@ The authorization server authenticates the client, validates the authorization c
     "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
     "expires_in": 3600,
     "token_type": "Bearer",
-    "scope": "foo bar",
+    "scope": "read_write",
     "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
@@ -257,7 +257,7 @@ The authorization server authenticates the client and validates the resource own
     "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
     "expires_in": 3600,
     "token_type": "Bearer",
-    "scope": "foo bar",
+    "scope": "read_write",
     "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
@@ -297,7 +297,7 @@ The authorization server authenticates the client, and if valid, issues an acces
     "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
     "expires_in": 3600,
     "token_type": "Bearer",
-    "scope": "foo bar",
+    "scope": "read_write",
     "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
@@ -331,7 +331,7 @@ If valid and authorized, the authorization server issues an access token.
     "access_token": "1f962bd5-7890-435d-b619-584b6aa32e6c",
     "expires_in": 3600,
     "token_type": "Bearer",
-    "scope": "foo bar",
+    "scope": "read_write",
     "refresh_token": "3a6b45b8-9d29-4cba-8a1b-0093e8a2b933"
 }
 ```
