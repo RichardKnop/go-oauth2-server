@@ -91,7 +91,7 @@ func runServer(cnf *config.Config, db *gorm.DB) {
 	var subRouter *mux.Router
 
 	// Add routes for the oauth service
-	subRouter = router.PathPrefix("/oauth/api/v1").Subrouter()
+	subRouter = router.PathPrefix("/api/v1/oauth").Subrouter()
 	for _, route := range oauth.Routes {
 		var handler http.Handler
 		if len(route.Middlewares) > 0 {
