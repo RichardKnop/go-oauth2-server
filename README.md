@@ -174,7 +174,7 @@ The implicit grant type does not include client authentication, and relies on th
 The client initiates the flow by directing the resource owner's user-agent to the authorization endpoint. The client includes its client identifier, requested scope, local state, and a redirection URI to which the authorization server will send the user-agent back once access is granted (or denied).
 
 ```
-http://localhost:8080/web/authorize?client_id=test_client&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=token&state=somestate
+http://localhost:8080/web/authorize?client_id=test_client&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=token&state=somestate&scope=read_write
 ```
 
 The authorization server authenticates the resource owner (via the user-agent).
@@ -196,7 +196,7 @@ https://www.example.com/#error=access_denied&state=somestate
 Assuming the resource owner grants access, the authorization server redirects the user-agent back to the client using the redirection URI provided earlier.  The redirection URI includes he access token in the URI fragment.
 
 ```
-https://www.example.com/#access_token=087902d5-29e7-417b-a339-b57a60d6742a&expires_in=3600&state=somestate&token_type=Bearer
+https://www.example.com/#access_token=087902d5-29e7-417b-a339-b57a60d6742a&expires_in=3600&scope=read_write&state=somestate&token_type=Bearer
 ```
 
 The user-agent follows the redirection instructions by making a request to the web-hosted client resource (which does not include the fragment per [RFC2616]).  The user-agent retains the fragment information locally.

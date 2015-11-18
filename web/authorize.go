@@ -150,6 +150,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 		query.Set("access_token", accessToken.Token)
 		query.Set("expires_in", fmt.Sprintf("%d", theService.cnf.Oauth.AccessTokenLifetime))
 		query.Set("token_type", "Bearer")
+		query.Set("scope", scope)
 		// Add state param if present (recommended)
 		if state != "" {
 			query.Set("state", state)
