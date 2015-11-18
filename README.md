@@ -1,4 +1,7 @@
-[![Codeship Status for RichardKnop/go-oauth2-server](https://codeship.com/projects/fba90e10-7020-0133-0db8-4acedf45d268/status?branch=master)](https://codeship.com/projects/116440) 
+[1]: https://raw.githubusercontent.com/RichardKnop/assets/master/go-oauth2-server/login_screenshot.png
+[2]: https://raw.githubusercontent.com/RichardKnop/assets/master/go-oauth2-server/authorize_screenshot.png
+
+[![Codeship Status for RichardKnop/go-oauth2-server](https://codeship.com/projects/fba90e10-7020-0133-0db8-4acedf45d268/status?branch=master)](https://codeship.com/projects/116440)
 
 [![Travis Status for RichardKnop/go-oauth2-server](https://travis-ci.org/RichardKnop/go-oauth2-server.svg?branch=master)](https://travis-ci.org/RichardKnop/go-oauth2-server)
 
@@ -84,11 +87,11 @@ http://localhost:8080/web/authorize?client_id=test_client&redirect_uri=https%3A%
 
 The authorization server authenticates the resource owner (via the user-agent).
 
-![Log In page screenshot](https://raw.githubusercontent.com/RichardKnop/assets/master/go-oauth2-server/login_screenshot.png)
+![Log In page screenshot][1]
 
 The authorization server then establishes whether the resource owner grants or denies the client's access request.
 
-![Authorize page screenshot](https://raw.githubusercontent.com/RichardKnop/assets/master/go-oauth2-server/authorize_screenshot.png)
+![Authorize page screenshot][2]
 
 If the request fails due to a missing, invalid, or mismatching redirection URI, or if the client identifier is missing or invalid, the authorization server SHOULD inform the resource owner of the error and MUST NOT automatically redirect the user-agent to the invalid redirection URI.
 
@@ -181,11 +184,11 @@ http://localhost:8080/web/authorize?client_id=test_client&redirect_uri=https%3A%
 
 The authorization server authenticates the resource owner (via the user-agent).
 
-![Log In page screenshot](https://raw.githubusercontent.com/RichardKnop/assets/master/go-oauth2-server/login_screenshot.png)
+![Log In page screenshot][1]
 
 The authorization server then establishes whether the resource owner grants or denies the client's access request.
 
-![Authorize page screenshot](https://raw.githubusercontent.com/RichardKnop/assets/master/go-oauth2-server/authorize_screenshot.png)
+![Authorize page screenshot][2]
 
 If the request fails due to a missing, invalid, or mismatching redirection URI, or if the client identifier is missing or invalid, the authorization server SHOULD inform the resource owner of the error and MUST NOT automatically redirect the user-agent to the invalid redirection URI.
 
