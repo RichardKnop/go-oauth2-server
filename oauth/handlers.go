@@ -30,14 +30,14 @@ func handleTokens(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get client credentials from basic auth
-	clientClientID, clientSecret, ok := r.BasicAuth()
+	clientID, secret, ok := r.BasicAuth()
 	if !ok {
 		json.UnauthorizedError(w, "Client authentication required")
 		return
 	}
 
 	// Authenticate the client
-	client, err := theService.AuthClient(clientClientID, clientSecret)
+	client, err := theService.AuthClient(clientID, secret)
 	if err != nil {
 		// For security reasons, return a general error message
 		json.UnauthorizedError(w, "Client authentication required")
