@@ -16,8 +16,6 @@ type Client struct {
 	ClientID    string         `sql:"type:varchar(254);unique;not null"`
 	Secret      string         `sql:"type:varchar(60);not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
 }
 
 // Scope ...
@@ -30,11 +28,9 @@ type Scope struct {
 
 // User ...
 type User struct {
-	ID        int64  `gorm:"primary_key"`
-	Username  string `sql:"type:varchar(254);unique;not null"`
-	Password  string `sql:"type:varchar(60);not null"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID       int64  `gorm:"primary_key"`
+	Username string `sql:"type:varchar(254);unique;not null"`
+	Password string `sql:"type:varchar(60);not null"`
 }
 
 // RefreshToken ...
@@ -47,8 +43,6 @@ type RefreshToken struct {
 	UserID    sql.NullInt64 `sql:"index"`
 	Client    *Client
 	User      *User
-	CreatedAt time.Time
-	UpdatedAt time.Time
 }
 
 // AccessToken ...
@@ -61,8 +55,6 @@ type AccessToken struct {
 	UserID    sql.NullInt64 `sql:"index"`
 	Client    *Client
 	User      *User
-	CreatedAt time.Time
-	UpdatedAt time.Time
 }
 
 // AuthorizationCode ...
@@ -76,8 +68,6 @@ type AuthorizationCode struct {
 	UserID      sql.NullInt64  `sql:"index;not null"`
 	Client      *Client
 	User        *User
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
 }
 
 // newAccessToken creates new AccessToken instance
