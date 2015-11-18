@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/RichardKnop/go-oauth2-server.svg?branch=master "Build Status")](https://travis-ci.org/RichardKnop/go-oauth2-server) [![Build Status](https://codeship.com/projects/116440/status?branch=master "Build Status")](https://codeship.com/projects/116440/)
+[![Build Status](https://travis-ci.org/RichardKnop/go-oauth2-server.svg?branch=master "Build Status")](https://travis-ci.org/RichardKnop/go-oauth2-server) [![Build Status](https://codeship.com/projects/fba90e10-7020-0133-0db8-4acedf45d268/status?branch=master "Build Status")](https://codeship.com/projects/116440/)
 
 # Go OAuth2 Server
 
