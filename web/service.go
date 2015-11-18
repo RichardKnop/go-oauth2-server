@@ -8,13 +8,13 @@ import (
 // Service struct keeps variables for reuse
 type Service struct {
 	cnf          *config.Config
-	oauthService *oauth.Service
+	oauthService oauth.ServiceInterface
 }
 
 var theService *Service
 
 // NewService starts a new Service instance
-func NewService(cnf *config.Config, oauthService *oauth.Service) *Service {
+func NewService(cnf *config.Config, oauthService oauth.ServiceInterface) *Service {
 	theService = &Service{
 		cnf:          cnf,
 		oauthService: oauthService,

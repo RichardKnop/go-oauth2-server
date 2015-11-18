@@ -10,13 +10,13 @@ import (
 type Service struct {
 	cnf          *config.Config
 	db           *gorm.DB
-	oauthService *oauth.Service // oauth service dependency injection
+	oauthService oauth.ServiceInterface // oauth service dependency injection
 }
 
 var s *Service
 
 // NewService starts a new Service instance
-func NewService(cnf *config.Config, db *gorm.DB, oauthService *oauth.Service) *Service {
+func NewService(cnf *config.Config, db *gorm.DB, oauthService oauth.ServiceInterface) *Service {
 	s = &Service{cnf: cnf, db: db, oauthService: oauthService}
 	return s
 }

@@ -3,7 +3,7 @@ package oauth
 import (
 	"errors"
 
-	"github.com/RichardKnop/go-oauth2-server/password"
+	pass "github.com/RichardKnop/go-oauth2-server/password"
 )
 
 // UserExists returns true if user exists
@@ -12,25 +12,19 @@ func (s *Service) UserExists(username string) bool {
 	return err == nil
 }
 
-// AuthUser authenticates user
-func (s *Service) AuthUser(username, thePassword string) (*User, error) {
-	// Fetch the user
-	user, err := s.FindUserByUsername(username)
-	if err != nil {
+// FindUserByUsername looks up a user by username
+func (s *Service) FindUserByUsername(username string) (*User, error) {
+	// Usernames are case insensitive
+	user := new(User)
+	if s.db.Where("LOWER(username) = LOWER(?)", username).First(user).RecordNotFound() {
 		return nil, errors.New("User not found")
 	}
-
-	// Verify the password
-	if password.VerifyPassword(user.Password, thePassword) != nil {
-		return nil, errors.New("Invalid password")
-	}
-
 	return user, nil
 }
 
 // CreateUser saves a new user to database
-func (s *Service) CreateUser(username, thePassword string) (*User, error) {
-	passwordHash, err := password.HashPassword(thePassword)
+func (s *Service) CreateUser(username, password string) (*User, error) {
+	passwordHash, err := pass.HashPassword(password)
 	if err != nil {
 		return nil, errors.New("Bcrypt error")
 	}
@@ -44,12 +38,18 @@ func (s *Service) CreateUser(username, thePassword string) (*User, error) {
 	return &user, nil
 }
 
-// FindUserByUsername looks up a user by username
-func (s *Service) FindUserByUsername(username string) (*User, error) {
-	// Usernames are case insensitive
-	user := new(User)
-	if s.db.Where("LOWER(username) = LOWER(?)", username).First(user).RecordNotFound() {
+// AuthUser authenticates user
+func (s *Service) AuthUser(username, password string) (*User, error) {
+	// Fetch the user
+	user, err := s.FindUserByUsername(username)
+	if err != nil {
 		return nil, errors.New("User not found")
 	}
+
+	// Verify the password
+	if pass.VerifyPassword(user.Password, password) != nil {
+		return nil, errors.New("Invalid password")
+	}
+
 	return user, nil
 }
