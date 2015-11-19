@@ -26,6 +26,11 @@ type UserSession struct {
 	RefreshToken string
 }
 
+var (
+	storageSessionName = "session"
+	userSessionKey     = "user"
+)
+
 func init() {
 	// Register a new datatype for storage in sessions
 	gob.Register(new(UserSession))
@@ -49,7 +54,7 @@ func NewService(cnf *config.Config, r *http.Request, w http.ResponseWriter) *Ser
 
 // StartUserSession starts a new user session
 func (s *Service) StartUserSession() error {
-	session, err := s.sessionStore.Get(s.r, "session")
+	session, err := s.sessionStore.Get(s.r, storageSessionName)
 	if err != nil {
 		return err
 	}
@@ -60,7 +65,7 @@ func (s *Service) StartUserSession() error {
 // GetUserSession returns the user session
 func (s *Service) GetUserSession() (*UserSession, error) {
 	// Retrieve our user session struct and type-assert it
-	userSession, ok := s.session.Values["user"].(*UserSession)
+	userSession, ok := s.session.Values[userSessionKey].(*UserSession)
 	if !ok {
 		return nil, errors.New("User session type assertion error")
 	}
@@ -70,13 +75,13 @@ func (s *Service) GetUserSession() (*UserSession, error) {
 
 // SetUserSession saves the user session
 func (s *Service) SetUserSession(userSession *UserSession) error {
-	s.session.Values["user"] = userSession
+	s.session.Values[userSessionKey] = userSession
 	return s.session.Save(s.r, s.w)
 }
 
 // ClearUserSession deletes the user session
 func (s *Service) ClearUserSession() error {
-	delete(s.session.Values, "user")
+	delete(s.session.Values, userSessionKey)
 	return s.session.Save(s.r, s.w)
 }
 
