@@ -421,7 +421,7 @@ $ go run main.go runserver
 
 ## Test Data
 
-You might want to insert some test data if you are testing locally using curl:
+You might want to insert some test data if you are testing locally using `curl` from this README:
 
 ```sql
 insert into scopes(scope, is_default) values('read', true);
@@ -434,7 +434,7 @@ insert into users(username, password) values('test@username', '$2a$10$4J4t9xuWhO
 
 ## Testing
 
-Some of the tests are functional. You need to have `sqlite` and `etcd` installed and running in order to run the tests.
+Many of the tests are functional so you need to have `sqlite` in order for the test suite to be able to create an in-memory database.
 
 To run tests:
 
