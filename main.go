@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/RichardKnop/go-oauth2-server/accounts"
@@ -10,6 +9,7 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/RichardKnop/go-oauth2-server/migrations"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/routes"
 	"github.com/RichardKnop/go-oauth2-server/web"
 	"github.com/codegangsta/cli"
 	"github.com/codegangsta/negroni"
@@ -45,9 +45,11 @@ func main() {
 	// Set the CLI app commands
 	cliApp.Commands = []cli.Command{
 		{
-			Name:   "migrate",
-			Usage:  "run migrations",
-			Action: func(c *cli.Context) { migrate(db) },
+			Name:  "migrate",
+			Usage: "run migrations",
+			Action: func(c *cli.Context) {
+				migrate(db)
+			},
 		},
 		{
 			Name:  "runserver",
@@ -88,49 +90,11 @@ func runServer(cnf *config.Config, db *gorm.DB) {
 	// Create a router instance
 	router := mux.NewRouter().StrictSlash(true)
 
-	var subRouter *mux.Router
+	// Add routes for the oauth package (REST tokens endpoint)
+	routes.AddRoutes(oauth.Routes, router.PathPrefix("/api/v1/oauth").Subrouter())
 
-	// Add routes for the oauth service
-	subRouter = router.PathPrefix("/api/v1/oauth").Subrouter()
-	for _, route := range oauth.Routes {
-		var handler http.Handler
-		if len(route.Middlewares) > 0 {
-			n := negroni.New()
-			for _, middleware := range route.Middlewares {
-				n.Use(middleware)
-			}
-			n.Use(negroni.Wrap(route.HandlerFunc))
-			handler = n
-		} else {
-			handler = route.HandlerFunc
-		}
-
-		subRouter.Methods(route.Methods...).
-			Path(route.Pattern).
-			Name(route.Name).
-			Handler(handler)
-	}
-
-	// Add routes for web pages
-	subRouter = router.PathPrefix("/web").Subrouter()
-	for _, route := range web.Routes {
-		var handler http.Handler
-		if len(route.Middlewares) > 0 {
-			n := negroni.New()
-			for _, middleware := range route.Middlewares {
-				n.Use(middleware)
-			}
-			n.Use(negroni.Wrap(route.HandlerFunc))
-			handler = n
-		} else {
-			handler = route.HandlerFunc
-		}
-
-		subRouter.Methods(route.Methods...).
-			Path(route.Pattern).
-			Name(route.Name).
-			Handler(handler)
-	}
+	// Add routes for the web package (register, login authorize web pages)
+	routes.AddRoutes(web.Routes, router.PathPrefix("/web").Subrouter())
 
 	// Set the router
 	webApp.UseHandler(router)
