@@ -29,7 +29,7 @@ func (m *guestMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next
 	sessionService := session.NewService(theService.cnf, r, w)
 
 	// Attempt to start the session
-	if err := sessionService.StartUserSession(); err != nil {
+	if err := sessionService.StartSession(); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -48,7 +48,7 @@ func (m *loggedInMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, n
 	sessionService := session.NewService(theService.cnf, r, w)
 
 	// Attempt to start the session
-	if err := sessionService.StartUserSession(); err != nil {
+	if err := sessionService.StartSession(); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

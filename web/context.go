@@ -20,13 +20,13 @@ var (
 )
 
 // Returns *session.Service from the request context
-func getSessionService(r *http.Request) (*session.Service, error) {
+func getSessionService(r *http.Request) (session.ServiceInterface, error) {
 	val, ok := context.GetOk(r, sessionServiceKey)
 	if !ok {
 		return nil, errSessionServiceNotPresent
 	}
 
-	sessionService, ok := val.(*session.Service)
+	sessionService, ok := val.(session.ServiceInterface)
 	if !ok {
 		return nil, errSessionServiceNotPresent
 	}

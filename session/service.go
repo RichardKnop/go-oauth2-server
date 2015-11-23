@@ -27,8 +27,9 @@ type UserSession struct {
 }
 
 var (
-	storageSessionName = "session"
-	userSessionKey     = "user"
+	storageSessionName      = "session"
+	userSessionKey          = "user"
+	errUserSessonNotStarted = errors.New("User session not started")
 )
 
 func init() {
@@ -52,8 +53,9 @@ func NewService(cnf *config.Config, r *http.Request, w http.ResponseWriter) *Ser
 	}
 }
 
-// StartUserSession starts a new user session
-func (s *Service) StartUserSession() error {
+// StartSession starts a new session. This method must be called before other
+// public methods of this struct as it sets the internal session object
+func (s *Service) StartSession() error {
 	session, err := s.sessionStore.Get(s.r, storageSessionName)
 	if err != nil {
 		return err
@@ -64,6 +66,11 @@ func (s *Service) StartUserSession() error {
 
 // GetUserSession returns the user session
 func (s *Service) GetUserSession() (*UserSession, error) {
+	// Make sure StartSession has been called
+	if s.session == nil {
+		return nil, errUserSessonNotStarted
+	}
+
 	// Retrieve our user session struct and type-assert it
 	userSession, ok := s.session.Values[userSessionKey].(*UserSession)
 	if !ok {
@@ -75,29 +82,55 @@ func (s *Service) GetUserSession() (*UserSession, error) {
 
 // SetUserSession saves the user session
 func (s *Service) SetUserSession(userSession *UserSession) error {
+	// Make sure StartSession has been called
+	if s.session == nil {
+		return errUserSessonNotStarted
+	}
+
+	// Set a new user session
 	s.session.Values[userSessionKey] = userSession
 	return s.session.Save(s.r, s.w)
 }
 
 // ClearUserSession deletes the user session
 func (s *Service) ClearUserSession() error {
+	// Make sure StartSession has been called
+	if s.session == nil {
+		return errUserSessonNotStarted
+	}
+
+	// Delete the user session
 	delete(s.session.Values, userSessionKey)
 	return s.session.Save(s.r, s.w)
 }
 
 // SetFlashMessage sets a flash message,
 // useful for displaying an error after 302 redirection
-func (s *Service) SetFlashMessage(msg string) {
+func (s *Service) SetFlashMessage(msg string) error {
+	// Make sure StartSession has been called
+	if s.session == nil {
+		return errUserSessonNotStarted
+	}
+
+	// Add the flash message
 	s.session.AddFlash(msg)
-	s.session.Save(s.r, s.w)
+	return s.session.Save(s.r, s.w)
 }
 
 // GetFlashMessage returns the first flash message
-func (s *Service) GetFlashMessage() interface{} {
+func (s *Service) GetFlashMessage() (interface{}, error) {
+	// Make sure StartSession has been called
+	if s.session == nil {
+		return nil, errUserSessonNotStarted
+	}
+
+	// Get the last flash message from the stack
 	if flashes := s.session.Flashes(); len(flashes) > 0 {
 		// We need to save the session, otherwise the flash message won't be removed
 		s.session.Save(s.r, s.w)
-		return flashes[0]
+		return flashes[0], nil
 	}
-	return nil
+
+	// No flash messages in the stack
+	return nil, nil
 }
