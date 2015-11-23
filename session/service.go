@@ -27,9 +27,9 @@ type UserSession struct {
 }
 
 var (
-	storageSessionName      = "session"
-	userSessionKey          = "user"
-	errUserSessonNotStarted = errors.New("User session not started")
+	storageSessionName  = "session"
+	userSessionKey      = "user"
+	errSessonNotStarted = errors.New("Session not started")
 )
 
 func init() {
@@ -68,7 +68,7 @@ func (s *Service) StartSession() error {
 func (s *Service) GetUserSession() (*UserSession, error) {
 	// Make sure StartSession has been called
 	if s.session == nil {
-		return nil, errUserSessonNotStarted
+		return nil, errSessonNotStarted
 	}
 
 	// Retrieve our user session struct and type-assert it
@@ -84,7 +84,7 @@ func (s *Service) GetUserSession() (*UserSession, error) {
 func (s *Service) SetUserSession(userSession *UserSession) error {
 	// Make sure StartSession has been called
 	if s.session == nil {
-		return errUserSessonNotStarted
+		return errSessonNotStarted
 	}
 
 	// Set a new user session
@@ -96,7 +96,7 @@ func (s *Service) SetUserSession(userSession *UserSession) error {
 func (s *Service) ClearUserSession() error {
 	// Make sure StartSession has been called
 	if s.session == nil {
-		return errUserSessonNotStarted
+		return errSessonNotStarted
 	}
 
 	// Delete the user session
@@ -109,7 +109,7 @@ func (s *Service) ClearUserSession() error {
 func (s *Service) SetFlashMessage(msg string) error {
 	// Make sure StartSession has been called
 	if s.session == nil {
-		return errUserSessonNotStarted
+		return errSessonNotStarted
 	}
 
 	// Add the flash message
@@ -121,7 +121,7 @@ func (s *Service) SetFlashMessage(msg string) error {
 func (s *Service) GetFlashMessage() (interface{}, error) {
 	// Make sure StartSession has been called
 	if s.session == nil {
-		return nil, errUserSessonNotStarted
+		return nil, errSessonNotStarted
 	}
 
 	// Get the last flash message from the stack

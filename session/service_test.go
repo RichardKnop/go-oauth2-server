@@ -55,7 +55,7 @@ func (suite *SessionTestSuite) TestService() {
 	// No public methods should work before StartSession has been called
 	userSession, err := service.GetUserSession()
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errUserSessonNotStarted.Error(), err.Error())
+		assert.Equal(suite.T(), errSessonNotStarted.Error(), err.Error())
 	}
 
 	// Call the StartSession method so internal session object gets set
