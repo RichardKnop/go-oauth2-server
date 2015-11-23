@@ -3,6 +3,7 @@ package routes
 import (
 	"log"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/codegangsta/negroni"
@@ -10,11 +11,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// helloWorldMiddleware is a test middleware that does nothing
+// helloWorldMiddleware is a test middleware that writes "hello world" to the
+// response so we can check the middleware is registered
 type helloWorldMiddleware struct{}
 
 // ServeHTTP as per the negroni.Handler interface
 func (m *helloWorldMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	w.Write([]byte("hello world"))
+	next(w, r)
 }
 
 func TestAddRoutes(t *testing.T) {
@@ -45,6 +49,7 @@ func TestAddRoutes(t *testing.T) {
 
 	var match *mux.RouteMatch
 	var r *http.Request
+	var w *httptest.ResponseRecorder
 	var err error
 
 	// Test the foobar_route
@@ -55,8 +60,12 @@ func TestAddRoutes(t *testing.T) {
 	match = new(mux.RouteMatch)
 	router.Match(r, match)
 	assert.Equal(t, "foobar_route", match.Route.GetName())
+	// Test no middleware has been registered
+	w = httptest.NewRecorder()
+	match.Route.GetHandler().ServeHTTP(w, r)
+	assert.Equal(t, "", w.Body.String())
 
-	// Test the helloworld_route
+	// Test the helloworld_route is correctly matched
 	r, err = http.NewRequest("POST", "http://1.2.3.4/hello/world", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -64,5 +73,8 @@ func TestAddRoutes(t *testing.T) {
 	match = new(mux.RouteMatch)
 	router.Match(r, match)
 	assert.Equal(t, "helloworld_route", match.Route.GetName())
-	// TODO - test the helloWorldMiddleware was added to the route
+	// Test the helloWorldMiddleware has been registered
+	w = httptest.NewRecorder()
+	match.Route.GetHandler().ServeHTTP(w, r)
+	assert.Equal(t, "hello world", w.Body.String())
 }
