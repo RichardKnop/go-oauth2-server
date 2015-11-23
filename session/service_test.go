@@ -2,10 +2,9 @@ package session
 
 import (
 	"log"
-	"testing"
-
 	"net/http"
 	"net/http/httptest"
+	"testing"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/stretchr/testify/assert"
