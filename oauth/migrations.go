@@ -60,7 +60,7 @@ func migrate0001(db *gorm.DB) error {
 		return fmt.Errorf("Error creating access_tokens table: %s", db.Error)
 	}
 
-	// Create auth_codes table
+	// Create authorization_codes table
 	if err := db.CreateTable(new(AuthorizationCode)).Error; err != nil {
 		return fmt.Errorf("Error creating authorization_codes table: %s", db.Error)
 	}
