@@ -3,14 +3,14 @@ package oauth
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/json"
+	"github.com/RichardKnop/go-oauth2-server/response"
 )
 
 // Handles all OAuth 2.0 grant types (POST /api/v1/oauth/tokens
 func handleTokens(w http.ResponseWriter, r *http.Request) {
 	// Parse the form so r.Form becomes available
 	if err := r.ParseForm(); err != nil {
-		json.Error(w, err.Error(), http.StatusInternalServerError)
+		response.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -25,14 +25,14 @@ func handleTokens(w http.ResponseWriter, r *http.Request) {
 	// Check the grant type
 	grantHandler, ok := grantTypes[r.Form.Get("grant_type")]
 	if !ok {
-		json.Error(w, "Invalid grant type", http.StatusBadRequest)
+		response.Error(w, "Invalid grant type", http.StatusBadRequest)
 		return
 	}
 
 	// Get client credentials from basic auth
 	clientID, secret, ok := r.BasicAuth()
 	if !ok {
-		json.UnauthorizedError(w, "Client authentication required")
+		response.UnauthorizedError(w, "Client authentication required")
 		return
 	}
 
@@ -40,7 +40,7 @@ func handleTokens(w http.ResponseWriter, r *http.Request) {
 	client, err := theService.AuthClient(clientID, secret)
 	if err != nil {
 		// For security reasons, return a general error message
-		json.UnauthorizedError(w, "Client authentication required")
+		response.UnauthorizedError(w, "Client authentication required")
 		return
 	}
 

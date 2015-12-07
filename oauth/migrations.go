@@ -19,7 +19,7 @@ func MigrateAll(db *gorm.DB) error {
 
 // Migrate0001 creates OAuth 2.0 schema
 func migrate0001(db *gorm.DB) error {
-	migrationName := "0001_initial"
+	migrationName := "oauth_initial"
 
 	migration := new(migrations.Migration)
 	found := !db.Where(migrations.Migration{
@@ -35,106 +35,106 @@ func migrate0001(db *gorm.DB) error {
 
 	var err error
 
-	// Create clients table
+	// Create oauth_clients table
 	if err := db.CreateTable(new(Client)).Error; err != nil {
-		return fmt.Errorf("Error creating clients table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_clients table: %s", db.Error)
 	}
 
-	// Create scopes table
+	// Create oauth_scopes table
 	if err := db.CreateTable(new(Scope)).Error; err != nil {
-		return fmt.Errorf("Error creating scopes table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_scopes table: %s", db.Error)
 	}
 
-	// Create users table
+	// Create oauth_users table
 	if err := db.CreateTable(new(User)).Error; err != nil {
-		return fmt.Errorf("Error creating users table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_users table: %s", db.Error)
 	}
 
-	// Create refresh_tokens table
+	// Create oauth_refresh_tokens table
 	if err := db.CreateTable(new(RefreshToken)).Error; err != nil {
-		return fmt.Errorf("Error creating refresh_tokens table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_refresh_tokens table: %s", db.Error)
 	}
 
-	// Create access_tokens table
+	// Create oauth_access_tokens table
 	if err := db.CreateTable(new(AccessToken)).Error; err != nil {
-		return fmt.Errorf("Error creating access_tokens table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_access_tokens table: %s", db.Error)
 	}
 
-	// Create authorization_codes table
+	// Create oauth_authorization_codes table
 	if err := db.CreateTable(new(AuthorizationCode)).Error; err != nil {
-		return fmt.Errorf("Error creating authorization_codes table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_authorization_codes table: %s", db.Error)
 	}
 
-	// Add foreign key on refresh_tokens.client_id
+	// Add foreign key on oauth_refresh_tokens.client_id
 	err = db.Model(new(RefreshToken)).AddForeignKey(
 		"client_id",
-		"clients(id)",
+		"oauth_clients(id)",
 		"RESTRICT",
 		"RESTRICT",
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"refresh_tokens.client_id for clients(id): %s", db.Error)
+			"oauth_refresh_tokens.client_id for oauth_clients(id): %s", db.Error)
 	}
 
-	// Add foreign key on refresh_tokens.user_id
+	// Add foreign key on oauth_refresh_tokens.user_id
 	err = db.Model(new(RefreshToken)).AddForeignKey(
 		"user_id",
-		"users(id)",
+		"oauth_users(id)",
 		"RESTRICT",
 		"RESTRICT",
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"refresh_tokens.user_id for users(id): %s", db.Error)
+			"oauth_refresh_tokens.user_id for oauth_users(id): %s", db.Error)
 	}
 
-	// Add foreign key on access_tokens.client_id
+	// Add foreign key on oauth_access_tokens.client_id
 	err = db.Model(new(AccessToken)).AddForeignKey(
 		"client_id",
-		"clients(id)",
+		"oauth_clients(id)",
 		"RESTRICT",
 		"RESTRICT",
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"access_tokens.client_id for clients(id): %s", db.Error)
+			"oauth_access_tokens.client_id for oauth_clients(id): %s", db.Error)
 	}
 
-	// Add foreign key on access_tokens.user_id
+	// Add foreign key on oauth_access_tokens.user_id
 	err = db.Model(new(AccessToken)).AddForeignKey(
 		"user_id",
-		"users(id)",
+		"oauth_users(id)",
 		"RESTRICT",
 		"RESTRICT",
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"access_tokens.user_id for users(id): %s", db.Error)
+			"oauth_access_tokens.user_id for oauth_users(id): %s", db.Error)
 	}
 
-	// Add foreign key on authorization_codes.client_id
+	// Add foreign key on oauth_authorization_codes.client_id
 	err = db.Model(new(AuthorizationCode)).AddForeignKey(
 		"client_id",
-		"clients(id)",
+		"oauth_clients(id)",
 		"RESTRICT",
 		"RESTRICT",
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"authorization_codes.client_id for clients(id): %s", db.Error)
+			"oauth_authorization_codes.client_id for oauth_clients(id): %s", db.Error)
 	}
 
-	// Add foreign key on authorization_codes.user_id
+	// Add foreign key on oauth_authorization_codes.user_id
 	err = db.Model(new(AuthorizationCode)).AddForeignKey(
 		"user_id",
-		"users(id)",
+		"oauth_users(id)",
 		"RESTRICT",
 		"RESTRICT",
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"authorization_codes.user_id for users(id): %s", db.Error)
+			"oauth_authorization_codes.user_id for oauth_users(id): %s", db.Error)
 	}
 
 	// Save a record to migrations table,

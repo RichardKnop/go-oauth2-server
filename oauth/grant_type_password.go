@@ -3,7 +3,7 @@ package oauth
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/json"
+	"github.com/RichardKnop/go-oauth2-server/response"
 )
 
 func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *Client) {
@@ -15,14 +15,14 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	user, err := s.AuthUser(username, password)
 	if err != nil {
 		// For security reasons, return a general error message
-		json.UnauthorizedError(w, "User authentication required")
+		response.UnauthorizedError(w, "User authentication required")
 		return
 	}
 
 	// Get the scope string
 	scope, err := s.GetScope(r.Form.Get("scope"))
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusBadRequest)
+		response.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -33,7 +33,7 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 		scope,  // scope
 	)
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusInternalServerError)
+		response.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -44,7 +44,7 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 		scope,  // scope
 	)
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusInternalServerError)
+		response.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

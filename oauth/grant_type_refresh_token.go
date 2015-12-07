@@ -3,7 +3,7 @@ package oauth
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/json"
+	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
@@ -14,20 +14,20 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 		client, // client
 	)
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusBadRequest)
+		response.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Get the scope string
 	scope, err := s.GetScope(r.Form.Get("scope"))
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusBadRequest)
+		response.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Requested scope CANNOT include any scope not originally granted
 	if !util.SpaceDelimitedStringNotGreater(scope, theRefreshToken.Scope) {
-		json.Error(w, "Requested scope cannot be greater", http.StatusBadRequest)
+		response.Error(w, "Requested scope cannot be greater", http.StatusBadRequest)
 		return
 	}
 
@@ -38,7 +38,7 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 		scope,                  // scope
 	)
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusInternalServerError)
+		response.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -49,7 +49,7 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 		scope,                  // scope
 	)
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusInternalServerError)
+		response.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

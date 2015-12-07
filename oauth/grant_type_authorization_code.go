@@ -3,7 +3,7 @@ package oauth
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/json"
+	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
@@ -14,13 +14,13 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 		client,             // client
 	)
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusBadRequest)
+		response.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Redirect URI must match if it was used to obtain the authorization code
 	if util.StringOrNull(r.Form.Get("redirect_uri")) != authorizationCode.RedirectURI {
-		json.Error(w, "Invalid redirect URI", http.StatusBadRequest)
+		response.Error(w, "Invalid redirect URI", http.StatusBadRequest)
 		return
 	}
 
@@ -31,7 +31,7 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 		authorizationCode.Scope,  // scope
 	)
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusInternalServerError)
+		response.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -42,7 +42,7 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 		authorizationCode.Scope,  // scope
 	)
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusInternalServerError)
+		response.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

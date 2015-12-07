@@ -5,37 +5,59 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/json"
+	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/pborman/uuid"
 )
 
+// AbstractModel ...
+type AbstractModel struct {
+	ID        int64 `gorm:"primary_key"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 // Client ...
 type Client struct {
-	ID          int64          `gorm:"primary_key"`
+	AbstractModel
 	ClientID    string         `sql:"type:varchar(254);unique;not null"`
 	Secret      string         `sql:"type:varchar(60);not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
 }
 
+// TableName specifies table name
+func (c Client) TableName() string {
+	return "oauth_clients"
+}
+
 // Scope ...
 type Scope struct {
-	ID          int64  `gorm:"primary_key"`
+	AbstractModel
 	Scope       string `sql:"type:varchar(200);unique;not null"`
 	Description sql.NullString
 	IsDefault   bool `sql:"default:false"`
 }
 
+// TableName specifies table name
+func (s Scope) TableName() string {
+	return "oauth_scopes"
+}
+
 // User ...
 type User struct {
-	ID       int64  `gorm:"primary_key"`
+	AbstractModel
 	Username string `sql:"type:varchar(254);unique;not null"`
 	Password string `sql:"type:varchar(60);not null"`
 }
 
+// TableName specifies table name
+func (u User) TableName() string {
+	return "oauth_users"
+}
+
 // RefreshToken ...
 type RefreshToken struct {
-	ID        int64         `gorm:"primary_key"`
+	AbstractModel
 	Token     string        `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt time.Time     `sql:"not null"`
 	Scope     string        `sql:"type:varchar(200);not null"`
@@ -43,11 +65,16 @@ type RefreshToken struct {
 	UserID    sql.NullInt64 `sql:"index"`
 	Client    *Client
 	User      *User
+}
+
+// TableName specifies table name
+func (rt RefreshToken) TableName() string {
+	return "oauth_refresh_tokens"
 }
 
 // AccessToken ...
 type AccessToken struct {
-	ID        int64         `gorm:"primary_key"`
+	AbstractModel
 	Token     string        `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt time.Time     `sql:"not null"`
 	Scope     string        `sql:"type:varchar(200);not null"`
@@ -57,9 +84,14 @@ type AccessToken struct {
 	User      *User
 }
 
+// TableName specifies table name
+func (at AccessToken) TableName() string {
+	return "oauth_access_tokens"
+}
+
 // AuthorizationCode ...
 type AuthorizationCode struct {
-	ID          int64          `gorm:"primary_key"`
+	AbstractModel
 	Code        string         `sql:"type:varchar(40);unique;not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
 	ExpiresAt   time.Time      `sql:"not null"`
@@ -68,6 +100,11 @@ type AuthorizationCode struct {
 	UserID      sql.NullInt64  `sql:"index;not null"`
 	Client      *Client
 	User        *User
+}
+
+// TableName specifies table name
+func (ac AuthorizationCode) TableName() string {
+	return "oauth_authorization_codes"
 }
 
 // newAccessToken creates new AccessToken instance
@@ -132,7 +169,7 @@ func newAuthorizationCode(expiresIn int, client *Client, user *User, redirectURI
 }
 
 func writeJSON(w http.ResponseWriter, expiresIn int, accessToken *AccessToken, refreshToken *RefreshToken) {
-	json.WriteJSON(w, map[string]interface{}{
+	response.WriteJSON(w, map[string]interface{}{
 		"id":            accessToken.ID,
 		"access_token":  accessToken.Token,
 		"expires_in":    expiresIn,

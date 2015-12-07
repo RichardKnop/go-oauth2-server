@@ -3,14 +3,14 @@ package oauth
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/json"
+	"github.com/RichardKnop/go-oauth2-server/response"
 )
 
 func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	// Get the scope string
 	scope, err := s.GetScope(r.Form.Get("scope"))
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusBadRequest)
+		response.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -21,7 +21,7 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 		scope,     // scope
 	)
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusInternalServerError)
+		response.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -32,7 +32,7 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 		scope,     // scope
 	)
 	if err != nil {
-		json.Error(w, err.Error(), http.StatusInternalServerError)
+		response.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
