@@ -2,8 +2,11 @@ package json
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
+
+var realm = "go_oauth2_server"
 
 // WriteJSON writes JSON response
 func WriteJSON(w http.ResponseWriter, v interface{}, code int) {
@@ -24,6 +27,6 @@ func Error(w http.ResponseWriter, err string, code int) {
 // See http://self-issued.info/docs/draft-ietf-oauth-v2-bearer.html#rfc.section.3
 func UnauthorizedError(w http.ResponseWriter, err string) {
 	// TODO - include error if the request contained an access token
-	w.Header().Set("WWW-Authenticate", "Bearer realm=areatech_api")
+	w.Header().Set("WWW-Authenticate", fmt.Sprintf("Bearer realm=%s", realm))
 	Error(w, err, http.StatusUnauthorized)
 }
