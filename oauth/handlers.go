@@ -6,7 +6,7 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/json"
 )
 
-// Handles all OAuth 2.0 grant types (POST /oauth2/api/v1/tokens
+// Handles all OAuth 2.0 grant types (POST /api/v1/oauth/tokens
 func handleTokens(w http.ResponseWriter, r *http.Request) {
 	// Parse the form so r.Form becomes available
 	if err := r.ParseForm(); err != nil {
