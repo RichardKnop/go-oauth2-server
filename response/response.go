@@ -10,16 +10,16 @@ var realm = "go_oauth2_server"
 
 // WriteJSON writes JSON response
 func WriteJSON(w http.ResponseWriter, v interface{}, code int) {
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(v)
 }
 
 // Error produces a JSON error response with the following structure:
 // {"error":"some error message"}
 func Error(w http.ResponseWriter, err string, code int) {
-	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(map[string]string{"error": err})
 }
 
