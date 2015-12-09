@@ -425,12 +425,15 @@ $ go run main.go runserver
 You might want to insert some test data if you are testing locally using `curl` examples from this README:
 
 ```sql
-insert into scopes(scope, is_default) values('read', true);
-insert into scopes(scope, is_default) values('read_write', false);
+insert into oauth_scopes(scope, is_default, created_at, updated_at)
+  values('read', true, now(), now()),
+  ('read_write', false, now(), now());
 
-insert into clients(client_id, secret) values('test_client', '$2a$10$CUoGytf1pR7CC6Y043gt/.vFJUV4IRqvH5R6F0VfITP8s2TqrQ.4e');
+insert into oauth_clients(client_id, secret, created_at, updated_at)
+  values('test_client', '$2a$10$CUoGytf1pR7CC6Y043gt/.vFJUV4IRqvH5R6F0VfITP8s2TqrQ.4e', now(), now());
 
-insert into users(username, password) values('test@username', '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS');
+insert into oauth_users(username, password, created_at, updated_at)
+  values('test@username', '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS', now(), now());
 ```
 
 ## Testing
