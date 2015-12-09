@@ -1,12 +1,12 @@
 package migrations
 
 import (
-	"time"
+	"github.com/jinzhu/gorm"
 )
 
 // Migration represents a single database migration
 type Migration struct {
-	ID        int
-	Name      string `sql:"size:255"`
-	CreatedAt time.Time
+	gorm.Model
+	Name string `sql:"size:255"`
 }
+
