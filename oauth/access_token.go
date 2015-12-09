@@ -28,7 +28,7 @@ func (s *Service) GrantAccessToken(client *Client, user *User, scope string) (*A
 
 // deleteExpiredAccessTokens deletes expired access tokens
 func (s *Service) deleteExpiredAccessTokens(client *Client, user *User) {
-	s.db.Where(AccessToken{
+	s.db.Unscoped().Where(AccessToken{
 		ClientID: util.IntOrNull(client.ID),
 		UserID:   util.IntOrNull(user.ID),
 	}).Where("expires_at <= ?", time.Now()).Delete(new(AccessToken))

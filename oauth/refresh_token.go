@@ -25,7 +25,7 @@ func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, scope stri
 
 	// If the refresh token has expired, delete it
 	if expired {
-		s.db.Delete(refreshToken)
+		s.db.Unscoped().Delete(refreshToken)
 	}
 
 	// Create a new refresh token if it expired or was not found

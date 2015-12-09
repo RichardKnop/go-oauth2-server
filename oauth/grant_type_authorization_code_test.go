@@ -79,5 +79,5 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 
 	// Check the authorization code was deleted
-	assert.True(suite.T(), suite.db.First(new(AuthorizationCode)).RecordNotFound())
+	assert.True(suite.T(), suite.db.Unscoped().First(new(AuthorizationCode)).RecordNotFound())
 }

@@ -203,7 +203,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	assert.Nil(suite.T(), err)
 
 	// Fetch all refresh tokens
-	suite.service.db.Preload("Client").Preload("User").Find(&tokens)
+	suite.service.db.Unscoped().Preload("Client").Preload("User").Find(&tokens)
 
 	// There should be just one token right now
 	assert.Equal(suite.T(), 1, len(tokens))
@@ -248,7 +248,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	assert.Nil(suite.T(), err)
 
 	// Fetch all refresh tokens
-	suite.service.db.Preload("Client").Preload("User").Find(&tokens)
+	suite.service.db.Unscoped().Preload("Client").Preload("User").Find(&tokens)
 
 	// There should be 2 tokens now
 	assert.Equal(suite.T(), 2, len(tokens))

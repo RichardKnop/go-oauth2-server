@@ -4,12 +4,13 @@ import (
 	"database/sql/driver"
 	"testing"
 
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewAccessToken(t *testing.T) {
-	client := Client{AbstractModel: AbstractModel{ID: 1}}
-	user := User{AbstractModel: AbstractModel{ID: 2}}
+	client := Client{Model: gorm.Model{ID: 1}}
+	user := User{Model: gorm.Model{ID: 2}}
 
 	var accessToken *AccessToken
 	var value driver.Value
@@ -65,8 +66,8 @@ func TestNewAccessToken(t *testing.T) {
 }
 
 func TestNewRefreshToken(t *testing.T) {
-	client := Client{AbstractModel: AbstractModel{ID: 1}}
-	user := User{AbstractModel: AbstractModel{ID: 2}}
+	client := Client{Model: gorm.Model{ID: 1}}
+	user := User{Model: gorm.Model{ID: 2}}
 
 	var refreshToken *RefreshToken
 	var value driver.Value
@@ -122,8 +123,8 @@ func TestNewRefreshToken(t *testing.T) {
 }
 
 func TestNewAuthorizationCode(t *testing.T) {
-	client := Client{AbstractModel: AbstractModel{ID: 1}}
-	user := User{AbstractModel: AbstractModel{ID: 2}}
+	client := Client{Model: gorm.Model{ID: 1}}
+	user := User{Model: gorm.Model{ID: 2}}
 
 	var authorizationCode *AuthorizationCode
 	var value driver.Value

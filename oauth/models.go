@@ -7,19 +7,13 @@ import (
 
 	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/RichardKnop/go-oauth2-server/util"
+	"github.com/jinzhu/gorm"
 	"github.com/pborman/uuid"
 )
 
-// AbstractModel ...
-type AbstractModel struct {
-	ID        int64 `gorm:"primary_key"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-}
-
 // Client ...
 type Client struct {
-	AbstractModel
+	gorm.Model
 	ClientID    string         `sql:"type:varchar(254);unique;not null"`
 	Secret      string         `sql:"type:varchar(60);not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
@@ -32,7 +26,7 @@ func (c Client) TableName() string {
 
 // Scope ...
 type Scope struct {
-	AbstractModel
+	gorm.Model
 	Scope       string `sql:"type:varchar(200);unique;not null"`
 	Description sql.NullString
 	IsDefault   bool `sql:"default:false"`
@@ -45,7 +39,7 @@ func (s Scope) TableName() string {
 
 // User ...
 type User struct {
-	AbstractModel
+	gorm.Model
 	Username string `sql:"type:varchar(254);unique;not null"`
 	Password string `sql:"type:varchar(60);not null"`
 }
@@ -57,7 +51,7 @@ func (u User) TableName() string {
 
 // RefreshToken ...
 type RefreshToken struct {
-	AbstractModel
+	gorm.Model
 	Token     string        `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt time.Time     `sql:"not null"`
 	Scope     string        `sql:"type:varchar(200);not null"`
@@ -74,7 +68,7 @@ func (rt RefreshToken) TableName() string {
 
 // AccessToken ...
 type AccessToken struct {
-	AbstractModel
+	gorm.Model
 	Token     string        `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt time.Time     `sql:"not null"`
 	Scope     string        `sql:"type:varchar(200);not null"`
@@ -91,7 +85,7 @@ func (at AccessToken) TableName() string {
 
 // AuthorizationCode ...
 type AuthorizationCode struct {
-	AbstractModel
+	gorm.Model
 	Code        string         `sql:"type:varchar(40);unique;not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
 	ExpiresAt   time.Time      `sql:"not null"`

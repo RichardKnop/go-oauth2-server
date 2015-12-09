@@ -89,12 +89,12 @@ func (suite *OauthTestSuite) SetupTest() {
 // The TearDownTest method will be run after every test in the suite.
 func (suite *OauthTestSuite) TearDownTest() {
 	// Empty all the tables
-	suite.db.Delete(AuthorizationCode{})
-	suite.db.Delete(RefreshToken{})
-	suite.db.Delete(AccessToken{})
-	suite.db.Delete(Scope{})
-	suite.db.Delete(User{})
-	suite.db.Delete(Client{})
+	suite.db.Unscoped().Delete(AuthorizationCode{})
+	suite.db.Unscoped().Delete(RefreshToken{})
+	suite.db.Unscoped().Delete(AccessToken{})
+	suite.db.Unscoped().Delete(Scope{})
+	suite.db.Unscoped().Delete(User{})
+	suite.db.Unscoped().Delete(Client{})
 }
 
 // TestOauthTestSuite ...

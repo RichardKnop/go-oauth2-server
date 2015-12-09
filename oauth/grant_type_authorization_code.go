@@ -47,7 +47,7 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 	}
 
 	// Delete the authorization code
-	s.db.Delete(&authorizationCode)
+	s.db.Unscoped().Delete(&authorizationCode)
 
 	// Write the access token to a JSON response
 	writeJSON(w, s.cnf.Oauth.AccessTokenLifetime, accessToken, refreshToken)

@@ -6,7 +6,7 @@ import (
 )
 
 // IntOrNull returns properly confiigured sql.NullInt64
-func IntOrNull(n int64) sql.NullInt64 {
+func IntOrNull(n uint) sql.NullInt64 {
 	if n < 1 {
 		return sql.NullInt64{Int64: 0, Valid: false}
 	}
