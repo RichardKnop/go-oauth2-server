@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/RichardKnop/go-oauth2-server",
-	"GoVersion": "go1.5.1",
+	"GoVersion": "go1.5.2",
 	"Packages": [
 		"./..."
 	],
@@ -47,7 +47,11 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "2f9abdcf0231d7b14d38203efb1708db718e2fa1"
+			"Rev": "8ee49893d1428fda97e2a2f8e5ce55a824b112c7"
+		},
+		{
+			"ImportPath": "github.com/jinzhu/inflection",
+			"Rev": "3272df6c21d04180007eb3349844c89a3856bc25"
 		},
 		{
 			"ImportPath": "github.com/kr/pretty",
@@ -83,10 +87,6 @@
 		{
 			"ImportPath": "github.com/pborman/uuid",
 			"Rev": "cccd189d45f7ac3368a0d127efb7f4d08ae0b655"
-		},
-		{
-			"ImportPath": "github.com/qor/inflection",
-			"Rev": "45321e63b98c756df17369c027c1df89298e1288"
 		},
 		{
 			"ImportPath": "github.com/spf13/cast",

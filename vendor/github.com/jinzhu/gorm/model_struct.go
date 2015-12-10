@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/qor/inflection"
+	"github.com/jinzhu/inflection"
 )
 
 var DefaultTableNameHandler = func(db *DB, defaultTableName string) string {
@@ -435,9 +435,12 @@ func (scope *Scope) generateSqlTag(field *StructField) string {
 			size, _ = strconv.Atoi(value)
 		}
 
-		_, autoIncrease := sqlSettings["AUTO_INCREMENT"]
+		v, autoIncrease := sqlSettings["AUTO_INCREMENT"]
 		if field.IsPrimaryKey {
 			autoIncrease = true
+		}
+		if v == "FALSE" {
+			autoIncrease = false
 		}
 
 		sqlType = scope.Dialect().SqlTag(reflectValue, size, autoIncrease)
