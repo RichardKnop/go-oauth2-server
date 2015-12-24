@@ -2,7 +2,7 @@ package web
 
 import "net/http"
 
-func registerForm(w http.ResponseWriter, r *http.Request) {
+func (s *Service) registerForm(w http.ResponseWriter, r *http.Request) {
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {
@@ -18,7 +18,7 @@ func registerForm(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func register(w http.ResponseWriter, r *http.Request) {
+func (s *Service) register(w http.ResponseWriter, r *http.Request) {
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {
@@ -27,14 +27,14 @@ func register(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check that the submitted email hasn't been registered already
-	if theService.oauthService.UserExists(r.Form.Get("email")) {
-		sessionService.SetFlashMessage("Email already taken")
+	if s.oauthService.UserExists(r.Form.Get("email")) {
+		sessionService.SetFlashMessage("Email taken")
 		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
 
 	// Create a user
-	_, err = theService.oauthService.CreateUser(
+	_, err = s.oauthService.CreateUser(
 		r.Form.Get("email"),    // username
 		r.Form.Get("password"), // password
 	)

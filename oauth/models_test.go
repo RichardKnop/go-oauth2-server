@@ -12,9 +12,11 @@ func TestNewAccessToken(t *testing.T) {
 	client := Client{Model: gorm.Model{ID: 1}}
 	user := User{Model: gorm.Model{ID: 2}}
 
-	var accessToken *AccessToken
-	var value driver.Value
-	var err error
+	var (
+		accessToken *AccessToken
+		v           driver.Value
+		err         error
+	)
 
 	// When user object is nil
 	accessToken = newAccessToken(
@@ -28,17 +30,17 @@ func TestNewAccessToken(t *testing.T) {
 	assert.True(t, accessToken.ClientID.Valid)
 
 	// accessToken.ClientID.Value() should return the object id, in this case int64(1)
-	value, err = accessToken.ClientID.Value()
+	v, err = accessToken.ClientID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), value)
+	assert.Equal(t, int64(1), v)
 
 	// accessToken.UserID.Valid should be false
 	assert.False(t, accessToken.UserID.Valid)
 
 	// accessToken.UserID.Value() should return nil
-	value, err = accessToken.UserID.Value()
+	v, err = accessToken.UserID.Value()
 	assert.Nil(t, err)
-	assert.Nil(t, value)
+	assert.Nil(t, v)
 
 	// When user object is not nil
 	accessToken = newAccessToken(
@@ -52,26 +54,28 @@ func TestNewAccessToken(t *testing.T) {
 	assert.True(t, accessToken.ClientID.Valid)
 
 	// accessToken.ClientID.Value() should return the object id, in this case int64(1)
-	value, err = accessToken.ClientID.Value()
+	v, err = accessToken.ClientID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), value)
+	assert.Equal(t, int64(1), v)
 
 	// accessToken.UserID.Valid should be true
 	assert.True(t, accessToken.UserID.Valid)
 
 	// accessToken.UserID.Value() should return the object id, in this case int64(2)
-	value, err = accessToken.UserID.Value()
+	v, err = accessToken.UserID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(2), value)
+	assert.Equal(t, int64(2), v)
 }
 
 func TestNewRefreshToken(t *testing.T) {
 	client := Client{Model: gorm.Model{ID: 1}}
 	user := User{Model: gorm.Model{ID: 2}}
 
-	var refreshToken *RefreshToken
-	var value driver.Value
-	var err error
+	var (
+		refreshToken *RefreshToken
+		v            driver.Value
+		err          error
+	)
 
 	// When user object is nil
 	refreshToken = newRefreshToken(
@@ -85,17 +89,17 @@ func TestNewRefreshToken(t *testing.T) {
 	assert.True(t, refreshToken.ClientID.Valid)
 
 	// refreshToken.ClientID.Value() should return the object id, in this case int64(1)
-	value, err = refreshToken.ClientID.Value()
+	v, err = refreshToken.ClientID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), value)
+	assert.Equal(t, int64(1), v)
 
 	// refreshToken.UserID.Valid should be false
 	assert.False(t, refreshToken.UserID.Valid)
 
 	// refreshToken.UserID.Value() should return nil
-	value, err = refreshToken.UserID.Value()
+	v, err = refreshToken.UserID.Value()
 	assert.Nil(t, err)
-	assert.Nil(t, value)
+	assert.Nil(t, v)
 
 	// When user object is not nil
 	refreshToken = newRefreshToken(
@@ -109,26 +113,28 @@ func TestNewRefreshToken(t *testing.T) {
 	assert.True(t, refreshToken.ClientID.Valid)
 
 	// accessToken.ClientID.Value() should return the object id, in this case int64(1)
-	value, err = refreshToken.ClientID.Value()
+	v, err = refreshToken.ClientID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), value)
+	assert.Equal(t, int64(1), v)
 
 	// refreshToken.UserID.Valid should be true
 	assert.True(t, refreshToken.UserID.Valid)
 
 	// refreshToken.UserID.Value() should return the object id, in this case int64(2)
-	value, err = refreshToken.UserID.Value()
+	v, err = refreshToken.UserID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(2), value)
+	assert.Equal(t, int64(2), v)
 }
 
 func TestNewAuthorizationCode(t *testing.T) {
 	client := Client{Model: gorm.Model{ID: 1}}
 	user := User{Model: gorm.Model{ID: 2}}
 
-	var authorizationCode *AuthorizationCode
-	var value driver.Value
-	var err error
+	var (
+		authorizationCode *AuthorizationCode
+		v                 driver.Value
+		err               error
+	)
 
 	// When user object is not nil
 	authorizationCode = newAuthorizationCode(
@@ -143,15 +149,15 @@ func TestNewAuthorizationCode(t *testing.T) {
 	assert.True(t, authorizationCode.ClientID.Valid)
 
 	// authorizationCode.ClientID.Value() should return the object id, in this case int64(1)
-	value, err = authorizationCode.ClientID.Value()
+	v, err = authorizationCode.ClientID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), value)
+	assert.Equal(t, int64(1), v)
 
 	// authorizationCode.UserID.Valid should be true
 	assert.True(t, authorizationCode.UserID.Valid)
 
 	// authorizationCode.UserID.Value() should return the object id, in this case int64(2)
-	value, err = authorizationCode.UserID.Value()
+	v, err = authorizationCode.UserID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(2), value)
+	assert.Equal(t, int64(2), v)
 }

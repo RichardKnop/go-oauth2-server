@@ -21,12 +21,19 @@ func (m *parseFormMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, 
 }
 
 // guestMiddleware just initialises session
-type guestMiddleware struct{}
+type guestMiddleware struct {
+	service *Service
+}
+
+// newGuestMiddleware creates a new guestMiddleware instance
+func newGuestMiddleware(service *Service) *guestMiddleware {
+	return &guestMiddleware{service: service}
+}
 
 // ServeHTTP as per the negroni.Handler interface
 func (m *guestMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	// Initialise the session service
-	sessionService := session.NewService(theService.cnf, r, w)
+	sessionService := session.NewService(m.service.cnf, r, w)
 
 	// Attempt to start the session
 	if err := sessionService.StartSession(); err != nil {
@@ -40,12 +47,19 @@ func (m *guestMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next
 }
 
 // loggedInMiddleware initialises session and makes sure the user is logged in
-type loggedInMiddleware struct{}
+type loggedInMiddleware struct {
+	service *Service
+}
+
+// newLoggedInMiddleware creates a new loggedInMiddleware instance
+func newLoggedInMiddleware(service *Service) *loggedInMiddleware {
+	return &loggedInMiddleware{service: service}
+}
 
 // ServeHTTP as per the negroni.Handler interface
 func (m *loggedInMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	// Initialise the session service
-	sessionService := session.NewService(theService.cnf, r, w)
+	sessionService := session.NewService(m.service.cnf, r, w)
 
 	// Attempt to start the session
 	if err := sessionService.StartSession(); err != nil {
@@ -63,7 +77,7 @@ func (m *loggedInMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, n
 	}
 
 	// Authenticate
-	if err := authenticate(userSession); err != nil {
+	if err := m.authenticate(userSession); err != nil {
 		redirectWithQueryString("/web/login", r.URL.Query(), w, r)
 		return
 	}
@@ -74,29 +88,9 @@ func (m *loggedInMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, n
 	next(w, r)
 }
 
-// clientMiddleware takes client_id param from the query string and
-// makes a database lookup for a client with the same client ID
-type clientMiddleware struct{}
-
-// ServeHTTP as per the negroni.Handler interface
-func (m *clientMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	// Fetch the client
-	client, err := theService.oauthService.FindClientByClientID(
-		r.Form.Get("client_id"), // client ID
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	context.Set(r, clientKey, client)
-
-	next(w, r)
-}
-
-func authenticate(userSession *session.UserSession) error {
+func (m *loggedInMiddleware) authenticate(userSession *session.UserSession) error {
 	// Try to authenticate with the stored access token
-	err := theService.oauthService.Authenticate(userSession.AccessToken)
+	_, err := m.service.oauthService.Authenticate(userSession.AccessToken)
 	if err == nil {
 		// Access token valid, return
 		return nil
@@ -104,7 +98,7 @@ func authenticate(userSession *session.UserSession) error {
 	// Access token might be expired, let's try refreshing...
 
 	// Fetch the client
-	client, err := theService.oauthService.FindClientByClientID(
+	client, err := m.service.oauthService.FindClientByClientID(
 		userSession.ClientID, // client ID
 	)
 	if err != nil {
@@ -112,7 +106,7 @@ func authenticate(userSession *session.UserSession) error {
 	}
 
 	// Validate the refresh token
-	theRefreshToken, err := theService.oauthService.GetValidRefreshToken(
+	theRefreshToken, err := m.service.oauthService.GetValidRefreshToken(
 		userSession.RefreshToken, // refresh token
 		client, // client
 	)
@@ -121,7 +115,7 @@ func authenticate(userSession *session.UserSession) error {
 	}
 
 	// Create a new access token
-	accessToken, err := theService.oauthService.GrantAccessToken(
+	accessToken, err := m.service.oauthService.GrantAccessToken(
 		theRefreshToken.Client, // client
 		theRefreshToken.User,   // user
 		theRefreshToken.Scope,  // scope
@@ -131,7 +125,7 @@ func authenticate(userSession *session.UserSession) error {
 	}
 
 	// Create or retrieve a refresh token
-	refreshToken, err := theService.oauthService.GetOrCreateRefreshToken(
+	refreshToken, err := m.service.oauthService.GetOrCreateRefreshToken(
 		theRefreshToken.Client, // client
 		theRefreshToken.User,   // user
 		theRefreshToken.Scope,  // scope
@@ -144,4 +138,31 @@ func authenticate(userSession *session.UserSession) error {
 	userSession.RefreshToken = refreshToken.Token
 
 	return nil
+}
+
+// clientMiddleware takes client_id param from the query string and
+// makes a database lookup for a client with the same client ID
+type clientMiddleware struct {
+	service *Service
+}
+
+// newClientMiddleware creates a new clientMiddleware instance
+func newClientMiddleware(service *Service) *clientMiddleware {
+	return &clientMiddleware{service: service}
+}
+
+// ServeHTTP as per the negroni.Handler interface
+func (m *clientMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
+	// Fetch the client
+	client, err := m.service.oauthService.FindClientByClientID(
+		r.Form.Get("client_id"), // client ID
+	)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	context.Set(r, clientKey, client)
+
+	next(w, r)
 }

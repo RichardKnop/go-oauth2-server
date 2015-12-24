@@ -30,6 +30,12 @@ func NewDatabase(cnf *config.Config) (*gorm.DB, error) {
 			return &db, err
 		}
 
+		// Max idle connections
+		db.DB().SetMaxIdleConns(cnf.Database.MaxIdleConns)
+
+		// Max open connections
+		db.DB().SetMaxOpenConns(cnf.Database.MaxOpenConns)
+
 		return &db, nil
 	}
 

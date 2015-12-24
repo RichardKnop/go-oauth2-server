@@ -17,11 +17,9 @@ var s *Service
 
 // NewService starts a new Service instance
 func NewService(cnf *config.Config, db *gorm.DB, oauthService oauth.ServiceInterface) *Service {
-	s = &Service{cnf: cnf, db: db, oauthService: oauthService}
-	return s
-}
-
-// GetService returns internal Service instance
-func GetService() *Service {
-	return s
+	return &Service{
+		cnf:          cnf,
+		db:           db,
+		oauthService: oauthService,
+	}
 }

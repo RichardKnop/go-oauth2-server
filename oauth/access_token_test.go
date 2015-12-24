@@ -9,10 +9,12 @@ import (
 )
 
 func (suite *OauthTestSuite) TestGrantAccessToken() {
-	var accessToken *AccessToken
-	var err error
-	var tokens []*AccessToken
-	var v driver.Value
+	var (
+		accessToken *AccessToken
+		err         error
+		tokens      []*AccessToken
+		v           driver.Value
+	)
 
 	// Grant a client only access token
 	accessToken, err = suite.service.GrantAccessToken(
@@ -122,8 +124,10 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 		log.Fatal(err)
 	}
 
-	var notFound bool
-	var existingTokens []string
+	var (
+		notFound bool
+		existingTokens []string
+	)
 
 	// This should only delete test_token_1
 	suite.service.deleteExpiredAccessTokens(

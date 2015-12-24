@@ -5,8 +5,10 @@ import (
 )
 
 func (suite *OauthTestSuite) TestFindClientByClientID() {
-	var client *Client
-	var err error
+	var (
+		client *Client
+		err    error
+	)
 
 	// When we try to find a client with a bogus client ID
 	client, err = suite.service.FindClientByClientID("bogus")
@@ -32,8 +34,10 @@ func (suite *OauthTestSuite) TestFindClientByClientID() {
 }
 
 func (suite *OauthTestSuite) TestCreateClient() {
-	var client *Client
-	var err error
+	var (
+		client *Client
+		err    error
+	)
 
 	// We try to insert a non uniqie client
 	client, err = suite.service.CreateClient(
@@ -67,8 +71,10 @@ func (suite *OauthTestSuite) TestCreateClient() {
 }
 
 func (suite *OauthTestSuite) TestAuthClient() {
-	var client *Client
-	var err error
+	var (
+		client *Client
+		err    error
+	)
 
 	// When we try to authenticate with a bogus client ID
 	client, err = suite.service.AuthClient("bogus", "test_secret")

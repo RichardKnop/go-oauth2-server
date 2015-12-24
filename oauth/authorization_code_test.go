@@ -9,10 +9,12 @@ import (
 )
 
 func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
-	var authorizationCode *AuthorizationCode
-	var err error
-	var codes []*AuthorizationCode
-	var v driver.Value
+	var (
+		authorizationCode *AuthorizationCode
+		err               error
+		codes             []*AuthorizationCode
+		v                 driver.Value
+	)
 
 	// Grant an authorization code
 	authorizationCode, err = suite.service.GrantAuthorizationCode(
@@ -51,8 +53,10 @@ func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
 }
 
 func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
-	var authorizationCode *AuthorizationCode
-	var err error
+	var (
+		authorizationCode *AuthorizationCode
+		err error
+	)
 
 	authorizationCode, err = suite.service.getValidAuthorizationCode(
 		"bogus",      // authorization code

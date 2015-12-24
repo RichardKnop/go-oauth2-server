@@ -6,8 +6,8 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/response"
 )
 
-// Handles all OAuth 2.0 grant types (POST /api/v1/oauth/tokens
-func handleTokens(w http.ResponseWriter, r *http.Request) {
+// Handles all OAuth 2.0 grant types (POST /v1/oauth/tokens)
+func (s *Service) tokensHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse the form so r.Form becomes available
 	if err := r.ParseForm(); err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)
@@ -16,10 +16,10 @@ func handleTokens(w http.ResponseWriter, r *http.Request) {
 
 	// Map of grant types against handler functions
 	grantTypes := map[string]func(w http.ResponseWriter, r *http.Request, client *Client){
-		"authorization_code": theService.authorizationCodeGrant,
-		"password":           theService.passwordGrant,
-		"client_credentials": theService.clientCredentialsGrant,
-		"refresh_token":      theService.refreshTokenGrant,
+		"authorization_code": s.authorizationCodeGrant,
+		"password":           s.passwordGrant,
+		"client_credentials": s.clientCredentialsGrant,
+		"refresh_token":      s.refreshTokenGrant,
 	}
 
 	// Check the grant type
@@ -37,7 +37,7 @@ func handleTokens(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authenticate the client
-	client, err := theService.AuthClient(clientID, secret)
+	client, err := s.AuthClient(clientID, secret)
 	if err != nil {
 		// For security reasons, return a general error message
 		response.UnauthorizedError(w, "Client authentication required")

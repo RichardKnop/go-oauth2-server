@@ -27,8 +27,8 @@ type UserSession struct {
 }
 
 var (
-	storageSessionName  = "session"
-	userSessionKey      = "user"
+	storageSessionName  = "go_oauth2_server_session"
+	userSessionKey      = "go_oauth2_server_user"
 	errSessonNotStarted = errors.New("Session not started")
 )
 

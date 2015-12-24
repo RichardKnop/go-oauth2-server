@@ -10,7 +10,7 @@ import (
 // Route ...
 type Route struct {
 	Name        string
-	Methods     []string
+	Method      string
 	Pattern     string
 	HandlerFunc http.HandlerFunc
 	Middlewares []negroni.Handler
@@ -21,6 +21,7 @@ type Route struct {
 func AddRoutes(routes []Route, router *mux.Router) {
 	for _, route := range routes {
 		var handler http.Handler
+
 		if len(route.Middlewares) > 0 {
 			n := negroni.New()
 			for _, middleware := range route.Middlewares {
@@ -32,7 +33,7 @@ func AddRoutes(routes []Route, router *mux.Router) {
 			handler = route.HandlerFunc
 		}
 
-		router.Methods(route.Methods...).
+		router.Methods(route.Method).
 			Path(route.Pattern).
 			Name(route.Name).
 			Handler(handler)

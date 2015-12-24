@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"log"
+	"os"
 	"testing"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
@@ -11,6 +12,8 @@ import (
 	// sqlite driver
 	_ "github.com/mattn/go-sqlite3"
 )
+
+var testDbPath = "/tmp/oauth_testdb.sqlite"
 
 // OauthTestSuite needs to be exported so the tests run
 type OauthTestSuite struct {
@@ -25,10 +28,13 @@ type OauthTestSuite struct {
 // The SetupSuite method will be run by testify once, at the very
 // start of the testing suite, before any tests are run.
 func (suite *OauthTestSuite) SetupSuite() {
+	// Delete the test database
+	os.Remove(testDbPath)
+
 	suite.cnf = config.NewConfig()
 
 	// Init in-memory test database
-	inMemoryDB, err := gorm.Open("sqlite3", ":memory:")
+	inMemoryDB, err := gorm.Open("sqlite3", testDbPath)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -40,16 +46,7 @@ func (suite *OauthTestSuite) SetupSuite() {
 
 	// Initialise the service
 	suite.service = NewService(suite.cnf, suite.db)
-}
 
-// The TearDownSuite method will be run by testify once, at the very
-// end of the testing suite, after all tests have been run.
-func (suite *OauthTestSuite) TearDownSuite() {
-	//
-}
-
-// The SetupTest method will be run before every test in the suite.
-func (suite *OauthTestSuite) SetupTest() {
 	// Insert a test client
 	client, err := suite.service.CreateClient(
 		"test_client",             // client id
@@ -86,15 +83,26 @@ func (suite *OauthTestSuite) SetupTest() {
 	}
 }
 
+// The TearDownSuite method will be run by testify once, at the very
+// end of the testing suite, after all tests have been run.
+func (suite *OauthTestSuite) TearDownSuite() {
+	//
+}
+
+// The SetupTest method will be run before every test in the suite.
+func (suite *OauthTestSuite) SetupTest() {
+	//
+}
+
 // The TearDownTest method will be run after every test in the suite.
 func (suite *OauthTestSuite) TearDownTest() {
-	// Empty all the tables
+	// Scopes are static, populated from fixtures,
+	// so there is no need to clear them after running a test
 	suite.db.Unscoped().Delete(AuthorizationCode{})
 	suite.db.Unscoped().Delete(RefreshToken{})
 	suite.db.Unscoped().Delete(AccessToken{})
-	suite.db.Unscoped().Delete(Scope{})
-	suite.db.Unscoped().Delete(User{})
-	suite.db.Unscoped().Delete(Client{})
+	suite.db.Unscoped().Not("id", suite.user.ID).Delete(User{})
+	suite.db.Unscoped().Not("id", suite.client.ID).Delete(Client{})
 }
 
 // TestOauthTestSuite ...

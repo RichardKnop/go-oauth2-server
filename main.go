@@ -1,16 +1,17 @@
 package main
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 
-	"github.com/RichardKnop/go-oauth2-server/accounts"
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/database"
+	"github.com/RichardKnop/go-oauth2-server/health"
 	"github.com/RichardKnop/go-oauth2-server/migrations"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/routes"
 	"github.com/RichardKnop/go-oauth2-server/web"
+	"github.com/areatech/go-fixtures"
 	"github.com/codegangsta/cli"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
@@ -19,14 +20,14 @@ import (
 
 var (
 	cliApp *cli.App
-	webApp *negroni.Negroni
+	app    *negroni.Negroni
 )
 
 func init() {
 	// Initialise a CLI app
 	cliApp = cli.NewApp()
-	cliApp.Name = "go-oauth2-server"
-	cliApp.Usage = "OAuth 2.0 Server"
+	cliApp.Name = "area-api"
+	cliApp.Usage = "Area Platform REST API"
 	cliApp.Author = "Richard Knop"
 	cliApp.Email = "risoknop@gmail.com"
 	cliApp.Version = "0.0.0"
@@ -39,6 +40,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer db.Close()
+
 	// Disable logging
 	db.LogMode(false)
 
@@ -52,6 +55,13 @@ func main() {
 			},
 		},
 		{
+			Name:  "loaddata",
+			Usage: "load data from fixture",
+			Action: func(c *cli.Context) {
+				loadData(c.Args(), cnf, db)
+			},
+		},
+		{
 			Name:  "runserver",
 			Usage: "run web server",
 			Action: func(c *cli.Context) {
@@ -60,6 +70,7 @@ func main() {
 		},
 	}
 
+	// Run the CLI app
 	cliApp.Run(os.Args)
 }
 
@@ -74,31 +85,47 @@ func migrate(db *gorm.DB) {
 	}
 }
 
+func loadData(paths []string, cnf *config.Config, db *gorm.DB) {
+	for _, path := range paths {
+		data, err := ioutil.ReadFile(path)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err := fixtures.Load(data, db.DB(), cnf.Database.Type); err != nil {
+			log.Fatal(err)
+		}
+	}
+}
+
 func runServer(cnf *config.Config, db *gorm.DB) {
+	// Initialise the health service
+	healthService := health.NewService(db)
+
 	// Initialise the oauth service
 	oauthService := oauth.NewService(cnf, db)
 
-	// Initialise the accounts service
-	_ = accounts.NewService(cnf, db, oauthService)
-
 	// Initialise the web service
-	_ = web.NewService(cnf, oauthService)
+	webService := web.NewService(cnf, oauthService)
 
 	// Start a classic negroni app
-	webApp := negroni.Classic()
+	app := negroni.Classic()
 
 	// Create a router instance
-	router := mux.NewRouter().StrictSlash(true)
+	router := mux.NewRouter()
 
-	// Add routes for the oauth package (REST tokens endpoint)
-	routes.AddRoutes(oauth.Routes, router.PathPrefix("/api/v1/oauth").Subrouter())
+	// Add routes for the health service (healthcheck endpoint)
+	health.RegisterRoutes(router, healthService)
+
+	// Add routes for the oauth service (REST tokens endpoint)
+	oauth.RegisterRoutes(router, oauthService)
 
 	// Add routes for the web package (register, login authorize web pages)
-	routes.AddRoutes(web.Routes, router.PathPrefix("/web").Subrouter())
+	web.RegisterRoutes(router, webService)
 
 	// Set the router
-	webApp.UseHandler(router)
+	app.UseHandler(router)
 
 	// Run the server on port 8080
-	webApp.Run(":8080")
+	app.Run(":8080")
 }

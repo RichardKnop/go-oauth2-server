@@ -1,8 +1,10 @@
 package web
 
-import "net/http"
+import (
+	"net/http"
+)
 
-func logout(w http.ResponseWriter, r *http.Request) {
+func (s *Service) logout(w http.ResponseWriter, r *http.Request) {
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {

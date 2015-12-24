@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -15,11 +16,13 @@ var configLoaded bool
 var cnf = &Config{
 	Database: DatabaseConfig{
 		Type:         "postgres",
-		Host:         "127.0.0.1",
+		Host:         "localhost",
 		Port:         5432,
-		User:         "go_oauth2_server",
+		User:         "area",
 		Password:     "",
-		DatabaseName: "go_oauth2_server",
+		DatabaseName: "area",
+		MaxIdleConns: 5,
+		MaxOpenConns: 5,
 	},
 	Oauth: OauthConfig{
 		AccessTokenLifetime:  3600,    // 1 hour
@@ -45,12 +48,22 @@ func NewConfig() *Config {
 		return cnf
 	}
 
-	runtimeViper := viper.New()
-	runtimeViper.AddRemoteProvider(
-		"etcd",
-		"http://127.0.0.1:4001",
-		"/config/go_oauth2_server.json",
+	// Bind etcd env vars
+	viper.SetDefault("etcd_host", "localhost")
+	viper.SetDefault("etcd_port", "2379")
+	viper.BindEnv("etcd_host")
+	viper.BindEnv("etcd_port")
+
+	// Construct the ETCD URL
+	etcdURL := fmt.Sprintf(
+		"http://%s:%s",
+		viper.Get("etcd_host"),
+		viper.Get("etcd_port"),
 	)
+
+	// Add a new ETCD remote provider
+	runtimeViper := viper.New()
+	runtimeViper.AddRemoteProvider("etcd", etcdURL, "/config/area.json")
 	// Because there is no file extension in a stream of bytes
 	runtimeViper.SetConfigType("json")
 

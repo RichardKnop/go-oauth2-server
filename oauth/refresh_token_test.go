@@ -9,10 +9,12 @@ import (
 )
 
 func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
-	var refreshToken *RefreshToken
-	var err error
-	var tokens []*RefreshToken
-	var v driver.Value
+	var (
+		refreshToken *RefreshToken
+		err          error
+		tokens       []*RefreshToken
+		v            driver.Value
+	)
 
 	// Since there is no client only token,
 	// a new one should be created and returned
@@ -82,10 +84,12 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 }
 
 func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
-	var refreshToken *RefreshToken
-	var err error
-	var tokens []*RefreshToken
-	var v driver.Value
+	var (
+		refreshToken *RefreshToken
+		err          error
+		tokens       []*RefreshToken
+		v            driver.Value
+	)
 
 	// Insert a client only test refresh token
 	if err := suite.db.Create(&RefreshToken{
@@ -177,10 +181,12 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 }
 
 func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
-	var refreshToken *RefreshToken
-	var err error
-	var tokens []*RefreshToken
-	var v driver.Value
+	var (
+		refreshToken *RefreshToken
+		err          error
+		tokens       []*RefreshToken
+		v            driver.Value
+	)
 
 	// Insert an expired client only test refresh token
 	if err = suite.db.Create(&RefreshToken{
@@ -273,8 +279,10 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 }
 
 func (suite *OauthTestSuite) TestGetValidRefreshToken() {
-	var refreshToken *RefreshToken
-	var err error
+	var (
+		refreshToken *RefreshToken
+		err          error
+	)
 
 	refreshToken, err = suite.service.GetValidRefreshToken(
 		"bogus",      // refresh token

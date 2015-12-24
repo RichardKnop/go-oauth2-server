@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -17,29 +18,31 @@ type helloWorldMiddleware struct{}
 
 // ServeHTTP as per the negroni.Handler interface
 func (m *helloWorldMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
-	w.Write([]byte("hello world"))
+	vars := mux.Vars(r)
+	id := vars["id"]
+	w.Write([]byte(fmt.Sprintf("hello world %s", id)))
 	next(w, r)
 }
 
 func TestAddRoutes(t *testing.T) {
-	router := mux.NewRouter().StrictSlash(true)
+	router := mux.NewRouter()
 
 	// Add a test GET route without a middleware
 	AddRoutes([]Route{
 		Route{
 			Name:        "foobar_route",
-			Methods:     []string{"GET"},
+			Method:      "GET",
 			Pattern:     "/bar",
 			HandlerFunc: func(w http.ResponseWriter, r *http.Request) {},
 		},
 	}, router.PathPrefix("/foo").Subrouter())
 
-	// Add a test POST route with a middleware
+	// Add a test PUT route with a middleware and a named parameter
 	AddRoutes([]Route{
 		Route{
 			Name:        "helloworld_route",
-			Methods:     []string{"POST"},
-			Pattern:     "/world",
+			Method:      "PUT",
+			Pattern:     "/world/{id:[0-9]+}",
 			HandlerFunc: func(w http.ResponseWriter, r *http.Request) {},
 			Middlewares: []negroni.Handler{
 				new(helloWorldMiddleware),
@@ -62,11 +65,11 @@ func TestAddRoutes(t *testing.T) {
 	assert.Equal(t, "foobar_route", match.Route.GetName())
 	// Test no middleware has been registered
 	w = httptest.NewRecorder()
-	match.Route.GetHandler().ServeHTTP(w, r)
+	router.ServeHTTP(w, r)
 	assert.Equal(t, "", w.Body.String())
 
 	// Test the helloworld_route is correctly matched
-	r, err = http.NewRequest("POST", "http://1.2.3.4/hello/world", nil)
+	r, err = http.NewRequest("PUT", "http://1.2.3.4/hello/world/1", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -75,6 +78,6 @@ func TestAddRoutes(t *testing.T) {
 	assert.Equal(t, "helloworld_route", match.Route.GetName())
 	// Test the helloWorldMiddleware has been registered
 	w = httptest.NewRecorder()
-	match.Route.GetHandler().ServeHTTP(w, r)
-	assert.Equal(t, "hello world", w.Body.String())
+	router.ServeHTTP(w, r)
+	assert.Equal(t, "hello world 1", w.Body.String())
 }

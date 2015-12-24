@@ -12,7 +12,7 @@ import (
 )
 
 func (suite *OauthTestSuite) TestClientCredentialsGrant() {
-	// Prepare a request object
+	// Prepare a request
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -22,6 +22,7 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 		"scope":      {"read_write"},
 	}
 
+	// And run the function we want to test
 	w := httptest.NewRecorder()
 	suite.service.clientCredentialsGrant(w, r, suite.client)
 
@@ -35,7 +36,7 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 	assert.False(suite.T(), suite.db.First(refreshToken).RecordNotFound())
 
 	// Check the response body
-	expected, _ := json.Marshal(map[string]interface{}{
+	expected, err := json.Marshal(map[string]interface{}{
 		"id":            accessToken.ID,
 		"access_token":  accessToken.Token,
 		"expires_in":    3600,
@@ -43,5 +44,8 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 		"scope":         "read_write",
 		"refresh_token": refreshToken.Token,
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 }

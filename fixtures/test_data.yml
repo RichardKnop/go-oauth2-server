@@ -1,0 +1,37 @@
+---
+
+- table: 'oauth_scopes'
+  pk:
+    id: 1
+  fields:
+    scope: 'read'
+    is_default: true
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'
+
+- table: 'oauth_scopes'
+  pk:
+    id: 2
+  fields:
+    scope: 'read_write'
+    is_default: false
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'
+
+- table: 'oauth_clients'
+  pk:
+    id: 1
+  fields:
+    client_id: 'test_client'
+    secret: '$2a$10$CUoGytf1pR7CC6Y043gt/.vFJUV4IRqvH5R6F0VfITP8s2TqrQ.4e'
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'
+
+- table: 'oauth_users'
+  pk:
+    id: 1
+  fields:
+    username: 'test@username'
+    password: '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS'
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'

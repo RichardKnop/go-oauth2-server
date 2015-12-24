@@ -6,7 +6,7 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/session"
 )
 
-func loginForm(w http.ResponseWriter, r *http.Request) {
+func (s *Service) loginForm(w http.ResponseWriter, r *http.Request) {
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {
@@ -22,7 +22,7 @@ func loginForm(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func login(w http.ResponseWriter, r *http.Request) {
+func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {
@@ -31,7 +31,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authenticate the user
-	user, err := theService.oauthService.AuthUser(
+	user, err := s.oauthService.AuthUser(
 		r.Form.Get("email"),    // username
 		r.Form.Get("password"), // password
 	)
@@ -42,7 +42,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get the scope string
-	scope, err := theService.oauthService.GetScope(r.Form.Get("scope"))
+	scope, err := s.oauthService.GetScope(r.Form.Get("scope"))
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
 		http.Redirect(w, r, r.RequestURI, http.StatusFound)
@@ -50,8 +50,8 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch the trusted client
-	client, err := theService.oauthService.FindClientByClientID(
-		theService.cnf.TrustedClient.ClientID,
+	client, err := s.oauthService.FindClientByClientID(
+		s.cnf.TrustedClient.ClientID,
 	)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -59,7 +59,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Grant an access token
-	accessToken, err := theService.oauthService.GrantAccessToken(
+	accessToken, err := s.oauthService.GrantAccessToken(
 		client, // client
 		user,   // user
 		scope,  // scope
@@ -71,7 +71,7 @@ func login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get a refresh token
-	refreshToken, err := theService.oauthService.GetOrCreateRefreshToken(
+	refreshToken, err := s.oauthService.GetOrCreateRefreshToken(
 		client, // client
 		user,   // user
 		scope,  // scope
@@ -95,6 +95,11 @@ func login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Redirect to the authorize page
-	redirectWithQueryString("/web/authorize", r.URL.Query(), w, r)
+	// Redirect to the authorize page by default but allow redirection to other
+	// pages by specifying a path with login_redirect_uri query string param
+	loginRedirectURI := r.URL.Query().Get("login_redirect_uri")
+	if loginRedirectURI == "" {
+		loginRedirectURI = "/web/authorize"
+	}
+	redirectWithQueryString(loginRedirectURI, r.URL.Query(), w, r)
 }

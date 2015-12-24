@@ -20,7 +20,7 @@ type Client struct {
 }
 
 // TableName specifies table name
-func (c Client) TableName() string {
+func (c *Client) TableName() string {
 	return "oauth_clients"
 }
 
@@ -33,19 +33,19 @@ type Scope struct {
 }
 
 // TableName specifies table name
-func (s Scope) TableName() string {
+func (s *Scope) TableName() string {
 	return "oauth_scopes"
 }
 
 // User ...
 type User struct {
 	gorm.Model
-	Username string `sql:"type:varchar(254);unique;not null"`
-	Password string `sql:"type:varchar(60);not null"`
+	Username string         `sql:"type:varchar(254);unique;not null"`
+	Password sql.NullString `sql:"type:varchar(60)"`
 }
 
 // TableName specifies table name
-func (u User) TableName() string {
+func (u *User) TableName() string {
 	return "oauth_users"
 }
 
@@ -62,7 +62,7 @@ type RefreshToken struct {
 }
 
 // TableName specifies table name
-func (rt RefreshToken) TableName() string {
+func (rt *RefreshToken) TableName() string {
 	return "oauth_refresh_tokens"
 }
 
@@ -79,7 +79,7 @@ type AccessToken struct {
 }
 
 // TableName specifies table name
-func (at AccessToken) TableName() string {
+func (at *AccessToken) TableName() string {
 	return "oauth_access_tokens"
 }
 
@@ -97,7 +97,7 @@ type AuthorizationCode struct {
 }
 
 // TableName specifies table name
-func (ac AuthorizationCode) TableName() string {
+func (ac *AuthorizationCode) TableName() string {
 	return "oauth_authorization_codes"
 }
 

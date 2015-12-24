@@ -8,6 +8,8 @@ type DatabaseConfig struct {
 	User         string
 	Password     string
 	DatabaseName string
+	MaxIdleConns int
+	MaxOpenConns int
 }
 
 // OauthConfig stores oauth service configuration options

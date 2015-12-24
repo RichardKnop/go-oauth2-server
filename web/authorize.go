@@ -5,10 +5,9 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"strings"
 )
 
-func authorizeForm(w http.ResponseWriter, r *http.Request) {
+func (s *Service) authorizeForm(w http.ResponseWriter, r *http.Request) {
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {
@@ -32,7 +31,7 @@ func authorizeForm(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func authorize(w http.ResponseWriter, r *http.Request) {
+func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {
@@ -55,7 +54,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch the user
-	user, err := theService.oauthService.FindUserByUsername(
+	user, err := s.oauthService.FindUserByUsername(
 		userSession.Username,
 	)
 	if err != nil {
@@ -91,15 +90,15 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	// Get the state parameter
 	state := r.Form.Get("state")
 
-	// The resource owner or authorization server denied the request
-	declined := strings.ToLower(r.Form.Get("authorize")) != "authorize"
-	if declined {
+	// Has the resource owner or authorization server denied the request?
+	authorized := len(r.Form.Get("authorize")) > 0
+	if !authorized {
 		errorRedirect(w, r, parsedRedirectURI, "access_denied", state, responseType)
 		return
 	}
 
 	// Check the requested scope
-	scope, err := theService.oauthService.GetScope(r.Form.Get("scope"))
+	scope, err := s.oauthService.GetScope(r.Form.Get("scope"))
 	if err != nil {
 		errorRedirect(w, r, parsedRedirectURI, "invalid_scope", state, responseType)
 		return
@@ -110,7 +109,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	// When response_type == "code", we will grant an authorization code
 	if responseType == "code" {
 		// Create a new authorization code
-		authorizationCode, err := theService.oauthService.GrantAuthorizationCode(
+		authorizationCode, err := s.oauthService.GrantAuthorizationCode(
 			client, // client
 			user,   // user
 			r.Form.Get("redirect_uri"), // redirect URI
@@ -136,7 +135,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 	// When response_type == "token", we will directly grant an access token
 	if responseType == "token" {
 		// Grant an access token
-		accessToken, err := theService.oauthService.GrantAccessToken(
+		accessToken, err := s.oauthService.GrantAccessToken(
 			client, // client
 			user,   // user
 			scope,  // scope
@@ -149,7 +148,7 @@ func authorize(w http.ResponseWriter, r *http.Request) {
 
 		// Set query string params for the redirection URL
 		query.Set("access_token", accessToken.Token)
-		query.Set("expires_in", fmt.Sprintf("%d", theService.cnf.Oauth.AccessTokenLifetime))
+		query.Set("expires_in", fmt.Sprintf("%d", s.cnf.Oauth.AccessTokenLifetime))
 		query.Set("token_type", "Bearer")
 		query.Set("scope", scope)
 		// Add state param if present (recommended)

@@ -5,8 +5,10 @@ import (
 )
 
 func (suite *OauthTestSuite) TestGetScope() {
-	var scope string
-	var err error
+	var (
+		scope string
+		err error
+	)
 
 	// When the requested scope is an empty string,
 	// the default scope should be returned

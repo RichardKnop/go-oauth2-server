@@ -1,0 +1,359 @@
+package oauth
+
+import (
+	"github.com/jinzhu/gorm"
+	"github.com/stretchr/testify/mock"
+)
+
+// ServiceMock is a mocked object implementing ServiceInterface
+type ServiceMock struct {
+	mock.Mock
+}
+
+// ClientExists just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) ClientExists(clientID string) bool {
+	ret := _m.Called(clientID)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(clientID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// FindClientByClientID just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) FindClientByClientID(clientID string) (*Client, error) {
+	ret := _m.Called(clientID)
+
+	var r0 *Client
+	if rf, ok := ret.Get(0).(func(string) *Client); ok {
+		r0 = rf(clientID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Client)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(clientID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CreateClient just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) CreateClient(clientID string, secret string, redirectURI string) (*Client, error) {
+	ret := _m.Called(clientID, secret, redirectURI)
+
+	var r0 *Client
+	if rf, ok := ret.Get(0).(func(string, string, string) *Client); ok {
+		r0 = rf(clientID, secret, redirectURI)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Client)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
+		r1 = rf(clientID, secret, redirectURI)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// AuthClient just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) AuthClient(clientID string, secret string) (*Client, error) {
+	ret := _m.Called(clientID, secret)
+
+	var r0 *Client
+	if rf, ok := ret.Get(0).(func(string, string) *Client); ok {
+		r0 = rf(clientID, secret)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Client)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(clientID, secret)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UserExists just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) UserExists(username string) bool {
+	ret := _m.Called(username)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(username)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+
+// FindUserByUsername just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) FindUserByUsername(username string) (*User, error) {
+	ret := _m.Called(username)
+
+	var r0 *User
+	if rf, ok := ret.Get(0).(func(string) *User); ok {
+		r0 = rf(username)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*User)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(username)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CreateUser just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) CreateUser(username string, password string) (*User, error) {
+	ret := _m.Called(username, password)
+
+	var r0 *User
+	if rf, ok := ret.Get(0).(func(string, string) *User); ok {
+		r0 = rf(username, password)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*User)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(username, password)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// CreateUserTx just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) CreateUserTx(tx *gorm.DB, username string, password string) (*User, error) {
+	ret := _m.Called(tx, username, password)
+
+	var r0 *User
+	if rf, ok := ret.Get(0).(func(*gorm.DB, string, string) *User); ok {
+		r0 = rf(tx, username, password)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*User)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*gorm.DB, string, string) error); ok {
+		r1 = rf(tx, username, password)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// SetPassword just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) SetPassword(user *User, password string) (*User, error) {
+	ret := _m.Called(user, password)
+
+	var r0 *User
+	if rf, ok := ret.Get(0).(func(*User, string) *User); ok {
+		r0 = rf(user, password)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*User)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*User, string) error); ok {
+		r1 = rf(user, password)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// AuthUser just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) AuthUser(username string, password string) (*User, error) {
+	ret := _m.Called(username, password)
+
+	var r0 *User
+	if rf, ok := ret.Get(0).(func(string, string) *User); ok {
+		r0 = rf(username, password)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*User)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(username, password)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetScope just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) GetScope(requestedScope string) (string, error) {
+	ret := _m.Called(requestedScope)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(requestedScope)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(requestedScope)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GrantAuthorizationCode just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) GrantAuthorizationCode(client *Client, user *User, redirectURI string, scope string) (*AuthorizationCode, error) {
+	ret := _m.Called(client, user, redirectURI, scope)
+
+	var r0 *AuthorizationCode
+	if rf, ok := ret.Get(0).(func(*Client, *User, string, string) *AuthorizationCode); ok {
+		r0 = rf(client, user, redirectURI, scope)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*AuthorizationCode)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*Client, *User, string, string) error); ok {
+		r1 = rf(client, user, redirectURI, scope)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GrantAccessToken just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) GrantAccessToken(client *Client, user *User, scope string) (*AccessToken, error) {
+	ret := _m.Called(client, user, scope)
+
+	var r0 *AccessToken
+	if rf, ok := ret.Get(0).(func(*Client, *User, string) *AccessToken); ok {
+		r0 = rf(client, user, scope)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*AccessToken)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*Client, *User, string) error); ok {
+		r1 = rf(client, user, scope)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetOrCreateRefreshToken just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) GetOrCreateRefreshToken(client *Client, user *User, scope string) (*RefreshToken, error) {
+	ret := _m.Called(client, user, scope)
+
+	var r0 *RefreshToken
+	if rf, ok := ret.Get(0).(func(*Client, *User, string) *RefreshToken); ok {
+		r0 = rf(client, user, scope)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*RefreshToken)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*Client, *User, string) error); ok {
+		r1 = rf(client, user, scope)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetValidRefreshToken just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) GetValidRefreshToken(token string, client *Client) (*RefreshToken, error) {
+	ret := _m.Called(token, client)
+
+	var r0 *RefreshToken
+	if rf, ok := ret.Get(0).(func(string, *Client) *RefreshToken); ok {
+		r0 = rf(token, client)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*RefreshToken)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, *Client) error); ok {
+		r1 = rf(token, client)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Authenticate just records the activity, and returns what the Mock object tells it to
+func (_m *ServiceMock) Authenticate(token string) (*AccessToken, error) {
+	ret := _m.Called(token)
+
+	var r0 *AccessToken
+	if rf, ok := ret.Get(0).(func(string) *AccessToken); ok {
+		r0 = rf(token)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*AccessToken)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(token)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}

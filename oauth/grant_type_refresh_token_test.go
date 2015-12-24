@@ -24,7 +24,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 		log.Fatal(err)
 	}
 
-	// Prepare a request object
+	// Prepare a request
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
 	if err != nil {
 		log.Fatal(err)
@@ -35,6 +35,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 		"scope":         {"read read_write"},
 	}
 
+	// And run the function we want to test
 	w := httptest.NewRecorder()
 	suite.service.refreshTokenGrant(w, r, suite.client)
 
@@ -82,7 +83,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	assert.False(suite.T(), suite.db.First(accessToken).RecordNotFound())
 
 	// Check the response body
-	expected, _ := json.Marshal(map[string]interface{}{
+	expected, err := json.Marshal(map[string]interface{}{
 		"id":            accessToken.ID,
 		"access_token":  accessToken.Token,
 		"expires_in":    3600,
@@ -90,5 +91,8 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 		"scope":         "read_write",
 		"refresh_token": "test_token",
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 }

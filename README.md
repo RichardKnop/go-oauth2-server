@@ -42,7 +42,7 @@ It relies on `Postgres` for database and `etcd` for configuration but both are e
 
 http://tools.ietf.org/html/rfc6749#section-3.2.1
 
-Clients must authenticate with client credentials (client ID and secret) when issuing requests to `/api/v1/oauth/tokens` endpoint. Basic HTTP authentication should be used.
+Clients must authenticate with client credentials (client ID and secret) when issuing requests to `/v1/oauth/tokens` endpoint. Basic HTTP authentication should be used.
 
 ### Grant Types
 
@@ -111,7 +111,7 @@ https://www.example.com/?code=7afb1c55-76e4-4c76-adb7-9d657cb47a27&state=somesta
 The client requests an access token from the authorization server's token endpoint by including the authorization code received in the previous step. When making the request, the client authenticates with the authorization server. The client includes the redirection URI used to obtain the authorization code for verification.
 
 ```
-curl -v localhost:8080/api/v1/oauth/tokens \
+curl -v localhost:8080/v1/oauth/tokens \
   -u test_client:test_secret \
   -d "grant_type=authorization_code" \
   -d "code=7afb1c55-76e4-4c76-adb7-9d657cb47a27" \
@@ -247,7 +247,7 @@ The resource owner provides the client with its username and password.
 The client requests an access token from the authorization server's token endpoint by including the credentials received from the resource owner. When making the request, the client authenticates with the authorization server.
 
 ```
-curl -v localhost:8080/api/v1/oauth/tokens \
+curl -v localhost:8080/v1/oauth/tokens \
   -u test_client:test_secret \
   -d "grant_type=password" \
   -d "username=test@username" \
@@ -289,7 +289,7 @@ The client credentials grant type MUST only be used by confidential clients.
 The client authenticates with the authorization server and requests an access token from the token endpoint.
 
 ```
-curl -v localhost:8080/api/v1/oauth/tokens \
+curl -v localhost:8080/v1/oauth/tokens \
   -u test_client:test_secret \
   -d "grant_type=client_credentials" \
   -d "scope=read_write"
@@ -315,7 +315,7 @@ http://tools.ietf.org/html/rfc6749#section-6
 If the authorization server issued a refresh token to the client, the client can make a refresh request to the token endpoint in order to refresh the access token.
 
 ```
-curl -v localhost:8080/api/v1/oauth/tokens \
+curl -v localhost:8080/v1/oauth/tokens \
   -u test_client:test_secret \
   -d "grant_type=refresh_token" \
   -d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791"
@@ -388,7 +388,9 @@ curl -L http://127.0.0.1:4001/v2/keys/config/go_oauth2_server.json -XPUT -d valu
     "Port": 5432,
     "User": "go_oauth2_server",
     "Password": "",
-    "DatabaseName": "go_oauth2_server"
+    "DatabaseName": "go_oauth2_server",
+    "MaxIdleConns": 5,
+    "MaxOpenConns": 5
   },
   "Oauth": {
     "AccessTokenLifetime": 3600,
@@ -425,15 +427,7 @@ go run main.go runserver
 You might want to insert some test data if you are testing locally using `curl` examples from this README:
 
 ```sql
-insert into oauth_scopes(scope, is_default, created_at, updated_at)
-  values('read', true, now(), now()),
-  ('read_write', false, now(), now());
-
-insert into oauth_clients(client_id, secret, created_at, updated_at)
-  values('test_client', '$2a$10$CUoGytf1pR7CC6Y043gt/.vFJUV4IRqvH5R6F0VfITP8s2TqrQ.4e', now(), now());
-
-insert into oauth_users(username, password, created_at, updated_at)
-  values('test@username', '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS', now(), now());
+go run main.go loaddata fixtures/test_data.yml
 ```
 
 ## Testing
