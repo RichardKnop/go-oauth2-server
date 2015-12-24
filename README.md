@@ -427,7 +427,7 @@ go run main.go runserver
 
 You might want to insert some test data if you are testing locally using `curl` examples from this README:
 
-```sql
+```
 go run main.go loaddata fixtures/test_data.yml
 ```
 
