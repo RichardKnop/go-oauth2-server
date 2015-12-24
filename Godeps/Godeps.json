@@ -11,6 +11,10 @@
 			"Rev": "056c9bc7be7190eaa7715723883caffa5f8fa3e4"
 		},
 		{
+			"ImportPath": "github.com/areatech/go-fixtures",
+			"Rev": "6ad335319098721f156faa88e8504e507d1bf14d"
+		},
+		{
 			"ImportPath": "github.com/armon/consul-api",
 			"Rev": "dcfedd50ed5334f96adee43fc88518a4f095e15c"
 		},
@@ -47,7 +51,7 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "8ee49893d1428fda97e2a2f8e5ce55a824b112c7"
+			"Rev": "e541ca5cdf1b24eb2b18e6662d22ffa286391a58"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
@@ -64,8 +68,8 @@
 		},
 		{
 			"ImportPath": "github.com/lib/pq",
-			"Comment": "go1.0-cutoff-59-gb269bd0",
-			"Rev": "b269bd035a727d6c1081f76e7a239a1b00674c40"
+			"Comment": "go1.0-cutoff-63-g11fc39a",
+			"Rev": "11fc39a580a008f1f39bb3d11d984fb34ed778d9"
 		},
 		{
 			"ImportPath": "github.com/magiconair/properties",
@@ -105,7 +109,16 @@
 			"Rev": "1967d93db724f4a5c0e101307e96d82ff520a067"
 		},
 		{
+			"ImportPath": "github.com/stretchr/objx",
+			"Rev": "cbeaeb16a013161a98496fad62933b1d21786672"
+		},
+		{
 			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.0-17-g089c718",
+			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/mock",
 			"Comment": "v1.0-17-g089c718",
 			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
 		},
