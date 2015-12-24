@@ -32,7 +32,8 @@ It relies on `Postgres` for database and `etcd` for configuration but both are e
   * [Dependencies](#dependencies)
   * [Setup](#setup)
   * [Test Data](#test-data)
-  * [Testing](#Testing)
+  * [Testing](#testing)
+  * [Docker](#docker)
 
 # API
 
@@ -438,4 +439,19 @@ To run tests:
 
 ```
 make test
+```
+
+## Docker
+
+Build a Docker image and run the app in a container:
+
+```
+docker build -t go-oauth2-server .
+docker run -e ETCD_HOST=localhost -e ETCD_PORT=2379 -p 6060:8080 go-oauth2-server
+```
+
+You can load fixtures with `docker exec` command:
+
+```
+docker exec <container_id> /go/bin/go-oauth2-server loaddata fixtures/test_data.yml
 ```
