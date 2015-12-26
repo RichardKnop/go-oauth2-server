@@ -122,12 +122,12 @@ The authorization server authenticates the client, validates the authorization c
 
 ```json
 {
-    "id": 1,
-    "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
-    "expires_in": 3600,
-    "token_type": "Bearer",
-    "scope": "read_write",
-    "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+  "id": 1,
+  "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+  "expires_in": 3600,
+  "token_type": "Bearer",
+  "scope": "read_write",
+  "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
 
@@ -260,12 +260,12 @@ The authorization server authenticates the client and validates the resource own
 
 ```json
 {
-    "id": 1,
-    "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
-    "expires_in": 3600,
-    "token_type": "Bearer",
-    "scope": "read_write",
-    "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+  "id": 1,
+  "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+  "expires_in": 3600,
+  "token_type": "Bearer",
+  "scope": "read_write",
+  "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
 
@@ -300,12 +300,12 @@ The authorization server authenticates the client, and if valid, issues an acces
 
 ```json
 {
-    "id": 1,
-    "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
-    "expires_in": 3600,
-    "token_type": "Bearer",
-    "scope": "read_write",
-    "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+  "id": 1,
+  "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+  "expires_in": 3600,
+  "token_type": "Bearer",
+  "scope": "read_write",
+  "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
 
@@ -334,12 +334,12 @@ If valid and authorized, the authorization server issues an access token.
 
 ```json
 {
-    "id": 1,
-    "access_token": "1f962bd5-7890-435d-b619-584b6aa32e6c",
-    "expires_in": 3600,
-    "token_type": "Bearer",
-    "scope": "read_write",
-    "refresh_token": "3a6b45b8-9d29-4cba-8a1b-0093e8a2b933"
+  "id": 1,
+  "access_token": "1f962bd5-7890-435d-b619-584b6aa32e6c",
+  "expires_in": 3600,
+  "token_type": "Bearer",
+  "scope": "read_write",
+  "refresh_token": "3a6b45b8-9d29-4cba-8a1b-0093e8a2b933"
 }
 ```
 
