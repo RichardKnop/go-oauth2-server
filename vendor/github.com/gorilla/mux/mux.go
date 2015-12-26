@@ -5,9 +5,11 @@
 package mux
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"path"
+	"regexp"
 
 	"github.com/gorilla/context"
 )
@@ -67,6 +69,14 @@ func (r *Router) Match(req *http.Request, match *RouteMatch) bool {
 func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	// Clean path to canonical form and redirect.
 	if p := cleanPath(req.URL.Path); p != req.URL.Path {
+
+		// Added 3 lines (Philip Schlump) - It was dropping the query string and #whatever from query.
+		// This matches with fix in go 1.2 r.c. 4 for same problem.  Go Issue:
+		// http://code.google.com/p/go/issues/detail?id=5252
+		url := *req.URL
+		url.Path = p
+		p = url.String()
+
 		w.Header().Set("Location", p)
 		w.WriteHeader(http.StatusMovedPermanently)
 		return
@@ -79,10 +89,10 @@ func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 		setCurrentRoute(req, match.Route)
 	}
 	if handler == nil {
-		if r.NotFoundHandler == nil {
-			r.NotFoundHandler = http.NotFoundHandler()
-		}
 		handler = r.NotFoundHandler
+		if handler == nil {
+			handler = http.NotFoundHandler()
+		}
 	}
 	if !r.KeepContext {
 		defer context.Clear(req)
@@ -101,14 +111,20 @@ func (r *Router) GetRoute(name string) *Route {
 	return r.getNamedRoutes()[name]
 }
 
-// StrictSlash defines the slash behavior for new routes.
+// StrictSlash defines the trailing slash behavior for new routes. The initial
+// value is false.
 //
 // When true, if the route path is "/path/", accessing "/path" will redirect
-// to the former and vice versa.
+// to the former and vice versa. In other words, your application will always
+// see the path as specified in the route.
 //
-// Special case: when a route sets a path prefix, strict slash is
-// automatically set to false for that route because the redirect behavior
-// can't be determined for prefixes.
+// When false, if the route path is "/path", accessing "/path/" will not match
+// this route and vice versa.
+//
+// Special case: when a route sets a path prefix using the PathPrefix() method,
+// strict slash is ignored for that route because the redirect behavior can't
+// be determined from a prefix alone. However, any subrouters created from that
+// route inherit the original StrictSlash setting.
 func (r *Router) StrictSlash(value bool) *Router {
 	r.strictSlash = value
 	return r
@@ -136,6 +152,13 @@ func (r *Router) getRegexpGroup() *routeRegexpGroup {
 		return r.parent.getRegexpGroup()
 	}
 	return nil
+}
+
+func (r *Router) buildVars(m map[string]string) map[string]string {
+	if r.parent != nil {
+		m = r.parent.buildVars(m)
+	}
+	return m
 }
 
 // ----------------------------------------------------------------------------
@@ -210,6 +233,58 @@ func (r *Router) Schemes(schemes ...string) *Route {
 	return r.NewRoute().Schemes(schemes...)
 }
 
+// BuildVars registers a new route with a custom function for modifying
+// route variables before building a URL.
+func (r *Router) BuildVarsFunc(f BuildVarsFunc) *Route {
+	return r.NewRoute().BuildVarsFunc(f)
+}
+
+// Walk walks the router and all its sub-routers, calling walkFn for each route
+// in the tree. The routes are walked in the order they were added. Sub-routers
+// are explored depth-first.
+func (r *Router) Walk(walkFn WalkFunc) error {
+	return r.walk(walkFn, []*Route{})
+}
+
+// SkipRouter is used as a return value from WalkFuncs to indicate that the
+// router that walk is about to descend down to should be skipped.
+var SkipRouter = errors.New("skip this router")
+
+// WalkFunc is the type of the function called for each route visited by Walk.
+// At every invocation, it is given the current route, and the current router,
+// and a list of ancestor routes that lead to the current route.
+type WalkFunc func(route *Route, router *Router, ancestors []*Route) error
+
+func (r *Router) walk(walkFn WalkFunc, ancestors []*Route) error {
+	for _, t := range r.routes {
+		if t.regexp == nil || t.regexp.path == nil || t.regexp.path.template == "" {
+			continue
+		}
+
+		err := walkFn(t, r, ancestors)
+		if err == SkipRouter {
+			continue
+		}
+		for _, sr := range t.matchers {
+			if h, ok := sr.(*Router); ok {
+				err := h.walk(walkFn, ancestors)
+				if err != nil {
+					return err
+				}
+			}
+		}
+		if h, ok := t.handler.(*Router); ok {
+			ancestors = append(ancestors, t)
+			err := h.walk(walkFn, ancestors)
+			if err != nil {
+				return err
+			}
+			ancestors = ancestors[:len(ancestors)-1]
+		}
+	}
+	return nil
+}
+
 // ----------------------------------------------------------------------------
 // Context
 // ----------------------------------------------------------------------------
@@ -237,6 +312,10 @@ func Vars(r *http.Request) map[string]string {
 }
 
 // CurrentRoute returns the matched route for the current request, if any.
+// This only works when called inside the handler of the matched route
+// because the matched route is stored in the request context which is cleared
+// after the handler returns, unless the KeepContext option is set on the
+// Router.
 func CurrentRoute(r *http.Request) *Route {
 	if rv := context.Get(r, routeKey); rv != nil {
 		return rv.(*Route)
@@ -286,16 +365,45 @@ func uniqueVars(s1, s2 []string) error {
 	return nil
 }
 
-// mapFromPairs converts variadic string parameters to a string map.
-func mapFromPairs(pairs ...string) (map[string]string, error) {
+// checkPairs returns the count of strings passed in, and an error if
+// the count is not an even number.
+func checkPairs(pairs ...string) (int, error) {
 	length := len(pairs)
 	if length%2 != 0 {
-		return nil, fmt.Errorf(
+		return length, fmt.Errorf(
 			"mux: number of parameters must be multiple of 2, got %v", pairs)
+	}
+	return length, nil
+}
+
+// mapFromPairsToString converts variadic string parameters to a
+// string to string map.
+func mapFromPairsToString(pairs ...string) (map[string]string, error) {
+	length, err := checkPairs(pairs...)
+	if err != nil {
+		return nil, err
 	}
 	m := make(map[string]string, length/2)
 	for i := 0; i < length; i += 2 {
 		m[pairs[i]] = pairs[i+1]
+	}
+	return m, nil
+}
+
+// mapFromPairsToRegex converts variadic string paramers to a
+// string to regex map.
+func mapFromPairsToRegex(pairs ...string) (map[string]*regexp.Regexp, error) {
+	length, err := checkPairs(pairs...)
+	if err != nil {
+		return nil, err
+	}
+	m := make(map[string]*regexp.Regexp, length/2)
+	for i := 0; i < length; i += 2 {
+		regex, err := regexp.Compile(pairs[i+1])
+		if err != nil {
+			return nil, err
+		}
+		m[pairs[i]] = regex
 	}
 	return m, nil
 }
@@ -310,9 +418,8 @@ func matchInArray(arr []string, value string) bool {
 	return false
 }
 
-// matchMap returns true if the given key/value pairs exist in a given map.
-func matchMap(toCheck map[string]string, toMatch map[string][]string,
-	canonicalKey bool) bool {
+// matchMapWithString returns true if the given key/value pairs exist in a given map.
+func matchMapWithString(toCheck map[string]string, toMatch map[string][]string, canonicalKey bool) bool {
 	for k, v := range toCheck {
 		// Check if key exists.
 		if canonicalKey {
@@ -326,6 +433,34 @@ func matchMap(toCheck map[string]string, toMatch map[string][]string,
 			valueExists := false
 			for _, value := range values {
 				if v == value {
+					valueExists = true
+					break
+				}
+			}
+			if !valueExists {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+// matchMapWithRegex returns true if the given key/value pairs exist in a given map compiled against
+// the given regex
+func matchMapWithRegex(toCheck map[string]*regexp.Regexp, toMatch map[string][]string, canonicalKey bool) bool {
+	for k, v := range toCheck {
+		// Check if key exists.
+		if canonicalKey {
+			k = http.CanonicalHeaderKey(k)
+		}
+		if values := toMatch[k]; values == nil {
+			return false
+		} else if v != nil {
+			// If value was defined as an empty string we only check that the
+			// key exists. Otherwise we also check for equality.
+			valueExists := false
+			for _, value := range values {
+				if v.MatchString(value) {
 					valueExists = true
 					break
 				}

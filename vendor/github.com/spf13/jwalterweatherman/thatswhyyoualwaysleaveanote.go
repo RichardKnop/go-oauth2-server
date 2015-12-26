@@ -141,7 +141,8 @@ func SetLogFile(path string) {
 		CRITICAL.Println("Failed to open log file:", path, err)
 		os.Exit(-1)
 	}
-        fmt.Println("Logging to", file.Name())
+
+	INFO.Println("Logging to", file.Name())
 
 	LogHandle = file
 	initialize()
@@ -154,7 +155,7 @@ func UseTempLogFile(prefix string) {
 		CRITICAL.Println(err)
 	}
 
-	fmt.Println("Logging to", file.Name())
+	INFO.Println("Logging to", file.Name())
 
 	LogHandle = file
 	initialize()

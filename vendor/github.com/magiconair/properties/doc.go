@@ -1,4 +1,4 @@
-// Copyright 2013-2014 Frank Schroeder. All rights reserved.
+// Copyright 2015 Frank Schroeder. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -124,6 +124,17 @@
 //
 //   # Will write to stdout and then exit
 //   p := properties.MustLoadFile("config.properties")
+//
+// Properties can also be loaded into a struct via the `Decode`
+// method, e.g.
+//
+//   type S struct {
+//       A string        `properties:"a,default=foo"`
+//       D time.Duration `properties:"timeout,default=5s"`
+//       E time.Time     `properties:"expires,layout=2006-01-02,default=2015-01-01"`
+//   }
+//
+// See `Decode()` method for the full documentation.
 //
 // The following documents provide a description of the properties
 // file format.
