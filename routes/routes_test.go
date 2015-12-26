@@ -50,10 +50,12 @@ func TestAddRoutes(t *testing.T) {
 		},
 	}, router.PathPrefix("/hello").Subrouter())
 
-	var match *mux.RouteMatch
-	var r *http.Request
-	var w *httptest.ResponseRecorder
-	var err error
+	var (
+		match *mux.RouteMatch
+		r *http.Request
+		w *httptest.ResponseRecorder
+		err error
+	)
 
 	// Test the foobar_route
 	r, err = http.NewRequest("GET", "http://1.2.3.4/foo/bar", nil)
