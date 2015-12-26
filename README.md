@@ -382,7 +382,7 @@ createdb -U go_oauth2_server go_oauth2_server
 Load a development configuration into `etcd`:
 
 ```
-curl -L http://127.0.0.1:4001/v2/keys/config/go_oauth2_server.json -XPUT -d value='{
+curl -L http://127.0.0.1:2379/v2/keys/config/go_oauth2_server.json -XPUT -d value='{
   "Database": {
     "Type": "postgres",
     "Host": "127.0.0.1",
