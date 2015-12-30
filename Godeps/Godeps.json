@@ -12,7 +12,7 @@
 		},
 		{
 			"ImportPath": "github.com/areatech/go-fixtures",
-			"Rev": "6ad335319098721f156faa88e8504e507d1bf14d"
+			"Rev": "f1b1f3483932f208a1967aac18126985e580e3ee"
 		},
 		{
 			"ImportPath": "github.com/armon/consul-api",

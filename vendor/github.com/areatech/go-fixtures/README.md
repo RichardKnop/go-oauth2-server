@@ -44,61 +44,60 @@ Example integration for your project:
 package main
 
 import (
-	"database/sql"
-	"io/ioutil"
-	"log"
+  "database/sql"
+  "io/ioutil"
+  "log"
 
-	fixtures "github.com/areatech/go-fixtures"
-	"github.com/codegangsta/cli"
-	// Drivers
-	_ "github.com/lib/pq"
+  fixtures "github.com/areatech/go-fixtures"
+  "github.com/codegangsta/cli"
+  // Drivers
+  _ "github.com/lib/pq"
 )
 
 var (
-	cliApp *cli.App
+  cliApp *cli.App
 )
 
 func init() {
-	cliApp = cli.NewApp()
-	cliApp.Name = "your-project"
-	cliApp.Usage = "Project's usage"
-	cliApp.Author = "Your Name"
-	cliApp.Email = "your@email"
-	cliApp.Version = "0.0.0"
+  cliApp = cli.NewApp()
+  cliApp.Name = "your-project"
+  cliApp.Usage = "Project's usage"
+  cliApp.Author = "Your Name"
+  cliApp.Email = "your@email"
+  cliApp.Version = "0.0.0"
 }
 
 func main() {
-	db, err := sql.Connect("postgres", "user=foo dbname=bar sslmode=disable")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
+  db, err := sql.Connect("postgres", "user=foo dbname=bar sslmode=disable")
+  if err != nil {
+    log.Fatal(err)
+  }
+  defer db.Close()
 
-	cliApp.Commands = []cli.Command{
-		{
-			Name:  "loaddata",
-			Usage: "load data from fixture",
-			Action: func(c *cli.Context) {
-				data, err := ioutil.ReadFile(c.Args().First())
-				if err != nil {
-					log.Fatal(err)
-				}
+  cliApp.Commands = []cli.Command{
+    {
+      Name:  "loaddata",
+      Usage: "load data from fixture",
+      Action: func(c *cli.Context) {
+        data, err := ioutil.ReadFile(c.Args().First())
+        if err != nil {
+          log.Fatal(err)
+        }
 
-				if err := fixtures.Load(data, db, "postgres"); err != nil {
-					log.Fatal(err)
-				}
-			},
-		},
-		{
-			Name:  "runserver",
-			Usage: "run web server",
-			Action: func(c *cli.Context) {
-				// Run your web server here
-			},
-		},
-	}
+        if err := fixtures.Load(data, db, "postgres"); err != nil {
+          log.Fatal(err)
+        }
+      },
+    },
+    {
+      Name:  "runserver",
+      Usage: "run web server",
+      Action: func(c *cli.Context) {
+        // Run your web server here
+      },
+    },
+  }
 
-	cliApp.Run(os.Args)
+  cliApp.Run(os.Args)
 }
-
 ```
