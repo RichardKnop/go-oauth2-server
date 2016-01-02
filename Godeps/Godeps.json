@@ -43,7 +43,7 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Rev": "9c068cf16d982f8bd444b8c352acbeec34c4fe5b"
+			"Rev": "26a6070f849969ba72b72256e9f14cf519751690"
 		},
 		{
 			"ImportPath": "github.com/gorilla/securecookie",
@@ -86,8 +86,8 @@
 		},
 		{
 			"ImportPath": "github.com/mattn/go-sqlite3",
-			"Comment": "v1.1.0-27-g5651a9d",
-			"Rev": "5651a9d9d49ec25811d08220ee972080378d52ea"
+			"Comment": "v1.1.0-30-g5510da3",
+			"Rev": "5510da399572b4962c020184bb291120c0a412e2"
 		},
 		{
 			"ImportPath": "github.com/mitchellh/mapstructure",
@@ -111,7 +111,7 @@
 		},
 		{
 			"ImportPath": "github.com/spf13/jwalterweatherman",
-			"Rev": "c2aa07df593850a04644d77bb757d002e517a296"
+			"Rev": "d00654080cddbd2b082acaa74007cb94a2b40866"
 		},
 		{
 			"ImportPath": "github.com/spf13/pflag",
@@ -119,7 +119,7 @@
 		},
 		{
 			"ImportPath": "github.com/spf13/viper",
-			"Rev": "110492b3001269a0777997fcbe68a60828fac4cb"
+			"Rev": "0c82789feb03da74b3390a5d64b8ce2ce9ba0f3e"
 		},
 		{
 			"ImportPath": "github.com/stretchr/objx",
