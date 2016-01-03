@@ -48,12 +48,16 @@ func (scope *Scope) buildWhereCondition(clause map[string]interface{}) (str stri
 	for _, arg := range args {
 		switch reflect.ValueOf(arg).Kind() {
 		case reflect.Slice: // For where("id in (?)", []int64{1,2})
-			values := reflect.ValueOf(arg)
-			var tempMarks []string
-			for i := 0; i < values.Len(); i++ {
-				tempMarks = append(tempMarks, scope.AddToVars(values.Index(i).Interface()))
+			if bytes, ok := arg.([]byte); ok {
+				str = strings.Replace(str, "?", scope.AddToVars(bytes), 1)
+			} else {
+				values := reflect.ValueOf(arg)
+				var tempMarks []string
+				for i := 0; i < values.Len(); i++ {
+					tempMarks = append(tempMarks, scope.AddToVars(values.Index(i).Interface()))
+				}
+				str = strings.Replace(str, "?", strings.Join(tempMarks, ","), 1)
 			}
-			str = strings.Replace(str, "?", strings.Join(tempMarks, ","), 1)
 		default:
 			if valuer, ok := interface{}(arg).(driver.Valuer); ok {
 				arg, _ = valuer.Value()
@@ -498,7 +502,10 @@ func (scope *Scope) createJoinTable(field *StructField) {
 			for idx, fieldName := range relationship.ForeignFieldNames {
 				if field, ok := scope.Fields()[fieldName]; ok {
 					value := reflect.Indirect(reflect.New(field.Struct.Type))
-					primaryKeySqlType := scope.Dialect().SqlTag(value, 255, false)
+					primaryKeySqlType := field.TagSettings["TYPE"]
+					if primaryKeySqlType == "" {
+						primaryKeySqlType = scope.Dialect().SqlTag(value, 255, false)
+					}
 					sqlTypes = append(sqlTypes, scope.Quote(relationship.ForeignDBNames[idx])+" "+primaryKeySqlType)
 					primaryKeys = append(primaryKeys, scope.Quote(relationship.ForeignDBNames[idx]))
 				}
@@ -507,7 +514,10 @@ func (scope *Scope) createJoinTable(field *StructField) {
 			for idx, fieldName := range relationship.AssociationForeignFieldNames {
 				if field, ok := toScope.Fields()[fieldName]; ok {
 					value := reflect.Indirect(reflect.New(field.Struct.Type))
-					primaryKeySqlType := scope.Dialect().SqlTag(value, 255, false)
+					primaryKeySqlType := field.TagSettings["TYPE"]
+					if primaryKeySqlType == "" {
+						primaryKeySqlType = scope.Dialect().SqlTag(value, 255, false)
+					}
 					sqlTypes = append(sqlTypes, scope.Quote(relationship.AssociationForeignDBNames[idx])+" "+primaryKeySqlType)
 					primaryKeys = append(primaryKeys, scope.Quote(relationship.AssociationForeignDBNames[idx]))
 				}
@@ -630,15 +640,14 @@ func (scope *Scope) autoIndex() *Scope {
 	var uniqueIndexes = map[string][]string{}
 
 	for _, field := range scope.GetStructFields() {
-		sqlSettings := parseTagSetting(field.Tag.Get("sql"))
-		if name, ok := sqlSettings["INDEX"]; ok {
+		if name, ok := field.TagSettings["INDEX"]; ok {
 			if name == "INDEX" {
 				name = fmt.Sprintf("idx_%v_%v", scope.TableName(), field.DBName)
 			}
 			indexes[name] = append(indexes[name], field.DBName)
 		}
 
-		if name, ok := sqlSettings["UNIQUE_INDEX"]; ok {
+		if name, ok := field.TagSettings["UNIQUE_INDEX"]; ok {
 			if name == "UNIQUE_INDEX" {
 				name = fmt.Sprintf("uix_%v_%v", scope.TableName(), field.DBName)
 			}
