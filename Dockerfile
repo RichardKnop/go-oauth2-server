@@ -13,8 +13,9 @@ WORKDIR /go/src/github.com/RichardKnop/go-oauth2-server
 # either manually or with a tool like "godep".)
 RUN go install github.com/RichardKnop/go-oauth2-server
 
-# Run the go-oauth2-server command by default when the container starts.
-ENTRYPOINT /go/bin/go-oauth2-server migrate && /go/bin/go-oauth2-server runserver
+# Copy the docker-entrypoint.sh script and use it as entrypoint
+COPY ./docker-entrypoint.sh /
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Document that the service listens on port 8080.
 EXPOSE 8080
