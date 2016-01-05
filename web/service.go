@@ -18,3 +18,13 @@ func NewService(cnf *config.Config, oauthService oauth.ServiceInterface) *Servic
 		oauthService: oauthService,
 	}
 }
+
+// GetConfig returns config.Config instance
+func (s *Service) GetConfig() *config.Config {
+	return s.cnf
+}
+
+// GetOauthService returns oauth.Service instance
+func (s *Service) GetOauthService() oauth.ServiceInterface {
+	return s.oauthService
+}

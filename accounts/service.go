@@ -23,3 +23,8 @@ func NewService(cnf *config.Config, db *gorm.DB, oauthService oauth.ServiceInter
 		oauthService: oauthService,
 	}
 }
+
+// GetOauthService returns oauth.Service instance
+func (s *Service) GetOauthService() oauth.ServiceInterface {
+	return s.oauthService
+}
