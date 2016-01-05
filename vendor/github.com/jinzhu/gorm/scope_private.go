@@ -334,9 +334,8 @@ func (scope *Scope) updatedAttrsWithValues(values map[string]interface{}, ignore
 	}
 
 	var hasExpr bool
-	fields := scope.Fields()
 	for key, value := range values {
-		if field, ok := fields[ToDBName(key)]; ok && field.Field.IsValid() {
+		if field, ok := scope.FieldByName(key); ok && field.Field.IsValid() {
 			if !reflect.DeepEqual(field.Field, reflect.ValueOf(value)) {
 				if _, ok := value.(*expr); ok {
 					hasExpr = true
@@ -347,13 +346,16 @@ func (scope *Scope) updatedAttrsWithValues(values map[string]interface{}, ignore
 			}
 		}
 	}
+
 	if hasExpr {
 		var updateMap = map[string]interface{}{}
-		for key, value := range fields {
-			if v, ok := values[key]; ok {
-				updateMap[key] = v
-			} else {
-				updateMap[key] = value.Field.Interface()
+		for key, field := range scope.Fields() {
+			if field.IsNormal {
+				if v, ok := values[key]; ok {
+					updateMap[key] = v
+				} else {
+					updateMap[key] = field.Field.Interface()
+				}
 			}
 		}
 		return updateMap, true
@@ -557,7 +559,10 @@ func (scope *Scope) createTable() *Scope {
 	if len(primaryKeys) > 0 && !primaryKeyInColumnType {
 		primaryKeyStr = fmt.Sprintf(", PRIMARY KEY (%v)", strings.Join(primaryKeys, ","))
 	}
+
 	scope.Raw(fmt.Sprintf("CREATE TABLE %v (%v %v) %s", scope.QuotedTableName(), strings.Join(tags, ","), primaryKeyStr, scope.getTableOptions())).Exec()
+
+	scope.autoIndex()
 	return scope
 }
 
@@ -602,9 +607,8 @@ func (scope *Scope) addIndex(unique bool, indexName string, column ...string) {
 }
 
 func (scope *Scope) addForeignKey(field string, dest string, onDelete string, onUpdate string) {
-	var table = scope.TableName()
-	var keyName = fmt.Sprintf("%s_%s_%s_foreign", table, field, regexp.MustCompile("[^a-zA-Z]").ReplaceAllString(dest, "_"))
-	keyName = regexp.MustCompile("_+").ReplaceAllString(keyName, "_")
+	var keyName = fmt.Sprintf("%s_%s_%s_foreign", scope.TableName(), field, dest)
+	keyName = regexp.MustCompile("(_*[^a-zA-Z]+_*|_+)").ReplaceAllString(keyName, "_")
 	var query = `ALTER TABLE %s ADD CONSTRAINT %s FOREIGN KEY (%s) REFERENCES %s ON DELETE %s ON UPDATE %s;`
 	scope.Raw(fmt.Sprintf(query, scope.QuotedTableName(), scope.QuoteIfPossible(keyName), scope.QuoteIfPossible(field), dest, onDelete, onUpdate)).Exec()
 }
@@ -629,9 +633,8 @@ func (scope *Scope) autoMigrate() *Scope {
 			}
 			scope.createJoinTable(field)
 		}
+		scope.autoIndex()
 	}
-
-	scope.autoIndex()
 	return scope
 }
 

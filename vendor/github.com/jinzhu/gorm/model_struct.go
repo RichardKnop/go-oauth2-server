@@ -99,7 +99,7 @@ type Relationship struct {
 
 func getForeignField(column string, fields []*StructField) *StructField {
 	for _, field := range fields {
-		if field.Name == column || field.DBName == ToDBName(column) {
+		if field.Name == column || field.DBName == column || field.DBName == ToDBName(column) {
 			return field
 		}
 	}
@@ -166,14 +166,16 @@ func (scope *Scope) GetModelStruct() *ModelStruct {
 					field.HasDefaultValue = true
 				}
 
-				fieldValue := reflect.New(fieldStruct.Type).Interface()
+				indirectType := fieldStruct.Type
+				for indirectType.Kind() == reflect.Ptr {
+					indirectType = indirectType.Elem()
+				}
+
+				fieldValue := reflect.New(indirectType).Interface()
 				if _, isScanner := fieldValue.(sql.Scanner); isScanner {
 					// is scanner
 					field.IsScanner, field.IsNormal = true, true
 				} else if _, isTime := fieldValue.(*time.Time); isTime {
-					// is time
-					field.IsNormal = true
-				} else if _, isTime := fieldValue.(**time.Time); isTime {
 					// is time
 					field.IsNormal = true
 				} else if _, ok := field.TagSettings["EMBEDDED"]; ok || fieldStruct.Anonymous {
@@ -189,11 +191,6 @@ func (scope *Scope) GetModelStruct() *ModelStruct {
 					continue
 				} else {
 					// build relationships
-					indirectType := fieldStruct.Type
-					for indirectType.Kind() == reflect.Ptr {
-						indirectType = indirectType.Elem()
-					}
-
 					switch indirectType.Kind() {
 					case reflect.Slice:
 						defer func(field *StructField) {
@@ -299,9 +296,10 @@ func (scope *Scope) GetModelStruct() *ModelStruct {
 											for _, foreignKey := range foreignKeys {
 												if strings.HasPrefix(foreignKey, associationType) {
 													associationForeignKeys = append(associationForeignKeys, strings.TrimPrefix(foreignKey, associationType))
-												} else {
-													scope.Err(fmt.Errorf("invalid foreign keys, foreign key %v should start with %v", foreignKey, associationType))
 												}
+											}
+											if len(associationForeignKeys) == 0 && len(foreignKeys) == 1 {
+												associationForeignKeys = []string{scope.PrimaryKey()}
 											}
 										} else if len(foreignKeys) != len(associationForeignKeys) {
 											scope.Err(errors.New("invalid foreign keys, should have same length"))
@@ -391,9 +389,10 @@ func (scope *Scope) GetModelStruct() *ModelStruct {
 										for _, foreignKey := range foreignKeys {
 											if strings.HasPrefix(foreignKey, associationType) {
 												associationForeignKeys = append(associationForeignKeys, strings.TrimPrefix(foreignKey, associationType))
-											} else {
-												scope.Err(fmt.Errorf("invalid foreign keys, foreign key %v should start with %v", foreignKey, associationType))
 											}
+										}
+										if len(associationForeignKeys) == 0 && len(foreignKeys) == 1 {
+											associationForeignKeys = []string{scope.PrimaryKey()}
 										}
 									} else if len(foreignKeys) != len(associationForeignKeys) {
 										scope.Err(errors.New("invalid foreign keys, should have same length"))
@@ -446,9 +445,10 @@ func (scope *Scope) GetModelStruct() *ModelStruct {
 										for _, foreignKey := range foreignKeys {
 											if strings.HasPrefix(foreignKey, field.Name) {
 												associationForeignKeys = append(associationForeignKeys, strings.TrimPrefix(foreignKey, field.Name))
-											} else {
-												scope.Err(fmt.Errorf("invalid foreign keys, foreign key %v should start with %v", foreignKey, field.Name))
 											}
+										}
+										if len(associationForeignKeys) == 0 && len(foreignKeys) == 1 {
+											associationForeignKeys = []string{toScope.PrimaryKey()}
 										}
 									} else if len(foreignKeys) != len(associationForeignKeys) {
 										scope.Err(errors.New("invalid foreign keys, should have same length"))
