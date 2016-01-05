@@ -26,8 +26,8 @@ var (
 func init() {
 	// Initialise a CLI app
 	cliApp = cli.NewApp()
-	cliApp.Name = "area-api"
-	cliApp.Usage = "Area Platform REST API"
+	cliApp.Name = "go-oauth2-server"
+	cliApp.Usage = "Go OAuth 2.0 Server"
 	cliApp.Author = "Richard Knop"
 	cliApp.Email = "risoknop@gmail.com"
 	cliApp.Version = "0.0.0"

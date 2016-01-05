@@ -18,9 +18,9 @@ var cnf = &Config{
 		Type:         "postgres",
 		Host:         "localhost",
 		Port:         5432,
-		User:         "area",
+		User:         "go_oauth2_server",
 		Password:     "",
-		DatabaseName: "area",
+		DatabaseName: "go_oauth2_server",
 		MaxIdleConns: 5,
 		MaxOpenConns: 5,
 	},
@@ -63,7 +63,7 @@ func NewConfig() *Config {
 
 	// Add a new ETCD remote provider
 	runtimeViper := viper.New()
-	runtimeViper.AddRemoteProvider("etcd", etcdURL, "/config/area.json")
+	runtimeViper.AddRemoteProvider("etcd", etcdURL, "/config/go_oauth2_server.json")
 	// Because there is no file extension in a stream of bytes
 	runtimeViper.SetConfigType("json")
 
