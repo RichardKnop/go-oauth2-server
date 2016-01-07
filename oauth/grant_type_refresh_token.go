@@ -53,6 +53,14 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 		return
 	}
 
-	// Write the access token to a JSON response
-	writeJSON(w, s.cnf.Oauth.AccessTokenLifetime, accessToken, refreshToken)
+	// Write the JSON access token to the response
+	accessTokenRespone := &AccessTokenResponse{
+		ID:           accessToken.ID,
+		AccessToken:  accessToken.Token,
+		ExpiresIn:    s.cnf.Oauth.AccessTokenLifetime,
+		TokenType:    "Bearer",
+		Scope:        accessToken.Scope,
+		RefreshToken: refreshToken.Token,
+	}
+	response.WriteJSON(w, accessTokenRespone, 200)
 }

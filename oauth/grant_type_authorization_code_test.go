@@ -68,13 +68,13 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	assert.False(suite.T(), suite.db.First(refreshToken).RecordNotFound())
 
 	// Check the response body
-	expected, err := json.Marshal(map[string]interface{}{
-		"id":            accessToken.ID,
-		"access_token":  accessToken.Token,
-		"expires_in":    3600,
-		"token_type":    "Bearer",
-		"scope":         "read_write",
-		"refresh_token": refreshToken.Token,
+	expected, err := json.Marshal(&AccessTokenResponse{
+		ID:           accessToken.ID,
+		AccessToken:  accessToken.Token,
+		ExpiresIn:    3600,
+		TokenType:    "Bearer",
+		Scope:        "read_write",
+		RefreshToken: refreshToken.Token,
 	})
 	if err != nil {
 		log.Fatal(err)

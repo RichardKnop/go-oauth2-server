@@ -2,10 +2,8 @@ package oauth
 
 import (
 	"database/sql"
-	"net/http"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/jinzhu/gorm"
 	"github.com/pborman/uuid"
@@ -160,15 +158,4 @@ func newAuthorizationCode(expiresIn int, client *Client, user *User, redirectURI
 		authorizationCode.User = user
 	}
 	return authorizationCode
-}
-
-func writeJSON(w http.ResponseWriter, expiresIn int, accessToken *AccessToken, refreshToken *RefreshToken) {
-	response.WriteJSON(w, map[string]interface{}{
-		"id":            accessToken.ID,
-		"access_token":  accessToken.Token,
-		"expires_in":    expiresIn,
-		"token_type":    "Bearer",
-		"scope":         accessToken.Scope,
-		"refresh_token": refreshToken.Token,
-	}, 200)
 }
