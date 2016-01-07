@@ -3,8 +3,12 @@ package util
 import (
 	"database/sql"
 	"database/sql/driver"
+	"log"
+	"net/http"
 	"testing"
+	"time"
 
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -64,6 +68,35 @@ func TestStringOrNull(t *testing.T) {
 	assert.Equal(t, "foo", value)
 }
 
+func TestTimeOrNull(t *testing.T) {
+	var nullTime pq.NullTime
+	var value driver.Value
+	var err error
+
+	// When the time is nil
+	nullTime = TimeOrNull(nil)
+
+	// nullTime.Valid should be false
+	assert.False(t, nullTime.Valid)
+
+	// nullInt.Value() should return nil
+	value, err = nullTime.Value()
+	assert.Nil(t, err)
+	assert.Nil(t, value)
+
+	// When the time is time.Time instance
+	now := time.Now()
+	nullTime = TimeOrNull(now)
+
+	// nullTime.Valid should be true
+	assert.True(t, nullTime.Valid)
+
+	// nullTime.Value() should return the time.Time
+	value, err = nullTime.Value()
+	assert.Nil(t, err)
+	assert.Equal(t, now, value)
+}
+
 func TestStringInSlice(t *testing.T) {
 	assert.True(t, StringInSlice("a", []string{"a", "b", "c"}))
 
@@ -78,4 +111,40 @@ func TestSpaceDelimitedStringNotGreater(t *testing.T) {
 	assert.True(t, SpaceDelimitedStringNotGreater("bar foo qux", "foo bar qux"))
 
 	assert.False(t, SpaceDelimitedStringNotGreater("foo bar qux bogus", "bar foo qux"))
+}
+
+func TestParseBearerTokenNotFound(t *testing.T) {
+	r, err := http.NewRequest("GET", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	r.Header.Add("Authorization", "bogus bogus")
+
+	token, err := ParseBearerToken(r)
+
+	// Token should be nil
+	assert.Nil(t, token)
+
+	// Correct error should be returned
+	if assert.NotNil(t, err) {
+		assert.Equal(t, "Bearer token not found", err.Error())
+	}
+}
+
+func TestParseBearerToken(t *testing.T) {
+	r, err := http.NewRequest("GET", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	r.Header.Add("Authorization", "Bearer test_token")
+
+	token, err := ParseBearerToken(r)
+
+	// Error should be nil
+	assert.Nil(t, err)
+
+	// Correct token should be returned
+	if assert.NotNil(t, token) {
+		assert.Equal(t, []byte("test_token"), token)
+	}
 }

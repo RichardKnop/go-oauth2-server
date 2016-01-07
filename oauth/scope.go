@@ -26,9 +26,7 @@ func (s *Service) GetScope(requestedScope string) (string, error) {
 func (s *Service) getDefaultScope() string {
 	// Fetch default scopes
 	var scopes []string
-	s.db.Model(new(Scope)).Where(Scope{
-		IsDefault: true,
-	}).Pluck("scope", &scopes)
+	s.db.Model(new(Scope)).Where("is_default = ?", true).Pluck("scope", &scopes)
 
 	// Sort the scopes alphabetically
 	sort.Strings(scopes)

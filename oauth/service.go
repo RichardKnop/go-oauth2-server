@@ -5,7 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
-// Service struct keeps config and db objects to avoid passing them around
+// Service struct keeps objects to avoid passing them around
 type Service struct {
 	cnf *config.Config
 	db  *gorm.DB

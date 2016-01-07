@@ -18,9 +18,14 @@ func (s *Service) UserExists(username string) bool {
 func (s *Service) FindUserByUsername(username string) (*User, error) {
 	// Usernames are case insensitive
 	user := new(User)
-	if s.db.Where("LOWER(username) = LOWER(?)", username).First(user).RecordNotFound() {
+	notFound := s.db.Where("LOWER(username) = LOWER(?)", username).
+		First(user).RecordNotFound()
+
+	// Not found
+	if notFound {
 		return nil, errors.New("User not found")
 	}
+
 	return user, nil
 }
 

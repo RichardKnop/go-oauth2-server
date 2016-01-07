@@ -279,11 +279,46 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 }
 
 func (suite *OauthTestSuite) TestGetValidRefreshToken() {
+	// Insert an expired test refresh token
+	if err := suite.db.Create(&RefreshToken{
+		Token:     "test_expired_token",
+		ExpiresAt: time.Now().Add(-10 * time.Second),
+		Client:    suite.client,
+		User:      suite.user,
+	}).Error; err != nil {
+		log.Fatal(err)
+	}
+
+	// Insert a test refresh token
+	if err := suite.db.Create(&RefreshToken{
+		Token:     "test_token",
+		ExpiresAt: time.Now().Add(+10 * time.Second),
+		Client:    suite.client,
+		User:      suite.user,
+	}).Error; err != nil {
+		log.Fatal(err)
+	}
+
 	var (
 		refreshToken *RefreshToken
 		err          error
 	)
 
+	// Test passing an empty token
+	refreshToken, err = suite.service.GetValidRefreshToken(
+		"",           // refresh token
+		suite.client, // client
+	)
+
+	// Refresh token should be nil
+	assert.Nil(suite.T(), refreshToken)
+
+	// Correct error should be returned
+	if assert.NotNil(suite.T(), err) {
+		assert.Equal(suite.T(), "Refresh token not found", err.Error())
+	}
+
+	// Test passing a bogus token
 	refreshToken, err = suite.service.GetValidRefreshToken(
 		"bogus",      // refresh token
 		suite.client, // client
@@ -297,16 +332,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 		assert.Equal(suite.T(), "Refresh token not found", err.Error())
 	}
 
-	// Insert an expired test refresh token
-	if err := suite.db.Create(&RefreshToken{
-		Token:     "test_expired_token",
-		ExpiresAt: time.Now().Add(-10 * time.Second),
-		Client:    suite.client,
-		User:      suite.user,
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
-
+	// Test passing an expired token
 	refreshToken, err = suite.service.GetValidRefreshToken(
 		"test_expired_token", // refresh token
 		suite.client,         // client
@@ -320,16 +346,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 		assert.Equal(suite.T(), "Refresh token expired", err.Error())
 	}
 
-	// Insert a valid test refresh token
-	if err := suite.db.Create(&RefreshToken{
-		Token:     "test_token",
-		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.client,
-		User:      suite.user,
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
-
+	// Test passing a valid token
 	refreshToken, err = suite.service.GetValidRefreshToken(
 		"test_token", // refresh token
 		suite.client, // client

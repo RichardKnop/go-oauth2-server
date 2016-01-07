@@ -9,9 +9,11 @@ import (
 func (s *Service) Authenticate(token string) (*AccessToken, error) {
 	// Fetch the access token from the database
 	accessToken := new(AccessToken)
-	if s.db.Where(AccessToken{
-		Token: token,
-	}).Preload("Client").Preload("User").First(accessToken).RecordNotFound() {
+	notFound := s.db.Where("token = ?", token).
+		Preload("Client").Preload("User").First(accessToken).RecordNotFound()
+
+	// Not found
+	if notFound {
 		return nil, errors.New("Access token not found")
 	}
 

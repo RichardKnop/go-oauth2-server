@@ -2,16 +2,20 @@ package util
 
 import (
 	"database/sql"
+	"errors"
+	"net/http"
 	"strings"
+
+	"github.com/lib/pq"
 )
 
 // IntOrNull returns properly confiigured sql.NullInt64
-func IntOrNull(n uint) sql.NullInt64 {
+func IntOrNull(n int64) sql.NullInt64 {
 	if n < 1 {
 		return sql.NullInt64{Int64: 0, Valid: false}
 	}
 
-	return sql.NullInt64{Int64: int64(n), Valid: true}
+	return sql.NullInt64{Int64: n, Valid: true}
 }
 
 // StringOrNull returns properly confiigured sql.NullString
@@ -21,6 +25,13 @@ func StringOrNull(str string) sql.NullString {
 	}
 
 	return sql.NullString{String: str, Valid: true}
+}
+
+// TimeOrNull returns properly confiigured pq.TimeNull
+func TimeOrNull(t interface{}) pq.NullTime {
+	nullTime := new(pq.NullTime)
+	nullTime.Scan(t)
+	return *nullTime
 }
 
 // StringInSlice is a function similar to "x in y" Python construct
@@ -56,4 +67,16 @@ func SpaceDelimitedStringNotGreater(first, second string) bool {
 	// The first string is the same or more restrictive
 	// than the second string, return true
 	return true
+}
+
+// ParseBearerToken parses Bearer token from Authorization header
+func ParseBearerToken(r *http.Request) ([]byte, error) {
+	auth := r.Header.Get("Authorization")
+
+	if !strings.HasPrefix(auth, "Bearer ") {
+		return nil, errors.New("Bearer token not found")
+	}
+
+	bearerToken := strings.TrimPrefix(auth, "Bearer ")
+	return []byte(bearerToken), nil
 }

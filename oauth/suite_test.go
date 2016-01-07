@@ -1,12 +1,14 @@
 package oauth
 
 import (
+	"io/ioutil"
 	"log"
 	"os"
 	"testing"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/migrations"
+	"github.com/areatech/go-fixtures"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 	// sqlite driver
@@ -31,6 +33,7 @@ func (suite *OauthTestSuite) SetupSuite() {
 	// Delete the test database
 	os.Remove(testDbPath)
 
+	// Initialise the config
 	suite.cnf = config.NewConfig()
 
 	// Init in-memory test database
@@ -44,43 +47,36 @@ func (suite *OauthTestSuite) SetupSuite() {
 	migrations.Bootstrap(suite.db)
 	MigrateAll(suite.db)
 
-	// Initialise the service
-	suite.service = NewService(suite.cnf, suite.db)
+	// Load test data from fixtures
+	for _, path := range []string{
+		"../fixtures/test_data.yml",
+	} {
+		// Read fixture data from the file
+		data, err := ioutil.ReadFile(path)
+		if err != nil {
+			log.Fatal(err)
+		}
 
-	// Insert a test client
-	client, err := suite.service.CreateClient(
-		"test_client",             // client id
-		"test_secret",             // client secret
-		"https://www.example.com", // redirect URI
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	suite.client = client
-
-	// Insert a test user
-	user, err := suite.service.CreateUser(
-		"test@username", // username
-		"test_password", // password
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-	suite.user = user
-
-	// Insert test scopes
-	testScopes := map[string]bool{
-		"read":       true,
-		"read_write": false,
-	}
-	for scope, isDefault := range testScopes {
-		if err := suite.db.Create(&Scope{
-			Scope:     scope,
-			IsDefault: isDefault,
-		}).Error; err != nil {
+		// Insert the fixture data
+		if err := fixtures.Load(data, suite.db.DB(), suite.cnf.Database.Type); err != nil {
 			log.Fatal(err)
 		}
 	}
+
+	// Fetch the test client
+	suite.client = new(Client)
+	if err := suite.db.First(suite.client, 1).Error; err != nil {
+		log.Fatal(err)
+	}
+
+	// Fetch the test user
+	suite.user = new(User)
+	if err := suite.db.First(suite.user, 1).Error; err != nil {
+		log.Fatal(err)
+	}
+
+	// Initialise the service
+	suite.service = NewService(suite.cnf, suite.db)
 }
 
 // The TearDownSuite method will be run by testify once, at the very

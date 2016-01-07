@@ -22,9 +22,7 @@ func migrate0001(db *gorm.DB) error {
 	migrationName := "oauth_initial"
 
 	migration := new(migrations.Migration)
-	found := !db.Where(migrations.Migration{
-		Name: migrationName,
-	}).First(migration).RecordNotFound()
+	found := !db.Where("name = ?", migrationName).First(migration).RecordNotFound()
 
 	if found {
 		log.Printf("Skipping %s migration", migrationName)

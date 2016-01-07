@@ -17,9 +17,14 @@ func (s *Service) ClientExists(clientID string) bool {
 func (s *Service) FindClientByClientID(clientID string) (*Client, error) {
 	// Client IDs are case insensitive
 	client := new(Client)
-	if s.db.Where("LOWER(client_id) = LOWER(?)", clientID).First(client).RecordNotFound() {
+	notFound := s.db.Where("LOWER(client_id) = LOWER(?)", clientID).
+		First(client).RecordNotFound()
+
+	// Not found
+	if notFound {
 		return nil, errors.New("Client not found")
 	}
+
 	return client, nil
 }
 
