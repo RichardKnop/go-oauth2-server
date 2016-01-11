@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var errInvalidScope = errors.New("Invalid scope")
+
 // GetScope takes a requested scope and, if it's empty, returns the default
 // scope, if not empty, it validates the requested scope
 func (s *Service) GetScope(requestedScope string) (string, error) {
@@ -20,7 +22,7 @@ func (s *Service) GetScope(requestedScope string) (string, error) {
 	}
 
 	// Otherwise return error
-	return "", errors.New("Invalid scope")
+	return "", errInvalidScope
 }
 
 func (s *Service) getDefaultScope() string {

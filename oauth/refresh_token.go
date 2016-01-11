@@ -7,6 +7,11 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
+var (
+	errRefreshTokenNotFound = errors.New("Refresh token not found")
+	errRefreshTokenExpired  = errors.New("Refresh token expired")
+)
+
 // GetOrCreateRefreshToken retrieves an existing refresh token, if expired,
 // the token gets deleted and new refresh token is created
 func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, scope string) (*RefreshToken, error) {
@@ -37,7 +42,7 @@ func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, scope stri
 			scope,  // scope
 		)
 		if err := s.db.Create(refreshToken).Error; err != nil {
-			return nil, errors.New("Error saving refresh token")
+			return nil, err
 		}
 	}
 
@@ -55,12 +60,12 @@ func (s *Service) GetValidRefreshToken(token string, client *Client) (*RefreshTo
 
 	// Not found
 	if notFound {
-		return nil, errors.New("Refresh token not found")
+		return nil, errRefreshTokenNotFound
 	}
 
 	// Check the refresh token hasn't expired
 	if time.Now().After(refreshToken.ExpiresAt) {
-		return nil, errors.New("Refresh token expired")
+		return nil, errRefreshTokenExpired
 	}
 
 	return refreshToken, nil

@@ -315,7 +315,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Refresh token not found", err.Error())
+		assert.Equal(suite.T(), errRefreshTokenNotFound, err)
 	}
 
 	// Test passing a bogus token
@@ -329,7 +329,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Refresh token not found", err.Error())
+		assert.Equal(suite.T(), errRefreshTokenNotFound, err)
 	}
 
 	// Test passing an expired token
@@ -343,7 +343,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Refresh token expired", err.Error())
+		assert.Equal(suite.T(), errRefreshTokenExpired, err)
 	}
 
 	// Test passing a valid token

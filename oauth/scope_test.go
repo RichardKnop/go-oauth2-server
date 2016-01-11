@@ -7,7 +7,7 @@ import (
 func (suite *OauthTestSuite) TestGetScope() {
 	var (
 		scope string
-		err error
+		err   error
 	)
 
 	// When the requested scope is an empty string,
@@ -24,7 +24,7 @@ func (suite *OauthTestSuite) TestGetScope() {
 	// When the requested scope is invalid, an error should be returned
 	scope, err = suite.service.GetScope("read_write bogus")
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Invalid scope", err.Error())
+		assert.Equal(suite.T(), errInvalidScope, err)
 	}
 }
 

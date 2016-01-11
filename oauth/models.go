@@ -12,7 +12,7 @@ import (
 // Client ...
 type Client struct {
 	gorm.Model
-	ClientID    string         `sql:"type:varchar(254);unique;not null"`
+	Key         string         `sql:"type:varchar(254);unique;not null"`
 	Secret      string         `sql:"type:varchar(60);not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
 }
@@ -64,6 +64,26 @@ func (rt *RefreshToken) TableName() string {
 	return "oauth_refresh_tokens"
 }
 
+// newRefreshToken creates new RefreshToken instance
+func newRefreshToken(expiresIn int, client *Client, user *User, scope string) *RefreshToken {
+	clientID := util.IntOrNull(int64(client.ID))
+	userID := util.IntOrNull(int64(user.ID))
+	refreshToken := &RefreshToken{
+		Token:     uuid.New(),
+		ExpiresAt: time.Now().Add(time.Duration(expiresIn) * time.Second),
+		Scope:     scope,
+		ClientID:  clientID,
+		UserID:    userID,
+	}
+	if clientID.Valid {
+		refreshToken.Client = client
+	}
+	if userID.Valid {
+		refreshToken.User = user
+	}
+	return refreshToken
+}
+
 // AccessToken ...
 type AccessToken struct {
 	gorm.Model
@@ -79,24 +99,6 @@ type AccessToken struct {
 // TableName specifies table name
 func (at *AccessToken) TableName() string {
 	return "oauth_access_tokens"
-}
-
-// AuthorizationCode ...
-type AuthorizationCode struct {
-	gorm.Model
-	Code        string         `sql:"type:varchar(40);unique;not null"`
-	RedirectURI sql.NullString `sql:"type:varchar(200)"`
-	ExpiresAt   time.Time      `sql:"not null"`
-	Scope       string         `sql:"type:varchar(200);not null"`
-	ClientID    sql.NullInt64  `sql:"index;not null"`
-	UserID      sql.NullInt64  `sql:"index;not null"`
-	Client      *Client
-	User        *User
-}
-
-// TableName specifies table name
-func (ac *AuthorizationCode) TableName() string {
-	return "oauth_authorization_codes"
 }
 
 // newAccessToken creates new AccessToken instance
@@ -119,24 +121,22 @@ func newAccessToken(expiresIn int, client *Client, user *User, scope string) *Ac
 	return accessToken
 }
 
-// newRefreshToken creates new RefreshToken instance
-func newRefreshToken(expiresIn int, client *Client, user *User, scope string) *RefreshToken {
-	clientID := util.IntOrNull(int64(client.ID))
-	userID := util.IntOrNull(int64(user.ID))
-	refreshToken := &RefreshToken{
-		Token:     uuid.New(),
-		ExpiresAt: time.Now().Add(time.Duration(expiresIn) * time.Second),
-		Scope:     scope,
-		ClientID:  clientID,
-		UserID:    userID,
-	}
-	if clientID.Valid {
-		refreshToken.Client = client
-	}
-	if userID.Valid {
-		refreshToken.User = user
-	}
-	return refreshToken
+// AuthorizationCode ...
+type AuthorizationCode struct {
+	gorm.Model
+	Code        string         `sql:"type:varchar(40);unique;not null"`
+	RedirectURI sql.NullString `sql:"type:varchar(200)"`
+	ExpiresAt   time.Time      `sql:"not null"`
+	Scope       string         `sql:"type:varchar(200);not null"`
+	ClientID    sql.NullInt64  `sql:"index;not null"`
+	UserID      sql.NullInt64  `sql:"index;not null"`
+	Client      *Client
+	User        *User
+}
+
+// TableName specifies table name
+func (ac *AuthorizationCode) TableName() string {
+	return "oauth_authorization_codes"
 }
 
 // newAuthorizationCode creates new AuthorizationCode instance

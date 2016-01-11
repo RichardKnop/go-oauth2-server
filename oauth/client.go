@@ -7,6 +7,11 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
+var (
+	errClientNotFound      = errors.New("Client not found")
+	errInvalidClientSecret = errors.New("Invalid client secret")
+)
+
 // ClientExists returns true if client exists
 func (s *Service) ClientExists(clientID string) bool {
 	_, err := s.FindClientByClientID(clientID)
@@ -17,12 +22,12 @@ func (s *Service) ClientExists(clientID string) bool {
 func (s *Service) FindClientByClientID(clientID string) (*Client, error) {
 	// Client IDs are case insensitive
 	client := new(Client)
-	notFound := s.db.Where("LOWER(client_id) = LOWER(?)", clientID).
+	notFound := s.db.Where("LOWER(key) = LOWER(?)", clientID).
 		First(client).RecordNotFound()
 
 	// Not found
 	if notFound {
-		return nil, errors.New("Client not found")
+		return nil, errClientNotFound
 	}
 
 	return client, nil
@@ -32,15 +37,15 @@ func (s *Service) FindClientByClientID(clientID string) (*Client, error) {
 func (s *Service) CreateClient(clientID, secret, redirectURI string) (*Client, error) {
 	secretHash, err := password.HashPassword(secret)
 	if err != nil {
-		return nil, errors.New("Bcrypt error")
+		return nil, err
 	}
 	client := &Client{
-		ClientID:    clientID,
+		Key:         clientID,
 		Secret:      string(secretHash),
 		RedirectURI: util.StringOrNull(redirectURI),
 	}
 	if err := s.db.Create(client).Error; err != nil {
-		return nil, errors.New("Error saving client to database")
+		return nil, err
 	}
 	return client, nil
 }
@@ -50,12 +55,12 @@ func (s *Service) AuthClient(clientID, secret string) (*Client, error) {
 	// Fetch the client
 	client, err := s.FindClientByClientID(clientID)
 	if err != nil {
-		return nil, errors.New("Client not found")
+		return nil, errClientNotFound
 	}
 
 	// Verify the secret
 	if password.VerifyPassword(client.Secret, secret) != nil {
-		return nil, errors.New("Invalid secret")
+		return nil, errInvalidClientSecret
 	}
 
 	return client, nil

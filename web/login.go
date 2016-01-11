@@ -84,7 +84,7 @@ func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 
 	// Log in the user and store the user session in a cookie
 	userSession := &session.UserSession{
-		ClientID:     client.ClientID,
+		ClientID:     client.Key,
 		Username:     user.Username,
 		AccessToken:  accessToken.Token,
 		RefreshToken: refreshToken.Token,

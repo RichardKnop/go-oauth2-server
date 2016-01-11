@@ -23,7 +23,7 @@ func (suite *OauthTestSuite) TestFindUserByUsername() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "User not found", err.Error())
+		assert.Equal(suite.T(), errUserNotFound, err)
 	}
 
 	// When we try to find a user with a valid username
@@ -55,7 +55,7 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Error saving user to database", err.Error())
+		assert.Equal(suite.T(), "UNIQUE constraint failed: oauth_users.username", err.Error())
 	}
 
 	// We try to insert a unique user
@@ -93,7 +93,7 @@ func (suite *OauthTestSuite) TestSetPassword() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Cannot set empty password", err.Error())
+		assert.Equal(suite.T(), errCannotSetEmptyUserPassword, err)
 	}
 
 	// Try changing the password
@@ -129,7 +129,7 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Password not set", err.Error())
+		assert.Equal(suite.T(), errUserPasswordNotSet, err)
 	}
 
 	// When we try to authenticate with a bogus username
@@ -140,7 +140,7 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "User not found", err.Error())
+		assert.Equal(suite.T(), errUserNotFound, err)
 	}
 
 	// When we try to authenticate with an invalid password
@@ -151,7 +151,7 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Invalid password", err.Error())
+		assert.Equal(suite.T(), errInvalidUserPassword, err)
 	}
 
 	// When we try to authenticate with valid username and password
@@ -193,6 +193,6 @@ func (suite *OauthTestSuite) TestBlankPassword() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Password not set", err.Error())
+		assert.Equal(suite.T(), errUserPasswordNotSet, err)
 	}
 }

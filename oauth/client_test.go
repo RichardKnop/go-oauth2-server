@@ -18,7 +18,7 @@ func (suite *OauthTestSuite) TestFindClientByClientID() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Client not found", err.Error())
+		assert.Equal(suite.T(), errClientNotFound, err)
 	}
 
 	// When we try to find a client with a valid cliend ID
@@ -29,7 +29,7 @@ func (suite *OauthTestSuite) TestFindClientByClientID() {
 
 	// Correct client object should be returned
 	if assert.NotNil(suite.T(), client) {
-		assert.Equal(suite.T(), "test_client", client.ClientID)
+		assert.Equal(suite.T(), "test_client", client.Key)
 	}
 }
 
@@ -51,7 +51,7 @@ func (suite *OauthTestSuite) TestCreateClient() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Error saving client to database", err.Error())
+		assert.Equal(suite.T(), "UNIQUE constraint failed: oauth_clients.key", err.Error())
 	}
 
 	// We try to insert a unique client
@@ -66,7 +66,7 @@ func (suite *OauthTestSuite) TestCreateClient() {
 
 	// Correct client object should be returned
 	if assert.NotNil(suite.T(), client) {
-		assert.Equal(suite.T(), "test_client2", client.ClientID)
+		assert.Equal(suite.T(), "test_client2", client.Key)
 	}
 }
 
@@ -84,7 +84,7 @@ func (suite *OauthTestSuite) TestAuthClient() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Client not found", err.Error())
+		assert.Equal(suite.T(), errClientNotFound, err)
 	}
 
 	// When we try to authenticate with an invalid secret
@@ -95,7 +95,7 @@ func (suite *OauthTestSuite) TestAuthClient() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "Invalid secret", err.Error())
+		assert.Equal(suite.T(), errInvalidClientSecret, err)
 	}
 
 	// When we try to authenticate with valid client ID and secret
@@ -106,6 +106,6 @@ func (suite *OauthTestSuite) TestAuthClient() {
 
 	// Correct client object should be returned
 	if assert.NotNil(suite.T(), client) {
-		assert.Equal(suite.T(), "test_client", client.ClientID)
+		assert.Equal(suite.T(), "test_client", client.Key)
 	}
 }

@@ -8,6 +8,13 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+var (
+	errUserNotFound           = errors.New("User not found")
+	errInvalidUserPassword    = errors.New("Invalid user password")
+	errCannotSetEmptyUserPassword = errors.New("Cannot set empty user password")
+	errUserPasswordNotSet     = errors.New("User password not set")
+)
+
 // UserExists returns true if user exists
 func (s *Service) UserExists(username string) bool {
 	_, err := s.FindUserByUsername(username)
@@ -23,7 +30,7 @@ func (s *Service) FindUserByUsername(username string) (*User, error) {
 
 	// Not found
 	if notFound {
-		return nil, errors.New("User not found")
+		return nil, errUserNotFound
 	}
 
 	return user, nil
@@ -43,13 +50,13 @@ func (s *Service) CreateUserTx(tx *gorm.DB, username, password string) (*User, e
 func (s *Service) SetPassword(user *User, password string) error {
 	// Cannot set password to empty
 	if password == "" {
-		return errors.New("Cannot set empty password")
+		return errCannotSetEmptyUserPassword
 	}
 
 	// Create a bcrypt hash
 	passwordHash, err := pass.HashPassword(password)
 	if err != nil {
-		return errors.New("Bcrypt error")
+		return err
 	}
 
 	// Set the password on the user object
@@ -68,17 +75,17 @@ func (s *Service) AuthUser(username, password string) (*User, error) {
 	// Fetch the user
 	user, err := s.FindUserByUsername(username)
 	if err != nil {
-		return nil, errors.New("User not found")
+		return nil, errUserNotFound
 	}
 
 	// Check that the password is set
 	if !user.Password.Valid {
-		return nil, errors.New("Password not set")
+		return nil, errUserPasswordNotSet
 	}
 
 	// Verify the password
 	if pass.VerifyPassword(user.Password.String, password) != nil {
-		return nil, errors.New("Invalid password")
+		return nil, errInvalidUserPassword
 	}
 
 	return user, nil
@@ -95,14 +102,14 @@ func createUser(db *gorm.DB, username, password string) (*User, error) {
 	if password != "" {
 		passwordHash, err := pass.HashPassword(password)
 		if err != nil {
-			return nil, errors.New("Bcrypt error")
+			return nil, err
 		}
 		user.Password = util.StringOrNull(string(passwordHash))
 	}
 
 	// Create the user
 	if err := db.Create(&user).Error; err != nil {
-		return nil, errors.New("Error saving user to database")
+		return nil, err
 	}
 	return &user, nil
 }

@@ -35,32 +35,32 @@ func migrate0001(db *gorm.DB) error {
 
 	// Create oauth_clients table
 	if err := db.CreateTable(new(Client)).Error; err != nil {
-		return fmt.Errorf("Error creating oauth_clients table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_clients table: %s", err)
 	}
 
 	// Create oauth_scopes table
 	if err := db.CreateTable(new(Scope)).Error; err != nil {
-		return fmt.Errorf("Error creating oauth_scopes table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_scopes table: %s", err)
 	}
 
 	// Create oauth_users table
 	if err := db.CreateTable(new(User)).Error; err != nil {
-		return fmt.Errorf("Error creating oauth_users table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_users table: %s", err)
 	}
 
 	// Create oauth_refresh_tokens table
 	if err := db.CreateTable(new(RefreshToken)).Error; err != nil {
-		return fmt.Errorf("Error creating oauth_refresh_tokens table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_refresh_tokens table: %s", err)
 	}
 
 	// Create oauth_access_tokens table
 	if err := db.CreateTable(new(AccessToken)).Error; err != nil {
-		return fmt.Errorf("Error creating oauth_access_tokens table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_access_tokens table: %s", err)
 	}
 
 	// Create oauth_authorization_codes table
 	if err := db.CreateTable(new(AuthorizationCode)).Error; err != nil {
-		return fmt.Errorf("Error creating oauth_authorization_codes table: %s", db.Error)
+		return fmt.Errorf("Error creating oauth_authorization_codes table: %s", err)
 	}
 
 	// Add foreign key on oauth_refresh_tokens.client_id
@@ -72,7 +72,7 @@ func migrate0001(db *gorm.DB) error {
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"oauth_refresh_tokens.client_id for oauth_clients(id): %s", db.Error)
+			"oauth_refresh_tokens.client_id for oauth_clients(id): %s", err)
 	}
 
 	// Add foreign key on oauth_refresh_tokens.user_id
@@ -84,7 +84,7 @@ func migrate0001(db *gorm.DB) error {
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"oauth_refresh_tokens.user_id for oauth_users(id): %s", db.Error)
+			"oauth_refresh_tokens.user_id for oauth_users(id): %s", err)
 	}
 
 	// Add foreign key on oauth_access_tokens.client_id
@@ -96,7 +96,7 @@ func migrate0001(db *gorm.DB) error {
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"oauth_access_tokens.client_id for oauth_clients(id): %s", db.Error)
+			"oauth_access_tokens.client_id for oauth_clients(id): %s", err)
 	}
 
 	// Add foreign key on oauth_access_tokens.user_id
@@ -108,7 +108,7 @@ func migrate0001(db *gorm.DB) error {
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"oauth_access_tokens.user_id for oauth_users(id): %s", db.Error)
+			"oauth_access_tokens.user_id for oauth_users(id): %s", err)
 	}
 
 	// Add foreign key on oauth_authorization_codes.client_id
@@ -120,7 +120,7 @@ func migrate0001(db *gorm.DB) error {
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"oauth_authorization_codes.client_id for oauth_clients(id): %s", db.Error)
+			"oauth_authorization_codes.client_id for oauth_clients(id): %s", err)
 	}
 
 	// Add foreign key on oauth_authorization_codes.user_id
@@ -132,7 +132,7 @@ func migrate0001(db *gorm.DB) error {
 	).Error
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
-			"oauth_authorization_codes.user_id for oauth_users(id): %s", db.Error)
+			"oauth_authorization_codes.user_id for oauth_users(id): %s", err)
 	}
 
 	// Save a record to migrations table,

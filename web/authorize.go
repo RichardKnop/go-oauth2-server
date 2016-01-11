@@ -26,7 +26,7 @@ func (s *Service) authorizeForm(w http.ResponseWriter, r *http.Request) {
 	errMsg, _ := sessionService.GetFlashMessage()
 	renderTemplate(w, "authorize.html", map[string]interface{}{
 		"error":       errMsg,
-		"clientID":    client.ClientID,
+		"clientID":    client.Key,
 		"queryString": getQueryString(r.URL.Query()),
 	})
 }

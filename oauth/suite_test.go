@@ -44,8 +44,12 @@ func (suite *OauthTestSuite) SetupSuite() {
 	suite.db = &inMemoryDB
 
 	// Run all migrations
-	migrations.Bootstrap(suite.db)
-	MigrateAll(suite.db)
+	if err := migrations.Bootstrap(suite.db); err != nil {
+		log.Print(err)
+	}
+	if err := MigrateAll(suite.db); err != nil {
+		log.Print(err)
+	}
 
 	// Load test data from fixtures
 	for _, path := range []string{
