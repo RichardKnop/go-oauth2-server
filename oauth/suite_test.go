@@ -62,7 +62,8 @@ func (suite *OauthTestSuite) SetupSuite() {
 		}
 
 		// Insert the fixture data
-		if err := fixtures.Load(data, suite.db.DB(), suite.cnf.Database.Type); err != nil {
+		err = fixtures.Load(data, suite.db.DB(), suite.cnf.Database.Type)
+		if err != nil {
 			log.Fatal(err)
 		}
 	}
