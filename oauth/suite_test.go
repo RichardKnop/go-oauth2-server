@@ -99,11 +99,11 @@ func (suite *OauthTestSuite) SetupTest() {
 func (suite *OauthTestSuite) TearDownTest() {
 	// Scopes are static, populated from fixtures,
 	// so there is no need to clear them after running a test
-	suite.db.Unscoped().Delete(AuthorizationCode{})
-	suite.db.Unscoped().Delete(RefreshToken{})
-	suite.db.Unscoped().Delete(AccessToken{})
-	suite.db.Unscoped().Not("id", suite.user.ID).Delete(User{})
-	suite.db.Unscoped().Not("id", suite.client.ID).Delete(Client{})
+	suite.db.Unscoped().Delete(new(AuthorizationCode))
+	suite.db.Unscoped().Delete(new(RefreshToken))
+	suite.db.Unscoped().Delete(new(AccessToken))
+	suite.db.Unscoped().Not("id", suite.user.ID).Delete(new(User))
+	suite.db.Unscoped().Not("id", suite.client.ID).Delete(new(Client))
 }
 
 // TestOauthTestSuite ...
