@@ -61,15 +61,23 @@ func NewConfig() *Config {
 		viper.Get("etcd_port"),
 	)
 
+	// Config path
+	configPath := "/config/go_oauth2_server.json"
+
 	// Add a new ETCD remote provider
 	runtimeViper := viper.New()
-	runtimeViper.AddRemoteProvider("etcd", etcdURL, "/config/go_oauth2_server.json")
+	runtimeViper.AddRemoteProvider("etcd", etcdURL, configPath)
 	// Because there is no file extension in a stream of bytes
 	runtimeViper.SetConfigType("json")
 
 	// Read from remote config the first time.
 	if err := runtimeViper.ReadRemoteConfig(); err != nil {
-		log.Printf("Unable to read remote config: %v", err)
+		log.Printf(
+			"Unable to read remote config for the first time from %s/v2/keys%s: %v",
+			etcdURL,
+			configPath,
+			err,
+		)
 	} else {
 		runtimeViper.Unmarshal(&cnf)
 	}
@@ -81,7 +89,12 @@ func NewConfig() *Config {
 			time.Sleep(time.Second * 5)
 
 			if err := runtimeViper.WatchRemoteConfig(); err != nil {
-				log.Printf("Unable to read remote config: %v", err)
+				log.Printf(
+					"Unable to read remote config from %s/v2/keys%s: %v",
+					etcdURL,
+					configPath,
+					err,
+				)
 				continue
 			}
 
