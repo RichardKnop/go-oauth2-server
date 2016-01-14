@@ -7,8 +7,8 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/BurntSushi/toml",
-			"Comment": "v0.1.0-21-g056c9bc",
-			"Rev": "056c9bc7be7190eaa7715723883caffa5f8fa3e4"
+			"Comment": "v0.1.0-23-g5c4df71",
+			"Rev": "5c4df71dfe9ac89ef6287afc05e4c1b16ae65a1e"
 		},
 		{
 			"ImportPath": "github.com/areatech/go-fixtures",
@@ -119,7 +119,7 @@
 		},
 		{
 			"ImportPath": "github.com/spf13/viper",
-			"Rev": "0c82789feb03da74b3390a5d64b8ce2ce9ba0f3e"
+			"Rev": "a212099cbe6fbe8d07476bfda8d2d39b6ff8f325"
 		},
 		{
 			"ImportPath": "github.com/stretchr/objx",
@@ -182,8 +182,8 @@
 		},
 		{
 			"ImportPath": "gopkg.in/fsnotify.v1",
-			"Comment": "v1.2.8",
-			"Rev": "508915b7500b6e42a87132e4afeb4729cebc7cbb"
+			"Comment": "v1.2.9",
+			"Rev": "8611c35ab31c1c28aa903d33cf8b6e44a399b09e"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
