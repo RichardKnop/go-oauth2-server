@@ -113,21 +113,21 @@ The client requests an access token from the authorization server's token endpoi
 
 ```
 curl -v localhost:8080/v1/oauth/tokens \
-  -u test_client:test_secret \
-  -d "grant_type=authorization_code" \
-  -d "code=7afb1c55-76e4-4c76-adb7-9d657cb47a27" \
-  -d "redirect_uri=https://www.example.com"
+	-u test_client:test_secret \
+	-d "grant_type=authorization_code" \
+	-d "code=7afb1c55-76e4-4c76-adb7-9d657cb47a27" \
+	-d "redirect_uri=https://www.example.com"
 ```
 The authorization server authenticates the client, validates the authorization code, and ensures that the redirection URI received matches the URI used to redirect the client before. If valid, the authorization server responds back with an access token and, optionally, a refresh token.
 
 ```json
 {
-  "id": 1,
-  "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
-  "expires_in": 3600,
-  "token_type": "Bearer",
-  "scope": "read_write",
-  "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+	"id": 1,
+	"access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+	"expires_in": 3600,
+	"token_type": "Bearer",
+	"scope": "read_write",
+	"refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
 
@@ -249,23 +249,23 @@ The client requests an access token from the authorization server's token endpoi
 
 ```
 curl -v localhost:8080/v1/oauth/tokens \
-  -u test_client:test_secret \
-  -d "grant_type=password" \
-  -d "username=test@username" \
-  -d "password=test_password" \
-  -d "scope=read_write"
+	-u test_client:test_secret \
+	-d "grant_type=password" \
+	-d "username=test@username" \
+	-d "password=test_password" \
+	-d "scope=read_write"
 ```
 
 The authorization server authenticates the client and validates the resource owner credentials, and if valid, issues an access token.
 
 ```json
 {
-  "id": 1,
-  "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
-  "expires_in": 3600,
-  "token_type": "Bearer",
-  "scope": "read_write",
-  "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+	"id": 1,
+	"access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+	"expires_in": 3600,
+	"token_type": "Bearer",
+	"scope": "read_write",
+	"refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
 
@@ -291,21 +291,21 @@ The client authenticates with the authorization server and requests an access to
 
 ```
 curl -v localhost:8080/v1/oauth/tokens \
-  -u test_client:test_secret \
-  -d "grant_type=client_credentials" \
-  -d "scope=read_write"
+	-u test_client:test_secret \
+	-d "grant_type=client_credentials" \
+	-d "scope=read_write"
 ```
 
 The authorization server authenticates the client, and if valid, issues an access token.
 
 ```json
 {
-  "id": 1,
-  "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
-  "expires_in": 3600,
-  "token_type": "Bearer",
-  "scope": "read_write",
-  "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+	"id": 1,
+	"access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
+	"expires_in": 3600,
+	"token_type": "Bearer",
+	"scope": "read_write",
+	"refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 }
 ```
 
@@ -317,9 +317,9 @@ If the authorization server issued a refresh token to the client, the client can
 
 ```
 curl -v localhost:8080/v1/oauth/tokens \
-  -u test_client:test_secret \
-  -d "grant_type=refresh_token" \
-  -d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+	-u test_client:test_secret \
+	-d "grant_type=refresh_token" \
+	-d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 ```
 
 The authorization server MUST:
@@ -334,12 +334,12 @@ If valid and authorized, the authorization server issues an access token.
 
 ```json
 {
-  "id": 1,
-  "access_token": "1f962bd5-7890-435d-b619-584b6aa32e6c",
-  "expires_in": 3600,
-  "token_type": "Bearer",
-  "scope": "read_write",
-  "refresh_token": "3a6b45b8-9d29-4cba-8a1b-0093e8a2b933"
+	"id": 1,
+	"access_token": "1f962bd5-7890-435d-b619-584b6aa32e6c",
+	"expires_in": 3600,
+	"token_type": "Bearer",
+	"scope": "read_write",
+	"refresh_token": "3a6b45b8-9d29-4cba-8a1b-0093e8a2b933"
 }
 ```
 
@@ -382,32 +382,32 @@ createdb -U go_oauth2_server go_oauth2_server
 Load a development configuration into `etcd`:
 
 ```
-curl -L http://127.0.0.1:2379/v2/keys/config/go_oauth2_server.json -XPUT -d value='{
-  "Database": {
-    "Type": "postgres",
-    "Host": "127.0.0.1",
-    "Port": 5432,
-    "User": "go_oauth2_server",
-    "Password": "",
-    "DatabaseName": "go_oauth2_server",
-    "MaxIdleConns": 5,
-    "MaxOpenConns": 5
-  },
-  "Oauth": {
-    "AccessTokenLifetime": 3600,
-    "RefreshTokenLifetime": 1209600,
-    "AuthCodeLifetime": 3600  
-  },
-  "Session": {
-    "Secret": "test_secret",
-    "Path": "/",
-    "MaxAge": 604800,
-    "HTTPOnly": true
-  },
-  "TrustedClient": {
-    "ClientID": "test_client",
-    "Secret": "test_secret"
-  }
+curl -L http://localhost:2379/v2/keys/config/go_oauth2_server.json -XPUT -d value='{
+	"Database": {
+		"Type": "postgres",
+		"Host": "localhost",
+		"Port": 5432,
+		"User": "area",
+		"Password": "",
+		"DatabaseName": "go_oauth2_server",
+		"MaxIdleConns": 5,
+		"MaxOpenConns": 5
+	},
+	"Oauth": {
+		"AccessTokenLifetime": 3600,
+    		"RefreshTokenLifetime": 1209600,
+    		"AuthCodeLifetime": 3600
+    	},
+    	"Session": {
+    		"Secret": "test_secret",
+    		"Path": "/",
+    		"MaxAge": 604800,
+    		"HTTPOnly": true
+    	},
+    	"TrustedClient": {
+    		"ClientID": "test_client",
+    		"Secret": "test_secret"
+    	}
 }'
 ```
 
