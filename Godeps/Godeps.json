@@ -59,7 +59,7 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "341d047aa7ae166f12478d4c3c0941681aa22323"
+			"Rev": "9739cb853cbfb312fb0e20c7643588004cb50e4d"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
@@ -76,8 +76,8 @@
 		},
 		{
 			"ImportPath": "github.com/lib/pq",
-			"Comment": "go1.0-cutoff-69-g2d785ad",
-			"Rev": "2d785ad24be7a038e2fc35424b993645a0025425"
+			"Comment": "go1.0-cutoff-74-g8ad2b29",
+			"Rev": "8ad2b298cadd691a77015666a5372eae5dbfac8f"
 		},
 		{
 			"ImportPath": "github.com/magiconair/properties",
