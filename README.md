@@ -395,19 +395,19 @@ curl -L http://localhost:2379/v2/keys/config/go_oauth2_server.json -XPUT -d valu
 	},
 	"Oauth": {
 		"AccessTokenLifetime": 3600,
-    		"RefreshTokenLifetime": 1209600,
-    		"AuthCodeLifetime": 3600
-    	},
-    	"Session": {
-    		"Secret": "test_secret",
-    		"Path": "/",
-    		"MaxAge": 604800,
-    		"HTTPOnly": true
-    	},
-    	"TrustedClient": {
-    		"ClientID": "test_client",
-    		"Secret": "test_secret"
-    	}
+		"RefreshTokenLifetime": 1209600,
+		"AuthCodeLifetime": 3600
+	},
+	"Session": {
+		"Secret": "test_secret",
+		"Path": "/",
+		"MaxAge": 604800,
+		"HTTPOnly": true
+	},
+	"TrustedClient": {
+		"ClientID": "test_client",
+		"Secret": "test_secret"
+	}
 }'
 ```
 
