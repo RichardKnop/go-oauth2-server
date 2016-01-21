@@ -125,9 +125,11 @@ func loadConfig(kapi client.KeysAPI) error {
 	}
 
 	// Unmarshal the config JSON into the cnf object
-	if err := json.Unmarshal([]byte(resp.Node.Value), cnf); err != nil {
+	newCnf := new(Config)
+	if err := json.Unmarshal([]byte(resp.Node.Value), newCnf); err != nil {
 		return err
 	}
+	cnf = newCnf
 
 	return nil
 }
