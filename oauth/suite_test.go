@@ -34,7 +34,7 @@ func (suite *OauthTestSuite) SetupSuite() {
 	os.Remove(testDbPath)
 
 	// Initialise the config
-	suite.cnf = config.NewConfig()
+	suite.cnf = config.NewConfig(false)
 
 	// Init in-memory test database
 	inMemoryDB, err := gorm.Open("sqlite3", testDbPath)

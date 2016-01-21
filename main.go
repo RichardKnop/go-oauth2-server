@@ -35,7 +35,7 @@ func init() {
 
 func main() {
 	// Load the configuration, connect to the database
-	cnf := config.NewConfig()
+	cnf := config.NewConfig(true) // must load once
 	db, err := database.NewDatabase(cnf)
 	if err != nil {
 		log.Fatal(err)
