@@ -1,16 +1,23 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"time"
 
-	"github.com/spf13/viper"
-	// Enable the remote features
-	_ "github.com/spf13/viper/remote"
+	"github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context"
+	"github.com/coreos/etcd/client"
 )
 
-var configLoaded bool
+var (
+	etcdHost     = "localhost"
+	etcdPort     = "2379"
+	etcdURL      string
+	configPath   = "/config/go_oauth2_server.json"
+	configLoaded bool
+)
 
 // Let's start with some sensible defaults
 var cnf = &Config{
@@ -41,6 +48,16 @@ var cnf = &Config{
 	},
 }
 
+func init() {
+	if os.Getenv("ETCD_HOST") != "" {
+		etcdHost = os.Getenv("ETCD_HOST")
+	}
+	if os.Getenv("ETCD_PORT") != "" {
+		etcdPort = os.Getenv("ETCD_PORT")
+	}
+	etcdURL = fmt.Sprintf("http://%s:%s", etcdHost, etcdPort)
+}
+
 // NewConfig loads configuration from etcd and returns *Config struct
 // It also starts a goroutine in the background to keep config up-to-date
 func NewConfig() *Config {
@@ -48,61 +65,69 @@ func NewConfig() *Config {
 		return cnf
 	}
 
-	// Bind etcd env vars
-	viper.SetDefault("etcd_host", "localhost")
-	viper.SetDefault("etcd_port", "2379")
-	viper.BindEnv("etcd_host")
-	viper.BindEnv("etcd_port")
-
 	// Construct the ETCD URL
-	etcdURL := fmt.Sprintf(
-		"http://%s:%s",
-		viper.Get("etcd_host"),
-		viper.Get("etcd_port"),
-	)
-
-	// Config path
-	configPath := "/config/go_oauth2_server.json"
-
-	// Add a new ETCD remote provider
-	runtimeViper := viper.New()
-	runtimeViper.AddRemoteProvider("etcd", etcdURL, configPath)
-	// Because there is no file extension in a stream of bytes
-	runtimeViper.SetConfigType("json")
-
-	// Read from remote config the first time.
-	if err := runtimeViper.ReadRemoteConfig(); err != nil {
-		log.Printf(
-			"Unable to read remote config for the first time from %s/v2/keys%s: %v",
-			etcdURL,
-			configPath,
-			err,
-		)
-	} else {
-		runtimeViper.Unmarshal(&cnf)
+	etcdHost := "localhost"
+	if os.Getenv("ETCD_HOST") != "" {
+		etcdHost = os.Getenv("ETCD_HOST")
 	}
+	etcdPort := "2379"
+	if os.Getenv("ETCD_PORT") != "" {
+		etcdPort = os.Getenv("ETCD_PORT")
+	}
+	etcdURL := fmt.Sprintf("http://%s:%s", etcdHost, etcdPort)
+	log.Printf("ETCD URL: %s", etcdURL)
+
+	// Initialise the SDK
+	etcdClientConfig := client.Config{
+		Endpoints: []string{etcdURL},
+		Transport: client.DefaultTransport,
+		// set timeout per request to fail fast when the target endpoint is unavailable
+		HeaderTimeoutPerRequest: time.Second,
+	}
+	etcdClient, err := client.New(etcdClientConfig)
+	if err != nil {
+		log.Fatal(err)
+	}
+	kapi := client.NewKeysAPI(etcdClient)
+
+	// Read from remote config the first time
+	if err := loadConfig(kapi); err != nil {
+		log.Fatal(err)
+	}
+
+	configLoaded = true
+	log.Print("Successfully loaded config for the first time")
 
 	// Open a goroutine to watch remote changes forever
 	go func() {
 		for {
 			// Delay after each request
-			time.Sleep(time.Second * 5)
+			time.Sleep(time.Second * 10)
 
-			if err := runtimeViper.WatchRemoteConfig(); err != nil {
-				log.Printf(
-					"Unable to read remote config from %s/v2/keys%s: %v",
-					etcdURL,
-					configPath,
-					err,
-				)
-				continue
+			// Attempt to reload the config
+			if err := loadConfig(kapi); err != nil {
+				log.Print(err)
+				return
 			}
 
-			// Unmarshal config
-			runtimeViper.Unmarshal(&cnf)
+			log.Print("Successfully reloaded config")
 		}
 	}()
 
-	configLoaded = true
 	return cnf
+}
+
+func loadConfig(kapi client.KeysAPI) error {
+	// Read from remote config the first time
+	resp, err := kapi.Get(context.Background(), configPath, nil)
+	if err != nil {
+		return err
+	}
+
+	// Unmarshal the config JSON into the cnf object
+	if err := json.Unmarshal([]byte(resp.Node.Value), cnf); err != nil {
+		return err
+	}
+
+	return nil
 }

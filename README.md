@@ -13,7 +13,6 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
 It relies on `Postgres` for database and `etcd` for configuration but both are easily customizable since flexible libraries have been used:
 
 * [gorm](https://github.com/jinzhu/gorm) for database communication
-* [viper](https://github.com/spf13/viper) for configuration
 
 # Index
 
