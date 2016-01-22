@@ -97,7 +97,7 @@ func NewConfig(mustLoadOnce bool) *Config {
 			// Attempt to reload the config
 			if err := loadConfig(kapi); err != nil {
 				log.Print(err)
-				return
+				continue
 			}
 
 			// Set configLoaded to true
