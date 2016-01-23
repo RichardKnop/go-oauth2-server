@@ -14,7 +14,6 @@ import (
 var (
 	etcdHost     = "localhost"
 	etcdPort     = "2379"
-	etcdURL      string
 	configPath   = "/config/go_oauth2_server.json"
 	configLoaded bool
 )
@@ -57,7 +56,7 @@ func NewConfig(mustLoadOnce bool) *Config {
 
 	// Construct the ETCD endpoint
 	etcdEndpoint := getEtcdEndpoint()
-	log.Printf("ETCD Endpoint: %s", etcdURL)
+	log.Printf("ETCD Endpoint: %s", etcdEndpoint)
 
 	// ETCD config
 	etcdClientConfig := client.Config{
