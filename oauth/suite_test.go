@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
+	"github.com/AreaHQ/go-fixtures"
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/migrations"
-	"github.com/areatech/go-fixtures"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 	// sqlite driver
