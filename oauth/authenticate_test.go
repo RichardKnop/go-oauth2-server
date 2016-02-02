@@ -12,8 +12,8 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_expired_token",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
-		Client:    suite.client,
-		User:      suite.user,
+		Client:    suite.clients[0],
+		User:      suite.users[0],
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -22,7 +22,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_client_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.client,
+		Client:    suite.clients[0],
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -31,8 +31,8 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_user_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.client,
-		User:      suite.user,
+		Client:    suite.clients[0],
+		User:      suite.users[0],
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -95,7 +95,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 	if assert.NotNil(suite.T(), accessToken) {
 		assert.Equal(suite.T(), "test_user_token", accessToken.Token)
 		assert.Equal(suite.T(), "test_client", accessToken.Client.Key)
-		assert.Equal(suite.T(), "test@username", accessToken.User.Username)
+		assert.Equal(suite.T(), "test@user", accessToken.User.Username)
 	}
 
 	// Error should be nil

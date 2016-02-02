@@ -111,7 +111,7 @@ https://www.example.com/?code=7afb1c55-76e4-4c76-adb7-9d657cb47a27&state=somesta
 The client requests an access token from the authorization server's token endpoint by including the authorization code received in the previous step. When making the request, the client authenticates with the authorization server. The client includes the redirection URI used to obtain the authorization code for verification.
 
 ```
-curl -v localhost:8080/v1/oauth/tokens \
+curl --compressed -v localhost:8080/v1/oauth/tokens \
 	-u test_client:test_secret \
 	-d "grant_type=authorization_code" \
 	-d "code=7afb1c55-76e4-4c76-adb7-9d657cb47a27" \
@@ -247,7 +247,7 @@ The resource owner provides the client with its username and password.
 The client requests an access token from the authorization server's token endpoint by including the credentials received from the resource owner. When making the request, the client authenticates with the authorization server.
 
 ```
-curl -v localhost:8080/v1/oauth/tokens \
+curl --compressed -v localhost:8080/v1/oauth/tokens \
 	-u test_client:test_secret \
 	-d "grant_type=password" \
 	-d "username=test@username" \
@@ -289,7 +289,7 @@ The client credentials grant type MUST only be used by confidential clients.
 The client authenticates with the authorization server and requests an access token from the token endpoint.
 
 ```
-curl -v localhost:8080/v1/oauth/tokens \
+curl --compressed -v localhost:8080/v1/oauth/tokens \
 	-u test_client:test_secret \
 	-d "grant_type=client_credentials" \
 	-d "scope=read_write"
@@ -315,7 +315,7 @@ http://tools.ietf.org/html/rfc6749#section-6
 If the authorization server issued a refresh token to the client, the client can make a refresh request to the token endpoint in order to refresh the access token.
 
 ```
-curl -v localhost:8080/v1/oauth/tokens \
+curl --compressed -v localhost:8080/v1/oauth/tokens \
 	-u test_client:test_secret \
 	-d "grant_type=refresh_token" \
 	-d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791"
@@ -427,7 +427,10 @@ go run main.go runserver
 You might want to insert some test data if you are testing locally using `curl` examples from this README:
 
 ```
-go run main.go loaddata fixtures/test_data.yml
+go run main.go loaddata \
+	oauth/fixtures/scopes.yml \
+	oauth/fixtures/test_clients.yml \
+	oauth/fixtures/test_users.yml
 ```
 
 ## Testing
@@ -452,5 +455,7 @@ docker run -e ETCD_HOST=localhost -e ETCD_PORT=2379 -p 6060:8080 go-oauth2-serve
 You can load fixtures with `docker exec` command:
 
 ```
-docker exec <container_id> /go/bin/go-oauth2-server loaddata fixtures/test_data.yml
+docker exec <container_id> /go/bin/go-oauth2 loaddata \
+	oauth/fixtures/scopes.yml \
+	oauth/fixtures/test_clients.yml
 ```

@@ -1,0 +1,10 @@
+---
+
+- table: 'oauth_users'
+  pk:
+    id: 1
+  fields:
+    username: 'test@user'
+    password: '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS'
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'

@@ -27,14 +27,14 @@ func (suite *OauthTestSuite) TestFindUserByUsername() {
 	}
 
 	// When we try to find a user with a valid username
-	user, err = suite.service.FindUserByUsername("test@username")
+	user, err = suite.service.FindUserByUsername("test@user")
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)
 
 	// Correct user object should be returned
 	if assert.NotNil(suite.T(), user) {
-		assert.Equal(suite.T(), "test@username", user.Username)
+		assert.Equal(suite.T(), "test@user", user.Username)
 	}
 }
 
@@ -44,9 +44,9 @@ func (suite *OauthTestSuite) TestCreateUser() {
 		err  error
 	)
 
-	// We try to insert a non uniqie user
+	// We try to insert a non unique user
 	user, err = suite.service.CreateUser(
-		"test@username", // username
+		"test@user",     // username
 		"test_password", // password
 	)
 
@@ -60,8 +60,8 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 	// We try to insert a unique user
 	user, err = suite.service.CreateUser(
-		"test@username2", // username
-		"test_password",  // password
+		"test@user2",    // username
+		"test_password", // password
 	)
 
 	// Error should be nil
@@ -69,7 +69,7 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 	// Correct user object should be returned
 	if assert.NotNil(suite.T(), user) {
-		assert.Equal(suite.T(), "test@username2", user.Username)
+		assert.Equal(suite.T(), "test@user2", user.Username)
 	}
 }
 
@@ -81,7 +81,7 @@ func (suite *OauthTestSuite) TestSetPassword() {
 
 	// Insert a test user without a password
 	user = &User{
-		Username: "test@username2",
+		Username: "test@user2",
 		Password: util.StringOrNull(""),
 	}
 	if err := suite.db.Create(user).Error; err != nil {
@@ -103,7 +103,7 @@ func (suite *OauthTestSuite) TestSetPassword() {
 	assert.Nil(suite.T(), err)
 
 	// User object should have been updated
-	assert.Equal(suite.T(), "test@username2", user.Username)
+	assert.Equal(suite.T(), "test@user2", user.Username)
 	assert.Nil(suite.T(), pass.VerifyPassword(user.Password.String, "test_password2"))
 }
 
@@ -115,14 +115,14 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// Insert a test user without a password
 	if err := suite.db.Create(&User{
-		Username: "test@username2",
+		Username: "test@user2",
 		Password: util.StringOrNull(""),
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	// When we try to authenticate a user without a password
-	user, err = suite.service.AuthUser("test@username2", "bogus")
+	user, err = suite.service.AuthUser("test@user2", "bogus")
 
 	// User object should be nil
 	assert.Nil(suite.T(), user)
@@ -144,7 +144,7 @@ func (suite *OauthTestSuite) TestAuthUser() {
 	}
 
 	// When we try to authenticate with an invalid password
-	user, err = suite.service.AuthUser("test@username", "bogus")
+	user, err = suite.service.AuthUser("test@user", "bogus")
 
 	// User object should be nil
 	assert.Nil(suite.T(), user)
@@ -155,14 +155,14 @@ func (suite *OauthTestSuite) TestAuthUser() {
 	}
 
 	// When we try to authenticate with valid username and password
-	user, err = suite.service.AuthUser("test@username", "test_password")
+	user, err = suite.service.AuthUser("test@user", "test_password")
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)
 
 	// Correct user object should be returned
 	if assert.NotNil(suite.T(), user) {
-		assert.Equal(suite.T(), "test@username", user.Username)
+		assert.Equal(suite.T(), "test@user", user.Username)
 	}
 }
 
@@ -173,8 +173,8 @@ func (suite *OauthTestSuite) TestBlankPassword() {
 	)
 
 	user, err = suite.service.CreateUser(
-		"test@username2", // username
-		"",               // password
+		"test@user2", // username
+		"",           // password
 	)
 
 	// Error should be nil
@@ -182,11 +182,11 @@ func (suite *OauthTestSuite) TestBlankPassword() {
 
 	// Correct user object should be returned
 	if assert.NotNil(suite.T(), user) {
-		assert.Equal(suite.T(), "test@username2", user.Username)
+		assert.Equal(suite.T(), "test@user2", user.Username)
 	}
 
 	// When we try to authenticate
-	user, err = suite.service.AuthUser("test@username2", "")
+	user, err = suite.service.AuthUser("test@user2", "")
 
 	// User object should be nil
 	assert.Nil(suite.T(), user)

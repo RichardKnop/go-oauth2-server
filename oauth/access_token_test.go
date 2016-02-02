@@ -18,7 +18,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 
 	// Grant a client only access token
 	accessToken, err = suite.service.GrantAccessToken(
-		suite.client,           // client
+		suite.clients[0],       // client
 		new(User),              // empty user
 		"scope doesn't matter", // scope
 	)
@@ -41,7 +41,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 		assert.True(suite.T(), tokens[0].ClientID.Valid)
 		v, err = tokens[0].ClientID.Value()
 		assert.Nil(suite.T(), err)
-		assert.Equal(suite.T(), int64(suite.client.ID), v)
+		assert.Equal(suite.T(), int64(suite.clients[0].ID), v)
 
 		// User id should be nil
 		assert.False(suite.T(), tokens[0].UserID.Valid)
@@ -52,8 +52,8 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 
 	// Grant a user specific access token
 	accessToken, err = suite.service.GrantAccessToken(
-		suite.client,           // client
-		suite.user,             // user
+		suite.clients[0],       // client
+		suite.users[0],         // user
 		"scope doesn't matter", // scope
 	)
 
@@ -75,13 +75,13 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 		assert.True(suite.T(), tokens[1].ClientID.Valid)
 		v, err = tokens[1].ClientID.Value()
 		assert.Nil(suite.T(), err)
-		assert.Equal(suite.T(), int64(suite.client.ID), v)
+		assert.Equal(suite.T(), int64(suite.clients[0].ID), v)
 
 		// User id should be set
 		assert.True(suite.T(), tokens[1].UserID.Valid)
 		v, err = tokens[1].UserID.Value()
 		assert.Nil(suite.T(), err)
-		assert.Equal(suite.T(), int64(suite.user.ID), v)
+		assert.Equal(suite.T(), int64(suite.users[0].ID), v)
 	}
 }
 
@@ -90,8 +90,8 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_1",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
-		Client:    suite.client,
-		User:      suite.user,
+		Client:    suite.clients[0],
+		User:      suite.users[0],
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -100,7 +100,7 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_2",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
-		Client:    suite.client,
+		Client:    suite.clients[0],
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -109,8 +109,8 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_3",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.client,
-		User:      suite.user,
+		Client:    suite.clients[0],
+		User:      suite.users[0],
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -119,7 +119,7 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	if err := suite.db.Create(&AccessToken{
 		Token:     "test_token_4",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.client,
+		Client:    suite.clients[0],
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -131,13 +131,13 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 
 	// This should only delete test_token_1
 	suite.service.deleteExpiredAccessTokens(
-		suite.client, // client
-		suite.user,   // user
+		suite.clients[0], // client
+		suite.users[0],   // user
 	)
 
 	// Check the test_token_1 was deleted
 	notFound = suite.db.Unscoped().Where("token = ?", "test_token_1").
-		First(&AccessToken{}).RecordNotFound()
+		First(new(AccessToken)).RecordNotFound()
 	assert.True(suite.T(), notFound)
 
 	// Check the other three tokens are still around
@@ -154,8 +154,8 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 
 	// This should only delete test_token_2
 	suite.service.deleteExpiredAccessTokens(
-		suite.client, // client
-		new(User),    // empty user
+		suite.clients[0], // client
+		new(User),        // empty user
 	)
 
 	// Check the test_token_2 was deleted

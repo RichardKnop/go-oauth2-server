@@ -2,6 +2,7 @@ package commands
 
 import (
 	"io/ioutil"
+	"net/http"
 
 	"github.com/AreaHQ/go-fixtures"
 	"github.com/RichardKnop/go-oauth2-server/config"
@@ -12,6 +13,7 @@ import (
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
+	"github.com/phyber/negroni-gzip/gzip"
 )
 
 // Migrate migrates the database
@@ -57,7 +59,11 @@ func RunServer(cnf *config.Config, db *gorm.DB) {
 	webService := web.NewService(cnf, oauthService)
 
 	// Start a classic negroni app
-	app := negroni.Classic()
+	app := negroni.New()
+	app.Use(negroni.NewRecovery())
+	app.Use(negroni.NewLogger())
+	app.Use(gzip.Gzip(gzip.DefaultCompression))
+	app.Use(negroni.NewStatic(http.Dir("public")))
 
 	// Create a router instance
 	router := mux.NewRouter()

@@ -17,14 +17,20 @@ import (
 
 var testDbPath = "/tmp/oauth_testdb.sqlite"
 
+var testFixtures = []string{
+	"fixtures/scopes.yml",
+	"fixtures/test_clients.yml",
+	"fixtures/test_users.yml",
+}
+
 // OauthTestSuite needs to be exported so the tests run
 type OauthTestSuite struct {
 	suite.Suite
 	cnf     *config.Config
 	db      *gorm.DB
 	service *Service
-	client  *Client
-	user    *User
+	clients []*Client
+	users   []*User
 }
 
 // The SetupSuite method will be run by testify once, at the very
@@ -52,9 +58,7 @@ func (suite *OauthTestSuite) SetupSuite() {
 	}
 
 	// Load test data from fixtures
-	for _, path := range []string{
-		"../fixtures/test_data.yml",
-	} {
+	for _, path := range testFixtures {
 		// Read fixture data from the file
 		data, err := ioutil.ReadFile(path)
 		if err != nil {
@@ -68,15 +72,15 @@ func (suite *OauthTestSuite) SetupSuite() {
 		}
 	}
 
-	// Fetch the test client
-	suite.client = new(Client)
-	if err := suite.db.First(suite.client, 1).Error; err != nil {
+	// Fetch test client
+	suite.clients = make([]*Client, 0)
+	if err := suite.db.Find(&suite.clients).Error; err != nil {
 		log.Fatal(err)
 	}
 
-	// Fetch the test user
-	suite.user = new(User)
-	if err := suite.db.First(suite.user, 1).Error; err != nil {
+	// Fetch test users
+	suite.users = make([]*User, 0)
+	if err := suite.db.Find(&suite.users).Error; err != nil {
 		log.Fatal(err)
 	}
 
@@ -102,8 +106,8 @@ func (suite *OauthTestSuite) TearDownTest() {
 	suite.db.Unscoped().Delete(new(AuthorizationCode))
 	suite.db.Unscoped().Delete(new(RefreshToken))
 	suite.db.Unscoped().Delete(new(AccessToken))
-	suite.db.Unscoped().Not("id", suite.user.ID).Delete(new(User))
-	suite.db.Unscoped().Not("id", suite.client.ID).Delete(new(Client))
+	suite.db.Unscoped().Not("id", []int64{1}).Delete(new(User))
+	suite.db.Unscoped().Not("id", []int64{1}).Delete(new(Client))
 }
 
 // TestOauthTestSuite ...

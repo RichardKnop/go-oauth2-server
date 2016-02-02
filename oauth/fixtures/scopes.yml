@@ -1,0 +1,19 @@
+---
+
+- table: 'oauth_scopes'
+  pk:
+    id: 1
+  fields:
+    scope: 'read'
+    is_default: true
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'
+
+- table: 'oauth_scopes'
+  pk:
+    id: 2
+  fields:
+    scope: 'read_write'
+    is_default: false
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'

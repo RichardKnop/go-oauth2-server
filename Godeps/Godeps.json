@@ -66,7 +66,7 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "9739cb853cbfb312fb0e20c7643588004cb50e4d"
+			"Rev": "c7b9acefb7d4570e0f46d94ce453467cc486d8fd"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
@@ -89,6 +89,10 @@
 		{
 			"ImportPath": "github.com/pborman/uuid",
 			"Rev": "dee7705ef7b324f27ceb85a121c61f2c2e8ce988"
+		},
+		{
+			"ImportPath": "github.com/phyber/negroni-gzip/gzip",
+			"Rev": "1211b7a0892223f5b3f1af8629ea6c3d9f984028"
 		},
 		{
 			"ImportPath": "github.com/pmezard/go-difflib/difflib",

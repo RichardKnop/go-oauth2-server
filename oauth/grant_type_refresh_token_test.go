@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -17,8 +18,8 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 	if err := suite.db.Create(&RefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.client,
-		User:      suite.user,
+		Client:    suite.clients[0],
+		User:      suite.users[0],
 		Scope:     "read_write",
 	}).Error; err != nil {
 		log.Fatal(err)
@@ -37,14 +38,15 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 
 	// And run the function we want to test
 	w := httptest.NewRecorder()
-	suite.service.refreshTokenGrant(w, r, suite.client)
+	suite.service.refreshTokenGrant(w, r, suite.clients[0])
 
 	// Check the status code
 	assert.Equal(suite.T(), 400, w.Code)
 
 	// Check the response body
 	assert.Equal(
-		suite.T(), "{\"error\":\"Requested scope cannot be greater\"}",
+		suite.T(),
+		fmt.Sprintf("{\"error\":\"%s\"}", errRequestedScopeCannotBeGreater.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }
@@ -54,8 +56,8 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	if err := suite.db.Create(&RefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.client,
-		User:      suite.user,
+		Client:    suite.clients[0],
+		User:      suite.users[0],
 		Scope:     "read_write",
 	}).Error; err != nil {
 		log.Fatal(err)
@@ -73,7 +75,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	}
 
 	w := httptest.NewRecorder()
-	suite.service.refreshTokenGrant(w, r, suite.client)
+	suite.service.refreshTokenGrant(w, r, suite.clients[0])
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)

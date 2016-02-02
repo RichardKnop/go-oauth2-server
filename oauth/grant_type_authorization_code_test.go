@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -18,8 +19,8 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	if err := suite.db.Create(&AuthorizationCode{
 		Code:        "test_code",
 		ExpiresAt:   time.Now().Add(+10 * time.Second),
-		Client:      suite.client,
-		User:        suite.user,
+		Client:      suite.clients[0],
+		User:        suite.users[0],
 		RedirectURI: util.StringOrNull("https://www.example.com"),
 		Scope:       "read_write",
 	}).Error; err != nil {
@@ -40,14 +41,15 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 
 	// First we will test an invalid redirect URI error
 	w = httptest.NewRecorder()
-	suite.service.authorizationCodeGrant(w, r, suite.client)
+	suite.service.authorizationCodeGrant(w, r, suite.clients[0])
 
 	// Check the status code
 	assert.Equal(suite.T(), 400, w.Code)
 
 	// Check the response body
 	assert.Equal(
-		suite.T(), "{\"error\":\"Invalid redirect URI\"}",
+		suite.T(),
+		fmt.Sprintf("{\"error\":\"%s\"}", errInvalidRedirectURI.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 
@@ -56,7 +58,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 
 	// And test a successful case
 	w = httptest.NewRecorder()
-	suite.service.authorizationCodeGrant(w, r, suite.client)
+	suite.service.authorizationCodeGrant(w, r, suite.clients[0])
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)

@@ -9,10 +9,10 @@ import (
 )
 
 var (
-	errUserNotFound           = errors.New("User not found")
-	errInvalidUserPassword    = errors.New("Invalid user password")
+	errUserNotFound               = errors.New("User not found")
+	errInvalidUserPassword        = errors.New("Invalid user password")
 	errCannotSetEmptyUserPassword = errors.New("Cannot set empty user password")
-	errUserPasswordNotSet     = errors.New("User password not set")
+	errUserPasswordNotSet         = errors.New("User password not set")
 )
 
 // UserExists returns true if user exists

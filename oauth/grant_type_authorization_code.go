@@ -1,10 +1,15 @@
 package oauth
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/RichardKnop/go-oauth2-server/util"
+)
+
+var (
+	errInvalidRedirectURI = errors.New("Invalid redirect URI")
 )
 
 func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
@@ -20,7 +25,7 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 
 	// Redirect URI must match if it was used to obtain the authorization code
 	if util.StringOrNull(r.Form.Get("redirect_uri")) != authorizationCode.RedirectURI {
-		response.Error(w, "Invalid redirect URI", http.StatusBadRequest)
+		response.Error(w, errInvalidRedirectURI.Error(), http.StatusBadRequest)
 		return
 	}
 

@@ -1,9 +1,14 @@
 package oauth
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/response"
+)
+
+var (
+	errUserAuthenticationRequired = errors.New("User authentication required")
 )
 
 func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *Client) {
@@ -15,7 +20,7 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	user, err := s.AuthUser(username, password)
 	if err != nil {
 		// For security reasons, return a general error message
-		response.UnauthorizedError(w, "User authentication required")
+		response.UnauthorizedError(w, errUserAuthenticationRequired.Error())
 		return
 	}
 

@@ -1,10 +1,15 @@
 package oauth
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/RichardKnop/go-oauth2-server/util"
+)
+
+var (
+	errRequestedScopeCannotBeGreater = errors.New("Requested scope cannot be greater")
 )
 
 func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, client *Client) {
@@ -27,7 +32,7 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 
 	// Requested scope CANNOT include any scope not originally granted
 	if !util.SpaceDelimitedStringNotGreater(scope, theRefreshToken.Scope) {
-		response.Error(w, "Requested scope cannot be greater", http.StatusBadRequest)
+		response.Error(w, errRequestedScopeCannotBeGreater.Error(), http.StatusBadRequest)
 		return
 	}
 

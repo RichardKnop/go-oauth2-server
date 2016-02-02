@@ -19,14 +19,14 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 	}
 	r.Form = url.Values{
 		"grant_type": {"password"},
-		"username":   {"test@username"},
+		"username":   {"test@user"},
 		"password":   {"test_password"},
 		"scope":      {"read_write"},
 	}
 
 	// And run the function we want to test
 	w := httptest.NewRecorder()
-	suite.service.passwordGrant(w, r, suite.client)
+	suite.service.passwordGrant(w, r, suite.clients[0])
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)

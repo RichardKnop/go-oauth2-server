@@ -1,6 +1,7 @@
 package oauth
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -27,7 +28,8 @@ func (suite *OauthTestSuite) TestHandleTokensClientAuthenticationRequired() {
 
 	// Check the response body
 	assert.Equal(
-		suite.T(), "{\"error\":\"Client authentication required\"}",
+		suite.T(),
+		fmt.Sprintf("{\"error\":\"%s\"}", errClientAuthenticationRequired.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }
@@ -50,7 +52,8 @@ func (suite *OauthTestSuite) TestHandleTokensInvalidGrantType() {
 
 	// Check the response body
 	assert.Equal(
-		suite.T(), "{\"error\":\"Invalid grant type\"}",
+		suite.T(),
+		fmt.Sprintf("{\"error\":\"%s\"}", errInvalidGrantType.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }

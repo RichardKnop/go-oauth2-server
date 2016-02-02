@@ -24,7 +24,7 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 
 	// And run the function we want to test
 	w := httptest.NewRecorder()
-	suite.service.clientCredentialsGrant(w, r, suite.client)
+	suite.service.clientCredentialsGrant(w, r, suite.clients[0])
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)

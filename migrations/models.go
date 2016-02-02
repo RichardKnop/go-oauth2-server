@@ -9,4 +9,3 @@ type Migration struct {
 	gorm.Model
 	Name string `sql:"size:255"`
 }
-
