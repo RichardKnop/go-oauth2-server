@@ -81,7 +81,7 @@ func (suite *OauthTestSuite) TestSetPassword() {
 
 	// Insert a test user without a password
 	user = &User{
-		Username: "test@user2",
+		Username: "test@user_nopass",
 		Password: util.StringOrNull(""),
 	}
 	if err := suite.db.Create(user).Error; err != nil {
@@ -97,14 +97,14 @@ func (suite *OauthTestSuite) TestSetPassword() {
 	}
 
 	// Try changing the password
-	err = suite.service.SetPassword(user, "test_password2")
+	err = suite.service.SetPassword(user, "test_password")
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)
 
 	// User object should have been updated
-	assert.Equal(suite.T(), "test@user2", user.Username)
-	assert.Nil(suite.T(), pass.VerifyPassword(user.Password.String, "test_password2"))
+	assert.Equal(suite.T(), "test@user_nopass", user.Username)
+	assert.Nil(suite.T(), pass.VerifyPassword(user.Password.String, "test_password"))
 }
 
 func (suite *OauthTestSuite) TestAuthUser() {
@@ -115,14 +115,14 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// Insert a test user without a password
 	if err := suite.db.Create(&User{
-		Username: "test@user2",
+		Username: "test@user_nopass",
 		Password: util.StringOrNull(""),
 	}).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	// When we try to authenticate a user without a password
-	user, err = suite.service.AuthUser("test@user2", "bogus")
+	user, err = suite.service.AuthUser("test@user_nopass", "bogus")
 
 	// User object should be nil
 	assert.Nil(suite.T(), user)
@@ -173,8 +173,8 @@ func (suite *OauthTestSuite) TestBlankPassword() {
 	)
 
 	user, err = suite.service.CreateUser(
-		"test@user2", // username
-		"",           // password
+		"test@user_nopass", // username
+		"",                 // password
 	)
 
 	// Error should be nil
@@ -182,11 +182,11 @@ func (suite *OauthTestSuite) TestBlankPassword() {
 
 	// Correct user object should be returned
 	if assert.NotNil(suite.T(), user) {
-		assert.Equal(suite.T(), "test@user2", user.Username)
+		assert.Equal(suite.T(), "test@user_nopass", user.Username)
 	}
 
 	// When we try to authenticate
-	user, err = suite.service.AuthUser("test@user2", "")
+	user, err = suite.service.AuthUser("test@user_nopass", "")
 
 	// User object should be nil
 	assert.Nil(suite.T(), user)
