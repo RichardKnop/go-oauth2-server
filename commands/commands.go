@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/AreaHQ/go-fixtures"
+	"github.com/RichardKnop/go-fixtures"
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/health"
 	"github.com/RichardKnop/go-oauth2-server/migrations"

@@ -6,7 +6,7 @@
 	],
 	"Deps": [
 		{
-			"ImportPath": "github.com/AreaHQ/go-fixtures",
+			"ImportPath": "github.com/RichardKnop/go-fixtures",
 			"Rev": "bae2bbc8596f9a63bb42253cde7d556a0da23b9d"
 		},
 		{

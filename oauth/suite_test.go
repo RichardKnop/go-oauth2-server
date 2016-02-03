@@ -6,7 +6,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/AreaHQ/go-fixtures"
+	"github.com/RichardKnop/go-fixtures"
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/migrations"
 	"github.com/jinzhu/gorm"
