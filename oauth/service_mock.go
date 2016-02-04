@@ -72,6 +72,29 @@ func (_m *ServiceMock) CreateClient(clientID string, secret string, redirectURI 
 	return r0, r1
 }
 
+// CreateClientTx ...
+func (_m *ServiceMock) CreateClientTx(tx *gorm.DB, clientID string, secret string, redirectURI string) (*Client, error) {
+	ret := _m.Called(tx, clientID, secret, redirectURI)
+
+	var r0 *Client
+	if rf, ok := ret.Get(0).(func(*gorm.DB, string, string, string) *Client); ok {
+		r0 = rf(tx, clientID, secret, redirectURI)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*Client)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*gorm.DB, string, string, string) error); ok {
+		r1 = rf(tx, clientID, secret, redirectURI)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // AuthClient ...
 func (_m *ServiceMock) AuthClient(clientID string, secret string) (*Client, error) {
 	ret := _m.Called(clientID, secret)

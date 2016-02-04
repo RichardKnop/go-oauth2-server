@@ -5,6 +5,7 @@ import (
 
 	"github.com/RichardKnop/go-oauth2-server/password"
 	"github.com/RichardKnop/go-oauth2-server/util"
+	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -35,19 +36,12 @@ func (s *Service) FindClientByClientID(clientID string) (*Client, error) {
 
 // CreateClient saves a new client to database
 func (s *Service) CreateClient(clientID, secret, redirectURI string) (*Client, error) {
-	secretHash, err := password.HashPassword(secret)
-	if err != nil {
-		return nil, err
-	}
-	client := &Client{
-		Key:         clientID,
-		Secret:      string(secretHash),
-		RedirectURI: util.StringOrNull(redirectURI),
-	}
-	if err := s.db.Create(client).Error; err != nil {
-		return nil, err
-	}
-	return client, nil
+	return createClient(s.db, clientID, secret, redirectURI)
+}
+
+// CreateClientTx saves a new client to database using injected db object
+func (s *Service) CreateClientTx(tx *gorm.DB, clientID, secret, redirectURI string) (*Client, error) {
+	return createClient(tx, clientID, secret, redirectURI)
 }
 
 // AuthClient authenticates client
@@ -63,5 +57,21 @@ func (s *Service) AuthClient(clientID, secret string) (*Client, error) {
 		return nil, errInvalidClientSecret
 	}
 
+	return client, nil
+}
+
+func createClient(db *gorm.DB, clientID, secret, redirectURI string) (*Client, error) {
+	secretHash, err := password.HashPassword(secret)
+	if err != nil {
+		return nil, err
+	}
+	client := &Client{
+		Key:         clientID,
+		Secret:      string(secretHash),
+		RedirectURI: util.StringOrNull(redirectURI),
+	}
+	if err := db.Create(client).Error; err != nil {
+		return nil, err
+	}
 	return client, nil
 }

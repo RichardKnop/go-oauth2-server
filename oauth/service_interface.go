@@ -12,6 +12,7 @@ type ServiceInterface interface {
 	ClientExists(clientID string) bool
 	FindClientByClientID(clientID string) (*Client, error)
 	CreateClient(clientID, secret, redirectURI string) (*Client, error)
+	CreateClientTx(tx *gorm.DB, clientID, secret, redirectURI string) (*Client, error)
 	AuthClient(clientID, secret string) (*Client, error)
 	UserExists(username string) bool
 	FindUserByUsername(username string) (*User, error)
