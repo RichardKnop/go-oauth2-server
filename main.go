@@ -26,7 +26,10 @@ func init() {
 
 func main() {
 	// Load the configuration, connect to the database
-	cnf := config.NewConfig(true) // must load once
+	cnf := config.NewConfig(
+		true, // must load once
+		true, // keep reloading
+	)
 	db, err := database.NewDatabase(cnf)
 	if err != nil {
 		log.Fatal(err)

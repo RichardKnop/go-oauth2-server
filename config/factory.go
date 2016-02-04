@@ -49,7 +49,7 @@ var cnf = &Config{
 
 // NewConfig loads configuration from etcd and returns *Config struct
 // It also starts a goroutine in the background to keep config up-to-date
-func NewConfig(mustLoadOnce bool) *Config {
+func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 	if configLoaded {
 		return cnf
 	}
@@ -87,23 +87,25 @@ func NewConfig(mustLoadOnce bool) *Config {
 		log.Print("Successfully loaded config for the first time")
 	}
 
-	// Open a goroutine to watch remote changes forever
-	go func() {
-		for {
-			// Delay after each request
-			time.Sleep(time.Second * 10)
+	if keepReloading {
+		// Open a goroutine to watch remote changes forever
+		go func() {
+			for {
+				// Delay after each request
+				time.Sleep(time.Second * 10)
 
-			// Attempt to reload the config
-			if err := loadConfig(kapi); err != nil {
-				log.Print(err)
-				continue
+				// Attempt to reload the config
+				if err := loadConfig(kapi); err != nil {
+					log.Print(err)
+					continue
+				}
+
+				// Set configLoaded to true
+				configLoaded = true
+				log.Print("Successfully reloaded config")
 			}
-
-			// Set configLoaded to true
-			configLoaded = true
-			log.Print("Successfully reloaded config")
-		}
-	}()
+		}()
+	}
 
 	return cnf
 }
