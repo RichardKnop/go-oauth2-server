@@ -47,7 +47,9 @@ func main() {
 			Name:  "runserver",
 			Usage: "run web server",
 			Action: func(c *cli.Context) {
-				commands.RunServer()
+				if err := commands.RunServer(); err != nil {
+					log.Fatal(err)
+				}
 			},
 		},
 	}
