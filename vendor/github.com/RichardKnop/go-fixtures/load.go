@@ -53,6 +53,14 @@ func Load(data []byte, db *sql.DB, driver string) error {
 				tx.Rollback() // rollback the transaction
 				return err
 			}
+			if driver == postgresDriver && row.GetInsertColumns()[0] == "id" {
+				// Fixed the primary ID sequence for Postgres
+				_, err := tx.Exec(fixPostgresPKSequence(row.Table))
+				if err != nil {
+					tx.Rollback() // rollback the transaction
+					return err
+				}
+			}
 		} else {
 			// Primary key found, let's run UPDATE query
 			updateQuery := fmt.Sprintf(
@@ -67,6 +75,14 @@ func Load(data []byte, db *sql.DB, driver string) error {
 				tx.Rollback() // rollback the transaction
 				return err
 			}
+			if driver == postgresDriver && row.GetUpdateColumns()[0] == "id" {
+				// Fixed the primary ID sequence for Postgres
+				_, err := tx.Exec(fixPostgresPKSequence(row.Table))
+				if err != nil {
+					tx.Rollback() // rollback the transaction
+					return err
+				}
+			}
 		}
 	}
 
@@ -77,4 +93,14 @@ func Load(data []byte, db *sql.DB, driver string) error {
 	}
 
 	return nil
+}
+
+// fixPostgresPKSequence resets primary key sequence after manual insertion
+func fixPostgresPKSequence(table string) string {
+	return fmt.Sprintf(
+		"SELECT pg_catalog.setval(pg_get_serial_sequence('%s', 'id'), "+
+			"(SELECT MAX(id) FROM %s));",
+		table,
+		table,
+	)
 }
