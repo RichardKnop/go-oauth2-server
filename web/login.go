@@ -99,7 +99,7 @@ func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 	// pages by specifying a path with login_redirect_uri query string param
 	loginRedirectURI := r.URL.Query().Get("login_redirect_uri")
 	if loginRedirectURI == "" {
-		loginRedirectURI = "/web/authorize"
+		loginRedirectURI = "/web/admin"
 	}
 	redirectWithQueryString(loginRedirectURI, r.URL.Query(), w, r)
 }
