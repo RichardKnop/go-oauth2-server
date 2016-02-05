@@ -45,6 +45,7 @@ var cnf = &Config{
 		ClientID: "test_client",
 		Secret:   "test_secret",
 	},
+	IsDevelopment: true,
 }
 
 // NewConfig loads configuration from etcd and returns *Config struct

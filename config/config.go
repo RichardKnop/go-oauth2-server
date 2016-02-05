@@ -45,4 +45,5 @@ type Config struct {
 	Oauth         OauthConfig
 	Session       SessionConfig
 	TrustedClient TrustedClientConfig
+	IsDevelopment bool
 }

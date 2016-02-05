@@ -5,8 +5,6 @@ import (
 	"os"
 
 	"github.com/RichardKnop/go-oauth2-server/commands"
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/codegangsta/cli"
 )
 
@@ -25,27 +23,13 @@ func init() {
 }
 
 func main() {
-	// Load the configuration, connect to the database
-	cnf := config.NewConfig(
-		true, // must load once
-		true, // keep reloading
-	)
-	db, err := database.NewDatabase(cnf)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-
-	// Disable logging
-	db.LogMode(false)
-
 	// Set the CLI app commands
 	cliApp.Commands = []cli.Command{
 		{
 			Name:  "migrate",
 			Usage: "run migrations",
 			Action: func(c *cli.Context) {
-				if err := commands.Migrate(db); err != nil {
+				if err := commands.Migrate(); err != nil {
 					log.Fatal(err)
 				}
 			},
@@ -54,7 +38,7 @@ func main() {
 			Name:  "loaddata",
 			Usage: "load data from fixture",
 			Action: func(c *cli.Context) {
-				if err := commands.LoadData(c.Args(), cnf, db); err != nil {
+				if err := commands.LoadData(c.Args()); err != nil {
 					log.Fatal(err)
 				}
 			},
@@ -63,7 +47,7 @@ func main() {
 			Name:  "runserver",
 			Usage: "run web server",
 			Action: func(c *cli.Context) {
-				commands.RunServer(cnf, db)
+				commands.RunServer()
 			},
 		},
 	}

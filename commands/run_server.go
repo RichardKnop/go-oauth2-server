@@ -1,54 +1,24 @@
 package commands
 
 import (
-	"io/ioutil"
 	"net/http"
 
-	"github.com/RichardKnop/go-fixtures"
-	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/health"
-	"github.com/RichardKnop/go-oauth2-server/migrations"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/web"
 	"github.com/codegangsta/negroni"
 	"github.com/gorilla/mux"
-	"github.com/jinzhu/gorm"
 	"github.com/phyber/negroni-gzip/gzip"
 )
 
-// Migrate migrates the database
-func Migrate(db *gorm.DB) error {
-	// Bootsrrap migrations
-	if err := migrations.Bootstrap(db); err != nil {
-		return err
-	}
-
-	// Run migrations for the oauth service
-	if err := oauth.MigrateAll(db); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// LoadData loads fixtures
-func LoadData(paths []string, cnf *config.Config, db *gorm.DB) error {
-	for _, path := range paths {
-		data, err := ioutil.ReadFile(path)
-		if err != nil {
-			return err
-		}
-
-		if err := fixtures.Load(data, db.DB(), cnf.Database.Type); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
 // RunServer runs the app
-func RunServer(cnf *config.Config, db *gorm.DB) {
+func RunServer() error {
+	cnf, db, err := initConfigDB(true, true)
+	defer db.Close()
+	if err != nil {
+		return err
+	}
+
 	// Initialise the health service
 	healthService := health.NewService(db)
 
@@ -82,4 +52,6 @@ func RunServer(cnf *config.Config, db *gorm.DB) {
 
 	// Run the server on port 8080
 	app.Run(":8080")
+
+	return nil
 }

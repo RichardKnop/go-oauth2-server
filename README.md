@@ -406,7 +406,8 @@ curl -L http://localhost:2379/v2/keys/config/go_oauth2_server.json -XPUT -d valu
 	"TrustedClient": {
 		"ClientID": "test_client",
 		"Secret": "test_secret"
-	}
+	},
+	"IsDevelopment": true
 }'
 ```
 
