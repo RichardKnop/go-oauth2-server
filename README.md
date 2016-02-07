@@ -27,6 +27,7 @@ It relies on `Postgres` for database and `etcd` for configuration but both are e
       * [Resource Owner Password Credentials](#resource-owner-password-credentials)
       * [Client Credentials](#client-credentials)
     * [Refreshing An Access Token](#refreshing-an-access-token)
+    * [Token Introspection](#token-introspection)
 * [Development](#development)
   * [Dependencies](#dependencies)
   * [Setup](#setup)
@@ -343,6 +344,32 @@ If valid and authorized, the authorization server issues an access token.
 ```
 
 The authorization server MAY issue a new refresh token, in which case the client MUST discard the old refresh token and replace it with the new refresh token.  The authorization server MAY revoke the old refresh token after issuing a new refresh token to the client.  If a new refresh token is issued, the refresh token scope MUST be identical to that of the refresh token included by the client in the request.
+
+### Token Introspection
+
+https://tools.ietf.org/html/rfc7662
+
+If the authorization server issued a access token or refresh token to the client, the client can make a request to the introspect endpoint in order to learn meta-information about a token.
+
+```
+curl --compressed -v localhost:8080/v1/oauth/introspect \
+	-u test_client:test_secret \
+	-d "token=00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c" \
+	-d "token_type_hint=access_token"
+```
+
+The authorization server responds meta-information about a token.
+
+```json
+{
+	"active": true,
+	"scope": "read_write",
+	"client_id": "test_client",
+	"username": "test@username",
+	"token_type": "Bearer",
+	"exp": 1454868090
+}
+```
 
 # Development
 

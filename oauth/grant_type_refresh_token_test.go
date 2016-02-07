@@ -89,7 +89,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 		ID:           accessToken.ID,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
-		TokenType:    "Bearer",
+		TokenType:    TokenType,
 		Scope:        "read_write",
 		RefreshToken: "test_token",
 	})

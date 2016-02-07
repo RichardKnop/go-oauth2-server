@@ -14,10 +14,10 @@ import (
 // RunServer runs the app
 func RunServer() error {
 	cnf, db, err := initConfigDB(true, true)
-	defer db.Close()
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	// Initialise the health service
 	healthService := health.NewService(db)
