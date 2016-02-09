@@ -22,14 +22,14 @@ func (suite *OauthTestSuite) TestFindClientByClientID() {
 	}
 
 	// When we try to find a client with a valid cliend ID
-	client, err = suite.service.FindClientByClientID("test_client")
+	client, err = suite.service.FindClientByClientID("test_client_1")
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)
 
 	// Correct client object should be returned
 	if assert.NotNil(suite.T(), client) {
-		assert.Equal(suite.T(), "test_client", client.Key)
+		assert.Equal(suite.T(), "test_client_1", client.Key)
 	}
 }
 
@@ -41,7 +41,7 @@ func (suite *OauthTestSuite) TestCreateClient() {
 
 	// We try to insert a non uniqie client
 	client, err = suite.service.CreateClient(
-		"test_client",             // client ID
+		"test_client_1",           // client ID
 		"test_secret",             // secret
 		"https://www.example.com", // redirect URI
 	)
@@ -56,7 +56,7 @@ func (suite *OauthTestSuite) TestCreateClient() {
 
 	// We try to insert a unique client
 	client, err = suite.service.CreateClient(
-		"test_client2",            // client ID
+		"test_client_3",           // client ID
 		"test_secret",             // secret
 		"https://www.example.com", // redirect URI
 	)
@@ -66,7 +66,7 @@ func (suite *OauthTestSuite) TestCreateClient() {
 
 	// Correct client object should be returned
 	if assert.NotNil(suite.T(), client) {
-		assert.Equal(suite.T(), "test_client2", client.Key)
+		assert.Equal(suite.T(), "test_client_3", client.Key)
 	}
 }
 
@@ -88,7 +88,7 @@ func (suite *OauthTestSuite) TestAuthClient() {
 	}
 
 	// When we try to authenticate with an invalid secret
-	client, err = suite.service.AuthClient("test_client", "bogus")
+	client, err = suite.service.AuthClient("test_client_1", "bogus")
 
 	// Client object should be nil
 	assert.Nil(suite.T(), client)
@@ -99,13 +99,13 @@ func (suite *OauthTestSuite) TestAuthClient() {
 	}
 
 	// When we try to authenticate with valid client ID and secret
-	client, err = suite.service.AuthClient("test_client", "test_secret")
+	client, err = suite.service.AuthClient("test_client_1", "test_secret")
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)
 
 	// Correct client object should be returned
 	if assert.NotNil(suite.T(), client) {
-		assert.Equal(suite.T(), "test_client", client.Key)
+		assert.Equal(suite.T(), "test_client_1", client.Key)
 	}
 }

@@ -4,7 +4,17 @@
   pk:
     id: 1
   fields:
-    key: 'test_client'
+    key: 'test_client_1'
+    secret: '$2a$10$CUoGytf1pR7CC6Y043gt/.vFJUV4IRqvH5R6F0VfITP8s2TqrQ.4e'
+    redirect_uri: 'https://www.example.com'
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'
+
+- table: 'oauth_clients'
+  pk:
+    id: 2
+  fields:
+    key: 'test_client_2'
     secret: '$2a$10$CUoGytf1pR7CC6Y043gt/.vFJUV4IRqvH5R6F0VfITP8s2TqrQ.4e'
     redirect_uri: 'https://www.example.com'
     created_at: 'ON_INSERT_NOW()'
