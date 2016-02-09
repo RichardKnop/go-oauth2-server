@@ -17,8 +17,5 @@ func initConfigDB(mustLoadOnce, keepReloading bool) (*config.Config, *gorm.DB, e
 		return nil, nil, err
 	}
 
-	// Database logging
-	db.LogMode(cnf.IsDevelopment)
-
 	return cnf, db, nil
 }

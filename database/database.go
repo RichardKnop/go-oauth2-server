@@ -36,6 +36,9 @@ func NewDatabase(cnf *config.Config) (*gorm.DB, error) {
 		// Max open connections
 		db.DB().SetMaxOpenConns(cnf.Database.MaxOpenConns)
 
+		// Database logging
+		db.LogMode(cnf.IsDevelopment)
+
 		return &db, nil
 	}
 
