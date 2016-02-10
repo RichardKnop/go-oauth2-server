@@ -41,7 +41,7 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 		ID:           accessToken.ID,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    s.cnf.Oauth.AccessTokenLifetime,
-		TokenType:    "Bearer",
+		TokenType:    TokenType,
 		Scope:        accessToken.Scope,
 		RefreshToken: refreshToken.Token,
 	}

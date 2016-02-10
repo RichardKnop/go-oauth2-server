@@ -57,3 +57,26 @@ func (suite *OauthTestSuite) TestHandleTokensInvalidGrantType() {
 		strings.TrimSpace(w.Body.String()),
 	)
 }
+
+func (suite *OauthTestSuite) TestHandleIntrospectClientAuthenticationRequired() {
+	// Prepare a request
+	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	r.PostForm = url.Values{"token": {"token"}}
+
+	// And run the function we want to test
+	w := httptest.NewRecorder()
+	suite.service.introspectHandler(w, r)
+
+	// Check the status code
+	assert.Equal(suite.T(), 401, w.Code)
+
+	// Check the response body
+	assert.Equal(
+		suite.T(),
+		fmt.Sprintf("{\"error\":\"%s\"}", errClientAuthenticationRequired.Error()),
+		strings.TrimSpace(w.Body.String()),
+	)
+}

@@ -20,5 +20,11 @@ func newRoutes(service *Service) []routes.Route {
 			Pattern:     "/tokens",
 			HandlerFunc: service.tokensHandler,
 		},
+		routes.Route{
+			Name:        "oauth_introspect",
+			Method:      "POST",
+			Pattern:     "/introspect",
+			HandlerFunc: service.introspectHandler,
+		},
 	}
 }

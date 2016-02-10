@@ -12,6 +12,24 @@ var (
 	errClientAuthenticationRequired = errors.New("Client authentication required")
 )
 
+// Get client credentials from basic auth and try to authenticate client
+func (s *Service) basicAuthClient(r *http.Request) (*Client, error) {
+	// Get client credentials from basic auth
+	clientID, secret, ok := r.BasicAuth()
+	if !ok {
+		return nil, errClientAuthenticationRequired
+	}
+
+	// Authenticate the client
+	client, err := s.AuthClient(clientID, secret)
+	if err != nil {
+		// For security reasons, return a general error message
+		return nil, errClientAuthenticationRequired
+	}
+
+	return client, nil
+}
+
 // Handles all OAuth 2.0 grant types (POST /v1/oauth/tokens)
 func (s *Service) tokensHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse the form so r.Form becomes available
@@ -35,21 +53,23 @@ func (s *Service) tokensHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Get client credentials from basic auth
-	clientID, secret, ok := r.BasicAuth()
-	if !ok {
-		response.UnauthorizedError(w, errClientAuthenticationRequired.Error())
-		return
-	}
-
-	// Authenticate the client
-	client, err := s.AuthClient(clientID, secret)
+	client, err := s.basicAuthClient(r)
 	if err != nil {
-		// For security reasons, return a general error message
-		response.UnauthorizedError(w, errClientAuthenticationRequired.Error())
+		response.UnauthorizedError(w, err.Error())
 		return
 	}
 
 	// Execute the correct function based on the grant type
 	grantHandler(w, r, client)
+}
+
+// Handles OAuth 2.0 introspect request (POST /v1/oauth/introspect)
+func (s *Service) introspectHandler(w http.ResponseWriter, r *http.Request) {
+	client, err := s.basicAuthClient(r)
+	if err != nil {
+		response.UnauthorizedError(w, err.Error())
+		return
+	}
+
+	s.introspectToken(w, r, client)
 }
