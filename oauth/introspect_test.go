@@ -73,7 +73,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectMissingToken() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	r.SetBasicAuth("test_client", "test_secret")
+	r.SetBasicAuth("test_client_1", "test_secret")
 	r.PostForm = url.Values{}
 
 	// And run the function we want to test
@@ -97,7 +97,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectInvailidTokenHint() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	r.SetBasicAuth("test_client", "test_secret")
+	r.SetBasicAuth("test_client_1", "test_secret")
 	r.PostForm = url.Values{"token": {"token"}, "token_type_hint": {"wrong"}}
 
 	// And run the function we want to test
@@ -133,7 +133,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectAccessToken() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	r.SetBasicAuth("test_client", "test_secret")
+	r.SetBasicAuth("test_client_1", "test_secret")
 
 	// With correct token hint
 	r.PostForm = url.Values{"token": {at.Token}, "token_type_hint": {accessTokenHint}}
@@ -202,7 +202,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectRefreshToken() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	r.SetBasicAuth("test_client", "test_secret")
+	r.SetBasicAuth("test_client_1", "test_secret")
 
 	// With correct token hint
 	r.PostForm = url.Values{"token": {rt.Token}, "token_type_hint": {refreshTokenHint}}
@@ -259,7 +259,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectInactiveToken() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	r.SetBasicAuth("test_client", "test_secret")
+	r.SetBasicAuth("test_client_1", "test_secret")
 
 	// With access token hint
 	r.PostForm = url.Values{"token": {"unexisting_token"}, "token_type_hint": {accessTokenHint}}
