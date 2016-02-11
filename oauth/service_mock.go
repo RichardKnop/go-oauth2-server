@@ -377,3 +377,7 @@ func (_m *ServiceMock) Authenticate(token string) (*AccessToken, error) {
 func (_m *ServiceMock) tokensHandler(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
+
+func (_m *ServiceMock) introspectHandler(w http.ResponseWriter, r *http.Request) {
+	_m.Called(w, r)
+}
