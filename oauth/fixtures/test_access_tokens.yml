@@ -15,7 +15,7 @@
   fields:
     client_id: 1
     user_id: 1
-    token: 'test_superadmin_token'
+    token: 'test_superuser_token'
     scope: 'read read-write'
     expires_at: '2099-01-08 04:05:06'
 

@@ -95,7 +95,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 	if assert.NotNil(suite.T(), accessToken) {
 		assert.Equal(suite.T(), "test_user_token", accessToken.Token)
 		assert.Equal(suite.T(), "test_client_1", accessToken.Client.Key)
-		assert.Equal(suite.T(), "test@superadmin", accessToken.User.Username)
+		assert.Equal(suite.T(), "test@superuser", accessToken.User.Username)
 	}
 
 	// Error should be nil
