@@ -483,7 +483,7 @@ docker run -e ETCD_HOST=localhost -e ETCD_PORT=2379 -p 6060:8080 go-oauth2-serve
 You can load fixtures with `docker exec` command:
 
 ```
-docker exec <container_id> /go/bin/go-oauth2 loaddata \
+docker exec <container_id> /go/bin/go-oauth2-server loaddata \
 	oauth/fixtures/scopes.yml \
 	oauth/fixtures/test_clients.yml
 ```
