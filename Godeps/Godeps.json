@@ -66,7 +66,7 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "c19412d85af9afcc32af797a4e48547dc1d10adb"
+			"Rev": "0cf369dcff417ed51c8e439d8047f1b7503d87ce"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
@@ -121,6 +121,10 @@
 			"ImportPath": "github.com/stretchr/testify/suite",
 			"Comment": "v1.1.3-2-g9f9027f",
 			"Rev": "9f9027faeb0dad515336ed2f28317f9f8f527ab4"
+		},
+		{
+			"ImportPath": "github.com/unrolled/secure",
+			"Rev": "9b725bb5ee80564334176a116a99dd926cab63a1"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
