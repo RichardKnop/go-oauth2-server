@@ -9,10 +9,10 @@ import (
 // LoadData loads fixtures
 func LoadData(paths []string) error {
 	cnf, db, err := initConfigDB(true, false)
-	defer db.Close()
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	// Iterate over fixtures paths
 	for _, path := range paths {
