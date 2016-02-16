@@ -13,12 +13,20 @@ import (
 )
 
 func TestIntOrNull(t *testing.T) {
+	nullInt := PositiveIntOrNull(1)
+	assert.True(t, nullInt.Valid)
+	value, err := nullInt.Value()
+	assert.Nil(t, err)
+	assert.Equal(t, int64(1), value)
+}
+
+func TestPositiveIntOrNull(t *testing.T) {
 	var nullInt sql.NullInt64
 	var value driver.Value
 	var err error
 
-	// When the integer is zero
-	nullInt = IntOrNull(0)
+	// When the number is negative
+	nullInt = PositiveIntOrNull(-1)
 
 	// nullInt.Valid should be false
 	assert.False(t, nullInt.Valid)
@@ -28,8 +36,8 @@ func TestIntOrNull(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Nil(t, value)
 
-	// When the integer is greater than zero
-	nullInt = IntOrNull(1)
+	// When the number is greater than zero
+	nullInt = PositiveIntOrNull(1)
 
 	// nullInt.Valid should be true
 	assert.True(t, nullInt.Valid)
@@ -38,6 +46,42 @@ func TestIntOrNull(t *testing.T) {
 	value, err = nullInt.Value()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), value)
+}
+
+func TestFloatOrNull(t *testing.T) {
+	nullFloat := FloatOrNull(1.5)
+	assert.True(t, nullFloat.Valid)
+	value, err := nullFloat.Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 1.5, value)
+}
+
+func TestPositiveFloatOrNull(t *testing.T) {
+	var nullFloat sql.NullFloat64
+	var value driver.Value
+	var err error
+
+	// When the number is negative
+	nullFloat = PositiveFloatOrNull(-0.5)
+
+	// nullFloat.Valid should be false
+	assert.False(t, nullFloat.Valid)
+
+	// nullFloat.Value() should return nil
+	value, err = nullFloat.Value()
+	assert.Nil(t, err)
+	assert.Nil(t, value)
+
+	// When the number is greater than zero
+	nullFloat = PositiveFloatOrNull(1.5)
+
+	// nullFloat.Valid should be true
+	assert.True(t, nullFloat.Valid)
+
+	// nullFloat.Value() should return the integer
+	value, err = nullFloat.Value()
+	assert.Nil(t, err)
+	assert.Equal(t, 1.5, value)
 }
 
 func TestStringOrNull(t *testing.T) {
@@ -86,7 +130,7 @@ func TestTimeOrNull(t *testing.T) {
 
 	// When the time is time.Time instance
 	now := time.Now()
-	nullTime = TimeOrNull(now)
+	nullTime = TimeOrNull(&now)
 
 	// nullTime.Valid should be true
 	assert.True(t, nullTime.Valid)

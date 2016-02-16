@@ -34,7 +34,7 @@ func (s *Service) getValidAuthorizationCode(code string, client *Client) (*Autho
 	// Fetch the auth code from the database
 	authorizationCode := new(AuthorizationCode)
 	notFound := s.db.Where(AuthorizationCode{
-		ClientID: util.IntOrNull(int64(client.ID)),
+		ClientID: util.PositiveIntOrNull(int64(client.ID)),
 	}).Where("code = ?", code).Preload("Client").Preload("User").
 		First(authorizationCode).RecordNotFound()
 

@@ -66,8 +66,8 @@ func (rt *RefreshToken) TableName() string {
 
 // newRefreshToken creates new RefreshToken instance
 func newRefreshToken(expiresIn int, client *Client, user *User, scope string) *RefreshToken {
-	clientID := util.IntOrNull(int64(client.ID))
-	userID := util.IntOrNull(int64(user.ID))
+	clientID := util.PositiveIntOrNull(int64(client.ID))
+	userID := util.PositiveIntOrNull(int64(user.ID))
 	refreshToken := &RefreshToken{
 		Token:     uuid.New(),
 		ExpiresAt: time.Now().Add(time.Duration(expiresIn) * time.Second),
@@ -103,8 +103,8 @@ func (at *AccessToken) TableName() string {
 
 // newAccessToken creates new AccessToken instance
 func newAccessToken(expiresIn int, client *Client, user *User, scope string) *AccessToken {
-	clientID := util.IntOrNull(int64(client.ID))
-	userID := util.IntOrNull(int64(user.ID))
+	clientID := util.PositiveIntOrNull(int64(client.ID))
+	userID := util.PositiveIntOrNull(int64(user.ID))
 	accessToken := &AccessToken{
 		Token:     uuid.New(),
 		ExpiresAt: time.Now().Add(time.Duration(expiresIn) * time.Second),
@@ -141,8 +141,8 @@ func (ac *AuthorizationCode) TableName() string {
 
 // newAuthorizationCode creates new AuthorizationCode instance
 func newAuthorizationCode(expiresIn int, client *Client, user *User, redirectURI, scope string) *AuthorizationCode {
-	clientID := util.IntOrNull(int64(client.ID))
-	userID := util.IntOrNull(int64(user.ID))
+	clientID := util.PositiveIntOrNull(int64(client.ID))
+	userID := util.PositiveIntOrNull(int64(user.ID))
 	authorizationCode := &AuthorizationCode{
 		Code:        uuid.New(),
 		ExpiresAt:   time.Now().Add(time.Duration(expiresIn) * time.Second),
