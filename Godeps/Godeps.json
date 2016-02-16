@@ -21,28 +21,28 @@
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/Godeps/_workspace/src/github.com/ugorji/go/codec",
-			"Comment": "v2.3.0-alpha.0-522-g6eb0b35",
-			"Rev": "6eb0b35ed3a3ed3b2eb686d8a9dc493157caaadd"
+			"Comment": "v2.3.0-alpha.0-912-g30e4d7d",
+			"Rev": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/Godeps/_workspace/src/golang.org/x/net/context",
-			"Comment": "v2.3.0-alpha.0-522-g6eb0b35",
-			"Rev": "6eb0b35ed3a3ed3b2eb686d8a9dc493157caaadd"
+			"Comment": "v2.3.0-alpha.0-912-g30e4d7d",
+			"Rev": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/client",
-			"Comment": "v2.3.0-alpha.0-522-g6eb0b35",
-			"Rev": "6eb0b35ed3a3ed3b2eb686d8a9dc493157caaadd"
+			"Comment": "v2.3.0-alpha.0-912-g30e4d7d",
+			"Rev": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/pathutil",
-			"Comment": "v2.3.0-alpha.0-522-g6eb0b35",
-			"Rev": "6eb0b35ed3a3ed3b2eb686d8a9dc493157caaadd"
+			"Comment": "v2.3.0-alpha.0-912-g30e4d7d",
+			"Rev": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/types",
-			"Comment": "v2.3.0-alpha.0-522-g6eb0b35",
-			"Rev": "6eb0b35ed3a3ed3b2eb686d8a9dc493157caaadd"
+			"Comment": "v2.3.0-alpha.0-912-g30e4d7d",
+			"Rev": "30e4d7d6aa97040c5040ffd2344ac0d6effe3d23"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
@@ -62,7 +62,7 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/sessions",
-			"Rev": "99b16d2edd22458c541b3640ce83689b08a05c20"
+			"Rev": "715060ac0b7d99d95d1600df329f5da94809023a"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
