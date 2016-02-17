@@ -30,6 +30,13 @@ func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get the client from the request context
+	client, err := getClient(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	// Authenticate the user
 	user, err := s.oauthService.AuthUser(
 		r.Form.Get("email"),    // username
@@ -46,15 +53,6 @@ func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
 		http.Redirect(w, r, r.RequestURI, http.StatusFound)
-		return
-	}
-
-	// Fetch the trusted client
-	client, err := s.oauthService.FindClientByClientID(
-		s.cnf.TrustedClient.ClientID,
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

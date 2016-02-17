@@ -41,10 +41,6 @@ var cnf = &Config{
 		MaxAge:   86400 * 7, // 7 days
 		HTTPOnly: true,
 	},
-	TrustedClient: TrustedClientConfig{
-		ClientID: "test_client",
-		Secret:   "test_secret",
-	},
 	IsDevelopment: true,
 }
 

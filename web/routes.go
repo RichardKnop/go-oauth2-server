@@ -23,6 +23,7 @@ func newRoutes(service *Service) []routes.Route {
 			Middlewares: []negroni.Handler{
 				new(parseFormMiddleware),
 				newGuestMiddleware(service),
+				newClientMiddleware(service),
 			},
 		},
 		routes.Route{
@@ -33,6 +34,7 @@ func newRoutes(service *Service) []routes.Route {
 			Middlewares: []negroni.Handler{
 				new(parseFormMiddleware),
 				newGuestMiddleware(service),
+				newClientMiddleware(service),
 			},
 		},
 		routes.Route{
@@ -43,6 +45,7 @@ func newRoutes(service *Service) []routes.Route {
 			Middlewares: []negroni.Handler{
 				new(parseFormMiddleware),
 				newGuestMiddleware(service),
+				newClientMiddleware(service),
 			},
 		},
 		routes.Route{
@@ -53,6 +56,7 @@ func newRoutes(service *Service) []routes.Route {
 			Middlewares: []negroni.Handler{
 				new(parseFormMiddleware),
 				newGuestMiddleware(service),
+				newClientMiddleware(service),
 			},
 		},
 		routes.Route{
