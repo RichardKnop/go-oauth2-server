@@ -57,6 +57,11 @@ func renderTemplate(w http.ResponseWriter, name string, data map[string]interfac
 		return err
 	}
 
+	// The X-Frame-Options HTTP response header can be used to indicate whether
+	// or not a browser should be allowed to render a page in a <frame>,
+	// <iframe> or <object> . Sites can use this to avoid clickjacking attacks,
+	// by ensuring that their content is not embedded into other sites.
+	w.Header().Set("X-Frame-Options", "deny")
 	// Set the header and write the buffer to the http.ResponseWriter
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	buf.WriteTo(w)
