@@ -9,8 +9,9 @@
   <title>{{ template "title" . }}</title>
 
   <!-- Bootstrap core CSS -->
-  <link rel="stylesheet" href="/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
+  <!-- Custom CSS -->
   <link href="/css/inside.css" rel="stylesheet">
 
   <!-- Custom styles for this template -->
@@ -46,6 +47,7 @@
   <!-- Begin page content -->
   {{ template "content" . }}
 
+  <!-- Begin footer -->
   <footer class="footer">
     <div class="container">
       <p class="text-muted">Place sticky footer content here.</p>
@@ -56,9 +58,11 @@
   ================================================== -->
   <!-- Placed at the end of the document so the pages load faster -->
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="/js/bootstrap.min.js"></script>
-  <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-  <script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+  <!-- jQuery -->
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+  <!-- Custom scripts -->
   {{ template "scripts" . }}
 </body>
 </html>
