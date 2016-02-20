@@ -16,9 +16,10 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 
 	// Create a new access token
 	accessToken, err := s.GrantAccessToken(
-		client,    // client
-		new(User), // empty user
-		scope,     // scope
+		client,                          // client
+		new(User),                       // empty user
+		s.cnf.Oauth.AccessTokenLifetime, // expires in
+		scope, // scope
 	)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)
@@ -27,9 +28,10 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 
 	// Create or retrieve a refresh token
 	refreshToken, err := s.GetOrCreateRefreshToken(
-		client,    // client
-		new(User), // empty user
-		scope,     // scope
+		client,                           // client
+		new(User),                        // empty user
+		s.cnf.Oauth.RefreshTokenLifetime, // expires in
+		scope, // scope
 	)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)

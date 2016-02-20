@@ -13,15 +13,9 @@ var (
 )
 
 // GrantAuthorizationCode grants a new authorization code
-func (s *Service) GrantAuthorizationCode(client *Client, user *User, redirectURI, scope string) (*AuthorizationCode, error) {
+func (s *Service) GrantAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI, scope string) (*AuthorizationCode, error) {
 	// Create a new authorization code
-	authorizationCode := newAuthorizationCode(
-		s.cnf.Oauth.AuthCodeLifetime, // expires in
-		client,      // client
-		user,        // user
-		redirectURI, // redirect URI
-		scope,       // scope
-	)
+	authorizationCode := newAuthorizationCode(client, user, expiresIn, redirectURI, scope)
 	if err := s.db.Create(authorizationCode).Error; err != nil {
 		return nil, err
 	}
@@ -33,9 +27,9 @@ func (s *Service) GrantAuthorizationCode(client *Client, user *User, redirectURI
 func (s *Service) getValidAuthorizationCode(code string, client *Client) (*AuthorizationCode, error) {
 	// Fetch the auth code from the database
 	authorizationCode := new(AuthorizationCode)
-	notFound := s.db.Where(AuthorizationCode{
-		ClientID: util.PositiveIntOrNull(int64(client.ID)),
-	}).Where("code = ?", code).Preload("Client").Preload("User").
+	clientID := util.PositiveIntOrNull(int64(client.ID))
+	notFound := s.db.Where(AuthorizationCode{ClientID: clientID}).
+		Where("code = ?", code).Preload("Client").Preload("User").
 		First(authorizationCode).RecordNotFound()
 
 	// Not found

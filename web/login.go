@@ -60,7 +60,8 @@ func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 	accessToken, err := s.oauthService.GrantAccessToken(
 		client, // client
 		user,   // user
-		scope,  // scope
+		s.cnf.Oauth.AccessTokenLifetime, // expires in
+		scope, // scope
 	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())
@@ -72,7 +73,8 @@ func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 	refreshToken, err := s.oauthService.GetOrCreateRefreshToken(
 		client, // client
 		user,   // user
-		scope,  // scope
+		s.cnf.Oauth.RefreshTokenLifetime, // expires in
+		scope, // scope
 	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())

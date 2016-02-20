@@ -9,10 +9,9 @@ import (
 )
 
 func TestNewAccessToken(t *testing.T) {
-	client := Client{Model: gorm.Model{ID: 1}}
-	user := User{Model: gorm.Model{ID: 2}}
-
 	var (
+		client      = &Client{Model: gorm.Model{ID: 1}}
+		user        = &User{Model: gorm.Model{ID: 2}}
 		accessToken *AccessToken
 		v           driver.Value
 		err         error
@@ -20,9 +19,9 @@ func TestNewAccessToken(t *testing.T) {
 
 	// When user object is nil
 	accessToken = newAccessToken(
-		3600,                   // expires in
-		&client,                // client
-		new(User),              // empty User object
+		client, // client
+		nil,    // user
+		3600,   // expires in
 		"scope doesn't matter", // scope
 	)
 
@@ -44,9 +43,9 @@ func TestNewAccessToken(t *testing.T) {
 
 	// When user object is not nil
 	accessToken = newAccessToken(
-		3600,    // expires in
-		&client, // client
-		&user,   // user
+		client, // client
+		user,   // user
+		3600,   // expires in
 		"scope doesn't matter", // scope
 	)
 
@@ -68,10 +67,9 @@ func TestNewAccessToken(t *testing.T) {
 }
 
 func TestNewRefreshToken(t *testing.T) {
-	client := Client{Model: gorm.Model{ID: 1}}
-	user := User{Model: gorm.Model{ID: 2}}
-
 	var (
+		client       = &Client{Model: gorm.Model{ID: 1}}
+		user         = &User{Model: gorm.Model{ID: 2}}
 		refreshToken *RefreshToken
 		v            driver.Value
 		err          error
@@ -79,9 +77,9 @@ func TestNewRefreshToken(t *testing.T) {
 
 	// When user object is nil
 	refreshToken = newRefreshToken(
+		client,                 // client
+		nil,                    // user
 		1209600,                // expires in
-		&client,                // client
-		new(User),              // empty User object
 		"scope doesn't matter", // scope
 	)
 
@@ -103,9 +101,9 @@ func TestNewRefreshToken(t *testing.T) {
 
 	// When user object is not nil
 	refreshToken = newRefreshToken(
-		1209600, // expires in
-		&client, // client
-		&user,   // user
+		client,                 // client
+		user,                   // user
+		1209600,                // expires in
 		"scope doesn't matter", // scope
 	)
 
@@ -127,10 +125,9 @@ func TestNewRefreshToken(t *testing.T) {
 }
 
 func TestNewAuthorizationCode(t *testing.T) {
-	client := Client{Model: gorm.Model{ID: 1}}
-	user := User{Model: gorm.Model{ID: 2}}
-
 	var (
+		client            = &Client{Model: gorm.Model{ID: 1}}
+		user              = &User{Model: gorm.Model{ID: 2}}
 		authorizationCode *AuthorizationCode
 		v                 driver.Value
 		err               error
@@ -138,9 +135,9 @@ func TestNewAuthorizationCode(t *testing.T) {
 
 	// When user object is not nil
 	authorizationCode = newAuthorizationCode(
-		3600,    // expires in
-		&client, // client
-		&user,   // user
+		client, // client
+		user,   // user
+		3600,   // expires in
 		"redirect URI doesn't matter", // redirect URI
 		"scope doesn't matter",        // scope
 	)

@@ -21,9 +21,9 @@ type ServiceInterface interface {
 	SetPassword(user *User, password string) error
 	AuthUser(username, thePassword string) (*User, error)
 	GetScope(requestedScope string) (string, error)
-	GrantAuthorizationCode(client *Client, user *User, redirectURI, scope string) (*AuthorizationCode, error)
-	GrantAccessToken(client *Client, user *User, scope string) (*AccessToken, error)
-	GetOrCreateRefreshToken(client *Client, user *User, scope string) (*RefreshToken, error)
+	GrantAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI, scope string) (*AuthorizationCode, error)
+	GrantAccessToken(client *Client, user *User, expiresIn int, scope string) (*AccessToken, error)
+	GetOrCreateRefreshToken(client *Client, user *User, expiresIn int, scope string) (*RefreshToken, error)
 	GetValidRefreshToken(token string, client *Client) (*RefreshToken, error)
 	Authenticate(token string) (*AccessToken, error)
 

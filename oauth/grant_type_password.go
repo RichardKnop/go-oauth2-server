@@ -35,7 +35,8 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	accessToken, err := s.GrantAccessToken(
 		client, // client
 		user,   // user
-		scope,  // scope
+		s.cnf.Oauth.AccessTokenLifetime, // expires in
+		scope, // scope
 	)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)
@@ -46,7 +47,8 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	refreshToken, err := s.GetOrCreateRefreshToken(
 		client, // client
 		user,   // user
-		scope,  // scope
+		s.cnf.Oauth.RefreshTokenLifetime, // expires in
+		scope, // scope
 	)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)

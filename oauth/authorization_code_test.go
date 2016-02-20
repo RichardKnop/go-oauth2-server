@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"database/sql/driver"
 	"log"
 	"time"
 
@@ -13,13 +12,13 @@ func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
 		authorizationCode *AuthorizationCode
 		err               error
 		codes             []*AuthorizationCode
-		v                 driver.Value
 	)
 
 	// Grant an authorization code
 	authorizationCode, err = suite.service.GrantAuthorizationCode(
-		suite.clients[0],              // client
-		suite.users[0],                // user
+		suite.clients[0], // client
+		suite.users[0],   // user
+		3600,             // expires in
 		"redirect URI doesn't matter", // redirect URI
 		"scope doesn't matter",        // scope
 	)
@@ -38,45 +37,43 @@ func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
 		// And the code should match the one returned by the grant method
 		assert.Equal(suite.T(), codes[0].Code, authorizationCode.Code)
 
-		// Client id should be set
+		// Client ID should be set
 		assert.True(suite.T(), codes[0].ClientID.Valid)
-		v, err = codes[0].ClientID.Value()
-		assert.Nil(suite.T(), err)
-		assert.Equal(suite.T(), int64(suite.clients[0].ID), v)
+		assert.Equal(suite.T(), int64(suite.clients[0].ID), codes[0].ClientID.Int64)
 
-		// User id should be set
+		// User ID should be set
 		assert.True(suite.T(), codes[0].UserID.Valid)
-		v, err = codes[0].UserID.Value()
-		assert.Nil(suite.T(), err)
-		assert.Equal(suite.T(), int64(suite.users[0].ID), v)
+		assert.Equal(suite.T(), int64(suite.users[0].ID), codes[0].UserID.Int64)
 	}
 }
 
 func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
-	// Insert an expired test authorization code
-	if err := suite.db.Create(&AuthorizationCode{
-		Code:      "test_expired_code",
-		ExpiresAt: time.Now().Add(-10 * time.Second),
-		Client:    suite.clients[0],
-		User:      suite.users[0],
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
-
-	// Insert a test authorization code
-	if err := suite.db.Create(&AuthorizationCode{
-		Code:      "test_code",
-		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.clients[0],
-		User:      suite.users[0],
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
-
 	var (
 		authorizationCode *AuthorizationCode
 		err               error
 	)
+
+	// Insert some test authorization codes
+	for _, testAuthorizationCode := range []*AuthorizationCode{
+		// Expired authorization code
+		&AuthorizationCode{
+			Code:      "test_expired_code",
+			ExpiresAt: time.Now().Add(-10 * time.Second),
+			Client:    suite.clients[0],
+			User:      suite.users[0],
+		},
+		// Authorization code
+		&AuthorizationCode{
+			Code:      "test_code",
+			ExpiresAt: time.Now().Add(+10 * time.Second),
+			Client:    suite.clients[0],
+			User:      suite.users[0],
+		},
+	} {
+		if err := suite.db.Create(testAuthorizationCode).Error; err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	// Test passing an empty code
 	authorizationCode, err = suite.service.getValidAuthorizationCode(

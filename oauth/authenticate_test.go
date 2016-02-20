@@ -8,39 +8,38 @@ import (
 )
 
 func (suite *OauthTestSuite) TestAuthenticate() {
-	// Insert an expired test access token
-	if err := suite.db.Create(&AccessToken{
-		Token:     "test_expired_token",
-		ExpiresAt: time.Now().Add(-10 * time.Second),
-		Client:    suite.clients[0],
-		User:      suite.users[0],
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
-
-	// Insert a test client access token
-	if err := suite.db.Create(&AccessToken{
-		Token:     "test_client_token",
-		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.clients[0],
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
-
-	// Insert a test user access token
-	if err := suite.db.Create(&AccessToken{
-		Token:     "test_user_token",
-		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.clients[0],
-		User:      suite.users[0],
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
-
 	var (
 		accessToken *AccessToken
 		err         error
 	)
+
+	// Insert some test access tokens
+	for _, testAccessToken := range []*AccessToken{
+		// Expired access token
+		&AccessToken{
+			Token:     "test_expired_token",
+			ExpiresAt: time.Now().Add(-10 * time.Second),
+			Client:    suite.clients[0],
+			User:      suite.users[0],
+		},
+		// Access token without a user
+		&AccessToken{
+			Token:     "test_client_token",
+			ExpiresAt: time.Now().Add(+10 * time.Second),
+			Client:    suite.clients[0],
+		},
+		// Access token with a user
+		&AccessToken{
+			Token:     "test_user_token",
+			ExpiresAt: time.Now().Add(+10 * time.Second),
+			Client:    suite.clients[0],
+			User:      suite.users[0],
+		},
+	} {
+		if err := suite.db.Create(testAccessToken).Error; err != nil {
+			log.Fatal(err)
+		}
+	}
 
 	// Test passing an empty token
 	accessToken, err = suite.service.Authenticate("")

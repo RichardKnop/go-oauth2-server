@@ -2,7 +2,6 @@ package web
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -72,14 +71,9 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 	// Fallback to the client redirect URI if not in query string
 	redirectURI := r.Form.Get("redirect_uri")
 	if redirectURI == "" {
-		value, err := client.RedirectURI.Value()
-		if err == nil {
-			clientRedirectURI, ok := value.(string)
-			if ok {
-				redirectURI = clientRedirectURI
-			}
-		}
+		redirectURI = client.RedirectURI.String
 	}
+
 	// // Parse the redirect URL
 	parsedRedirectURI, err := url.ParseRequestURI(redirectURI)
 	if err != nil {
@@ -112,11 +106,11 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 		authorizationCode, err := s.oauthService.GrantAuthorizationCode(
 			client, // client
 			user,   // user
-			r.Form.Get("redirect_uri"), // redirect URI
-			scope, // scope
+			s.cnf.Oauth.AuthCodeLifetime, // expires in
+			redirectURI,                  // redirect URI
+			scope,                        // scope
 		)
 		if err != nil {
-			log.Print(err)
 			errorRedirect(w, r, parsedRedirectURI, "server_error", state, responseType)
 			return
 		}
@@ -138,10 +132,10 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 		accessToken, err := s.oauthService.GrantAccessToken(
 			client, // client
 			user,   // user
-			scope,  // scope
+			s.cnf.Oauth.AccessTokenLifetime, // expires in
+			scope, // scope
 		)
 		if err != nil {
-			log.Print(err)
 			errorRedirect(w, r, parsedRedirectURI, "server_error", state, responseType)
 			return
 		}

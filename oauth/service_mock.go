@@ -260,12 +260,12 @@ func (_m *ServiceMock) GetScope(requestedScope string) (string, error) {
 }
 
 // GrantAuthorizationCode ...
-func (_m *ServiceMock) GrantAuthorizationCode(client *Client, user *User, redirectURI string, scope string) (*AuthorizationCode, error) {
-	ret := _m.Called(client, user, redirectURI, scope)
+func (_m *ServiceMock) GrantAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI string, scope string) (*AuthorizationCode, error) {
+	ret := _m.Called(client, user, expiresIn, redirectURI, scope)
 
 	var r0 *AuthorizationCode
-	if rf, ok := ret.Get(0).(func(*Client, *User, string, string) *AuthorizationCode); ok {
-		r0 = rf(client, user, redirectURI, scope)
+	if rf, ok := ret.Get(0).(func(*Client, *User, int, string, string) *AuthorizationCode); ok {
+		r0 = rf(client, user, expiresIn, redirectURI, scope)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*AuthorizationCode)
@@ -273,8 +273,8 @@ func (_m *ServiceMock) GrantAuthorizationCode(client *Client, user *User, redire
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*Client, *User, string, string) error); ok {
-		r1 = rf(client, user, redirectURI, scope)
+	if rf, ok := ret.Get(1).(func(*Client, *User, int, string, string) error); ok {
+		r1 = rf(client, user, expiresIn, redirectURI, scope)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -283,12 +283,12 @@ func (_m *ServiceMock) GrantAuthorizationCode(client *Client, user *User, redire
 }
 
 // GrantAccessToken ...
-func (_m *ServiceMock) GrantAccessToken(client *Client, user *User, scope string) (*AccessToken, error) {
-	ret := _m.Called(client, user, scope)
+func (_m *ServiceMock) GrantAccessToken(client *Client, user *User, expiresIn int, scope string) (*AccessToken, error) {
+	ret := _m.Called(client, user, expiresIn, scope)
 
 	var r0 *AccessToken
-	if rf, ok := ret.Get(0).(func(*Client, *User, string) *AccessToken); ok {
-		r0 = rf(client, user, scope)
+	if rf, ok := ret.Get(0).(func(*Client, *User, int, string) *AccessToken); ok {
+		r0 = rf(client, user, expiresIn, scope)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*AccessToken)
@@ -296,8 +296,8 @@ func (_m *ServiceMock) GrantAccessToken(client *Client, user *User, scope string
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*Client, *User, string) error); ok {
-		r1 = rf(client, user, scope)
+	if rf, ok := ret.Get(1).(func(*Client, *User, int, string) error); ok {
+		r1 = rf(client, user, expiresIn, scope)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -306,12 +306,12 @@ func (_m *ServiceMock) GrantAccessToken(client *Client, user *User, scope string
 }
 
 // GetOrCreateRefreshToken ...
-func (_m *ServiceMock) GetOrCreateRefreshToken(client *Client, user *User, scope string) (*RefreshToken, error) {
-	ret := _m.Called(client, user, scope)
+func (_m *ServiceMock) GetOrCreateRefreshToken(client *Client, user *User, expiresIn int, scope string) (*RefreshToken, error) {
+	ret := _m.Called(client, user, expiresIn, scope)
 
 	var r0 *RefreshToken
-	if rf, ok := ret.Get(0).(func(*Client, *User, string) *RefreshToken); ok {
-		r0 = rf(client, user, scope)
+	if rf, ok := ret.Get(0).(func(*Client, *User, int, string) *RefreshToken); ok {
+		r0 = rf(client, user, expiresIn, scope)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*RefreshToken)
@@ -319,8 +319,8 @@ func (_m *ServiceMock) GetOrCreateRefreshToken(client *Client, user *User, scope
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*Client, *User, string) error); ok {
-		r1 = rf(client, user, scope)
+	if rf, ok := ret.Get(1).(func(*Client, *User, int, string) error); ok {
+		r1 = rf(client, user, expiresIn, scope)
 	} else {
 		r1 = ret.Error(1)
 	}

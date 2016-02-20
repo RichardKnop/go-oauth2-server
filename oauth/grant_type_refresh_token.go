@@ -38,9 +38,10 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 
 	// Create a new access token
 	accessToken, err := s.GrantAccessToken(
-		theRefreshToken.Client, // client
-		theRefreshToken.User,   // user
-		scope,                  // scope
+		theRefreshToken.Client,          // client
+		theRefreshToken.User,            // user
+		s.cnf.Oauth.AccessTokenLifetime, // expires in
+		scope, // scope
 	)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)
@@ -49,9 +50,10 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 
 	// Create or retrieve a refresh token
 	refreshToken, err := s.GetOrCreateRefreshToken(
-		theRefreshToken.Client, // client
-		theRefreshToken.User,   // user
-		scope,                  // scope
+		theRefreshToken.Client,           // client
+		theRefreshToken.User,             // user
+		s.cnf.Oauth.RefreshTokenLifetime, // expires in
+		scope, // scope
 	)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)

@@ -31,9 +31,10 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 
 	// Create a new access token
 	accessToken, err := s.GrantAccessToken(
-		authorizationCode.Client, // client
-		authorizationCode.User,   // user
-		authorizationCode.Scope,  // scope
+		authorizationCode.Client,        // client
+		authorizationCode.User,          // user
+		s.cnf.Oauth.AccessTokenLifetime, // expires in
+		authorizationCode.Scope,         // scope
 	)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)
@@ -44,6 +45,7 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 	refreshToken, err := s.GetOrCreateRefreshToken(
 		authorizationCode.Client, // client
 		authorizationCode.User,   // user
+		s.cnf.Oauth.RefreshTokenLifetime, // expires in
 		authorizationCode.Scope,  // scope
 	)
 	if err != nil {
