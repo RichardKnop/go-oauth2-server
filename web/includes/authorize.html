@@ -5,17 +5,33 @@
   <div class="page-header">
     <h1>Authorize</h1>
   </div>
-  <p class="lead">Client <b>{{ .clientID }}</b> would like to perform actions on your behalf</p>
   {{ if .error }}
   <div class="alert alert-danger" role="alert">{{ .error }}div>
   {{ else }}
   <form action="" method="post">
-    <div class="row">
-      <div class="col-md-2 col-sm-4">
-        <input type="submit" class="btn btn-lg btn-block btn-primary" name="authorize" value="Authorize">
+    <div class="form-group">
+      <p><b>{{ .clientID }}</b> would like to perform actions on your behalf.</p>
+      {{ if .token }}
+      <p>How long do you want to authorize <b>{{ .clientID }}</b> for?</p>
+      <div class="radio">
+        <label class="radio-inline">
+          <input type="radio" name="lifetime" value="3600"> 1 hour
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="lifetime" value="86400"> 1 day
+        </label>
+        <label class="radio-inline">
+          <input type="radio" name="lifetime" value="604800" checked> 1 week
+        </label>
       </div>
-      <div class="col-md-2 col-sm-4">
-        <input type="submit" class="btn btn-lg btn-block btn-danger" name="decline" value="Decline">
+      {{ end }}
+    </div>
+    <div class="row">
+      <div class="col-md-3 col-sm-4 col-xs-6">
+        <input type="submit" class="btn btn-lg btn-block btn-primary" name="allow" value="Allow">
+      </div>
+      <div class="col-md-3 col-sm-4 col-xs-6">
+        <input type="submit" class="btn btn-lg btn-block btn-danger" name="deny" value="Deny">
       </div>
     </div>
   </form>

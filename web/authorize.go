@@ -4,78 +4,33 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
+
+	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/session"
 )
 
 func (s *Service) authorizeForm(w http.ResponseWriter, r *http.Request) {
-	// Get the session service from the request context
-	sessionService, err := getSessionService(r)
+	sessionService, client, _, responseType, _, err := s.authorizeCommon(r)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Get the client from the request context
-	client, err := getClient(r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Render the template
 	errMsg, _ := sessionService.GetFlashMessage()
+	query := r.URL.Query()
+	query.Set("login_redirect_uri", r.URL.Path)
 	renderTemplate(w, "authorize.html", map[string]interface{}{
 		"error":       errMsg,
 		"clientID":    client.Key,
-		"queryString": getQueryString(r.URL.Query()),
+		"queryString": getQueryString(query),
+		"token":       responseType == "token",
 	})
 }
 
 func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
-	// Get the session service from the request context
-	sessionService, err := getSessionService(r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Get the client from the request context
-	client, err := getClient(r)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Get the user session
-	userSession, err := sessionService.GetUserSession()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Fetch the user
-	user, err := s.oauthService.FindUserByUsername(
-		userSession.Username,
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Check the response_type is either "code" or "token"
-	responseType := r.Form.Get("response_type")
-	if responseType != "code" && responseType != "token" {
-		http.Error(w, "Invalid response type", http.StatusBadRequest)
-		return
-	}
-
-	// Fallback to the client redirect URI if not in query string
-	redirectURI := r.Form.Get("redirect_uri")
-	if redirectURI == "" {
-		redirectURI = client.RedirectURI.String
-	}
-
-	// // Parse the redirect URL
-	parsedRedirectURI, err := url.ParseRequestURI(redirectURI)
+	_, client, user, responseType, redirectURI, err := s.authorizeCommon(r)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -85,20 +40,20 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 	state := r.Form.Get("state")
 
 	// Has the resource owner or authorization server denied the request?
-	authorized := len(r.Form.Get("authorize")) > 0
+	authorized := len(r.Form.Get("allow")) > 0
 	if !authorized {
-		errorRedirect(w, r, parsedRedirectURI, "access_denied", state, responseType)
+		errorRedirect(w, r, redirectURI, "access_denied", state, responseType)
 		return
 	}
 
 	// Check the requested scope
 	scope, err := s.oauthService.GetScope(r.Form.Get("scope"))
 	if err != nil {
-		errorRedirect(w, r, parsedRedirectURI, "invalid_scope", state, responseType)
+		errorRedirect(w, r, redirectURI, "invalid_scope", state, responseType)
 		return
 	}
 
-	query := parsedRedirectURI.Query()
+	query := redirectURI.Query()
 
 	// When response_type == "code", we will grant an authorization code
 	if responseType == "code" {
@@ -107,11 +62,11 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 			client, // client
 			user,   // user
 			s.cnf.Oauth.AuthCodeLifetime, // expires in
-			redirectURI,                  // redirect URI
+			redirectURI.String(),         // redirect URI
 			scope,                        // scope
 		)
 		if err != nil {
-			errorRedirect(w, r, parsedRedirectURI, "server_error", state, responseType)
+			errorRedirect(w, r, redirectURI, "server_error", state, responseType)
 			return
 		}
 
@@ -122,21 +77,28 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 			query.Set("state", state)
 		}
 		// And we're done here, redirect
-		redirectWithQueryString(parsedRedirectURI.String(), query, w, r)
+		redirectWithQueryString(redirectURI.String(), query, w, r)
 		return
 	}
 
 	// When response_type == "token", we will directly grant an access token
 	if responseType == "token" {
+		// Get access token lifetime from user input
+		lifetime, err := strconv.Atoi(r.Form.Get("lifetime"))
+		if err != nil {
+			errorRedirect(w, r, redirectURI, "server_error", state, responseType)
+			return
+		}
+
 		// Grant an access token
 		accessToken, err := s.oauthService.GrantAccessToken(
-			client, // client
-			user,   // user
-			s.cnf.Oauth.AccessTokenLifetime, // expires in
-			scope, // scope
+			client,   // client
+			user,     // user
+			lifetime, // expires in
+			scope,    // scope
 		)
 		if err != nil {
-			errorRedirect(w, r, parsedRedirectURI, "server_error", state, responseType)
+			errorRedirect(w, r, redirectURI, "server_error", state, responseType)
 			return
 		}
 
@@ -150,6 +112,54 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 			query.Set("state", state)
 		}
 		// And we're done here, redirect
-		redirectWithFragment(parsedRedirectURI.String(), query, w, r)
+		redirectWithFragment(redirectURI.String(), query, w, r)
 	}
+}
+
+func (s *Service) authorizeCommon(r *http.Request) (session.ServiceInterface, *oauth.Client, *oauth.User, string, *url.URL, error) {
+	// Get the session service from the request context
+	sessionService, err := getSessionService(r)
+	if err != nil {
+		return nil, nil, nil, "", nil, err
+	}
+
+	// Get the client from the request context
+	client, err := getClient(r)
+	if err != nil {
+		return nil, nil, nil, "", nil, err
+	}
+
+	// Get the user session
+	userSession, err := sessionService.GetUserSession()
+	if err != nil {
+		return nil, nil, nil, "", nil, err
+	}
+
+	// Fetch the user
+	user, err := s.oauthService.FindUserByUsername(
+		userSession.Username,
+	)
+	if err != nil {
+		return nil, nil, nil, "", nil, err
+	}
+
+	// Check the response_type is either "code" or "token"
+	responseType := r.Form.Get("response_type")
+	if responseType != "code" && responseType != "token" {
+		return nil, nil, nil, "", nil, err
+	}
+
+	// Fallback to the client redirect URI if not in query string
+	redirectURI := r.Form.Get("redirect_uri")
+	if redirectURI == "" {
+		redirectURI = client.RedirectURI.String
+	}
+
+	// // Parse the redirect URL
+	parsedRedirectURI, err := url.ParseRequestURI(redirectURI)
+	if err != nil {
+		return nil, nil, nil, "", nil, err
+	}
+
+	return sessionService, client, user, responseType, parsedRedirectURI, nil
 }
