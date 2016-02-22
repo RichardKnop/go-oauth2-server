@@ -85,7 +85,7 @@ The authorization code grant type is used to obtain both access tokens and refre
 The client initiates the flow by directing the resource owner's user-agent to the authorization endpoint. The client includes its client identifier, requested scope, local state, and a redirection URI to which the authorization server will send the user-agent back once access is granted (or denied).
 
 ```
-http://localhost:8080/web/authorize?client_id=test_client&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=code&state=somestate&scope=read_write
+http://localhost:8080/web/authorize?client_id=test_client_1&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=code&state=somestate&scope=read_write
 ```
 
 The authorization server authenticates the resource owner (via the user-agent).
@@ -114,7 +114,7 @@ The client requests an access token from the authorization server's token endpoi
 
 ```
 curl --compressed -v localhost:8080/v1/oauth/tokens \
-	-u test_client:test_secret \
+	-u test_client_1:test_secret \
 	-d "grant_type=authorization_code" \
 	-d "code=7afb1c55-76e4-4c76-adb7-9d657cb47a27" \
 	-d "redirect_uri=https://www.example.com"
@@ -182,7 +182,7 @@ The implicit grant type does not include client authentication, and relies on th
 The client initiates the flow by directing the resource owner's user-agent to the authorization endpoint. The client includes its client identifier, requested scope, local state, and a redirection URI to which the authorization server will send the user-agent back once access is granted (or denied).
 
 ```
-http://localhost:8080/web/authorize?client_id=test_client&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=token&state=somestate&scope=read_write
+http://localhost:8080/web/authorize?client_id=test_client_1&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=token&state=somestate&scope=read_write
 ```
 
 The authorization server authenticates the resource owner (via the user-agent).
@@ -250,7 +250,7 @@ The client requests an access token from the authorization server's token endpoi
 
 ```
 curl --compressed -v localhost:8080/v1/oauth/tokens \
-	-u test_client:test_secret \
+	-u test_client_1:test_secret \
 	-d "grant_type=password" \
 	-d "username=test@username" \
 	-d "password=test_password" \
@@ -292,7 +292,7 @@ The client authenticates with the authorization server and requests an access to
 
 ```
 curl --compressed -v localhost:8080/v1/oauth/tokens \
-	-u test_client:test_secret \
+	-u test_client_1:test_secret \
 	-d "grant_type=client_credentials" \
 	-d "scope=read_write"
 ```
@@ -318,7 +318,7 @@ If the authorization server issued a refresh token to the client, the client can
 
 ```
 curl --compressed -v localhost:8080/v1/oauth/tokens \
-	-u test_client:test_secret \
+	-u test_client_1:test_secret \
 	-d "grant_type=refresh_token" \
 	-d "refresh_token=6fd8d272-375a-4d8a-8d0f-43367dc8b791"
 ```
@@ -354,7 +354,7 @@ If the authorization server issued a access token or refresh token to the client
 
 ```
 curl --compressed -v localhost:8080/v1/oauth/introspect \
-	-u test_client:test_secret \
+	-u test_client_1:test_secret \
 	-d "token=00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c" \
 	-d "token_type_hint=access_token"
 ```
@@ -365,7 +365,7 @@ The authorization server responds meta-information about a token.
 {
 	"active": true,
 	"scope": "read_write",
-	"client_id": "test_client",
+	"client_id": "test_client_1",
 	"username": "test@username",
 	"token_type": "Bearer",
 	"exp": 1454868090
