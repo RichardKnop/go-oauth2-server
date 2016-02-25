@@ -93,7 +93,7 @@ func (s *Service) AuthUser(username, password string) (*User, error) {
 
 func createUser(db *gorm.DB, username, password string) (*User, error) {
 	// Start with a user without a password
-	user := User{
+	user := &User{
 		Username: username,
 		Password: util.StringOrNull(""),
 	}
@@ -108,8 +108,8 @@ func createUser(db *gorm.DB, username, password string) (*User, error) {
 	}
 
 	// Create the user
-	if err := db.Create(&user).Error; err != nil {
+	if err := db.Create(user).Error; err != nil {
 		return nil, err
 	}
-	return &user, nil
+	return user, nil
 }
