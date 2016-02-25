@@ -1,0 +1,16 @@
+version: '2'
+services:
+  oauth2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - pg
+      - etcd
+    links:
+      - pg
+      - etcd
+  pg:
+    image: "postgres"
+  etcd:
+    image: "elcolio/etcd"

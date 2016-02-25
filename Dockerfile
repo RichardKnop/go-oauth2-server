@@ -2,7 +2,10 @@
 # and a workspace (GOPATH) configured at /go.
 FROM golang
 
-# Copy the local package files to the container's workspace.
+# Install pg client to init db
+RUN apt-get update
+RUN apt-get install -y postgresql-client-9.4
+
 ADD . /go/src/github.com/RichardKnop/go-oauth2-server
 
 ENV GO15VENDOREXPERIMENT 1
