@@ -38,12 +38,12 @@ func (s *Service) FindUserByUsername(username string) (*User, error) {
 
 // CreateUser saves a new user to database
 func (s *Service) CreateUser(username, password string) (*User, error) {
-	return createUser(s.db, username, password)
+	return createUserCommon(s.db, username, password)
 }
 
 // CreateUserTx saves a new user to database using injected db object
 func (s *Service) CreateUserTx(tx *gorm.DB, username, password string) (*User, error) {
-	return createUser(tx, username, password)
+	return createUserCommon(tx, username, password)
 }
 
 // SetPassword saves a new user to database
@@ -91,7 +91,7 @@ func (s *Service) AuthUser(username, password string) (*User, error) {
 	return user, nil
 }
 
-func createUser(db *gorm.DB, username, password string) (*User, error) {
+func createUserCommon(db *gorm.DB, username, password string) (*User, error) {
 	// Start with a user without a password
 	user := &User{
 		Username: username,
