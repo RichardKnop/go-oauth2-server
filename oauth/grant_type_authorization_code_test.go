@@ -3,7 +3,6 @@ package oauth
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -16,22 +15,19 @@ import (
 
 func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	// Insert a test authorization code
-	if err := suite.db.Create(&AuthorizationCode{
+	err := suite.db.Create(&AuthorizationCode{
 		Code:        "test_code",
 		ExpiresAt:   time.Now().Add(+10 * time.Second),
 		Client:      suite.clients[0],
 		User:        suite.users[0],
 		RedirectURI: util.StringOrNull("https://www.example.com"),
 		Scope:       "read_write",
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
+	}).Error
+	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Prepare a request
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.Form = url.Values{
 		"grant_type": {"authorization_code"},
 		"code":       {"test_code"},
@@ -78,10 +74,9 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 		Scope:        "read_write",
 		RefreshToken: refreshToken.Token,
 	})
-	if err != nil {
-		log.Fatal(err)
+	if assert.NoError(suite.T(), err, "JSON marshalling failed") {
+		assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 	}
-	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 
 	// Check the authorization code was deleted
 	notFound := suite.db.Unscoped().First(new(AuthorizationCode)).RecordNotFound()

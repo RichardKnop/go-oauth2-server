@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"log"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -82,13 +81,12 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	)
 
 	// Insert an access token without a user
-	if err = suite.db.Create(&RefreshToken{
+	err = suite.db.Create(&RefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.clients[0],
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
+	}).Error
+	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Since the current client only token is valid, this should just return it
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
@@ -124,14 +122,13 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	}
 
 	// Insert an access token with a user
-	if err = suite.db.Create(&RefreshToken{
+	err = suite.db.Create(&RefreshToken{
 		Token:     "test_token2",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.clients[0],
 		User:      suite.users[0],
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
+	}).Error
+	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Since the current user specific only token is valid,
 	// this should just return it
@@ -177,13 +174,12 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	)
 
 	// Insert an expired client only test refresh token
-	if err = suite.db.Create(&RefreshToken{
+	err = suite.db.Create(&RefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.clients[0],
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
+	}).Error
+	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Since the current client only token is expired,
 	// this should delete it and create and return a new one
@@ -217,14 +213,13 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	}
 
 	// Insert an expired user specific test refresh token
-	if err = suite.db.Create(&RefreshToken{
+	err = suite.db.Create(&RefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.clients[0],
 		User:      suite.users[0],
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
+	}).Error
+	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Since the current user specific token is expired,
 	// this should delete it and create and return a new one
@@ -266,7 +261,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 	)
 
 	// Insert some test refresh tokens
-	for _, testRefreshToken := range []*RefreshToken{
+	testRefreshTokens := []*RefreshToken{
 		// Expired test refresh token
 		&RefreshToken{
 			Token:     "test_expired_token",
@@ -281,10 +276,10 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
-	} {
-		if err := suite.db.Create(testRefreshToken).Error; err != nil {
-			log.Fatal(err)
-		}
+	}
+	for _, testRefreshToken := range testRefreshTokens {
+		err := suite.db.Create(testRefreshToken).Error
+		assert.NoError(suite.T(), err, "Inserting test data failed")
 	}
 
 	// Test passing an empty token

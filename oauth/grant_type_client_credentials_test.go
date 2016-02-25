@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -14,9 +13,7 @@ import (
 func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 	// Prepare a request
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.Form = url.Values{
 		"grant_type": {"client_credentials"},
 		"scope":      {"read_write"},
@@ -44,8 +41,7 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 		Scope:        "read_write",
 		RefreshToken: refreshToken.Token,
 	})
-	if err != nil {
-		log.Fatal(err)
+	if assert.NoError(suite.T(), err, "JSON marshalling failed") {
+		assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 	}
-	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 }

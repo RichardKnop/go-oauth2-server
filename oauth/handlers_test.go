@@ -2,7 +2,6 @@ package oauth
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -14,9 +13,7 @@ import (
 func (suite *OauthTestSuite) TestHandleTokensClientAuthenticationRequired() {
 	// Prepare a request
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.PostForm = url.Values{"grant_type": {"client_credentials"}}
 
 	// And run the function we want to test
@@ -37,9 +34,7 @@ func (suite *OauthTestSuite) TestHandleTokensClientAuthenticationRequired() {
 func (suite *OauthTestSuite) TestHandleTokensInvalidGrantType() {
 	// Make a request
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.SetBasicAuth("test_client", "test_secret")
 	r.PostForm = url.Values{"grant_type": {"bogus"}}
 
@@ -61,9 +56,7 @@ func (suite *OauthTestSuite) TestHandleTokensInvalidGrantType() {
 func (suite *OauthTestSuite) TestHandleIntrospectClientAuthenticationRequired() {
 	// Prepare a request
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.PostForm = url.Values{"token": {"token"}}
 
 	// And run the function we want to test

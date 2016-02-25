@@ -1,8 +1,6 @@
 package oauth
 
 import (
-	"log"
-
 	"github.com/stretchr/testify/assert"
 
 	pass "github.com/RichardKnop/go-oauth2-server/password"
@@ -84,9 +82,8 @@ func (suite *OauthTestSuite) TestSetPassword() {
 		Username: "test@user_nopass",
 		Password: util.StringOrNull(""),
 	}
-	if err := suite.db.Create(user).Error; err != nil {
-		log.Fatal(err)
-	}
+	err = suite.db.Create(user).Error
+	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Try to set an empty password
 	err = suite.service.SetPassword(user, "")
@@ -114,12 +111,11 @@ func (suite *OauthTestSuite) TestAuthUser() {
 	)
 
 	// Insert a test user without a password
-	if err := suite.db.Create(&User{
+	err = suite.db.Create(&User{
 		Username: "test@user_nopass",
 		Password: util.StringOrNull(""),
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
+	}).Error
+	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// When we try to authenticate a user without a password
 	user, err = suite.service.AuthUser("test@user_nopass", "bogus")

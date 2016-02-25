@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"log"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -54,7 +53,7 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
 	)
 
 	// Insert some test authorization codes
-	for _, testAuthorizationCode := range []*AuthorizationCode{
+	testAuthorizationCodes := []*AuthorizationCode{
 		// Expired authorization code
 		&AuthorizationCode{
 			Code:      "test_expired_code",
@@ -69,10 +68,10 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
-	} {
-		if err := suite.db.Create(testAuthorizationCode).Error; err != nil {
-			log.Fatal(err)
-		}
+	}
+	for _, testAuthorizationCode := range testAuthorizationCodes {
+		err := suite.db.Create(testAuthorizationCode).Error
+		assert.NoError(suite.T(), err, "Inserting test data failed")
 	}
 
 	// Test passing an empty code

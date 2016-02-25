@@ -3,7 +3,6 @@ package util
 import (
 	"database/sql"
 	"database/sql/driver"
-	"log"
 	"net/http"
 	"testing"
 	"time"
@@ -15,15 +14,18 @@ import (
 func TestIntOrNull(t *testing.T) {
 	nullInt := PositiveIntOrNull(1)
 	assert.True(t, nullInt.Valid)
+
 	value, err := nullInt.Value()
 	assert.Nil(t, err)
 	assert.Equal(t, int64(1), value)
 }
 
 func TestPositiveIntOrNull(t *testing.T) {
-	var nullInt sql.NullInt64
-	var value driver.Value
-	var err error
+	var (
+		nullInt sql.NullInt64
+		value   driver.Value
+		err     error
+	)
 
 	// When the number is negative
 	nullInt = PositiveIntOrNull(-1)
@@ -51,15 +53,18 @@ func TestPositiveIntOrNull(t *testing.T) {
 func TestFloatOrNull(t *testing.T) {
 	nullFloat := FloatOrNull(1.5)
 	assert.True(t, nullFloat.Valid)
+
 	value, err := nullFloat.Value()
 	assert.Nil(t, err)
 	assert.Equal(t, 1.5, value)
 }
 
 func TestPositiveFloatOrNull(t *testing.T) {
-	var nullFloat sql.NullFloat64
-	var value driver.Value
-	var err error
+	var (
+		nullFloat sql.NullFloat64
+		value     driver.Value
+		err       error
+	)
 
 	// When the number is negative
 	nullFloat = PositiveFloatOrNull(-0.5)
@@ -85,9 +90,11 @@ func TestPositiveFloatOrNull(t *testing.T) {
 }
 
 func TestStringOrNull(t *testing.T) {
-	var nullString sql.NullString
-	var value driver.Value
-	var err error
+	var (
+		nullString sql.NullString
+		value      driver.Value
+		err        error
+	)
 
 	// When the string is empty
 	nullString = StringOrNull("")
@@ -113,9 +120,11 @@ func TestStringOrNull(t *testing.T) {
 }
 
 func TestTimeOrNull(t *testing.T) {
-	var nullTime pq.NullTime
-	var value driver.Value
-	var err error
+	var (
+		nullTime pq.NullTime
+		value    driver.Value
+		err      error
+	)
 
 	// When the time is nil
 	nullTime = TimeOrNull(nil)
@@ -159,9 +168,7 @@ func TestSpaceDelimitedStringNotGreater(t *testing.T) {
 
 func TestParseBearerTokenNotFound(t *testing.T) {
 	r, err := http.NewRequest("GET", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err, "Request setup should not get an error")
 	r.Header.Add("Authorization", "bogus bogus")
 
 	token, err := ParseBearerToken(r)
@@ -177,9 +184,7 @@ func TestParseBearerTokenNotFound(t *testing.T) {
 
 func TestParseBearerToken(t *testing.T) {
 	r, err := http.NewRequest("GET", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err, "Request setup should not get an error")
 	r.Header.Add("Authorization", "Bearer test_token")
 
 	token, err := ParseBearerToken(r)

@@ -3,7 +3,6 @@ package oauth
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -15,21 +14,18 @@ import (
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 	// Insert a test refresh token
-	if err := suite.db.Create(&RefreshToken{
+	err := suite.db.Create(&RefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.clients[0],
 		User:      suite.users[0],
 		Scope:     "read_write",
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
+	}).Error
+	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Prepare a request
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.Form = url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"test_token"},
@@ -53,21 +49,18 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 
 func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	// Insert a test refresh token
-	if err := suite.db.Create(&RefreshToken{
+	err := suite.db.Create(&RefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.clients[0],
 		User:      suite.users[0],
 		Scope:     "read_write",
-	}).Error; err != nil {
-		log.Fatal(err)
-	}
+	}).Error
+	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Make a request
 	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.Form = url.Values{
 		"grant_type":    {"refresh_token"},
 		"refresh_token": {"test_token"},
@@ -93,8 +86,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 		Scope:        "read_write",
 		RefreshToken: "test_token",
 	})
-	if err != nil {
-		log.Fatal(err)
+	if assert.NoError(suite.T(), err, "JSON marshalling failed") {
+		assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 	}
-	assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 }

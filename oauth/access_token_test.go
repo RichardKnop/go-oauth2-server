@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"log"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -17,7 +16,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Grant a client only access token
 	accessToken, err = suite.service.GrantAccessToken(
 		suite.clients[0], // client
-		nil,        // user
+		nil,              // user
 		3600,             // expires int
 		"scope doesn't matter", // scope
 	)
@@ -83,7 +82,7 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	)
 
 	// Insert some test access tokens
-	for _, testAccessToken := range []*AccessToken{
+	testAccessTokens := []*AccessToken{
 		// Expired access token with a user
 		&AccessToken{
 			Token:     "test_token_1",
@@ -110,10 +109,10 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 			ExpiresAt: time.Now().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 		},
-	} {
-		if err := suite.db.Create(testAccessToken).Error; err != nil {
-			log.Fatal(err)
-		}
+	}
+	for _, testAccessToken := range testAccessTokens {
+		err := suite.db.Create(testAccessToken).Error
+		assert.NoError(suite.T(), err, "Inserting test data failed")
 	}
 
 	// This should only delete test_token_1

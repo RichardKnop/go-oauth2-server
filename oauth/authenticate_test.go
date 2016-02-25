@@ -1,7 +1,6 @@
 package oauth
 
 import (
-	"log"
 	"time"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +13,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 	)
 
 	// Insert some test access tokens
-	for _, testAccessToken := range []*AccessToken{
+	testAccessTokens := []*AccessToken{
 		// Expired access token
 		&AccessToken{
 			Token:     "test_expired_token",
@@ -35,10 +34,10 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
-	} {
-		if err := suite.db.Create(testAccessToken).Error; err != nil {
-			log.Fatal(err)
-		}
+	}
+	for _, testAccessToken := range testAccessTokens {
+		err := suite.db.Create(testAccessToken).Error
+		assert.NoError(suite.T(), err, "Inserting test data failed")
 	}
 
 	// Test passing an empty token

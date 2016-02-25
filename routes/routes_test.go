@@ -2,7 +2,6 @@ package routes
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,7 +24,13 @@ func (m *helloWorldMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request,
 }
 
 func TestAddRoutes(t *testing.T) {
-	router := mux.NewRouter()
+	var (
+		router = mux.NewRouter()
+		r      *http.Request
+		err    error
+		match  *mux.RouteMatch
+		w      *httptest.ResponseRecorder
+	)
 
 	// Add a test GET route without a middleware
 	AddRoutes([]Route{
@@ -50,18 +55,9 @@ func TestAddRoutes(t *testing.T) {
 		},
 	}, router.PathPrefix("/hello").Subrouter())
 
-	var (
-		match *mux.RouteMatch
-		r     *http.Request
-		w     *httptest.ResponseRecorder
-		err   error
-	)
-
 	// Test the foobar_route
 	r, err = http.NewRequest("GET", "http://1.2.3.4/foo/bar", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err, "Request setup should not get an error")
 
 	// Test the route matches expected name
 	match = new(mux.RouteMatch)
@@ -75,9 +71,7 @@ func TestAddRoutes(t *testing.T) {
 
 	// Test the helloworld_route
 	r, err = http.NewRequest("PUT", "http://1.2.3.4/hello/world/1", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(t, err, "Request setup should not get an error")
 
 	// Test the route matches expected name
 	match = new(mux.RouteMatch)
@@ -91,7 +85,13 @@ func TestAddRoutes(t *testing.T) {
 }
 
 func TestRecoveryMiddlewareHandlesPanic(t *testing.T) {
-	router := mux.NewRouter()
+	var (
+		router = mux.NewRouter()
+		app    = negroni.Classic()
+		r      *http.Request
+		err    error
+		match  *mux.RouteMatch
+	)
 
 	// Add a test GET route without a middleware
 	AddRoutes([]Route{
@@ -106,18 +106,15 @@ func TestRecoveryMiddlewareHandlesPanic(t *testing.T) {
 	}, router.PathPrefix("/foo").Subrouter())
 
 	// Test the foobar_route
-	r, err := http.NewRequest("GET", "http://1.2.3.4/foo/panic", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	r, err = http.NewRequest("GET", "http://1.2.3.4/foo/panic", nil)
+	assert.NoError(t, err, "Request setup should not get an error")
 
 	// Test the route matches expected name
-	match := new(mux.RouteMatch)
+	match = new(mux.RouteMatch)
 	router.Match(r, match)
 	assert.Equal(t, "panic_route", match.Route.GetName())
 
 	// Test that panic does not crash the app
-	app := negroni.Classic()
 	app.UseHandler(router)
 	app.ServeHTTP(httptest.NewRecorder(), r)
 }

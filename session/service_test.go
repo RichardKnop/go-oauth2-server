@@ -1,7 +1,6 @@
 package session
 
 import (
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -29,9 +28,7 @@ func (suite *SessionTestSuite) SetupSuite() {
 
 	// Initialise the service
 	r, err := http.NewRequest("GET", "http://1.2.3.4/foo/bar", nil)
-	if err != nil {
-		log.Fatal(err)
-	}
+	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	w := httptest.NewRecorder()
 	suite.service = NewService(suite.cnf, r, w)
 }
@@ -53,17 +50,21 @@ func (suite *SessionTestSuite) TearDownTest() {
 }
 
 func (suite *SessionTestSuite) TestService() {
+	var (
+		userSession *UserSession
+		err         error
+	)
+
 	// No public methods should work before StartSession has been called
-	userSession, err := suite.service.GetUserSession()
+	userSession, err = suite.service.GetUserSession()
 	assert.Nil(suite.T(), userSession)
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errSessonNotStarted.Error(), err.Error())
+		assert.Equal(suite.T(), errSessonNotStarted, err)
 	}
 
 	// Call the StartSession method so internal session object gets set
-	if err := suite.service.StartSession(); err != nil {
-		log.Fatal(err)
-	}
+	err = suite.service.StartSession()
+	assert.Nil(suite.T(), err)
 
 	// Let's clear the user session first
 	err = suite.service.ClearUserSession()
