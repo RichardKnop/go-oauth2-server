@@ -1,14 +1,11 @@
 package oauth
 
 import (
-	"io/ioutil"
 	"log"
-	"os"
 	"testing"
 
-	"github.com/RichardKnop/go-fixtures"
 	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/migrations"
+	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
 	// sqlite driver
@@ -21,6 +18,11 @@ var testFixtures = []string{
 	"fixtures/scopes.yml",
 	"fixtures/test_clients.yml",
 	"fixtures/test_users.yml",
+}
+
+// db migrations needed for tests
+var testMigrations = []func(*gorm.DB) error{
+	MigrateAll,
 }
 
 // OauthTestSuite needs to be exported so the tests run
@@ -36,45 +38,16 @@ type OauthTestSuite struct {
 // The SetupSuite method will be run by testify once, at the very
 // start of the testing suite, before any tests are run.
 func (suite *OauthTestSuite) SetupSuite() {
-	// Delete the test database
-	os.Remove(testDbPath)
 
 	// Initialise the config
 	suite.cnf = config.NewConfig(false, false)
 
-	// Init in-memory test database
-	inMemoryDB, err := gorm.Open("sqlite3", testDbPath)
+	// Create the test database
+	db, err := database.CreateTestDatabase(testDbPath, testMigrations, testFixtures)
 	if err != nil {
 		log.Fatal(err)
 	}
-	suite.db = &inMemoryDB
-
-	// Run all migrations
-	if err := migrations.Bootstrap(suite.db); err != nil {
-		log.Print(err)
-	}
-	if err := MigrateAll(suite.db); err != nil {
-		log.Print(err)
-	}
-
-	// Load test data from fixtures
-	if err := fixtures.LoadFiles(testFixtures, suite.db.DB(), "sqlite"); err != nil {
-		log.Fatal(err)
-	}
-
-	for _, path := range testFixtures {
-		// Read fixture data from the file
-		data, err := ioutil.ReadFile(path)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// Insert the fixture data
-		err = fixtures.Load(data, suite.db.DB(), "sqlite")
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
+	suite.db = db
 
 	// Fetch test client
 	suite.clients = make([]*Client, 0)
