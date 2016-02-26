@@ -10,7 +10,7 @@ func RegisterRoutes(router *mux.Router, service *Service) {
 	routes.AddRoutes(newRoutes(service), router)
 }
 
-// newRoutes returns []routes.Route slice for the oauth service
+// newRoutes returns []routes.Route slice for the health service
 func newRoutes(service *Service) []routes.Route {
 	return []routes.Route{
 		routes.Route{
