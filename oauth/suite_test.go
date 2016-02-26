@@ -58,6 +58,10 @@ func (suite *OauthTestSuite) SetupSuite() {
 	}
 
 	// Load test data from fixtures
+	if err := fixtures.LoadFiles(testFixtures, suite.db.DB(), "sqlite"); err != nil {
+		log.Fatal(err)
+	}
+
 	for _, path := range testFixtures {
 		// Read fixture data from the file
 		data, err := ioutil.ReadFile(path)

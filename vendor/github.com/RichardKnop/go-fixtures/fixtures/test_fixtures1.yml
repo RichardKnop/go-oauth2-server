@@ -1,0 +1,8 @@
+- table: 'some_table'
+  pk:
+    id: 1
+  fields:
+    string_field: 'foobar'
+    boolean_field: true
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'
