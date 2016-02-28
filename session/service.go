@@ -26,9 +26,12 @@ type UserSession struct {
 	RefreshToken string
 }
 
-var (
+const (
 	storageSessionName  = "go_oauth2_server_session"
 	userSessionKey      = "go_oauth2_server_user"
+)
+
+var (
 	errSessonNotStarted = errors.New("Session not started")
 )
 
