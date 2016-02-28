@@ -23,6 +23,14 @@ func TestWriteJSON(t *testing.T) {
 	assert.Equal(t, string(expected), strings.TrimSpace(w.Body.String()))
 }
 
+func TestNoContent(t *testing.T) {
+	w := httptest.NewRecorder()
+	NoContent(w)
+
+	assert.Equal(t, 204, w.Code)
+	assert.Equal(t, "", strings.TrimSpace(w.Body.String()))
+}
+
 func TestError(t *testing.T) {
 	w := httptest.NewRecorder()
 	Error(w, "something went wrong", 500)
