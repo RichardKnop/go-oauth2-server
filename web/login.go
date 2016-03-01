@@ -56,25 +56,11 @@ func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Grant an access token
-	accessToken, err := s.oauthService.GrantAccessToken(
-		client, // client
-		user,   // user
-		s.cnf.Oauth.AccessTokenLifetime, // expires in
-		scope, // scope
-	)
-	if err != nil {
-		sessionService.SetFlashMessage(err.Error())
-		http.Redirect(w, r, r.RequestURI, http.StatusFound)
-		return
-	}
-
-	// Get a refresh token
-	refreshToken, err := s.oauthService.GetOrCreateRefreshToken(
-		client, // client
-		user,   // user
-		s.cnf.Oauth.RefreshTokenLifetime, // expires in
-		scope, // scope
+	// Log in the user
+	accessToken, refreshToken, err := s.oauthService.Login(
+		client,
+		user,
+		scope,
 	)
 	if err != nil {
 		sessionService.SetFlashMessage(err.Error())

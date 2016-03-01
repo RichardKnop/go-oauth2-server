@@ -29,24 +29,11 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 		return
 	}
 
-	// Create a new access token
-	accessToken, err := s.GrantAccessToken(
-		authorizationCode.Client,        // client
-		authorizationCode.User,          // user
-		s.cnf.Oauth.AccessTokenLifetime, // expires in
-		authorizationCode.Scope,         // scope
-	)
-	if err != nil {
-		response.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Create or retrieve a refresh token
-	refreshToken, err := s.GetOrCreateRefreshToken(
-		authorizationCode.Client, // client
-		authorizationCode.User,   // user
-		s.cnf.Oauth.RefreshTokenLifetime, // expires in
-		authorizationCode.Scope,  // scope
+	// Log in the user
+	accessToken, refreshToken, err := s.Login(
+		authorizationCode.Client,
+		authorizationCode.User,
+		authorizationCode.Scope,
 	)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)

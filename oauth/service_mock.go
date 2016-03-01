@@ -259,6 +259,38 @@ func (_m *ServiceMock) GetScope(requestedScope string) (string, error) {
 	return r0, r1
 }
 
+// Login ...
+func (_m *ServiceMock) Login(client *Client, user *User, scope string) (*AccessToken, *RefreshToken, error) {
+	ret := _m.Called(client, user, scope)
+
+	var r0 *AccessToken
+	if rf, ok := ret.Get(0).(func(*Client, *User, string) *AccessToken); ok {
+		r0 = rf(client, user, scope)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*AccessToken)
+		}
+	}
+
+	var r1 *RefreshToken
+	if rf, ok := ret.Get(1).(func(*Client, *User, string) *RefreshToken); ok {
+		r1 = rf(client, user, scope)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(*RefreshToken)
+		}
+	}
+
+	var r2 error
+	if rf, ok := ret.Get(2).(func(*Client, *User, string) error); ok {
+		r2 = rf(client, user, scope)
+	} else {
+		r2 = ret.Error(2)
+	}
+
+	return r0, r1, r2
+}
+
 // GrantAuthorizationCode ...
 func (_m *ServiceMock) GrantAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI string, scope string) (*AuthorizationCode, error) {
 	ret := _m.Called(client, user, expiresIn, redirectURI, scope)
