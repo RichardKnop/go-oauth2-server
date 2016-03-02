@@ -23,11 +23,16 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 		return
 	}
 
-	// Get the scope string
-	scope, err := s.GetScope(r.Form.Get("scope"))
-	if err != nil {
-		response.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	// Default to the scope originally granted by the resource owner
+	scope := theRefreshToken.Scope
+
+	// If the scope is specified in the request, get the scope string
+	if r.Form.Get("scope") != "" {
+		scope, err = s.GetScope(r.Form.Get("scope"))
+		if err != nil {
+			response.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
 	}
 
 	// Requested scope CANNOT include any scope not originally granted
