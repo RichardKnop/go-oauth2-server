@@ -66,7 +66,7 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "e1df3994fb585496b9224e25cba1d3c2d0e06460"
+			"Rev": "f8377d80bf0d73b981c7ec39b7483776feedf79b"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
@@ -74,8 +74,8 @@
 		},
 		{
 			"ImportPath": "github.com/lib/pq",
-			"Comment": "go1.0-cutoff-81-g69552e5",
-			"Rev": "69552e54d2a9d4c6a2438926a774930f7bc398ec"
+			"Comment": "go1.0-cutoff-82-ge182dc4",
+			"Rev": "e182dc4027e2ded4b19396d638610f2653295f36"
 		},
 		{
 			"ImportPath": "github.com/mattn/go-sqlite3",
