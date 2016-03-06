@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # waiting til services will start
-sleep 10;
+sleep 20;
 
 # init etcd
 curl -L http://etcd:2379/v2/keys/config/go_oauth2_server.json -XPUT -d value='{
@@ -26,7 +26,7 @@ curl -L http://etcd:2379/v2/keys/config/go_oauth2_server.json -XPUT -d value='{
         "MaxAge": 604800,
         "HTTPOnly": true
     },
-    "IsDevelopment": false
+    "IsDevelopment": true
 }'
 
 export ETCD_HOST=etcd

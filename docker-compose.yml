@@ -10,6 +10,8 @@ services:
     links:
       - pg
       - etcd
+    ports:
+      - "8080:8080"
   pg:
     image: "postgres"
   etcd:

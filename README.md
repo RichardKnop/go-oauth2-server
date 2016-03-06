@@ -35,6 +35,7 @@ It relies on `Postgres` for database and `etcd` for configuration but both are e
   * [Test Data](#test-data)
   * [Testing](#testing)
   * [Docker](#docker)
+  * [Docker-compose](#docker-compose)
 
 # API
 
@@ -483,4 +484,22 @@ You can load fixtures with `docker exec` command:
 docker exec <container_id> /go/bin/go-oauth2-server loaddata \
 	oauth/fixtures/scopes.yml \
 	oauth/fixtures/test_clients.yml
+```
+
+## Docker-compose
+
+You can use [docker-compose](https://docs.docker.com/compose/) to start app, postgres, etcd in separate linked containers: 
+
+```
+docker-compose up
+```
+
+During up process all configuration and fixtures will be loaded. After successful up you can check, that app is running using for example token introspection request:
+```
+curl --compressed -v localhost:8080/v1/oauth/introspect \
+	-u test_client_1:test_secret \
+	-d "token=00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c" \
+	-d "token_type_hint=access_token"
+	
+//on mac, windows hosts use Docker Machine IP instead of localhost
 ```
