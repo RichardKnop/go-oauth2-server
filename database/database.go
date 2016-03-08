@@ -34,7 +34,7 @@ func NewDatabase(cnf *config.Config) (*gorm.DB, error) {
 
 		db, err := gorm.Open(cnf.Database.Type, args)
 		if err != nil {
-			return &db, err
+			return db, err
 		}
 
 		// Max idle connections
@@ -46,10 +46,9 @@ func NewDatabase(cnf *config.Config) (*gorm.DB, error) {
 		// Database logging
 		db.LogMode(cnf.IsDevelopment)
 
-		return &db, nil
+		return db, nil
 	}
 
 	// Database type not supported
-	return &gorm.DB{},
-		fmt.Errorf("Database type %s not suppported", cnf.Database.Type)
+	return nil, fmt.Errorf("Database type %s not suppported", cnf.Database.Type)
 }
