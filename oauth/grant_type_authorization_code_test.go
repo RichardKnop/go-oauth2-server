@@ -45,7 +45,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", errInvalidRedirectURI.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", ErrInvalidRedirectURI.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 

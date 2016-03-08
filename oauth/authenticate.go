@@ -6,8 +6,10 @@ import (
 )
 
 var (
-	errAccessTokenNotFound = errors.New("Access token not found")
-	errAccessTokenExpired  = errors.New("Access token expired")
+	// ErrAccessTokenNotFound ...
+	ErrAccessTokenNotFound = errors.New("Access token not found")
+	// ErrAccessTokenExpired ...
+	ErrAccessTokenExpired = errors.New("Access token expired")
 )
 
 // Authenticate checks the access token is valid
@@ -19,12 +21,12 @@ func (s *Service) Authenticate(token string) (*AccessToken, error) {
 
 	// Not found
 	if notFound {
-		return nil, errAccessTokenNotFound
+		return nil, ErrAccessTokenNotFound
 	}
 
 	// Check the access token hasn't expired
 	if time.Now().After(accessToken.ExpiresAt) {
-		return nil, errAccessTokenExpired
+		return nil, ErrAccessTokenExpired
 	}
 
 	return accessToken, nil

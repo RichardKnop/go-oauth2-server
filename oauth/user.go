@@ -9,10 +9,14 @@ import (
 )
 
 var (
-	errUserNotFound               = errors.New("User not found")
-	errInvalidUserPassword        = errors.New("Invalid user password")
-	errCannotSetEmptyUserPassword = errors.New("Cannot set empty user password")
-	errUserPasswordNotSet         = errors.New("User password not set")
+	// ErrUserNotFound ...
+	ErrUserNotFound = errors.New("User not found")
+	// ErrInvalidUserPassword ...
+	ErrInvalidUserPassword = errors.New("Invalid user password")
+	// ErrCannotSetEmptyUserPassword ...
+	ErrCannotSetEmptyUserPassword = errors.New("Cannot set empty user password")
+	// ErrUserPasswordNotSet ...
+	ErrUserPasswordNotSet = errors.New("User password not set")
 )
 
 // UserExists returns true if user exists
@@ -30,7 +34,7 @@ func (s *Service) FindUserByUsername(username string) (*User, error) {
 
 	// Not found
 	if notFound {
-		return nil, errUserNotFound
+		return nil, ErrUserNotFound
 	}
 
 	return user, nil
@@ -50,7 +54,7 @@ func (s *Service) CreateUserTx(tx *gorm.DB, username, password string) (*User, e
 func (s *Service) SetPassword(user *User, password string) error {
 	// Cannot set password to empty
 	if password == "" {
-		return errCannotSetEmptyUserPassword
+		return ErrCannotSetEmptyUserPassword
 	}
 
 	// Create a bcrypt hash
@@ -75,17 +79,17 @@ func (s *Service) AuthUser(username, password string) (*User, error) {
 	// Fetch the user
 	user, err := s.FindUserByUsername(username)
 	if err != nil {
-		return nil, errUserNotFound
+		return nil, ErrUserNotFound
 	}
 
 	// Check that the password is set
 	if !user.Password.Valid {
-		return nil, errUserPasswordNotSet
+		return nil, ErrUserPasswordNotSet
 	}
 
 	// Verify the password
 	if pass.VerifyPassword(user.Password.String, password) != nil {
-		return nil, errInvalidUserPassword
+		return nil, ErrInvalidUserPassword
 	}
 
 	return user, nil

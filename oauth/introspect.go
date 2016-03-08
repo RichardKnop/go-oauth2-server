@@ -13,8 +13,10 @@ const (
 )
 
 var (
-	errTokenMissing     = errors.New("Token missing")
-	errTokenHintInvalid = errors.New("Invalid token hint")
+	// ErrTokenMissing ...
+	ErrTokenMissing = errors.New("Token missing")
+	// ErrTokenHintInvalid ...
+	ErrTokenHintInvalid = errors.New("Invalid token hint")
 )
 
 func (s *Service) introspectToken(w http.ResponseWriter, r *http.Request, client *Client) {
@@ -26,7 +28,7 @@ func (s *Service) introspectToken(w http.ResponseWriter, r *http.Request, client
 
 	token := r.Form.Get("token")
 	if token == "" {
-		response.Error(w, errTokenMissing.Error(), http.StatusBadRequest)
+		response.Error(w, ErrTokenMissing.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -52,7 +54,7 @@ func (s *Service) introspectToken(w http.ResponseWriter, r *http.Request, client
 			ir, _ = s.introspectAccessToken(w, token)
 		}
 	default:
-		response.Error(w, errTokenHintInvalid.Error(), http.StatusBadRequest)
+		response.Error(w, ErrTokenHintInvalid.Error(), http.StatusBadRequest)
 		return
 	}
 

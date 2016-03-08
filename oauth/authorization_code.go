@@ -8,8 +8,10 @@ import (
 )
 
 var (
-	errAuthorizationCodeNotFound = errors.New("Authorization code not found")
-	errAuthorizationCodeExpired  = errors.New("Authorization code expired")
+	// ErrAuthorizationCodeNotFound ...
+	ErrAuthorizationCodeNotFound = errors.New("Authorization code not found")
+	// ErrAuthorizationCodeExpired ...
+	ErrAuthorizationCodeExpired = errors.New("Authorization code expired")
 )
 
 // GrantAuthorizationCode grants a new authorization code
@@ -34,12 +36,12 @@ func (s *Service) getValidAuthorizationCode(code string, client *Client) (*Autho
 
 	// Not found
 	if notFound {
-		return nil, errAuthorizationCodeNotFound
+		return nil, ErrAuthorizationCodeNotFound
 	}
 
 	// Check the authorization code hasn't expired
 	if time.Now().After(authorizationCode.ExpiresAt) {
-		return nil, errAuthorizationCodeExpired
+		return nil, ErrAuthorizationCodeExpired
 	}
 
 	return authorizationCode, nil

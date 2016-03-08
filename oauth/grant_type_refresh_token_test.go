@@ -42,7 +42,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", errRequestedScopeCannotBeGreater.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", ErrRequestedScopeCannotBeGreater.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }

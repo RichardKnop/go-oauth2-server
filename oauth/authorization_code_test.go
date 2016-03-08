@@ -85,7 +85,7 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errAuthorizationCodeNotFound, err)
+		assert.Equal(suite.T(), ErrAuthorizationCodeNotFound, err)
 	}
 
 	// Test passing a bogus code
@@ -99,7 +99,7 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errAuthorizationCodeNotFound, err)
+		assert.Equal(suite.T(), ErrAuthorizationCodeNotFound, err)
 	}
 
 	// Test passing an expired code
@@ -113,7 +113,7 @@ func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errAuthorizationCodeExpired, err)
+		assert.Equal(suite.T(), ErrAuthorizationCodeExpired, err)
 	}
 
 	// Test passing a valid code

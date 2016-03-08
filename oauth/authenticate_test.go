@@ -48,7 +48,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errAccessTokenNotFound, err)
+		assert.Equal(suite.T(), ErrAccessTokenNotFound, err)
 	}
 
 	// Test passing a bogus token
@@ -59,7 +59,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errAccessTokenNotFound, err)
+		assert.Equal(suite.T(), ErrAccessTokenNotFound, err)
 	}
 
 	// Test passing an expired token
@@ -70,7 +70,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errAccessTokenExpired, err)
+		assert.Equal(suite.T(), ErrAccessTokenExpired, err)
 	}
 
 	// Test passing a valid client token

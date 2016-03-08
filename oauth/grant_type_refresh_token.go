@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	errRequestedScopeCannotBeGreater = errors.New("Requested scope cannot be greater")
+	// ErrRequestedScopeCannotBeGreater ...
+	ErrRequestedScopeCannotBeGreater = errors.New("Requested scope cannot be greater")
 )
 
 func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, client *Client) {
@@ -37,7 +38,7 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 
 	// Requested scope CANNOT include any scope not originally granted
 	if !util.SpaceDelimitedStringNotGreater(scope, theRefreshToken.Scope) {
-		response.Error(w, errRequestedScopeCannotBeGreater.Error(), http.StatusBadRequest)
+		response.Error(w, ErrRequestedScopeCannotBeGreater.Error(), http.StatusBadRequest)
 		return
 	}
 

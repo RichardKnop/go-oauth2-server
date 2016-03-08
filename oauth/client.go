@@ -9,8 +9,10 @@ import (
 )
 
 var (
-	errClientNotFound      = errors.New("Client not found")
-	errInvalidClientSecret = errors.New("Invalid client secret")
+	// ErrClientNotFound ...
+	ErrClientNotFound = errors.New("Client not found")
+	// ErrInvalidClientSecret ...
+	ErrInvalidClientSecret = errors.New("Invalid client secret")
 )
 
 // ClientExists returns true if client exists
@@ -28,7 +30,7 @@ func (s *Service) FindClientByClientID(clientID string) (*Client, error) {
 
 	// Not found
 	if notFound {
-		return nil, errClientNotFound
+		return nil, ErrClientNotFound
 	}
 
 	return client, nil
@@ -49,12 +51,12 @@ func (s *Service) AuthClient(clientID, secret string) (*Client, error) {
 	// Fetch the client
 	client, err := s.FindClientByClientID(clientID)
 	if err != nil {
-		return nil, errClientNotFound
+		return nil, ErrClientNotFound
 	}
 
 	// Verify the secret
 	if password.VerifyPassword(client.Secret, secret) != nil {
-		return nil, errInvalidClientSecret
+		return nil, ErrInvalidClientSecret
 	}
 
 	return client, nil

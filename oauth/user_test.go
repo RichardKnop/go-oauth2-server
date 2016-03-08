@@ -21,7 +21,7 @@ func (suite *OauthTestSuite) TestFindUserByUsername() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errUserNotFound, err)
+		assert.Equal(suite.T(), ErrUserNotFound, err)
 	}
 
 	// When we try to find a user with a valid username
@@ -90,7 +90,7 @@ func (suite *OauthTestSuite) TestSetPassword() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errCannotSetEmptyUserPassword, err)
+		assert.Equal(suite.T(), ErrCannotSetEmptyUserPassword, err)
 	}
 
 	// Try changing the password
@@ -125,7 +125,7 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errUserPasswordNotSet, err)
+		assert.Equal(suite.T(), ErrUserPasswordNotSet, err)
 	}
 
 	// When we try to authenticate with a bogus username
@@ -136,7 +136,7 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errUserNotFound, err)
+		assert.Equal(suite.T(), ErrUserNotFound, err)
 	}
 
 	// When we try to authenticate with an invalid password
@@ -147,7 +147,7 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errInvalidUserPassword, err)
+		assert.Equal(suite.T(), ErrInvalidUserPassword, err)
 	}
 
 	// When we try to authenticate with valid username and password
@@ -189,6 +189,6 @@ func (suite *OauthTestSuite) TestBlankPassword() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errUserPasswordNotSet, err)
+		assert.Equal(suite.T(), ErrUserPasswordNotSet, err)
 	}
 }

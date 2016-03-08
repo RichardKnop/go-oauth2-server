@@ -18,7 +18,7 @@ func (suite *OauthTestSuite) TestFindClientByClientID() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errClientNotFound, err)
+		assert.Equal(suite.T(), ErrClientNotFound, err)
 	}
 
 	// When we try to find a client with a valid cliend ID
@@ -84,7 +84,7 @@ func (suite *OauthTestSuite) TestAuthClient() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errClientNotFound, err)
+		assert.Equal(suite.T(), ErrClientNotFound, err)
 	}
 
 	// When we try to authenticate with an invalid secret
@@ -95,7 +95,7 @@ func (suite *OauthTestSuite) TestAuthClient() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), errInvalidClientSecret, err)
+		assert.Equal(suite.T(), ErrInvalidClientSecret, err)
 	}
 
 	// When we try to authenticate with valid client ID and secret

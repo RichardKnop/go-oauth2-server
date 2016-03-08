@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	errInvalidRedirectURI = errors.New("Invalid redirect URI")
+	// ErrInvalidRedirectURI ...
+	ErrInvalidRedirectURI = errors.New("Invalid redirect URI")
 )
 
 func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
@@ -25,7 +26,7 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 
 	// Redirect URI must match if it was used to obtain the authorization code
 	if util.StringOrNull(r.Form.Get("redirect_uri")) != authorizationCode.RedirectURI {
-		response.Error(w, errInvalidRedirectURI.Error(), http.StatusBadRequest)
+		response.Error(w, ErrInvalidRedirectURI.Error(), http.StatusBadRequest)
 		return
 	}
 

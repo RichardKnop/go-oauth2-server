@@ -83,7 +83,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectMissingToken() {
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", errTokenMissing.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", ErrTokenMissing.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }
@@ -105,7 +105,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectInvailidTokenHint() {
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", errTokenHintInvalid.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", ErrTokenHintInvalid.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }
