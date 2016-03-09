@@ -134,7 +134,7 @@ func toQueryMarks(primaryValues [][]interface{}) string {
 
 	for _, primaryValue := range primaryValues {
 		var marks []string
-		for _ = range primaryValue {
+		for range primaryValue {
 			marks = append(marks, "?")
 		}
 
@@ -197,37 +197,6 @@ func toSearchableMap(attrs ...interface{}) (result interface{}) {
 		}
 	}
 	return
-}
-
-func convertInterfaceToMap(values interface{}) map[string]interface{} {
-	attrs := map[string]interface{}{}
-
-	switch value := values.(type) {
-	case map[string]interface{}:
-		return value
-	case []interface{}:
-		for _, v := range value {
-			for key, value := range convertInterfaceToMap(v) {
-				attrs[key] = value
-			}
-		}
-	case interface{}:
-		reflectValue := reflect.ValueOf(values)
-
-		switch reflectValue.Kind() {
-		case reflect.Map:
-			for _, key := range reflectValue.MapKeys() {
-				attrs[ToDBName(key.Interface().(string))] = reflectValue.MapIndex(key).Interface()
-			}
-		default:
-			for _, field := range (&Scope{Value: values}).Fields() {
-				if !field.IsBlank {
-					attrs[field.DBName] = field.Field.Interface()
-				}
-			}
-		}
-	}
-	return attrs
 }
 
 func equalAsString(a interface{}, b interface{}) bool {
