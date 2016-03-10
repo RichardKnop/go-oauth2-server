@@ -1,0 +1,18 @@
+version: '2'
+services:
+  oauth2-server:
+    build:
+      context: ../
+      dockerfile: ./docker-compose/Dockerfile
+    depends_on:
+      - pg
+      - etcd
+    links:
+      - pg
+      - etcd
+    ports:
+      - "8080:8080"
+  pg:
+    image: "postgres"
+  etcd:
+    image: "elcolio/etcd"
