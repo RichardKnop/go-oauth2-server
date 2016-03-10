@@ -2,7 +2,10 @@
 # and a workspace (GOPATH) configured at /go.
 FROM golang
 
-# Copy the local package files to the container's workspace.
+# Install pg client to init db
+RUN apt-get update
+RUN apt-get install -y postgresql-client-9.4
+
 ADD . /go/src/github.com/RichardKnop/go-oauth2-server
 
 ENV GO15VENDOREXPERIMENT 1
@@ -14,7 +17,7 @@ WORKDIR /go/src/github.com/RichardKnop/go-oauth2-server
 RUN go install github.com/RichardKnop/go-oauth2-server
 
 # Copy the docker-entrypoint.sh script and use it as entrypoint
-COPY ./docker-entrypoint.sh /
+COPY ./docker-compose/docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Document that the service listens on port 8080.

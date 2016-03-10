@@ -1,9 +1,9 @@
 version: '2'
 services:
-  oauth2:
+  oauth2-server:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../
+      dockerfile: ./docker-compose/Dockerfile
     depends_on:
       - pg
       - etcd
