@@ -491,6 +491,7 @@ docker exec <container_id> /go/bin/go-oauth2-server loaddata \
 You can use [docker-compose](https://docs.docker.com/compose/) to start app, postgres, etcd in separate linked containers: 
 
 ```
+cd APP_ROOT_DIR/docker-compose
 docker-compose up
 ```
 
@@ -500,6 +501,6 @@ curl --compressed -v localhost:8080/v1/oauth/introspect \
 	-u test_client_1:test_secret \
 	-d "token=00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c" \
 	-d "token_type_hint=access_token"
-	
-//on mac, windows hosts use Docker Machine IP instead of localhost
 ```
+
+> On Mac OS X or Windows host use Docker Machine IP instead of localhost.
