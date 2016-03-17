@@ -8,8 +8,6 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
-	// sqlite driver
-	_ "github.com/mattn/go-sqlite3"
 )
 
 var testDbPath = "/tmp/oauth_testdb.sqlite"
