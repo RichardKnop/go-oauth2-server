@@ -27,7 +27,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		suite.service.db.Preload("Client").Preload("User").Find(&tokens)
+		suite.service.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
 
 		// There should be just one right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -57,7 +57,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		suite.service.db.Preload("Client").Preload("User").Find(&tokens)
+		suite.service.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))

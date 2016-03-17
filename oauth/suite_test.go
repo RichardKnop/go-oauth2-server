@@ -51,13 +51,13 @@ func (suite *OauthTestSuite) SetupSuite() {
 
 	// Fetch test client
 	suite.clients = make([]*Client, 0)
-	if err := suite.db.Find(&suite.clients).Error; err != nil {
+	if err := suite.db.Order("id").Find(&suite.clients).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	// Fetch test users
 	suite.users = make([]*User, 0)
-	if err := suite.db.Find(&suite.users).Error; err != nil {
+	if err := suite.db.Order("id").Find(&suite.users).Error; err != nil {
 		log.Fatal(err)
 	}
 
