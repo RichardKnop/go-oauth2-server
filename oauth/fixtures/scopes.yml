@@ -1,5 +1,9 @@
 ---
 
+#--------#
+# Scopes #
+#--------#
+
 - table: 'oauth_scopes'
   pk:
     id: 1

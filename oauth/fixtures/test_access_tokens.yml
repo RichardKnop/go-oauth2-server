@@ -1,5 +1,9 @@
 ---
 
+#---------------#
+# Access Tokens #
+#---------------#
+
 - table: 'oauth_access_tokens'
   pk:
     id: 1

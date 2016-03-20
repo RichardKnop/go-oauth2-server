@@ -1,5 +1,9 @@
 ---
 
+#-------#
+# Users #
+#-------#
+
 - table: 'oauth_users'
   pk:
     id: 1

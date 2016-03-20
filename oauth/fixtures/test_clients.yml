@@ -1,5 +1,9 @@
 ---
 
+#---------#
+# Clients #
+#---------#
+
 - table: 'oauth_clients'
   pk:
     id: 1
