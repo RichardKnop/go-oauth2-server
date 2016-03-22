@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"errors"
+	"time"
 
 	pass "github.com/RichardKnop/go-oauth2-server/password"
 	"github.com/RichardKnop/go-oauth2-server/util"
@@ -64,10 +65,10 @@ func (s *Service) SetPassword(user *User, password string) error {
 	}
 
 	// Set the password on the user object
-	if err := s.db.Model(user).UpdateColumn(
-		"password",
-		string(passwordHash),
-	).Error; err != nil {
+	if err := s.db.Model(user).UpdateColumns(User{
+		Password: util.StringOrNull(string(passwordHash)),
+		Model:    gorm.Model{UpdatedAt: time.Now()},
+	}).Error; err != nil {
 		return err
 	}
 
