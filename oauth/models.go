@@ -99,8 +99,8 @@ func (ac *AuthorizationCode) TableName() string {
 	return "oauth_authorization_codes"
 }
 
-// newRefreshToken creates new RefreshToken instance
-func newRefreshToken(client *Client, user *User, expiresIn int, scope string) *RefreshToken {
+// NewRefreshToken creates new RefreshToken instance
+func NewRefreshToken(client *Client, user *User, expiresIn int, scope string) *RefreshToken {
 	clientID := util.PositiveIntOrNull(int64(client.ID))
 	userID := util.PositiveIntOrNull(0) // user ID can be NULL
 	if user != nil {
@@ -122,8 +122,8 @@ func newRefreshToken(client *Client, user *User, expiresIn int, scope string) *R
 	return refreshToken
 }
 
-// newAccessToken creates new AccessToken instance
-func newAccessToken(client *Client, user *User, expiresIn int, scope string) *AccessToken {
+// NewAccessToken creates new AccessToken instance
+func NewAccessToken(client *Client, user *User, expiresIn int, scope string) *AccessToken {
 	clientID := util.PositiveIntOrNull(int64(client.ID))
 	userID := util.PositiveIntOrNull(0) // user ID can be NULL
 	if user != nil {
@@ -145,8 +145,8 @@ func newAccessToken(client *Client, user *User, expiresIn int, scope string) *Ac
 	return accessToken
 }
 
-// newAuthorizationCode creates new AuthorizationCode instance
-func newAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI, scope string) *AuthorizationCode {
+// NewAuthorizationCode creates new AuthorizationCode instance
+func NewAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI, scope string) *AuthorizationCode {
 	clientID := util.PositiveIntOrNull(int64(client.ID))
 	userID := util.PositiveIntOrNull(int64(user.ID))
 	authorizationCode := &AuthorizationCode{

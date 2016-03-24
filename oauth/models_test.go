@@ -18,7 +18,7 @@ func TestNewAccessToken(t *testing.T) {
 	)
 
 	// When user object is nil
-	accessToken = newAccessToken(
+	accessToken = NewAccessToken(
 		client, // client
 		nil,    // user
 		3600,   // expires in
@@ -42,7 +42,7 @@ func TestNewAccessToken(t *testing.T) {
 	assert.Nil(t, v)
 
 	// When user object is not nil
-	accessToken = newAccessToken(
+	accessToken = NewAccessToken(
 		client, // client
 		user,   // user
 		3600,   // expires in
@@ -76,7 +76,7 @@ func TestNewRefreshToken(t *testing.T) {
 	)
 
 	// When user object is nil
-	refreshToken = newRefreshToken(
+	refreshToken = NewRefreshToken(
 		client,                 // client
 		nil,                    // user
 		1209600,                // expires in
@@ -100,7 +100,7 @@ func TestNewRefreshToken(t *testing.T) {
 	assert.Nil(t, v)
 
 	// When user object is not nil
-	refreshToken = newRefreshToken(
+	refreshToken = NewRefreshToken(
 		client,                 // client
 		user,                   // user
 		1209600,                // expires in
@@ -134,7 +134,7 @@ func TestNewAuthorizationCode(t *testing.T) {
 	)
 
 	// When user object is not nil
-	authorizationCode = newAuthorizationCode(
+	authorizationCode = NewAuthorizationCode(
 		client, // client
 		user,   // user
 		3600,   // expires in

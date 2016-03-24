@@ -15,7 +15,7 @@ func (s *Service) GrantAccessToken(client *Client, user *User, expiresIn int, sc
 	s.deleteExpiredAccessTokens(client, user)
 
 	// Create a new access token
-	accessToken := newAccessToken(client, user, expiresIn, scope)
+	accessToken := NewAccessToken(client, user, expiresIn, scope)
 	if err := s.db.Create(accessToken).Error; err != nil {
 		return nil, err
 	}

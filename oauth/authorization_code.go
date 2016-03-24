@@ -17,7 +17,7 @@ var (
 // GrantAuthorizationCode grants a new authorization code
 func (s *Service) GrantAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI, scope string) (*AuthorizationCode, error) {
 	// Create a new authorization code
-	authorizationCode := newAuthorizationCode(client, user, expiresIn, redirectURI, scope)
+	authorizationCode := NewAuthorizationCode(client, user, expiresIn, redirectURI, scope)
 	if err := s.db.Create(authorizationCode).Error; err != nil {
 		return nil, err
 	}

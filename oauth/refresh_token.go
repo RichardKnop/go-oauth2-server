@@ -42,7 +42,7 @@ func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, expiresIn 
 
 	// Create a new refresh token if it expired or was not found
 	if expired || !found {
-		refreshToken = newRefreshToken(client, user, expiresIn, scope)
+		refreshToken = NewRefreshToken(client, user, expiresIn, scope)
 		if err := s.db.Create(refreshToken).Error; err != nil {
 			return nil, err
 		}
