@@ -17,7 +17,7 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 	// Create a new access token
 	accessToken, err := s.GrantAccessToken(
 		client,
-		new(User), // empty user
+		new(User),                       // empty user
 		s.cnf.Oauth.AccessTokenLifetime, // expires in
 		scope,
 	)
@@ -28,11 +28,11 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 
 	// Write the JSON access token to the response
 	accessTokenRespone := &AccessTokenResponse{
-		ID:           accessToken.ID,
-		AccessToken:  accessToken.Token,
-		ExpiresIn:    s.cnf.Oauth.AccessTokenLifetime,
-		TokenType:    TokenType,
-		Scope:        accessToken.Scope,
+		ID:          accessToken.ID,
+		AccessToken: accessToken.Token,
+		ExpiresIn:   s.cnf.Oauth.AccessTokenLifetime,
+		TokenType:   TokenType,
+		Scope:       accessToken.Scope,
 	}
 	response.WriteJSON(w, accessTokenRespone, 200)
 }
