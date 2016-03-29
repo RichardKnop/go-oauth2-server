@@ -26,19 +26,20 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
 
-	// Check the correct data was inserted
+	// Check the access token was inserted
 	accessToken := new(AccessToken)
 	assert.False(suite.T(), suite.db.First(accessToken).RecordNotFound())
-	refreshToken := new(RefreshToken)
-	assert.True(suite.T(), suite.db.First(refreshToken).RecordNotFound())
+
+	// Client credentials grant does not produce refresh token
+	assert.True(suite.T(), suite.db.First(new(RefreshToken)).RecordNotFound())
 
 	// Check the response body
 	expected, err := json.Marshal(&AccessTokenResponse{
-		ID:           accessToken.ID,
-		AccessToken:  accessToken.Token,
-		ExpiresIn:    3600,
-		TokenType:    TokenType,
-		Scope:        "read_write",
+		ID:          accessToken.ID,
+		AccessToken: accessToken.Token,
+		ExpiresIn:   3600,
+		TokenType:   TokenType,
+		Scope:       "read_write",
 	})
 	if assert.NoError(suite.T(), err, "JSON marshalling failed") {
 		assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
