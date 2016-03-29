@@ -30,7 +30,7 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 	accessToken := new(AccessToken)
 	assert.False(suite.T(), suite.db.First(accessToken).RecordNotFound())
 	refreshToken := new(RefreshToken)
-	assert.False(suite.T(), suite.db.First(refreshToken).RecordNotFound())
+	assert.True(suite.T(), suite.db.First(refreshToken).RecordNotFound())
 
 	// Check the response body
 	expected, err := json.Marshal(&AccessTokenResponse{
@@ -39,7 +39,6 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 		ExpiresIn:    3600,
 		TokenType:    TokenType,
 		Scope:        "read_write",
-		RefreshToken: refreshToken.Token,
 	})
 	if assert.NoError(suite.T(), err, "JSON marshalling failed") {
 		assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
