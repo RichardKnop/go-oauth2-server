@@ -9,6 +9,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+func NewProcessingError(row int, cause error) error {
+	return fmt.Errorf("Error loading row %d: %s", row, cause.Error())
+}
+
+func NewFileError(filename string, cause error) error {
+	return fmt.Errorf("Error loading file %s: %s", filename, cause.Error())
+}
+
 // Load processes a YAML fixture and inserts/updates the database accordingly
 func Load(data []byte, db *sql.DB, driver string) error {
 	// Unmarshal the YAML data into a []Row slice
@@ -24,7 +32,7 @@ func Load(data []byte, db *sql.DB, driver string) error {
 	}
 
 	// Iterate over rows define in the fixture
-	for _, row := range rows {
+	for i, row := range rows {
 		// Load internat struct variables
 		row.Init()
 
@@ -38,7 +46,7 @@ func Load(data []byte, db *sql.DB, driver string) error {
 		err = tx.QueryRow(selectQuery, row.GetPKValues()...).Scan(&count)
 		if err != nil {
 			tx.Rollback() // rollback the transaction
-			return err
+			return NewProcessingError(i+1, err)
 		}
 
 		if count == 0 {
@@ -52,7 +60,7 @@ func Load(data []byte, db *sql.DB, driver string) error {
 			_, err := tx.Exec(insertQuery, row.GetInsertValues()...)
 			if err != nil {
 				tx.Rollback() // rollback the transaction
-				return err
+				return NewProcessingError(i+1, err)
 			}
 			if driver == postgresDriver && row.GetInsertColumns()[0] == "id" {
 
@@ -60,7 +68,7 @@ func Load(data []byte, db *sql.DB, driver string) error {
 				err = tx.QueryRow(checkPostgresPKDataType(row.Table)).Scan(&dtype)
 				if err != nil {
 					tx.Rollback() // rollback the transaction
-					return err
+					return NewProcessingError(i+1, err)
 				}
 
 				if dtype == "integer" {
@@ -68,7 +76,7 @@ func Load(data []byte, db *sql.DB, driver string) error {
 					_, err := tx.Exec(fixPostgresPKSequence(row.Table))
 					if err != nil {
 						tx.Rollback() // rollback the transaction
-						return err
+						return NewProcessingError(i+1, err)
 					}
 				}
 			}
@@ -84,14 +92,14 @@ func Load(data []byte, db *sql.DB, driver string) error {
 			_, err := tx.Exec(updateQuery, values...)
 			if err != nil {
 				tx.Rollback() // rollback the transaction
-				return err
+				return NewProcessingError(i+1, err)
 			}
 			if driver == postgresDriver && row.GetUpdateColumns()[0] == "id" {
 				var dtype string
 				err = tx.QueryRow(checkPostgresPKDataType(row.Table)).Scan(&dtype)
 				if err != nil {
 					tx.Rollback() // rollback the transaction
-					return err
+					return NewProcessingError(i+1, err)
 				}
 
 				if dtype == "integer" {
@@ -99,7 +107,7 @@ func Load(data []byte, db *sql.DB, driver string) error {
 					_, err := tx.Exec(fixPostgresPKSequence(row.Table))
 					if err != nil {
 						tx.Rollback() // rollback the transaction
-						return err
+						return NewProcessingError(i+1, err)
 					}
 				}
 			}
@@ -138,7 +146,7 @@ func LoadFile(filename string, db *sql.DB, driver string) error {
 	// Read fixture data from the file
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
-		return err
+		return NewFileError(filename, err)
 	}
 
 	// Insert the fixture data
