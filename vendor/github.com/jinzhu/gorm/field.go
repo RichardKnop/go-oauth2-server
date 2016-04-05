@@ -21,7 +21,7 @@ func (field *Field) Set(value interface{}) (err error) {
 	}
 
 	if !field.Field.CanAddr() {
-		return errors.New("unaddressable value")
+		return ErrUnaddressable
 	}
 
 	reflectValue, ok := value.(reflect.Value)
@@ -54,5 +54,5 @@ func (field *Field) Set(value interface{}) (err error) {
 	}
 
 	field.IsBlank = isBlank(field.Field)
-	return nil
+	return err
 }

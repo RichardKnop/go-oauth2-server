@@ -413,7 +413,8 @@ func (scope *Scope) CommitOrRollback() *Scope {
 ////////////////////////////////////////////////////////////////////////////////
 
 func (scope *Scope) callMethod(methodName string, reflectValue reflect.Value) {
-	if reflectValue.CanAddr() {
+	// Only get address from non-pointer
+	if reflectValue.CanAddr() && reflectValue.Kind() != reflect.Ptr {
 		reflectValue = reflectValue.Addr()
 	}
 
@@ -846,10 +847,15 @@ func (scope *Scope) updatedAttrsWithValues(value interface{}) (results map[strin
 				hasUpdate = true
 				results[field.DBName] = value
 			} else {
-				field.Set(value)
+				err := field.Set(value)
 				if field.IsNormal {
 					hasUpdate = true
-					results[field.DBName] = field.Field.Interface()
+					if err == ErrUnaddressable {
+						fmt.Println(err)
+						results[field.DBName] = value
+					} else {
+						results[field.DBName] = field.Field.Interface()
+					}
 				}
 			}
 		}
