@@ -62,5 +62,8 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 		Scope:        accessToken.Scope,
 		RefreshToken: refreshToken.Token,
 	}
+	if accessToken.User != nil {
+		accessTokenRespone.UserID = accessToken.User.ID
+	}
 	response.WriteJSON(w, accessTokenRespone, 200)
 }

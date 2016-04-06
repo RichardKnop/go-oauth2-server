@@ -74,11 +74,13 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 
 	// Check the correct data was inserted
 	accessToken := new(AccessToken)
-	assert.False(suite.T(), suite.db.First(accessToken).RecordNotFound())
+	assert.False(suite.T(), suite.db.Preload("Client").Preload("User").
+		First(accessToken).RecordNotFound())
 
 	// Check the response body
 	expected, err := json.Marshal(&AccessTokenResponse{
 		ID:           accessToken.ID,
+		UserID:       accessToken.User.ID,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
 		TokenType:    TokenType,
@@ -118,11 +120,13 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 
 	// Check the correct data was inserted
 	accessToken := new(AccessToken)
-	assert.False(suite.T(), suite.db.First(accessToken).RecordNotFound())
+	assert.False(suite.T(), suite.db.Preload("Client").Preload("User").
+		First(accessToken).RecordNotFound())
 
 	// Check the response body
 	expected, err := json.Marshal(&AccessTokenResponse{
 		ID:           accessToken.ID,
+		UserID:       accessToken.User.ID,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
 		TokenType:    TokenType,

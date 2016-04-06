@@ -125,6 +125,7 @@ The authorization server authenticates the client, validates the authorization c
 ```json
 {
 	"id": 1,
+  "user_id": 1,
 	"access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
 	"expires_in": 3600,
 	"token_type": "Bearer",
@@ -263,6 +264,7 @@ The authorization server authenticates the client and validates the resource own
 ```json
 {
 	"id": 1,
+  "user_id": 1,
 	"access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
 	"expires_in": 3600,
 	"token_type": "Bearer",
@@ -337,6 +339,7 @@ If valid and authorized, the authorization server issues an access token.
 ```json
 {
 	"id": 1,
+  "user_id": 1,
 	"access_token": "1f962bd5-7890-435d-b619-584b6aa32e6c",
 	"expires_in": 3600,
 	"token_type": "Bearer",
@@ -488,7 +491,7 @@ docker exec <container_id> /go/bin/go-oauth2-server loaddata \
 
 ## Docker-compose
 
-You can use [docker-compose](https://docs.docker.com/compose/) to start app, postgres, etcd in separate linked containers: 
+You can use [docker-compose](https://docs.docker.com/compose/) to start app, postgres, etcd in separate linked containers:
 
 ```
 cd APP_ROOT_DIR/docker-compose

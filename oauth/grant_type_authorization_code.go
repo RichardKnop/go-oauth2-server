@@ -53,5 +53,8 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 		Scope:        accessToken.Scope,
 		RefreshToken: refreshToken.Token,
 	}
+	if accessToken.User != nil {
+		accessTokenRespone.UserID = accessToken.User.ID
+	}
 	response.WriteJSON(w, accessTokenRespone, 200)
 }
