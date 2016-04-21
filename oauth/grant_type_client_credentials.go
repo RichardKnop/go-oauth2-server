@@ -28,7 +28,6 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 
 	// Write the JSON access token to the response
 	accessTokenRespone := &AccessTokenResponse{
-		ID:          accessToken.ID,
 		AccessToken: accessToken.Token,
 		ExpiresIn:   s.cnf.Oauth.AccessTokenLifetime,
 		TokenType:   TokenType,

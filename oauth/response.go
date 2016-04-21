@@ -2,7 +2,6 @@ package oauth
 
 // AccessTokenResponse ...
 type AccessTokenResponse struct {
-	ID           uint   `json:"id"`
 	UserID       uint   `json:"user_id,omitempty"`
 	AccessToken  string `json:"access_token"`
 	ExpiresIn    int    `json:"expires_in"`
