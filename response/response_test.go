@@ -19,6 +19,8 @@ func TestWriteJSON(t *testing.T) {
 
 	assert.Equal(t, 201, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
+	assert.Equal(t, "no-store", w.Header().Get("Cache-Control"))
+	assert.Equal(t, "no-cache", w.Header().Get("Pragma"))
 	expected, _ := json.Marshal(obj)
 	assert.Equal(t, string(expected), strings.TrimSpace(w.Body.String()))
 }

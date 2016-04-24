@@ -36,7 +36,6 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 
 	// Check the response body
 	expected, err := json.Marshal(&AccessTokenResponse{
-		ID:          accessToken.ID,
 		AccessToken: accessToken.Token,
 		ExpiresIn:   3600,
 		TokenType:   TokenType,
