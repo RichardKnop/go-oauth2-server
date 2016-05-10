@@ -22,18 +22,18 @@
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/client",
-			"Comment": "v2.3.0-594-g8df52dc",
-			"Rev": "8df52dc6fa8fbc369be13180bac13632b2f38520"
+			"Comment": "v3.0.0-beta.0-15-g4ae47ad",
+			"Rev": "4ae47ad934ce71aa16be8f8465d3d25fe8d43543"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/pathutil",
-			"Comment": "v2.3.0-594-g8df52dc",
-			"Rev": "8df52dc6fa8fbc369be13180bac13632b2f38520"
+			"Comment": "v3.0.0-beta.0-15-g4ae47ad",
+			"Rev": "4ae47ad934ce71aa16be8f8465d3d25fe8d43543"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/types",
-			"Comment": "v2.3.0-594-g8df52dc",
-			"Rev": "8df52dc6fa8fbc369be13180bac13632b2f38520"
+			"Comment": "v3.0.0-beta.0-15-g4ae47ad",
+			"Rev": "4ae47ad934ce71aa16be8f8465d3d25fe8d43543"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
@@ -60,7 +60,8 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Rev": "5174cc5c242a728b435ea2be8a2f7f998e15429b"
+			"Comment": "v1.0-12-g57c7212",
+			"Rev": "57c72125b3087e1ed02c16f23a1f381cde3aaf2c"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
@@ -140,7 +141,7 @@
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "1aafd77e1e7f6849ad16a7bdeb65e3589a10b2bb"
+			"Rev": "2a35e686583654a1b89ca79c4ac78cb3d6529ca3"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
