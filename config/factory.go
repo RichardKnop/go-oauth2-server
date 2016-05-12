@@ -75,9 +75,14 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 	// If the config must be loaded once successfully
 	if mustLoadOnce {
 		// Read from remote config the first time
-		if err := loadConfig(kapi); err != nil {
+		newCnf, err := loadConfig(kapi)
+		if err != nil {
 			log.Fatal(err)
+			os.Exit(1)
 		}
+
+		// Refresh the config
+		refreshConfig(newCnf)
 
 		// Set configLoaded to true
 		configLoaded = true
@@ -92,10 +97,14 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 				time.Sleep(time.Second * 10)
 
 				// Attempt to reload the config
-				if err := loadConfig(kapi); err != nil {
+				newCnf, err := loadConfig(kapi)
+				if err != nil {
 					log.Print(err)
 					continue
 				}
+
+				// Refresh the config
+				refreshConfig(newCnf)
 
 				// Set configLoaded to true
 				configLoaded = true
@@ -122,19 +131,23 @@ func getEtcdEndpoint() string {
 }
 
 // loadConfig gets the JSON from ETCD and unmarshals it to the config object
-func loadConfig(kapi client.KeysAPI) error {
+func loadConfig(kapi client.KeysAPI) (*Config, error) {
 	// Read from remote config the first time
 	resp, err := kapi.Get(context.Background(), configPath, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Unmarshal the config JSON into the cnf object
 	newCnf := new(Config)
 	if err := json.Unmarshal([]byte(resp.Node.Value), newCnf); err != nil {
-		return err
+		return nil, err
 	}
-	cnf = newCnf
 
-	return nil
+	return newCnf, nil
+}
+
+// refreshConfig sets config through the pointer so config actually gets refreshed
+func refreshConfig(newCnf *Config) {
+	*cnf = *newCnf
 }
