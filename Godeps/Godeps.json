@@ -12,28 +12,28 @@
 		},
 		{
 			"ImportPath": "github.com/codegangsta/cli",
-			"Comment": "v1.14.0-7-g4733699",
-			"Rev": "4733699ce30faa633c4db36ebfbe427963593d7d"
+			"Comment": "v1.17.0-20-g3a52a3b",
+			"Rev": "3a52a3b8124e194986964c547054f0a7b8f56892"
 		},
 		{
 			"ImportPath": "github.com/codegangsta/negroni",
-			"Comment": "v0.1-70-gc7477ad",
-			"Rev": "c7477ad8e330bef55bf1ebe300cf8aa67c492d1b"
+			"Comment": "v0.2.0-22-gdc45282",
+			"Rev": "dc45282b3653ee198a3c06a82bc7847b03666497"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/client",
-			"Comment": "v3.0.0-beta.0-15-g4ae47ad",
-			"Rev": "4ae47ad934ce71aa16be8f8465d3d25fe8d43543"
+			"Comment": "v3.0.0-beta.0-104-g46481b1",
+			"Rev": "46481b17fc745cb3b7aa682a24220e782d9ce6dd"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/pathutil",
-			"Comment": "v3.0.0-beta.0-15-g4ae47ad",
-			"Rev": "4ae47ad934ce71aa16be8f8465d3d25fe8d43543"
+			"Comment": "v3.0.0-beta.0-104-g46481b1",
+			"Rev": "46481b17fc745cb3b7aa682a24220e782d9ce6dd"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/types",
-			"Comment": "v3.0.0-beta.0-15-g4ae47ad",
-			"Rev": "4ae47ad934ce71aa16be8f8465d3d25fe8d43543"
+			"Comment": "v3.0.0-beta.0-104-g46481b1",
+			"Rev": "46481b17fc745cb3b7aa682a24220e782d9ce6dd"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
@@ -46,8 +46,8 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Comment": "v1.1",
-			"Rev": "0eeaf8392f5b04950925b8a69fe70f110fa7cbfc"
+			"Comment": "v1.1-7-g9c19ed5",
+			"Rev": "9c19ed558d5df4da88e2ade9c8940d742aef0e7e"
 		},
 		{
 			"ImportPath": "github.com/gorilla/securecookie",
@@ -69,18 +69,18 @@
 		},
 		{
 			"ImportPath": "github.com/lib/pq",
-			"Comment": "go1.0-cutoff-86-gdd3290b",
-			"Rev": "dd3290b2f71a8b30bee8e4e75a337a825263d26f"
+			"Comment": "go1.0-cutoff-96-gee1442b",
+			"Rev": "ee1442bda7bd1b6a84e913bdb421cb1874ec629d"
 		},
 		{
 			"ImportPath": "github.com/lib/pq/oid",
-			"Comment": "go1.0-cutoff-86-gdd3290b",
-			"Rev": "dd3290b2f71a8b30bee8e4e75a337a825263d26f"
+			"Comment": "go1.0-cutoff-96-gee1442b",
+			"Rev": "ee1442bda7bd1b6a84e913bdb421cb1874ec629d"
 		},
 		{
 			"ImportPath": "github.com/mattn/go-sqlite3",
-			"Comment": "v1.1.0-62-g467f50b",
-			"Rev": "467f50b0c026317ad28fc2c0a08aab6f755cfc7a"
+			"Comment": "v1.1.0-69-g38ee283",
+			"Rev": "38ee283dabf11c9cbdb968eebd79b1fa7acbabe6"
 		},
 		{
 			"ImportPath": "github.com/oxtoacart/bpool",
@@ -105,23 +105,23 @@
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/assert",
-			"Comment": "v1.1.3-12-gc5d7a69",
-			"Rev": "c5d7a69bf8a2c9c374798160849c071093e41dd1"
+			"Comment": "v1.1.3-16-g6cb3b85",
+			"Rev": "6cb3b85ef5a0efef77caef88363ec4d4b5c0976d"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/mock",
-			"Comment": "v1.1.3-12-gc5d7a69",
-			"Rev": "c5d7a69bf8a2c9c374798160849c071093e41dd1"
+			"Comment": "v1.1.3-16-g6cb3b85",
+			"Rev": "6cb3b85ef5a0efef77caef88363ec4d4b5c0976d"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/require",
-			"Comment": "v1.1.3-12-gc5d7a69",
-			"Rev": "c5d7a69bf8a2c9c374798160849c071093e41dd1"
+			"Comment": "v1.1.3-16-g6cb3b85",
+			"Rev": "6cb3b85ef5a0efef77caef88363ec4d4b5c0976d"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/suite",
-			"Comment": "v1.1.3-12-gc5d7a69",
-			"Rev": "c5d7a69bf8a2c9c374798160849c071093e41dd1"
+			"Comment": "v1.1.3-16-g6cb3b85",
+			"Rev": "6cb3b85ef5a0efef77caef88363ec4d4b5c0976d"
 		},
 		{
 			"ImportPath": "github.com/ugorji/go/codec",
@@ -133,15 +133,15 @@
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
-			"Rev": "285fb2ed20d1dc450fc743a1b3ff7c36bef372b9"
+			"Rev": "b6789ab629056511030d652d851e7dc10c9e9c9e"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/blowfish",
-			"Rev": "285fb2ed20d1dc450fc743a1b3ff7c36bef372b9"
+			"Rev": "b6789ab629056511030d652d851e7dc10c9e9c9e"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "2a35e686583654a1b89ca79c4ac78cb3d6529ca3"
+			"Rev": "ef00b378c73f107bf44d5c9b69875255ce89b79a"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
