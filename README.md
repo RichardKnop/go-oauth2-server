@@ -414,7 +414,7 @@ curl -L http://localhost:2379/v2/keys/config/go_oauth2_server.json -XPUT -d valu
 		"Type": "postgres",
 		"Host": "localhost",
 		"Port": 5432,
-		"User": "area",
+		"User": "go_oauth2_server",
 		"Password": "",
 		"DatabaseName": "go_oauth2_server",
 		"MaxIdleConns": 5,
