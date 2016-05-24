@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os"
 
 	"github.com/RichardKnop/go-oauth2-server/commands"
@@ -48,5 +49,7 @@ func main() {
 	}
 
 	// Run the CLI app
-	cliApp.Run(os.Args)
+	if err := cliApp.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
 }
