@@ -101,12 +101,20 @@ func (row *Row) GetUpdateColumnsLength() int {
 
 // GetInsertColumns returns a slice of column names for INSERT query
 func (row *Row) GetInsertColumns() []string {
-	return row.insertColumns
+	escapedColumns := make([]string, len(row.insertColumns))
+	for i, insertColumn := range row.insertColumns {
+		escapedColumns[i] = fmt.Sprintf("\"%s\"", insertColumn)
+	}
+	return escapedColumns
 }
 
 // GetUpdateColumns returns a slice of column names for UPDATE query
 func (row *Row) GetUpdateColumns() []string {
-	return row.updateColumns
+	escapedColumns := make([]string, len(row.updateColumns))
+	for i, updateColumn := range row.updateColumns {
+		escapedColumns[i] = fmt.Sprintf("\"%s\"", updateColumn)
+	}
+	return escapedColumns
 }
 
 // GetInsertValues returns a slice of values for INSERT query
@@ -122,7 +130,7 @@ func (row *Row) GetUpdateValues() []interface{} {
 // GetInsertPlaceholders returns a slice of placeholders for INSERT query
 func (row *Row) GetInsertPlaceholders(driver string) []string {
 	placeholders := make([]string, row.GetInsertColumnsLength())
-	for i := range row.insertColumns {
+	for i := 0; i < row.GetInsertColumnsLength(); i++ {
 		if driver == postgresDriver {
 			placeholders[i] = fmt.Sprintf("$%d", i+1)
 		} else {
@@ -135,7 +143,7 @@ func (row *Row) GetInsertPlaceholders(driver string) []string {
 // GetUpdatePlaceholders returns a slice of placeholders for UPDATE query
 func (row *Row) GetUpdatePlaceholders(driver string) []string {
 	placeholders := make([]string, row.GetUpdateColumnsLength())
-	for i, c := range row.updateColumns {
+	for i, c := range row.GetUpdateColumns() {
 		if driver == postgresDriver {
 			placeholders[i] = fmt.Sprintf("%s = $%d", c, i+1)
 		} else {
