@@ -1,7 +1,7 @@
 {
 	"ImportPath": "github.com/RichardKnop/go-oauth2-server",
 	"GoVersion": "go1.6",
-	"GodepVersion": "v62",
+	"GodepVersion": "v73",
 	"Packages": [
 		"./..."
 	],
@@ -105,23 +105,23 @@
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/assert",
-			"Comment": "v1.1.3-16-g6cb3b85",
-			"Rev": "6cb3b85ef5a0efef77caef88363ec4d4b5c0976d"
+			"Comment": "v1.1.3-18-g8d64eb7",
+			"Rev": "8d64eb7173c7753d6419fd4a9caf057398611364"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/mock",
-			"Comment": "v1.1.3-16-g6cb3b85",
-			"Rev": "6cb3b85ef5a0efef77caef88363ec4d4b5c0976d"
+			"Comment": "v1.1.3-18-g8d64eb7",
+			"Rev": "8d64eb7173c7753d6419fd4a9caf057398611364"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/require",
-			"Comment": "v1.1.3-16-g6cb3b85",
-			"Rev": "6cb3b85ef5a0efef77caef88363ec4d4b5c0976d"
+			"Comment": "v1.1.3-18-g8d64eb7",
+			"Rev": "8d64eb7173c7753d6419fd4a9caf057398611364"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/suite",
-			"Comment": "v1.1.3-16-g6cb3b85",
-			"Rev": "6cb3b85ef5a0efef77caef88363ec4d4b5c0976d"
+			"Comment": "v1.1.3-18-g8d64eb7",
+			"Rev": "8d64eb7173c7753d6419fd4a9caf057398611364"
 		},
 		{
 			"ImportPath": "github.com/ugorji/go/codec",
