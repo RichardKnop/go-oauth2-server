@@ -48,7 +48,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	fixtures "github.com/areatech/go-fixtures"
+	fixtures "github.com/AreaHQ/go-fixtures"
 	"github.com/codegangsta/cli"
 	// Drivers
 	_ "github.com/lib/pq"

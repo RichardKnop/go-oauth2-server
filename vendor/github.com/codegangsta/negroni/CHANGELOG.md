@@ -3,6 +3,17 @@
 **ATTN**: This project uses [semantic versioning](http://semver.org/).
 
 ## [Unreleased]
+### Added
+- `Recovery.ErrorHandlerFunc` for custom error handling during recovery
+
+### Fixed
+- `Written()` correct returns `false` if no response header has been written
+-
+### Changed
+
+- Set default status to `0` in the case that no handler writes status -- was
+  previously `200` (in 0.2.0, before that it was `0` so this reestablishes that
+  behavior)
 
 ## [0.2.0] - 2016-05-10
 ### Added
@@ -20,5 +31,5 @@
 ### Added
 - Initial implementation.
 
-[Unreleased]: https://github.com/codegangsta/negroni/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/codegangsta/negroni/compare/v0.1.0...v0.2.0
+[Unreleased]: https://github.com/urfave/negroni/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/urfave/negroni/compare/v0.1.0...v0.2.0

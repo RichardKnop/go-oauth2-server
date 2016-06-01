@@ -8,32 +8,32 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/RichardKnop/go-fixtures",
-			"Rev": "f92cbb364014850b25e6786d19596db452799b8c"
+			"Rev": "cf507720b14bb7b4e5b60f0bf80185906f2db26d"
 		},
 		{
 			"ImportPath": "github.com/codegangsta/cli",
-			"Comment": "v1.17.0-20-g3a52a3b",
-			"Rev": "3a52a3b8124e194986964c547054f0a7b8f56892"
+			"Comment": "v1.17.0-44-g9a18ffa",
+			"Rev": "9a18ffad6c548ca4d458d4c30a8aa4d181cf92fa"
 		},
 		{
 			"ImportPath": "github.com/codegangsta/negroni",
-			"Comment": "v0.2.0-22-gdc45282",
-			"Rev": "dc45282b3653ee198a3c06a82bc7847b03666497"
+			"Comment": "v0.2.0-42-gfb7b7c0",
+			"Rev": "fb7b7c045dfb05dc81a5c3688c568550b5bd6e36"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/client",
-			"Comment": "v3.0.0-beta.0-104-g46481b1",
-			"Rev": "46481b17fc745cb3b7aa682a24220e782d9ce6dd"
+			"Comment": "v3.0.0-beta.0-274-gfc06dd1",
+			"Rev": "fc06dd1452490ec4b23537addd11e601f6a3b8d0"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/pathutil",
-			"Comment": "v3.0.0-beta.0-104-g46481b1",
-			"Rev": "46481b17fc745cb3b7aa682a24220e782d9ce6dd"
+			"Comment": "v3.0.0-beta.0-274-gfc06dd1",
+			"Rev": "fc06dd1452490ec4b23537addd11e601f6a3b8d0"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/types",
-			"Comment": "v3.0.0-beta.0-104-g46481b1",
-			"Rev": "46481b17fc745cb3b7aa682a24220e782d9ce6dd"
+			"Comment": "v3.0.0-beta.0-274-gfc06dd1",
+			"Rev": "fc06dd1452490ec4b23537addd11e601f6a3b8d0"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
@@ -41,27 +41,27 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
-			"Comment": "v1.1-2-ga8d44e7",
-			"Rev": "a8d44e7d8e4d532b6a27a02dd82abb31cc1b01bd"
+			"Comment": "v1.1-4-gaed02d1",
+			"Rev": "aed02d124ae4a0e94fea4541c8effd05bf0c8296"
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Comment": "v1.1-7-g9c19ed5",
-			"Rev": "9c19ed558d5df4da88e2ade9c8940d742aef0e7e"
+			"Comment": "v1.1-9-gbd09be0",
+			"Rev": "bd09be08ed4377796d312df0a45314e11b8f5dc1"
 		},
 		{
 			"ImportPath": "github.com/gorilla/securecookie",
-			"Comment": "v1.1",
-			"Rev": "667fe4e3466a040b780561fe9b51a83a3753eefc"
+			"Comment": "v1.1-2-gff35634",
+			"Rev": "ff356348f74133a59d3e93aa24b5b4551b6fe90d"
 		},
 		{
 			"ImportPath": "github.com/gorilla/sessions",
-			"Rev": "a1216e0aed834aa9074063dd4085f5c3df8d1fab"
+			"Rev": "a4e6dd28f9e9274729417506b9bd0a6c3edb91ce"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Comment": "v1.0-18-g2752245",
-			"Rev": "27522453dea253cf90dcb5345286a5fcf0fbed7c"
+			"Comment": "v1.0-19-g8dfcab0",
+			"Rev": "8dfcab0f7fb829e70c6bf28743a99fa881e63cd4"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
@@ -125,7 +125,7 @@
 		},
 		{
 			"ImportPath": "github.com/ugorji/go/codec",
-			"Rev": "a396ed22fc049df733440d90efe17475e3929ccb"
+			"Rev": "b94837a2404ab90efe9289e77a70694c355739cb"
 		},
 		{
 			"ImportPath": "github.com/unrolled/secure",
@@ -133,15 +133,15 @@
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
-			"Rev": "b6789ab629056511030d652d851e7dc10c9e9c9e"
+			"Rev": "5bcd134fee4dd1475da17714aac19c0aa0142e2f"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/blowfish",
-			"Rev": "b6789ab629056511030d652d851e7dc10c9e9c9e"
+			"Rev": "5bcd134fee4dd1475da17714aac19c0aa0142e2f"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "ef00b378c73f107bf44d5c9b69875255ce89b79a"
+			"Rev": "c4c3ea71919de159c9e246d7be66deb7f0a39a58"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
