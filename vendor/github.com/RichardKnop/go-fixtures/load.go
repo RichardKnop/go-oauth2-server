@@ -40,7 +40,7 @@ func Load(data []byte, db *sql.DB, driver string) error {
 
 		// Run a SELECT query to find out if we need to insert or UPDATE
 		selectQuery := fmt.Sprintf(
-			"SELECT COUNT(*) FROM %s WHERE %s",
+			`SELECT COUNT(*) FROM "%s" WHERE %s`,
 			row.Table,
 			row.GetWhere(driver, 0),
 		)
@@ -54,7 +54,7 @@ func Load(data []byte, db *sql.DB, driver string) error {
 		if count == 0 {
 			// Primary key not found, let's run an INSERT query
 			insertQuery := fmt.Sprintf(
-				"INSERT INTO %s(%s) VALUES(%s)",
+				`INSERT INTO "%s"(%s) VALUES(%s)`,
 				row.Table,
 				strings.Join(row.GetInsertColumns(), ", "),
 				strings.Join(row.GetInsertPlaceholders(driver), ", "),
@@ -85,7 +85,7 @@ func Load(data []byte, db *sql.DB, driver string) error {
 		} else {
 			// Primary key found, let's run UPDATE query
 			updateQuery := fmt.Sprintf(
-				"UPDATE %s SET %s WHERE %s",
+				`UPDATE "%s" SET %s WHERE %s`,
 				row.Table,
 				strings.Join(row.GetUpdatePlaceholders(driver), ", "),
 				row.GetWhere(driver, row.GetUpdateColumnsLength()),
