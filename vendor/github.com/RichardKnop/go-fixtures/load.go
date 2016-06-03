@@ -65,21 +65,10 @@ func Load(data []byte, db *sql.DB, driver string) error {
 				return NewProcessingError(i+1, err)
 			}
 			if driver == postgresDriver && row.GetInsertColumns()[0] == "\"id\"" {
-
-				var dtype string
-				err = tx.QueryRow(checkPostgresPKDataType(row.Table)).Scan(&dtype)
+				err = fixPostgresPKSequence(tx, row.Table, "id")
 				if err != nil {
-					tx.Rollback() // rollback the transaction
+					tx.Rollback()
 					return NewProcessingError(i+1, err)
-				}
-
-				if dtype == "integer" {
-					// Fixed the primary ID sequence for Postgres
-					_, err := tx.Exec(fixPostgresPKSequence(row.Table))
-					if err != nil {
-						tx.Rollback() // rollback the transaction
-						return NewProcessingError(i+1, err)
-					}
 				}
 			}
 		} else {
@@ -97,20 +86,10 @@ func Load(data []byte, db *sql.DB, driver string) error {
 				return NewProcessingError(i+1, err)
 			}
 			if driver == postgresDriver && row.GetUpdateColumns()[0] == "\"id\"" {
-				var dtype string
-				err = tx.QueryRow(checkPostgresPKDataType(row.Table)).Scan(&dtype)
+				err = fixPostgresPKSequence(tx, row.Table, "id")
 				if err != nil {
-					tx.Rollback() // rollback the transaction
+					tx.Rollback()
 					return NewProcessingError(i+1, err)
-				}
-
-				if dtype == "integer" {
-					// Fixed the primary ID sequence for Postgres
-					_, err := tx.Exec(fixPostgresPKSequence(row.Table))
-					if err != nil {
-						tx.Rollback() // rollback the transaction
-						return NewProcessingError(i+1, err)
-					}
 				}
 			}
 		}
@@ -123,25 +102,6 @@ func Load(data []byte, db *sql.DB, driver string) error {
 	}
 
 	return nil
-}
-
-func checkPostgresPKDataType(table string) string {
-	return fmt.Sprintf(
-		"SELECT data_type "+
-			"FROM information_schema.columns WHERE table_name='%s' "+
-			"AND column_name='id';",
-		table,
-	)
-}
-
-// fixPostgresPKSequence resets primary key sequence after manual insertion
-func fixPostgresPKSequence(table string) string {
-	return fmt.Sprintf(
-		"SELECT pg_catalog.setval(pg_get_serial_sequence('%s', 'id'), "+
-			"(SELECT MAX(id) FROM %s));",
-		table,
-		table,
-	)
 }
 
 // LoadFile ...
@@ -164,4 +124,29 @@ func LoadFiles(filenames []string, db *sql.DB, driver string) error {
 		}
 	}
 	return nil
+}
+
+// fixPostgresPKSequence
+func fixPostgresPKSequence(tx *sql.Tx, table string, column string) error {
+	// Query for the qualified sequence name
+	var seqName *string
+	err := tx.QueryRow(`
+		SELECT pg_get_serial_sequence($1, $2)
+	`, table, column).Scan(&seqName)
+
+	if err != nil {
+		return err
+	}
+
+	if seqName == nil {
+		// No sequence to fix
+		return nil
+	}
+
+	// Set the sequence
+	_, err = tx.Exec(fmt.Sprintf(`
+		SELECT pg_catalog.setval($1, (SELECT MAX("%s") FROM "%s"))
+	`, column, table), *seqName)
+
+	return err
 }

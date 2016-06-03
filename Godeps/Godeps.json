@@ -8,7 +8,7 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/RichardKnop/go-fixtures",
-			"Rev": "22451bf0b346c7bf4680d10d56b4da667eb652e9"
+			"Rev": "fe9468d4aa96799143455e4482c9d2c0254fdc73"
 		},
 		{
 			"ImportPath": "github.com/codegangsta/cli",
@@ -60,8 +60,8 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Comment": "v1.0-24-gdca5e54",
-			"Rev": "dca5e54f8b950d9041502d986ebc5330faec96bd"
+			"Comment": "v1.0-25-gbf0e236",
+			"Rev": "bf0e23607840019d62e32e87e9af48e881d74b1e"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
