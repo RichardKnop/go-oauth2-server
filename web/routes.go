@@ -2,7 +2,7 @@ package web
 
 import (
 	"github.com/RichardKnop/go-oauth2-server/routes"
-	"github.com/codegangsta/negroni"
+	"github.com/urfave/negroni"
 	"github.com/gorilla/mux"
 )
 

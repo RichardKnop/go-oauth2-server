@@ -6,7 +6,7 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/health"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/web"
-	"github.com/codegangsta/negroni"
+	"github.com/urfave/negroni"
 	"github.com/gorilla/mux"
 	"github.com/phyber/negroni-gzip/gzip"
 )

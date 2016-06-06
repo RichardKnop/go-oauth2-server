@@ -11,29 +11,24 @@
 			"Rev": "9384cea840d98fd1d079f6f3335a4e6b40251771"
 		},
 		{
-			"ImportPath": "github.com/codegangsta/cli",
-			"Comment": "v1.17.0-44-g9a18ffa",
-			"Rev": "9a18ffad6c548ca4d458d4c30a8aa4d181cf92fa"
-		},
-		{
 			"ImportPath": "github.com/codegangsta/negroni",
 			"Comment": "v0.2.0-42-gfb7b7c0",
 			"Rev": "fb7b7c045dfb05dc81a5c3688c568550b5bd6e36"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/client",
-			"Comment": "v3.0.0-beta.0-274-gfc06dd1",
-			"Rev": "fc06dd1452490ec4b23537addd11e601f6a3b8d0"
+			"Comment": "v3.0.0-beta.0-348-gc63eaf4",
+			"Rev": "c63eaf45f9886df3d3e0174a1f2eb6163c6d9aff"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/pathutil",
-			"Comment": "v3.0.0-beta.0-274-gfc06dd1",
-			"Rev": "fc06dd1452490ec4b23537addd11e601f6a3b8d0"
+			"Comment": "v3.0.0-beta.0-348-gc63eaf4",
+			"Rev": "c63eaf45f9886df3d3e0174a1f2eb6163c6d9aff"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/types",
-			"Comment": "v3.0.0-beta.0-274-gfc06dd1",
-			"Rev": "fc06dd1452490ec4b23537addd11e601f6a3b8d0"
+			"Comment": "v3.0.0-beta.0-348-gc63eaf4",
+			"Rev": "c63eaf45f9886df3d3e0174a1f2eb6163c6d9aff"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
@@ -130,6 +125,16 @@
 		{
 			"ImportPath": "github.com/unrolled/secure",
 			"Rev": "4b41e52ab568cbfd31eda3612d98192da1575c77"
+		},
+		{
+			"ImportPath": "github.com/urfave/cli",
+			"Comment": "v1.17.0-57-gedb24d0",
+			"Rev": "edb24d02aa3cea2319c33f2836d4a5133907fe4c"
+		},
+		{
+			"ImportPath": "github.com/urfave/negroni",
+			"Comment": "v0.2.0-44-gfeacfc5",
+			"Rev": "feacfc52d357c844f524c794947493483ed881b3"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",

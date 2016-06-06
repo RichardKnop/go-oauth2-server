@@ -3,7 +3,7 @@ package routes
 import (
 	"net/http"
 
-	"github.com/codegangsta/negroni"
+	"github.com/urfave/negroni"
 	"github.com/gorilla/mux"
 )
 
