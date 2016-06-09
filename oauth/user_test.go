@@ -53,7 +53,7 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "UNIQUE constraint failed: oauth_users.username", err.Error())
+		assert.Equal(suite.T(), ErrUsernameTaken.Error(), err.Error())
 	}
 
 	// We try to insert a unique user
