@@ -126,17 +126,20 @@ func (scope *Scope) handleHasOnePreload(field *Field, conditions []interface{}) 
 		indirectScopeValue = scope.IndirectValue()
 	)
 
-	for i := 0; i < resultsValue.Len(); i++ {
-		result := resultsValue.Index(i)
-		if indirectScopeValue.Kind() == reflect.Slice {
-			foreignValues := getValueFromFields(result, relation.ForeignFieldNames)
-			for j := 0; j < indirectScopeValue.Len(); j++ {
+	if indirectScopeValue.Kind() == reflect.Slice {
+		for j := 0; j < indirectScopeValue.Len(); j++ {
+			for i := 0; i < resultsValue.Len(); i++ {
+				result := resultsValue.Index(i)
+				foreignValues := getValueFromFields(result, relation.ForeignFieldNames)
 				if indirectValue := indirect(indirectScopeValue.Index(j)); equalAsString(getValueFromFields(indirectValue, relation.AssociationForeignFieldNames), foreignValues) {
 					indirectValue.FieldByName(field.Name).Set(result)
 					break
 				}
 			}
-		} else {
+		}
+	} else {
+		for i := 0; i < resultsValue.Len(); i++ {
+			result := resultsValue.Index(i)
 			scope.Err(field.Set(result))
 		}
 	}
@@ -259,7 +262,7 @@ func (scope *Scope) handleManyToManyPreload(field *Field, conditions []interface
 
 	// generate query with join table
 	newScope := scope.New(reflect.New(fieldType).Interface())
-	preloadDB = preloadDB.Table(newScope.TableName()).Select("*")
+	preloadDB = preloadDB.Table(newScope.TableName()).Model(newScope.Value).Select("*")
 	preloadDB = joinTableHandler.JoinWith(joinTableHandler, preloadDB, scope.Value)
 
 	// preload inline conditions
@@ -308,7 +311,7 @@ func (scope *Scope) handleManyToManyPreload(field *Field, conditions []interface
 	// assign find results
 	var (
 		indirectScopeValue = scope.IndirectValue()
-		fieldsSourceMap    = map[string]reflect.Value{}
+		fieldsSourceMap    = map[string][]reflect.Value{}
 		foreignFieldNames  = []string{}
 	)
 
@@ -321,13 +324,21 @@ func (scope *Scope) handleManyToManyPreload(field *Field, conditions []interface
 	if indirectScopeValue.Kind() == reflect.Slice {
 		for j := 0; j < indirectScopeValue.Len(); j++ {
 			object := indirect(indirectScopeValue.Index(j))
-			fieldsSourceMap[toString(getValueFromFields(object, foreignFieldNames))] = object.FieldByName(field.Name)
+			key := toString(getValueFromFields(object, foreignFieldNames))
+			fieldsSourceMap[key] = append(fieldsSourceMap[key], object.FieldByName(field.Name))
 		}
 	} else if indirectScopeValue.IsValid() {
-		fieldsSourceMap[toString(getValueFromFields(indirectScopeValue, foreignFieldNames))] = indirectScopeValue.FieldByName(field.Name)
+		key := toString(getValueFromFields(indirectScopeValue, foreignFieldNames))
+		fieldsSourceMap[key] = append(fieldsSourceMap[key], indirectScopeValue.FieldByName(field.Name))
 	}
-
 	for source, link := range linkHash {
-		fieldsSourceMap[source].Set(reflect.Append(fieldsSourceMap[source], link...))
+		for i, field := range fieldsSourceMap[source] {
+			//If not 0 this means Value is a pointer and we already added preloaded models to it
+			if fieldsSourceMap[source][i].Len() != 0 {
+				continue
+			}
+			field.Set(reflect.Append(fieldsSourceMap[source][i], link...))
+		}
+
 	}
 }
