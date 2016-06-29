@@ -66,6 +66,7 @@ var singularInflections = [][]string{
 	[]string{"([^aeiouy]|qu)ies$", "${1}y"},
 	[]string{"(s)eries$", "${1}eries"},
 	[]string{"(m)ovies$", "${1}ovie"},
+	[]string{"(c)ookies$", "${1}ookie"},
 	[]string{"(x|ch|ss|sh)es$", "${1}"},
 	[]string{"^(m|l)ice$", "${1}ouse"},
 	[]string{"(bus)(es)?$", "${1}"},
