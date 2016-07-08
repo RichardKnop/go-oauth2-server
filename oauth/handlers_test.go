@@ -26,7 +26,7 @@ func (suite *OauthTestSuite) TestHandleTokensClientAuthenticationRequired() {
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", ErrClientAuthenticationRequired.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", ErrInvalidClientIDOrSecret.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }
@@ -69,7 +69,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectClientAuthenticationRequired() 
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", ErrClientAuthenticationRequired.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", ErrInvalidClientIDOrSecret.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }

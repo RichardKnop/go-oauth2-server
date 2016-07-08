@@ -58,7 +58,7 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 	// We try to insert a unique user
 	user, err = suite.service.CreateUser(
-		"test@user2",    // username
+		"test@newuser",  // username
 		"test_password", // password
 	)
 
@@ -67,7 +67,7 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 	// Correct user object should be returned
 	if assert.NotNil(suite.T(), user) {
-		assert.Equal(suite.T(), "test@user2", user.Username)
+		assert.Equal(suite.T(), "test@newuser", user.Username)
 	}
 }
 
@@ -85,12 +85,12 @@ func (suite *OauthTestSuite) TestSetPassword() {
 	err = suite.db.Create(user).Error
 	assert.NoError(suite.T(), err, "Inserting test data failed")
 
-	// Try to set an empty password
-	err = suite.service.SetPassword(user, "")
+	// Try to set a short password
+	err = suite.service.SetPassword(user, "short")
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), ErrCannotSetEmptyUserPassword, err)
+		assert.Equal(suite.T(), ErrPasswordTooShort, err)
 	}
 
 	// Try changing the password

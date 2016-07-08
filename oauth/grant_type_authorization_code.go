@@ -53,7 +53,7 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 		RefreshToken: refreshToken.Token,
 	}
 	if accessToken.User != nil {
-		accessTokenRespone.UserID = accessToken.User.ID
+		accessTokenRespone.UserID = accessToken.User.MetaUserID
 	}
 	response.WriteJSON(w, accessTokenRespone, 200)
 }

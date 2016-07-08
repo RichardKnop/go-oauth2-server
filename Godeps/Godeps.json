@@ -11,19 +11,27 @@
 			"Rev": "9384cea840d98fd1d079f6f3335a4e6b40251771"
 		},
 		{
+			"ImportPath": "github.com/RichardKnop/logging",
+			"Rev": "15ee95bcedec408ada7a4835eeb57a0ecea67fc6"
+		},
+		{
+			"ImportPath": "github.com/RichardKnop/uuid",
+			"Rev": "c55201b036063326c5b1b89ccfe45a184973d073"
+		},
+		{
 			"ImportPath": "github.com/coreos/etcd/client",
-			"Comment": "v3.0.0-beta.0-697-g8e9097d",
-			"Rev": "8e9097d0c09eafb3d0574b0b3dfdaa431149bf03"
+			"Comment": "v3.0.0-beta.0-758-gc7dd74d",
+			"Rev": "c7dd74d8d397faac444df23a9cafe1f0ae4be9c7"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/pathutil",
-			"Comment": "v3.0.0-beta.0-697-g8e9097d",
-			"Rev": "8e9097d0c09eafb3d0574b0b3dfdaa431149bf03"
+			"Comment": "v3.0.0-beta.0-758-gc7dd74d",
+			"Rev": "c7dd74d8d397faac444df23a9cafe1f0ae4be9c7"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/types",
-			"Comment": "v3.0.0-beta.0-697-g8e9097d",
-			"Rev": "8e9097d0c09eafb3d0574b0b3dfdaa431149bf03"
+			"Comment": "v3.0.0-beta.0-758-gc7dd74d",
+			"Rev": "c7dd74d8d397faac444df23a9cafe1f0ae4be9c7"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
@@ -50,8 +58,8 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Comment": "v1.0-41-gc1c4f9f",
-			"Rev": "c1c4f9f86e732a042aac9f37e025893d6d6cabec"
+			"Comment": "v1.0-44-g3324ab2",
+			"Rev": "3324ab20633e8c7ec6d6b1f7a714a1a6e06fec08"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
@@ -75,11 +83,6 @@
 		{
 			"ImportPath": "github.com/oxtoacart/bpool",
 			"Rev": "4e1c5567d7c2dd59fa4c7c83d34c2f3528b025d6"
-		},
-		{
-			"ImportPath": "github.com/pborman/uuid",
-			"Comment": "v1.0-11-gc55201b",
-			"Rev": "c55201b036063326c5b1b89ccfe45a184973d073"
 		},
 		{
 			"ImportPath": "github.com/phyber/negroni-gzip/gzip",
@@ -133,15 +136,15 @@
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
-			"Rev": "811831de4c4dd03a0b8737233af3b36852386373"
+			"Rev": "0c565bf13221fb55497d7ae2bb95694db1fd1bff"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/blowfish",
-			"Rev": "811831de4c4dd03a0b8737233af3b36852386373"
+			"Rev": "0c565bf13221fb55497d7ae2bb95694db1fd1bff"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "ef2e00e88c5e0a3569f0bb9df697e9cbc6215fea"
+			"Rev": "b400c2eff1badec7022a8c8f5bea058b6315eed7"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",

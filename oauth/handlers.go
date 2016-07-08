@@ -10,8 +10,8 @@ import (
 var (
 	// ErrInvalidGrantType ...
 	ErrInvalidGrantType = errors.New("Invalid grant type")
-	// ErrClientAuthenticationRequired ...
-	ErrClientAuthenticationRequired = errors.New("Client authentication required")
+	// ErrInvalidClientIDOrSecret ...
+	ErrInvalidClientIDOrSecret = errors.New("Invalid client ID or secret")
 )
 
 // Get client credentials from basic auth and try to authenticate client
@@ -19,14 +19,14 @@ func (s *Service) basicAuthClient(r *http.Request) (*Client, error) {
 	// Get client credentials from basic auth
 	clientID, secret, ok := r.BasicAuth()
 	if !ok {
-		return nil, ErrClientAuthenticationRequired
+		return nil, ErrInvalidClientIDOrSecret
 	}
 
 	// Authenticate the client
 	client, err := s.AuthClient(clientID, secret)
 	if err != nil {
 		// For security reasons, return a general error message
-		return nil, ErrClientAuthenticationRequired
+		return nil, ErrInvalidClientIDOrSecret
 	}
 
 	return client, nil

@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	pass "github.com/RichardKnop/go-oauth2-server/password"
@@ -10,12 +11,18 @@ import (
 )
 
 var (
+	// MinPasswordLength defines minimum password length
+	MinPasswordLength = 6
+
+	// ErrPasswordTooShort ...
+	ErrPasswordTooShort = fmt.Errorf(
+		"Password must be at least %d characters long",
+		MinPasswordLength,
+	)
 	// ErrUserNotFound ...
 	ErrUserNotFound = errors.New("User not found")
 	// ErrInvalidUserPassword ...
 	ErrInvalidUserPassword = errors.New("Invalid user password")
-	// ErrCannotSetEmptyUserPassword ...
-	ErrCannotSetEmptyUserPassword = errors.New("Cannot set empty user password")
 	// ErrUserPasswordNotSet ...
 	ErrUserPasswordNotSet = errors.New("User password not set")
 	// ErrUsernameTaken ...
@@ -53,28 +60,14 @@ func (s *Service) CreateUserTx(tx *gorm.DB, username, password string) (*User, e
 	return s.createUserCommon(tx, username, password)
 }
 
-// SetPassword saves a new user to database
+// SetPassword sets a user password
 func (s *Service) SetPassword(user *User, password string) error {
-	// Cannot set password to empty
-	if password == "" {
-		return ErrCannotSetEmptyUserPassword
-	}
+	return s.setPasswordCommon(s.db, user, password)
+}
 
-	// Create a bcrypt hash
-	passwordHash, err := pass.HashPassword(password)
-	if err != nil {
-		return err
-	}
-
-	// Set the password on the user object
-	if err := s.db.Model(user).UpdateColumns(User{
-		Password: util.StringOrNull(string(passwordHash)),
-		Model:    gorm.Model{UpdatedAt: time.Now()},
-	}).Error; err != nil {
-		return err
-	}
-
-	return nil
+// SetPasswordTx sets a user password in a transaction
+func (s *Service) SetPasswordTx(tx *gorm.DB, user *User, password string) error {
+	return s.setPasswordCommon(tx, user, password)
 }
 
 // AuthUser authenticates user
@@ -107,6 +100,9 @@ func (s *Service) createUserCommon(db *gorm.DB, username, password string) (*Use
 
 	// If the password is being set already, create a bcrypt hash
 	if password != "" {
+		if len(password) < MinPasswordLength {
+			return nil, ErrPasswordTooShort
+		}
 		passwordHash, err := pass.HashPassword(password)
 		if err != nil {
 			return nil, err
@@ -124,4 +120,22 @@ func (s *Service) createUserCommon(db *gorm.DB, username, password string) (*Use
 		return nil, err
 	}
 	return user, nil
+}
+
+func (s *Service) setPasswordCommon(db *gorm.DB, user *User, password string) error {
+	if len(password) < MinPasswordLength {
+		return ErrPasswordTooShort
+	}
+
+	// Create a bcrypt hash
+	passwordHash, err := pass.HashPassword(password)
+	if err != nil {
+		return err
+	}
+
+	// Set the password on the user object
+	return db.Model(user).UpdateColumns(User{
+		Password: util.StringOrNull(string(passwordHash)),
+		Model:    gorm.Model{UpdatedAt: time.Now()},
+	}).Error
 }

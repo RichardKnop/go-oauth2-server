@@ -19,6 +19,7 @@ type ServiceInterface interface {
 	CreateUser(username, password string) (*User, error)
 	CreateUserTx(tx *gorm.DB, username, password string) (*User, error)
 	SetPassword(user *User, password string) error
+	SetPasswordTx(tx *gorm.DB, user *User, password string) error
 	AuthUser(username, thePassword string) (*User, error)
 	GetScope(requestedScope string) (string, error)
 	Login(client *Client, user *User, scope string) (*AccessToken, *RefreshToken, error)

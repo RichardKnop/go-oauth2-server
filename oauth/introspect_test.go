@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,8 +17,8 @@ func (suite *OauthTestSuite) TestIntrospectResponseAccessToken() {
 	at := &AccessToken{
 		Token:     "test_token_introspect_1",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.clients[0],
-		User:      suite.users[0],
+		ClientID:  util.PositiveIntOrNull(int64(suite.clients[0].ID)),
+		UserID:    util.PositiveIntOrNull(int64(suite.users[0].ID)),
 		Scope:     "read_write",
 	}
 	ir := &IntrospectResponse{
@@ -25,16 +26,16 @@ func (suite *OauthTestSuite) TestIntrospectResponseAccessToken() {
 		Scope:     at.Scope,
 		TokenType: TokenType,
 		ExpiresAt: int(at.ExpiresAt.Unix()),
-		ClientID:  at.Client.Key,
-		Username:  at.User.Username,
+		ClientID:  suite.clients[0].Key,
+		Username:  suite.users[0].Username,
 	}
 	assert.Equal(suite.T(), ir, suite.service.IntrospectResponseAccessToken(at))
 
-	at.Client = nil
+	at.ClientID = util.PositiveIntOrNull(0)
 	ir.ClientID = ""
 	assert.Equal(suite.T(), ir, suite.service.IntrospectResponseAccessToken(at))
 
-	at.User = nil
+	at.UserID = util.PositiveIntOrNull(0)
 	ir.Username = ""
 	assert.Equal(suite.T(), ir, suite.service.IntrospectResponseAccessToken(at))
 }
@@ -43,8 +44,8 @@ func (suite *OauthTestSuite) TestIntrospectResponseRefreshToken() {
 	rt := &RefreshToken{
 		Token:     "test_token_introspect_1",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
-		Client:    suite.clients[0],
-		User:      suite.users[0],
+		ClientID:  util.PositiveIntOrNull(int64(suite.clients[0].ID)),
+		UserID:    util.PositiveIntOrNull(int64(suite.users[0].ID)),
 		Scope:     "read_write",
 	}
 	ir := &IntrospectResponse{
@@ -52,16 +53,16 @@ func (suite *OauthTestSuite) TestIntrospectResponseRefreshToken() {
 		Scope:     rt.Scope,
 		TokenType: TokenType,
 		ExpiresAt: int(rt.ExpiresAt.Unix()),
-		ClientID:  rt.Client.Key,
-		Username:  rt.User.Username,
+		ClientID:  suite.clients[0].Key,
+		Username:  suite.users[0].Username,
 	}
 	assert.Equal(suite.T(), ir, suite.service.IntrospectResponseRefreshToken(rt))
 
-	rt.Client = nil
+	rt.ClientID = util.PositiveIntOrNull(0)
 	ir.ClientID = ""
 	assert.Equal(suite.T(), ir, suite.service.IntrospectResponseRefreshToken(rt))
 
-	rt.User = nil
+	rt.UserID = util.PositiveIntOrNull(0)
 	ir.Username = ""
 	assert.Equal(suite.T(), ir, suite.service.IntrospectResponseRefreshToken(rt))
 }

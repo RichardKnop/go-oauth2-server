@@ -21,10 +21,6 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 		s.cnf.Oauth.AccessTokenLifetime, // expires in
 		scope,
 	)
-	if err != nil {
-		response.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
 
 	// Write the JSON access token to the response
 	accessTokenRespone := &AccessTokenResponse{

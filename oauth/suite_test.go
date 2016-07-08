@@ -82,7 +82,7 @@ func (suite *OauthTestSuite) TearDownTest() {
 	suite.db.Unscoped().Delete(new(RefreshToken))
 	suite.db.Unscoped().Delete(new(AccessToken))
 	suite.db.Unscoped().Not("id", []int64{1, 2}).Delete(new(User))
-	suite.db.Unscoped().Not("id", []int64{1, 2}).Delete(new(Client))
+	suite.db.Unscoped().Not("id", []int64{1, 2, 3}).Delete(new(Client))
 }
 
 // TestOauthTestSuite ...

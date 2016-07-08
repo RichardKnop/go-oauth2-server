@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	// ErrUserAuthenticationRequired ...
-	ErrUserAuthenticationRequired = errors.New("User authentication required")
+	// ErrInvalidUsernameOrPassword ...
+	ErrInvalidUsernameOrPassword = errors.New("Invalid username or password")
 )
 
 func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *Client) {
@@ -21,7 +21,7 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 	user, err := s.AuthUser(username, password)
 	if err != nil {
 		// For security reasons, return a general error message
-		response.UnauthorizedError(w, ErrUserAuthenticationRequired.Error())
+		response.UnauthorizedError(w, ErrInvalidUsernameOrPassword.Error())
 		return
 	}
 
@@ -41,7 +41,7 @@ func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *
 
 	// Write the JSON access token to the response
 	accessTokenRespone := &AccessTokenResponse{
-		UserID:       user.ID,
+		UserID:       user.MetaUserID,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    s.cnf.Oauth.AccessTokenLifetime,
 		TokenType:    TokenType,

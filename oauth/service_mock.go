@@ -215,6 +215,20 @@ func (_m *ServiceMock) SetPassword(user *User, password string) error {
 	return r0
 }
 
+// SetPasswordTx ...
+func (_m *ServiceMock) SetPasswordTx(tx *gorm.DB, user *User, password string) error {
+	ret := _m.Called(tx, user, password)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*gorm.DB, *User, string) error); ok {
+		r0 = rf(tx, user, password)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // AuthUser ...
 func (_m *ServiceMock) AuthUser(username string, thePassword string) (*User, error) {
 	ret := _m.Called(username, thePassword)

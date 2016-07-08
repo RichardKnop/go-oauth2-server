@@ -65,6 +65,7 @@ func (s *Service) introspectToken(w http.ResponseWriter, r *http.Request, client
 	response.WriteJSON(w, ir, 200)
 }
 
+// IntrospectResponseAccessToken ...
 func (s *Service) IntrospectResponseAccessToken(at *AccessToken) *IntrospectResponse {
 	ir := IntrospectResponse{
 		Active:    true,
@@ -72,11 +73,19 @@ func (s *Service) IntrospectResponseAccessToken(at *AccessToken) *IntrospectResp
 		TokenType: TokenType,
 		ExpiresAt: int(at.ExpiresAt.Unix()),
 	}
-	if at.Client != nil {
-		ir.ClientID = at.Client.Key
+	if at.ClientID.Valid {
+		c := new(Client)
+		notFound := s.db.Select("key").First(c, at.ClientID.Int64).RecordNotFound()
+		if !notFound {
+			ir.ClientID = c.Key
+		}
 	}
-	if at.User != nil {
-		ir.Username = at.User.Username
+	if at.UserID.Valid {
+		u := new(User)
+		notFound := s.db.Select("username").First(u, at.UserID.Int64).RecordNotFound()
+		if !notFound {
+			ir.Username = u.Username
+		}
 	}
 
 	return &ir
@@ -92,6 +101,7 @@ func (s *Service) introspectAccessToken(w http.ResponseWriter, token string) (*I
 	return s.IntrospectResponseAccessToken(at), true
 }
 
+// IntrospectResponseRefreshToken ...
 func (s *Service) IntrospectResponseRefreshToken(rt *RefreshToken) *IntrospectResponse {
 	ir := IntrospectResponse{
 		Active:    true,
@@ -99,11 +109,19 @@ func (s *Service) IntrospectResponseRefreshToken(rt *RefreshToken) *IntrospectRe
 		TokenType: TokenType,
 		ExpiresAt: int(rt.ExpiresAt.Unix()),
 	}
-	if rt.Client != nil {
-		ir.ClientID = rt.Client.Key
+	if rt.ClientID.Valid {
+		c := new(Client)
+		notFound := s.db.Select("key").First(c, rt.ClientID.Int64).RecordNotFound()
+		if !notFound {
+			ir.ClientID = c.Key
+		}
 	}
-	if rt.User != nil {
-		ir.Username = rt.User.Username
+	if rt.UserID.Valid {
+		u := new(User)
+		notFound := s.db.Select("username").First(u, rt.UserID.Int64).RecordNotFound()
+		if !notFound {
+			ir.Username = u.Username
+		}
 	}
 	return &ir
 }

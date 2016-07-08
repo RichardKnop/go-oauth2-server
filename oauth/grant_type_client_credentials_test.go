@@ -32,7 +32,8 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 		First(accessToken).RecordNotFound())
 
 	// Client credentials grant does not produce refresh token
-	assert.True(suite.T(), suite.db.First(new(RefreshToken)).RecordNotFound())
+	assert.True(suite.T(), suite.db.Preload("Client").Preload("User").
+		First(new(RefreshToken)).RecordNotFound())
 
 	// Check the response body
 	expected, err := json.Marshal(&AccessTokenResponse{

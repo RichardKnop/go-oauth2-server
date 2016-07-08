@@ -13,6 +13,8 @@ var (
 	ErrClientNotFound = errors.New("Client not found")
 	// ErrInvalidClientSecret ...
 	ErrInvalidClientSecret = errors.New("Invalid client secret")
+	// ErrClientIDTaken ...
+	ErrClientIDTaken = errors.New("Client ID taken")
 )
 
 // ClientExists returns true if client exists

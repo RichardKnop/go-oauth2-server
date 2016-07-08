@@ -5,8 +5,8 @@ import (
 	"time"
 
 	"github.com/RichardKnop/go-oauth2-server/util"
+	"github.com/RichardKnop/uuid"
 	"github.com/jinzhu/gorm"
-	"github.com/pborman/uuid"
 )
 
 // Client ...
@@ -38,8 +38,9 @@ func (s *Scope) TableName() string {
 // User ...
 type User struct {
 	gorm.Model
-	Username string         `sql:"type:varchar(254);unique;not null"`
-	Password sql.NullString `sql:"type:varchar(60)"`
+	Username   string         `sql:"type:varchar(254);unique;not null"`
+	Password   sql.NullString `sql:"type:varchar(60)"`
+	MetaUserID uint           `sql:"index"`
 }
 
 // TableName specifies table name

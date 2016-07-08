@@ -62,7 +62,7 @@ func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, clie
 		RefreshToken: refreshToken.Token,
 	}
 	if accessToken.User != nil {
-		accessTokenRespone.UserID = accessToken.User.ID
+		accessTokenRespone.UserID = accessToken.User.MetaUserID
 	}
 	response.WriteJSON(w, accessTokenRespone, 200)
 }
