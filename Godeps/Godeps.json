@@ -58,8 +58,8 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Comment": "v1.0-44-g3324ab2",
-			"Rev": "3324ab20633e8c7ec6d6b1f7a714a1a6e06fec08"
+			"Comment": "v1.0-47-g613c065",
+			"Rev": "613c0655691abb7691b70c5fda80a716d9e20b1b"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
