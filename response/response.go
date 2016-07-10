@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-const realm = "recall"
+const realm = "go_oauth2_server"
 
 // WriteJSON writes JSON response
 func WriteJSON(w http.ResponseWriter, v interface{}, code int) {
