@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	testDBName = "recall_database_test"
-	testDBUser = "recall"
+	testDBName = "go_oauth2_server_database_test"
+	testDBUser = "go_oauth2_server"
 )
 
 func TestCreateTestDatabaseFailsWithBadValues(t *testing.T) {
