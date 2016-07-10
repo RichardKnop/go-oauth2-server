@@ -3,7 +3,6 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -18,8 +17,9 @@ var (
 	configLoaded bool
 )
 
+// Cnf ...
 // Let's start with some sensible defaults
-var cnf = &Config{
+var Cnf = &Config{
 	Database: DatabaseConfig{
 		Type:         "postgres",
 		Host:         "localhost",
@@ -48,12 +48,12 @@ var cnf = &Config{
 // It also starts a goroutine in the background to keep config up-to-date
 func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 	if configLoaded {
-		return cnf
+		return Cnf
 	}
 
 	// Construct the ETCD endpoint
 	etcdEndpoint := getEtcdEndpoint()
-	log.Printf("ETCD Endpoint: %s", etcdEndpoint)
+	logger.Infof("ETCD Endpoint: %s", etcdEndpoint)
 
 	// ETCD config
 	etcdClientConfig := client.Config{
@@ -66,7 +66,8 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 	// ETCD client
 	etcdClient, err := client.New(etcdClientConfig)
 	if err != nil {
-		log.Fatal(err)
+		logger.Fatal(err)
+		os.Exit(1)
 	}
 
 	// ETCD keys API
@@ -75,18 +76,18 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 	// If the config must be loaded once successfully
 	if mustLoadOnce {
 		// Read from remote config the first time
-		newCnf, err := loadConfig(kapi)
+		newCnf, err := LoadConfig(kapi)
 		if err != nil {
-			log.Fatal(err)
+			logger.Fatal(err)
 			os.Exit(1)
 		}
 
 		// Refresh the config
-		refreshConfig(newCnf)
+		RefreshConfig(newCnf)
 
 		// Set configLoaded to true
 		configLoaded = true
-		log.Print("Successfully loaded config for the first time")
+		logger.Info("Successfully loaded config for the first time")
 	}
 
 	if keepReloading {
@@ -97,41 +98,27 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 				time.Sleep(time.Second * 10)
 
 				// Attempt to reload the config
-				newCnf, err := loadConfig(kapi)
+				newCnf, err := LoadConfig(kapi)
 				if err != nil {
-					log.Print(err)
+					logger.Error(err)
 					continue
 				}
 
 				// Refresh the config
-				refreshConfig(newCnf)
+				RefreshConfig(newCnf)
 
 				// Set configLoaded to true
 				configLoaded = true
-				log.Print("Successfully reloaded config")
+				logger.Info("Successfully reloaded config")
 			}
 		}()
 	}
 
-	return cnf
+	return Cnf
 }
 
-// getEtcdURL builds ETCD endpoint from environment variables
-func getEtcdEndpoint() string {
-	// Construct the ETCD URL
-	etcdHost := "localhost"
-	if os.Getenv("ETCD_HOST") != "" {
-		etcdHost = os.Getenv("ETCD_HOST")
-	}
-	etcdPort := "2379"
-	if os.Getenv("ETCD_PORT") != "" {
-		etcdPort = os.Getenv("ETCD_PORT")
-	}
-	return fmt.Sprintf("http://%s:%s", etcdHost, etcdPort)
-}
-
-// loadConfig gets the JSON from ETCD and unmarshals it to the config object
-func loadConfig(kapi client.KeysAPI) (*Config, error) {
+// LoadConfig gets the JSON from ETCD and unmarshals it to the config object
+func LoadConfig(kapi client.KeysAPI) (*Config, error) {
 	// Read from remote config the first time
 	resp, err := kapi.Get(context.Background(), configPath, nil)
 	if err != nil {
@@ -147,7 +134,21 @@ func loadConfig(kapi client.KeysAPI) (*Config, error) {
 	return newCnf, nil
 }
 
-// refreshConfig sets config through the pointer so config actually gets refreshed
-func refreshConfig(newCnf *Config) {
-	*cnf = *newCnf
+// RefreshConfig sets config through the pointer so config actually gets refreshed
+func RefreshConfig(newCnf *Config) {
+	*Cnf = *newCnf
+}
+
+// getEtcdURL builds ETCD endpoint from environment variables
+func getEtcdEndpoint() string {
+	// Construct the ETCD URL
+	etcdHost := "localhost"
+	if os.Getenv("ETCD_HOST") != "" {
+		etcdHost = os.Getenv("ETCD_HOST")
+	}
+	etcdPort := "2379"
+	if os.Getenv("ETCD_PORT") != "" {
+		etcdPort = os.Getenv("ETCD_PORT")
+	}
+	return fmt.Sprintf("http://%s:%s", etcdHost, etcdPort)
 }

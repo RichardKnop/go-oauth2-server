@@ -328,6 +328,29 @@ func (_m *ServiceMock) GrantAuthorizationCode(client *Client, user *User, expire
 	return r0, r1
 }
 
+// GetValidAuthorizationCode ...
+func (_m *ServiceMock) GetValidAuthorizationCode(code string, client *Client) (*AuthorizationCode, error) {
+	ret := _m.Called(code, client)
+
+	var r0 *AuthorizationCode
+	if rf, ok := ret.Get(0).(func(string, *Client) *AuthorizationCode); ok {
+		r0 = rf(code, client)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*AuthorizationCode)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, *Client) error); ok {
+		r1 = rf(code, client)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GrantAccessToken ...
 func (_m *ServiceMock) GrantAccessToken(client *Client, user *User, expiresIn int, scope string) (*AccessToken, error) {
 	ret := _m.Called(client, user, expiresIn, scope)
@@ -349,6 +372,11 @@ func (_m *ServiceMock) GrantAccessToken(client *Client, user *User, expiresIn in
 	}
 
 	return r0, r1
+}
+
+// DeleteExpiredAccessTokens ...
+func (_m *ServiceMock) DeleteExpiredAccessTokens(client *Client, user *User) {
+	_m.Called(client, user)
 }
 
 // GetOrCreateRefreshToken ...

@@ -27,9 +27,12 @@ type UserSession struct {
 }
 
 var (
-	storageSessionName  = "go_oauth2_server_session"
-	userSessionKey      = "go_oauth2_server_user"
-	errSessonNotStarted = errors.New("Session not started")
+	// StorageSessionName ...
+	StorageSessionName = "go_oauth2_server_session"
+	// UserSessionKey ...
+	UserSessionKey = "go_oauth2_server_user"
+	// ErrSessonNotStarted ...
+	ErrSessonNotStarted = errors.New("Session not started")
 )
 
 func init() {
@@ -56,7 +59,7 @@ func NewService(cnf *config.Config, r *http.Request, w http.ResponseWriter) *Ser
 // StartSession starts a new session. This method must be called before other
 // public methods of this struct as it sets the internal session object
 func (s *Service) StartSession() error {
-	session, err := s.sessionStore.Get(s.r, storageSessionName)
+	session, err := s.sessionStore.Get(s.r, StorageSessionName)
 	if err != nil {
 		return err
 	}
@@ -68,11 +71,11 @@ func (s *Service) StartSession() error {
 func (s *Service) GetUserSession() (*UserSession, error) {
 	// Make sure StartSession has been called
 	if s.session == nil {
-		return nil, errSessonNotStarted
+		return nil, ErrSessonNotStarted
 	}
 
 	// Retrieve our user session struct and type-assert it
-	userSession, ok := s.session.Values[userSessionKey].(*UserSession)
+	userSession, ok := s.session.Values[UserSessionKey].(*UserSession)
 	if !ok {
 		return nil, errors.New("User session type assertion error")
 	}
@@ -84,11 +87,11 @@ func (s *Service) GetUserSession() (*UserSession, error) {
 func (s *Service) SetUserSession(userSession *UserSession) error {
 	// Make sure StartSession has been called
 	if s.session == nil {
-		return errSessonNotStarted
+		return ErrSessonNotStarted
 	}
 
 	// Set a new user session
-	s.session.Values[userSessionKey] = userSession
+	s.session.Values[UserSessionKey] = userSession
 	return s.session.Save(s.r, s.w)
 }
 
@@ -96,11 +99,11 @@ func (s *Service) SetUserSession(userSession *UserSession) error {
 func (s *Service) ClearUserSession() error {
 	// Make sure StartSession has been called
 	if s.session == nil {
-		return errSessonNotStarted
+		return ErrSessonNotStarted
 	}
 
 	// Delete the user session
-	delete(s.session.Values, userSessionKey)
+	delete(s.session.Values, UserSessionKey)
 	return s.session.Save(s.r, s.w)
 }
 
@@ -109,7 +112,7 @@ func (s *Service) ClearUserSession() error {
 func (s *Service) SetFlashMessage(msg string) error {
 	// Make sure StartSession has been called
 	if s.session == nil {
-		return errSessonNotStarted
+		return ErrSessonNotStarted
 	}
 
 	// Add the flash message
@@ -121,7 +124,7 @@ func (s *Service) SetFlashMessage(msg string) error {
 func (s *Service) GetFlashMessage() (interface{}, error) {
 	// Make sure StartSession has been called
 	if s.session == nil {
-		return nil, errSessonNotStarted
+		return nil, ErrSessonNotStarted
 	}
 
 	// Get the last flash message from the stack

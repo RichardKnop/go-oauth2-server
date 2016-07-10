@@ -16,11 +16,11 @@ var (
 func (s *Service) GetScope(requestedScope string) (string, error) {
 	// Return the default scope if the requested scope is empty
 	if requestedScope == "" {
-		return s.getDefaultScope(), nil
+		return s.GetDefaultScope(), nil
 	}
 
 	// If the requested scope exists in the database, return it
-	if s.scopeExists(requestedScope) {
+	if s.ScopeExists(requestedScope) {
 		return requestedScope, nil
 	}
 
@@ -28,7 +28,8 @@ func (s *Service) GetScope(requestedScope string) (string, error) {
 	return "", ErrInvalidScope
 }
 
-func (s *Service) getDefaultScope() string {
+// GetDefaultScope returns the default scope
+func (s *Service) GetDefaultScope() string {
 	// Fetch default scopes
 	var scopes []string
 	s.db.Model(new(Scope)).Where("is_default = ?", true).Pluck("scope", &scopes)
@@ -40,7 +41,8 @@ func (s *Service) getDefaultScope() string {
 	return strings.Join(scopes, " ")
 }
 
-func (s *Service) scopeExists(requestedScope string) bool {
+// ScopeExists checks if a scope exists
+func (s *Service) ScopeExists(requestedScope string) bool {
 	// Split the requested scope string
 	scopes := strings.Split(requestedScope, " ")
 

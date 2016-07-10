@@ -1,16 +1,17 @@
-package oauth
+package oauth_test
 
 import (
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	var (
-		refreshToken *RefreshToken
+		refreshToken *oauth.RefreshToken
 		err          error
-		tokens       []*RefreshToken
+		tokens       []*oauth.RefreshToken
 	)
 
 	// Since there is no client only token,
@@ -25,7 +26,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		suite.service.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
 
 		// There should be just one right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -54,7 +55,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		suite.service.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -75,13 +76,13 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 
 func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	var (
-		refreshToken *RefreshToken
+		refreshToken *oauth.RefreshToken
 		err          error
-		tokens       []*RefreshToken
+		tokens       []*oauth.RefreshToken
 	)
 
 	// Insert an access token without a user
-	err = suite.db.Create(&RefreshToken{
+	err = suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -102,7 +103,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Correct refresh token should be returned
 	if assert.NotNil(suite.T(), refreshToken) {
 		// Fetch all refresh tokens
-		suite.service.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
 
 		// There should be just one token right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -122,7 +123,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	}
 
 	// Insert an access token with a user
-	err = suite.db.Create(&RefreshToken{
+	err = suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token2",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -145,7 +146,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Correct refresh token should be returned
 	if assert.NotNil(suite.T(), refreshToken) {
 		// Fetch all refresh tokens
-		suite.service.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -168,13 +169,13 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 
 func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	var (
-		refreshToken *RefreshToken
+		refreshToken *oauth.RefreshToken
 		err          error
-		tokens       []*RefreshToken
+		tokens       []*oauth.RefreshToken
 	)
 
 	// Insert an expired client only test refresh token
-	err = suite.db.Create(&RefreshToken{
+	err = suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.clients[0],
@@ -193,7 +194,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		suite.service.db.Unscoped().Preload("Client").Preload("User").Order("id").Find(&tokens)
+		suite.db.Unscoped().Preload("Client").Preload("User").Order("id").Find(&tokens)
 
 		// There should be just one token right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -213,7 +214,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	}
 
 	// Insert an expired user specific test refresh token
-	err = suite.db.Create(&RefreshToken{
+	err = suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().Add(-10 * time.Second),
 		Client:    suite.clients[0],
@@ -233,7 +234,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		suite.service.db.Unscoped().Preload("Client").Preload("User").Order("id").Find(&tokens)
+		suite.db.Unscoped().Preload("Client").Preload("User").Order("id").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -256,21 +257,21 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 
 func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 	var (
-		refreshToken *RefreshToken
+		refreshToken *oauth.RefreshToken
 		err          error
 	)
 
 	// Insert some test refresh tokens
-	testRefreshTokens := []*RefreshToken{
+	testRefreshTokens := []*oauth.RefreshToken{
 		// Expired test refresh token
-		&RefreshToken{
+		&oauth.RefreshToken{
 			Token:     "test_expired_token",
 			ExpiresAt: time.Now().Add(-10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
 		// Refresh token
-		&RefreshToken{
+		&oauth.RefreshToken{
 			Token:     "test_token",
 			ExpiresAt: time.Now().Add(+10 * time.Second),
 			Client:    suite.clients[0],
@@ -293,7 +294,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), ErrRefreshTokenNotFound, err)
+		assert.Equal(suite.T(), oauth.ErrRefreshTokenNotFound, err)
 	}
 
 	// Test passing a bogus token
@@ -307,7 +308,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), ErrRefreshTokenNotFound, err)
+		assert.Equal(suite.T(), oauth.ErrRefreshTokenNotFound, err)
 	}
 
 	// Test passing an expired token
@@ -321,7 +322,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), ErrRefreshTokenExpired, err)
+		assert.Equal(suite.T(), oauth.ErrRefreshTokenExpired, err)
 	}
 
 	// Test passing a valid token

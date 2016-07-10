@@ -1,4 +1,4 @@
-package oauth
+package oauth_test
 
 import (
 	"encoding/json"
@@ -9,22 +9,23 @@ import (
 	"strings"
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestIntrospectResponseAccessToken() {
-	at := &AccessToken{
+	at := &oauth.AccessToken{
 		Token:     "test_token_introspect_1",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		ClientID:  util.PositiveIntOrNull(int64(suite.clients[0].ID)),
 		UserID:    util.PositiveIntOrNull(int64(suite.users[0].ID)),
 		Scope:     "read_write",
 	}
-	ir := &IntrospectResponse{
+	ir := &oauth.IntrospectResponse{
 		Active:    true,
 		Scope:     at.Scope,
-		TokenType: TokenType,
+		TokenType: oauth.TokenType,
 		ExpiresAt: int(at.ExpiresAt.Unix()),
 		ClientID:  suite.clients[0].Key,
 		Username:  suite.users[0].Username,
@@ -41,17 +42,17 @@ func (suite *OauthTestSuite) TestIntrospectResponseAccessToken() {
 }
 
 func (suite *OauthTestSuite) TestIntrospectResponseRefreshToken() {
-	rt := &RefreshToken{
+	rt := &oauth.RefreshToken{
 		Token:     "test_token_introspect_1",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		ClientID:  util.PositiveIntOrNull(int64(suite.clients[0].ID)),
 		UserID:    util.PositiveIntOrNull(int64(suite.users[0].ID)),
 		Scope:     "read_write",
 	}
-	ir := &IntrospectResponse{
+	ir := &oauth.IntrospectResponse{
 		Active:    true,
 		Scope:     rt.Scope,
-		TokenType: TokenType,
+		TokenType: oauth.TokenType,
 		ExpiresAt: int(rt.ExpiresAt.Unix()),
 		ClientID:  suite.clients[0].Key,
 		Username:  suite.users[0].Username,
@@ -69,14 +70,14 @@ func (suite *OauthTestSuite) TestIntrospectResponseRefreshToken() {
 
 func (suite *OauthTestSuite) TestHandleIntrospectMissingToken() {
 	// Make a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/v1/oauth/introspect", nil)
 	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.SetBasicAuth("test_client_1", "test_secret")
 	r.PostForm = url.Values{}
 
-	// And run the function we want to test
+	// And serve the request
 	w := httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 400, w.Code)
@@ -84,21 +85,21 @@ func (suite *OauthTestSuite) TestHandleIntrospectMissingToken() {
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", ErrTokenMissing.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", oauth.ErrTokenMissing.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }
 
 func (suite *OauthTestSuite) TestHandleIntrospectInvailidTokenHint() {
 	// Make a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/v1/oauth/introspect", nil)
 	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.SetBasicAuth("test_client_1", "test_secret")
 	r.PostForm = url.Values{"token": {"token"}, "token_type_hint": {"wrong"}}
 
-	// And run the function we want to test
+	// And serve the request
 	w := httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 400, w.Code)
@@ -106,14 +107,14 @@ func (suite *OauthTestSuite) TestHandleIntrospectInvailidTokenHint() {
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", ErrTokenHintInvalid.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", oauth.ErrTokenHintInvalid.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }
 
 func (suite *OauthTestSuite) TestHandleIntrospectAccessToken() {
 	// Insert a test access token with a user
-	at := &AccessToken{
+	at := &oauth.AccessToken{
 		Token:     "test_token_introspect_1",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -124,16 +125,16 @@ func (suite *OauthTestSuite) TestHandleIntrospectAccessToken() {
 	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Make a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/v1/oauth/introspect", nil)
 	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.SetBasicAuth("test_client_1", "test_secret")
 
 	// With correct token hint
-	r.PostForm = url.Values{"token": {at.Token}, "token_type_hint": {accessTokenHint}}
+	r.PostForm = url.Values{"token": {at.Token}, "token_type_hint": {oauth.AccessTokenHint}}
 
-	// And run the function we want to test
+	// And serve the request
 	w := httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
@@ -144,11 +145,11 @@ func (suite *OauthTestSuite) TestHandleIntrospectAccessToken() {
 	}
 
 	// With incorrect token hint
-	r.PostForm = url.Values{"token": {at.Token}, "token_type_hint": {refreshTokenHint}}
+	r.PostForm = url.Values{"token": {at.Token}, "token_type_hint": {oauth.RefreshTokenHint}}
 
-	// And run the function we want to test
+	// Serve the request
 	w = httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
@@ -161,9 +162,9 @@ func (suite *OauthTestSuite) TestHandleIntrospectAccessToken() {
 	// Without token hint
 	r.PostForm = url.Values{"token": {at.Token}}
 
-	// And run the function we want to test
+	// Serve the request
 	w = httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
@@ -176,7 +177,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectAccessToken() {
 
 func (suite *OauthTestSuite) TestHandleIntrospectRefreshToken() {
 	// Insert a test access token with a user
-	rt := &RefreshToken{
+	rt := &oauth.RefreshToken{
 		Token:     "test_token_introspect_1",
 		ExpiresAt: time.Now().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -187,16 +188,16 @@ func (suite *OauthTestSuite) TestHandleIntrospectRefreshToken() {
 	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Make a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/v1/oauth/introspect", nil)
 	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.SetBasicAuth("test_client_1", "test_secret")
 
 	// With correct token hint
-	r.PostForm = url.Values{"token": {rt.Token}, "token_type_hint": {refreshTokenHint}}
+	r.PostForm = url.Values{"token": {rt.Token}, "token_type_hint": {oauth.RefreshTokenHint}}
 
-	// And run the function we want to test
+	// And serve the request
 	w := httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
@@ -207,11 +208,11 @@ func (suite *OauthTestSuite) TestHandleIntrospectRefreshToken() {
 	}
 
 	// With incorrect token hint
-	r.PostForm = url.Values{"token": {rt.Token}, "token_type_hint": {accessTokenHint}}
+	r.PostForm = url.Values{"token": {rt.Token}, "token_type_hint": {oauth.AccessTokenHint}}
 
-	// And run the function we want to test
+	// Serve the request
 	w = httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
@@ -224,9 +225,9 @@ func (suite *OauthTestSuite) TestHandleIntrospectRefreshToken() {
 	// Without token hint
 	r.PostForm = url.Values{"token": {rt.Token}}
 
-	// And run the function we want to test
+	// Serve the request
 	w = httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
@@ -239,36 +240,36 @@ func (suite *OauthTestSuite) TestHandleIntrospectRefreshToken() {
 
 func (suite *OauthTestSuite) TestHandleIntrospectInactiveToken() {
 	// Make a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/v1/oauth/introspect", nil)
 	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.SetBasicAuth("test_client_1", "test_secret")
 
 	// With access token hint
-	r.PostForm = url.Values{"token": {"unexisting_token"}, "token_type_hint": {accessTokenHint}}
+	r.PostForm = url.Values{"token": {"unexisting_token"}, "token_type_hint": {oauth.AccessTokenHint}}
 
-	// And run the function we want to test
+	// And serve the request
 	w := httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
 	// Check the response body
-	expected, err := json.Marshal(&IntrospectResponse{})
+	expected, err := json.Marshal(new(oauth.IntrospectResponse))
 	if assert.NoError(suite.T(), err, "JSON marshalling failed") {
 		assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 	}
 
 	// With refresh token hint
-	r.PostForm = url.Values{"token": {"unexisting_token"}, "token_type_hint": {refreshTokenHint}}
+	r.PostForm = url.Values{"token": {"unexisting_token"}, "token_type_hint": {oauth.RefreshTokenHint}}
 
-	// And run the function we want to test
+	// Serve the request
 	w = httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
 	// Check the response body
-	expected, err = json.Marshal(&IntrospectResponse{})
+	expected, err = json.Marshal(new(oauth.IntrospectResponse))
 	if assert.NoError(suite.T(), err, "JSON marshalling failed") {
 		assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 	}
@@ -276,14 +277,14 @@ func (suite *OauthTestSuite) TestHandleIntrospectInactiveToken() {
 	// Without token hint
 	r.PostForm = url.Values{"token": {"unexisting_token"}}
 
-	// And run the function we want to test
+	// Serve the request
 	w = httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
 	// Check the response body
-	expected, err = json.Marshal(&IntrospectResponse{})
+	expected, err = json.Marshal(new(oauth.IntrospectResponse))
 	if assert.NoError(suite.T(), err, "JSON marshalling failed") {
 		assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 	}

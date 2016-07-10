@@ -1,6 +1,7 @@
-package oauth
+package oauth_test
 
 import (
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,16 +25,16 @@ func (suite *OauthTestSuite) TestGetScope() {
 	// When the requested scope is invalid, an error should be returned
 	scope, err = suite.service.GetScope("read_write bogus")
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), ErrInvalidScope, err)
+		assert.Equal(suite.T(), oauth.ErrInvalidScope, err)
 	}
 }
 
 func (suite *OauthTestSuite) TestGetDefaultScope() {
-	assert.Equal(suite.T(), "read", suite.service.getDefaultScope())
+	assert.Equal(suite.T(), "read", suite.service.GetDefaultScope())
 }
 
 func (suite *OauthTestSuite) TestScopeExists() {
-	assert.True(suite.T(), suite.service.scopeExists("read read_write"))
+	assert.True(suite.T(), suite.service.ScopeExists("read read_write"))
 
-	assert.False(suite.T(), suite.service.scopeExists("read_write bogus"))
+	assert.False(suite.T(), suite.service.ScopeExists("read_write bogus"))
 }

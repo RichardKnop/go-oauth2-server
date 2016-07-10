@@ -1,4 +1,4 @@
-package oauth
+package oauth_test
 
 import (
 	"fmt"
@@ -7,18 +7,19 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/stretchr/testify/assert"
 )
 
-func (suite *OauthTestSuite) TestHandleTokensClientAuthenticationRequired() {
+func (suite *OauthTestSuite) TestTokensHandlerClientAuthenticationRequired() {
 	// Prepare a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/v1/oauth/tokens", nil)
 	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.PostForm = url.Values{"grant_type": {"client_credentials"}}
 
-	// And run the function we want to test
+	// And serve the request
 	w := httptest.NewRecorder()
-	suite.service.tokensHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 401, w.Code)
@@ -26,21 +27,21 @@ func (suite *OauthTestSuite) TestHandleTokensClientAuthenticationRequired() {
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", ErrInvalidClientIDOrSecret.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", oauth.ErrInvalidClientIDOrSecret.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }
 
-func (suite *OauthTestSuite) TestHandleTokensInvalidGrantType() {
+func (suite *OauthTestSuite) TestTokensHandlerInvalidGrantType() {
 	// Make a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/v1/oauth/tokens", nil)
 	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.SetBasicAuth("test_client", "test_secret")
 	r.PostForm = url.Values{"grant_type": {"bogus"}}
 
-	// And run the function we want to test
+	// And serve the request
 	w := httptest.NewRecorder()
-	suite.service.tokensHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 400, w.Code)
@@ -48,20 +49,20 @@ func (suite *OauthTestSuite) TestHandleTokensInvalidGrantType() {
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", ErrInvalidGrantType.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", oauth.ErrInvalidGrantType.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }
 
-func (suite *OauthTestSuite) TestHandleIntrospectClientAuthenticationRequired() {
+func (suite *OauthTestSuite) TestIntrospectHandlerClientAuthenticationRequired() {
 	// Prepare a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/v1/oauth/introspect", nil)
 	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	r.PostForm = url.Values{"token": {"token"}}
 
-	// And run the function we want to test
+	// And serve the request
 	w := httptest.NewRecorder()
-	suite.service.introspectHandler(w, r)
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 401, w.Code)
@@ -69,7 +70,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectClientAuthenticationRequired() 
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", ErrInvalidClientIDOrSecret.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", oauth.ErrInvalidClientIDOrSecret.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 }

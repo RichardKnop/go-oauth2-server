@@ -1,12 +1,13 @@
-package oauth
+package oauth_test
 
 import (
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestFindClientByClientID() {
 	var (
-		client *Client
+		client *oauth.Client
 		err    error
 	)
 
@@ -18,7 +19,7 @@ func (suite *OauthTestSuite) TestFindClientByClientID() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), ErrClientNotFound, err)
+		assert.Equal(suite.T(), oauth.ErrClientNotFound, err)
 	}
 
 	// When we try to find a client with a valid cliend ID
@@ -35,7 +36,7 @@ func (suite *OauthTestSuite) TestFindClientByClientID() {
 
 func (suite *OauthTestSuite) TestCreateClient() {
 	var (
-		client *Client
+		client *oauth.Client
 		err    error
 	)
 
@@ -72,7 +73,7 @@ func (suite *OauthTestSuite) TestCreateClient() {
 
 func (suite *OauthTestSuite) TestAuthClient() {
 	var (
-		client *Client
+		client *oauth.Client
 		err    error
 	)
 
@@ -84,7 +85,7 @@ func (suite *OauthTestSuite) TestAuthClient() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), ErrClientNotFound, err)
+		assert.Equal(suite.T(), oauth.ErrClientNotFound, err)
 	}
 
 	// When we try to authenticate with an invalid secret
@@ -95,7 +96,7 @@ func (suite *OauthTestSuite) TestAuthClient() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), ErrInvalidClientSecret, err)
+		assert.Equal(suite.T(), oauth.ErrInvalidClientSecret, err)
 	}
 
 	// When we try to authenticate with valid client ID and secret

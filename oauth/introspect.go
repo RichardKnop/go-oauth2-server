@@ -8,8 +8,10 @@ import (
 )
 
 const (
-	accessTokenHint  = "access_token"
-	refreshTokenHint = "refresh_token"
+	// AccessTokenHint ...
+	AccessTokenHint = "access_token"
+	// RefreshTokenHint ...
+	RefreshTokenHint = "refresh_token"
 )
 
 var (
@@ -35,19 +37,19 @@ func (s *Service) introspectToken(w http.ResponseWriter, r *http.Request, client
 	tokenTypeHint := r.Form.Get("token_type_hint")
 
 	if tokenTypeHint == "" {
-		tokenTypeHint = accessTokenHint
+		tokenTypeHint = AccessTokenHint
 	}
 
 	var ir *IntrospectResponse
 
 	switch tokenTypeHint {
-	case accessTokenHint:
+	case AccessTokenHint:
 		var ok bool
 		ir, ok = s.introspectAccessToken(w, token)
 		if !ok {
 			ir, _ = s.introspectRefreshToken(w, token, client)
 		}
-	case refreshTokenHint:
+	case RefreshTokenHint:
 		var ok bool
 		ir, ok = s.introspectRefreshToken(w, token, client)
 		if !ok {

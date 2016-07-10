@@ -25,8 +25,8 @@ func (s *Service) GrantAuthorizationCode(client *Client, user *User, expiresIn i
 	return authorizationCode, nil
 }
 
-// getValidAuthorizationCode returns a valid non expired authorization code
-func (s *Service) getValidAuthorizationCode(code string, client *Client) (*AuthorizationCode, error) {
+// GetValidAuthorizationCode returns a valid non expired authorization code
+func (s *Service) GetValidAuthorizationCode(code string, client *Client) (*AuthorizationCode, error) {
 	// Fetch the auth code from the database
 	authorizationCode := new(AuthorizationCode)
 	clientID := util.PositiveIntOrNull(int64(client.ID))

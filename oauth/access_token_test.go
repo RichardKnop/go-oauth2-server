@@ -1,16 +1,17 @@
-package oauth
+package oauth_test
 
 import (
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestGrantAccessToken() {
 	var (
-		accessToken *AccessToken
+		accessToken *oauth.AccessToken
 		err         error
-		tokens      []*AccessToken
+		tokens      []*oauth.AccessToken
 	)
 
 	// Grant a client only access token
@@ -27,7 +28,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		suite.service.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
 
 		// There should be just one right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -57,7 +58,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		suite.service.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -82,29 +83,29 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	)
 
 	// Insert some test access tokens
-	testAccessTokens := []*AccessToken{
+	testAccessTokens := []*oauth.AccessToken{
 		// Expired access token with a user
-		&AccessToken{
+		&oauth.AccessToken{
 			Token:     "test_token_1",
 			ExpiresAt: time.Now().Add(-10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
 		// Expired access token without a user
-		&AccessToken{
+		&oauth.AccessToken{
 			Token:     "test_token_2",
 			ExpiresAt: time.Now().Add(-10 * time.Second),
 			Client:    suite.clients[0],
 		},
 		// Access token with a user
-		&AccessToken{
+		&oauth.AccessToken{
 			Token:     "test_token_3",
 			ExpiresAt: time.Now().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
 		// Access token without a user
-		&AccessToken{
+		&oauth.AccessToken{
 			Token:     "test_token_4",
 			ExpiresAt: time.Now().Add(+10 * time.Second),
 			Client:    suite.clients[0],
@@ -116,14 +117,14 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	}
 
 	// This should only delete test_token_1
-	suite.service.deleteExpiredAccessTokens(
+	suite.service.DeleteExpiredAccessTokens(
 		suite.clients[0], // client
 		suite.users[0],   // user
 	)
 
 	// Check the test_token_1 was deleted
 	notFound = suite.db.Unscoped().Where("token = ?", "test_token_1").
-		First(new(AccessToken)).RecordNotFound()
+		First(new(oauth.AccessToken)).RecordNotFound()
 	assert.True(suite.T(), notFound)
 
 	// Check the other three tokens are still around
@@ -134,19 +135,19 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	}
 	for _, token := range existingTokens {
 		notFound = suite.db.Unscoped().Where("token = ?", token).
-			First(new(AccessToken)).RecordNotFound()
+			First(new(oauth.AccessToken)).RecordNotFound()
 		assert.False(suite.T(), notFound)
 	}
 
 	// This should only delete test_token_2
-	suite.service.deleteExpiredAccessTokens(
+	suite.service.DeleteExpiredAccessTokens(
 		suite.clients[0], // client
-		new(User),        // empty user
+		new(oauth.User),  // empty user
 	)
 
 	// Check the test_token_2 was deleted
 	notFound = suite.db.Unscoped().Where("token = ?", "test_token_2").
-		First(new(AccessToken)).RecordNotFound()
+		First(new(oauth.AccessToken)).RecordNotFound()
 	assert.True(suite.T(), notFound)
 
 	// Check that last two tokens are still around
@@ -156,7 +157,7 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	}
 	for _, token := range existingTokens {
 		notFound := suite.db.Unscoped().Where("token = ?", token).
-			First(new(AccessToken)).RecordNotFound()
+			First(new(oauth.AccessToken)).RecordNotFound()
 		assert.False(suite.T(), notFound)
 	}
 }

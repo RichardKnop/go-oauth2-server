@@ -12,7 +12,7 @@ const TokenType = "Bearer"
 // GrantAccessToken deletes old tokens and grants a new access token
 func (s *Service) GrantAccessToken(client *Client, user *User, expiresIn int, scope string) (*AccessToken, error) {
 	// Delete expired access tokens
-	s.deleteExpiredAccessTokens(client, user)
+	s.DeleteExpiredAccessTokens(client, user)
 
 	// Create a new access token
 	accessToken := NewAccessToken(client, user, expiresIn, scope)
@@ -23,8 +23,8 @@ func (s *Service) GrantAccessToken(client *Client, user *User, expiresIn int, sc
 	return accessToken, nil
 }
 
-// deleteExpiredAccessTokens deletes expired access tokens
-func (s *Service) deleteExpiredAccessTokens(client *Client, user *User) {
+// DeleteExpiredAccessTokens deletes expired access tokens
+func (s *Service) DeleteExpiredAccessTokens(client *Client, user *User) {
 	clientID := util.PositiveIntOrNull(int64(client.ID))
 	userID := util.PositiveIntOrNull(0) // user ID can be NULL
 	if user != nil {

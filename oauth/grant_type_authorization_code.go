@@ -15,7 +15,7 @@ var (
 
 func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	// Fetch the authorization code
-	authorizationCode, err := s.getValidAuthorizationCode(
+	authorizationCode, err := s.GetValidAuthorizationCode(
 		r.Form.Get("code"), // authorization code
 		client,             // client
 	)

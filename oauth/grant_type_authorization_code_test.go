@@ -1,4 +1,4 @@
-package oauth
+package oauth_test
 
 import (
 	"encoding/json"
@@ -9,13 +9,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	// Insert a test authorization code
-	err := suite.db.Create(&AuthorizationCode{
+	err := suite.db.Create(&oauth.AuthorizationCode{
 		Code:        "test_code",
 		ExpiresAt:   time.Now().Add(+10 * time.Second),
 		Client:      suite.clients[0],
@@ -26,18 +27,17 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	assert.NoError(suite.T(), err, "Inserting test data failed")
 
 	// Prepare a request
-	r, err := http.NewRequest("POST", "http://1.2.3.4/something", nil)
+	r, err := http.NewRequest("POST", "http://1.2.3.4/v1/oauth/tokens", nil)
 	assert.NoError(suite.T(), err, "Request setup should not get an error")
-	r.Form = url.Values{
+	r.SetBasicAuth("test_client_1", "test_secret")
+	r.PostForm = url.Values{
 		"grant_type": {"authorization_code"},
 		"code":       {"test_code"},
 	}
 
-	var w *httptest.ResponseRecorder
-
 	// First we will test an invalid redirect URI error
-	w = httptest.NewRecorder()
-	suite.service.authorizationCodeGrant(w, r, suite.clients[0])
+	w := httptest.NewRecorder()
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 400, w.Code)
@@ -45,7 +45,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	// Check the response body
 	assert.Equal(
 		suite.T(),
-		fmt.Sprintf("{\"error\":\"%s\"}", ErrInvalidRedirectURI.Error()),
+		fmt.Sprintf("{\"error\":\"%s\"}", oauth.ErrInvalidRedirectURI.Error()),
 		strings.TrimSpace(w.Body.String()),
 	)
 
@@ -54,25 +54,25 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 
 	// And test a successful case
 	w = httptest.NewRecorder()
-	suite.service.authorizationCodeGrant(w, r, suite.clients[0])
+	suite.router.ServeHTTP(w, r)
 
 	// Check the status code
 	assert.Equal(suite.T(), 200, w.Code)
 
 	// Check the correct data was inserted
-	accessToken := new(AccessToken)
+	accessToken := new(oauth.AccessToken)
 	assert.False(suite.T(), suite.db.Preload("Client").Preload("User").
 		First(accessToken).RecordNotFound())
-	refreshToken := new(RefreshToken)
+	refreshToken := new(oauth.RefreshToken)
 	assert.False(suite.T(), suite.db.Preload("Client").Preload("User").
 		First(refreshToken).RecordNotFound())
 
 	// Check the response body
-	expected, err := json.Marshal(&AccessTokenResponse{
+	expected, err := json.Marshal(&oauth.AccessTokenResponse{
 		UserID:       accessToken.User.MetaUserID,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
-		TokenType:    TokenType,
+		TokenType:    oauth.TokenType,
 		Scope:        "read_write",
 		RefreshToken: refreshToken.Token,
 	})
@@ -81,6 +81,6 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	}
 
 	// Check the authorization code was deleted
-	notFound := suite.db.Unscoped().First(new(AuthorizationCode)).RecordNotFound()
+	notFound := suite.db.Unscoped().First(new(oauth.AuthorizationCode)).RecordNotFound()
 	assert.True(suite.T(), notFound)
 }

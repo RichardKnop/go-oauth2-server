@@ -1,20 +1,13 @@
-package database
+package database_test
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
+	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/stretchr/testify/assert"
 )
-
-// TODO - this test relies on a database
-// func TestNewDatabasePostgres(t *testing.T) {
-// 	cnf := config.NewConfig()
-// 	_, err := NewDatabase(cnf)
-//
-// 	assert.Nil(t, err)
-// }
 
 func TestNewDatabaseTypeNotSupported(t *testing.T) {
 	cnf := &config.Config{
@@ -22,7 +15,7 @@ func TestNewDatabaseTypeNotSupported(t *testing.T) {
 			Type: "bogus",
 		},
 	}
-	_, err := NewDatabase(cnf)
+	_, err := database.NewDatabase(cnf)
 
 	if assert.NotNil(t, err) {
 		assert.Equal(t, errors.New("Database type bogus not suppported"), err)
