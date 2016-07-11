@@ -2,6 +2,7 @@ package oauth_test
 
 import (
 	"log"
+	"os"
 	"testing"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
@@ -15,14 +16,20 @@ import (
 var testDbPath = "/tmp/oauth_testdb.sqlite"
 
 var testFixtures = []string{
-	"fixtures/scopes.yml",
-	"fixtures/test_clients.yml",
-	"fixtures/test_users.yml",
+	"./oauth/fixtures/scopes.yml",
+	"./oauth/fixtures/test_clients.yml",
+	"./oauth/fixtures/test_users.yml",
 }
 
 // db migrations needed for tests
 var testMigrations = []func(*gorm.DB) error{
 	oauth.MigrateAll,
+}
+
+func init() {
+	if err := os.Chdir("../"); err != nil {
+		log.Fatal(err)
+	}
 }
 
 // OauthTestSuite needs to be exported so the tests run
