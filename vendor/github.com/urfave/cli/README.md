@@ -60,18 +60,16 @@ organized, and expressive!
 
 ## Installation
 
-Make sure you have a working Go environment.  Go version 1.1+ is required for
-core cli, whereas use of the [`./altsrc`](./altsrc) input extensions requires Go
-version 1.2+. [See the install
-instructions](http://golang.org/doc/install.html).
+Make sure you have a working Go environment.  Go version 1.2+ is supported.  [See
+the install instructions for Go](http://golang.org/doc/install.html).
 
 To install cli, simply run:
 ```
 $ go get github.com/urfave/cli
 ```
 
-Make sure your `PATH` includes to the `$GOPATH/bin` directory so your commands
-can be easily used:
+Make sure your `PATH` includes the `$GOPATH/bin` directory so your commands can
+be easily used:
 ```
 export PATH=$PATH:$GOPATH/bin
 ```
@@ -955,7 +953,7 @@ setting `cli.VersionFlag`, e.g.:
 
 <!-- {
   "args": ["&#45;&#45print-version"],
-  "output": "partay version v19\\.99\\.0"
+  "output": "partay version 19\\.99\\.0"
 } -->
 ``` go
 package main
@@ -974,7 +972,7 @@ func main() {
 
   app := cli.NewApp()
   app.Name = "partay"
-  app.Version = "v19.99.0"
+  app.Version = "19.99.0"
   app.Run(os.Args)
 }
 ```
@@ -983,7 +981,7 @@ Alternatively, the version printer at `cli.VersionPrinter` may be overridden, e.
 
 <!-- {
   "args": ["&#45;&#45version"],
-  "output": "version=v19\\.99\\.0 revision=fafafaf"
+  "output": "version=19\\.99\\.0 revision=fafafaf"
 } -->
 ``` go
 package main
@@ -1006,7 +1004,7 @@ func main() {
 
   app := cli.NewApp()
   app.Name = "partay"
-  app.Version = "v19.99.0"
+  app.Version = "19.99.0"
   app.Run(os.Args)
 }
 ```
@@ -1085,7 +1083,7 @@ func (g *genericType) String() string {
 func main() {
   app := cli.NewApp()
   app.Name = "kənˈtrīv"
-  app.Version = "v19.99.0"
+  app.Version = "19.99.0"
   app.Compiled = time.Now()
   app.Authors = []cli.Author{
     cli.Author{
