@@ -1,4 +1,4 @@
-[![Codeship Status for AreaHQ/go-fixtures](https://codeship.com/projects/f196fa10-84fb-0133-c7be-429ee0939cc9/status?branch=master)](https://codeship.com/projects/122147)
+[![Codeship Status for RichardKnop/go-fixtures](https://codeship.com/projects/2972d6c0-37b3-0134-ffd1-02b643534a44/status?branch=master)](https://codeship.com/projects/165845)
 
 # go-fixtures
 
@@ -48,8 +48,8 @@ import (
 	"io/ioutil"
 	"log"
 
-	fixtures "github.com/AreaHQ/go-fixtures"
-	"github.com/codegangsta/cli"
+	fixtures "github.com/RichardKnop/go-fixtures"
+	"github.com/urfave/cli"
 	// Drivers
 	_ "github.com/lib/pq"
 )
@@ -78,22 +78,23 @@ func main() {
 		{
 			Name:  "loaddata",
 			Usage: "load data from fixture",
-			Action: func(c *cli.Context) {
+			Action: func(c *cli.Context) error {
 				data, err := ioutil.ReadFile(c.Args().First())
 				if err != nil {
-					log.Fatal(err)
+					return err
 				}
 
 				if err := fixtures.Load(data, db, "postgres"); err != nil {
-					log.Fatal(err)
+					return err
 				}
 			},
 		},
 		{
 			Name:  "runserver",
 			Usage: "run web server",
-			Action: func(c *cli.Context) {
+			Action: func(c *cli.Context) error {
 				// Run your web server here
+        return nil
 			},
 		},
 	}

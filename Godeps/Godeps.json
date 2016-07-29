@@ -8,7 +8,7 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/RichardKnop/go-fixtures",
-			"Rev": "9384cea840d98fd1d079f6f3335a4e6b40251771"
+			"Rev": "b6b78fb074dfb4ea130352608c0a59fdec946fe2"
 		},
 		{
 			"ImportPath": "github.com/RichardKnop/logging",
