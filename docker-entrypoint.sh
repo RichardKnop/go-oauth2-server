@@ -1,11 +1,9 @@
 #!/bin/bash
+set -e
 
-# 1. Run database migrations
-/go/bin/go-oauth2-server migrate
+if [ "$1" = 'go-oauth2-server' ] && [ "$2" = 'runserver' ]; then
+  $1 migrate
+  $1 loaddata oauth/fixtures/scopes.yml
+fi
 
-# 2. Load fixtures
-/go/bin/go-oauth2-server loaddata \
-  oauth/fixtures/scopes.yml
-
-# Finally, run the server
-/go/bin/go-oauth2-server runserver
+exec "$@"
