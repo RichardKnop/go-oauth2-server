@@ -130,7 +130,7 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 // LoadConfig gets the JSON from ETCD and unmarshals it to the config object
 func LoadConfig(kapi client.KeysAPI) (*Config, error) {
 	// Read from remote config the first time
-	resp, err := kapi.Get(context.Background(), configPath, nil)
+	resp, err := kapi.Get(context.Background(), etcdConfigPath, nil)
 	if err != nil {
 		return nil, err
 	}
