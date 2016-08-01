@@ -2,13 +2,15 @@ package commands
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/RichardKnop/go-oauth2-server/health"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/web"
-	"github.com/urfave/negroni"
 	"github.com/gorilla/mux"
 	"github.com/phyber/negroni-gzip/gzip"
+	"github.com/urfave/negroni"
+	"gopkg.in/tylerb/graceful.v1"
 )
 
 // RunServer runs the app
@@ -50,8 +52,8 @@ func RunServer() error {
 	// Set the router
 	app.UseHandler(router)
 
-	// Run the server on port 8080
-	app.Run(":8080")
+	// Run the server on port 8080, gracefully stop on SIGTERM signal
+	graceful.Run(":8080", 5*time.Second, app)
 
 	return nil
 }

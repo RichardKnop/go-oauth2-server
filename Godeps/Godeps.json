@@ -147,6 +147,15 @@
 			"Rev": "9f2c271364b418388d150f9c12ecbf12794095c1"
 		},
 		{
+			"ImportPath": "golang.org/x/net/netutil",
+			"Rev": "9f2c271364b418388d150f9c12ecbf12794095c1"
+		},
+		{
+			"ImportPath": "gopkg.in/tylerb/graceful.v1",
+			"Comment": "v1.2.3",
+			"Rev": "48afeb21e2fcbcff0f30bd5ad6b97747b0fae38e"
+		},
+		{
 			"ImportPath": "gopkg.in/yaml.v2",
 			"Rev": "a83829b6f1293c91addabc89d0571c246397bbf4"
 		}
