@@ -1,8 +1,11 @@
 package config
 
 import (
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
-	"fmt"
+	"io/ioutil"
+	"net/http"
 	"os"
 	"time"
 
@@ -11,10 +14,10 @@ import (
 )
 
 var (
-	etcdHost     = "localhost"
-	etcdPort     = "2379"
-	configPath   = "/config/go_oauth2_server.json"
-	configLoaded bool
+	etcdEndpoint                          = "http://localhost:2379"
+	etcdCertFile, etcdKeyFile, etcdCaFile string
+	etcdConfigPath                        = "/config/go_oauth2_server.json"
+	configLoaded                          bool
 )
 
 // Cnf ...
@@ -44,6 +47,25 @@ var Cnf = &Config{
 	IsDevelopment: true,
 }
 
+func init() {
+	// Overwrite default values with environment variables if they are set
+	if os.Getenv("ETCD_ENDPOINT") != "" {
+		etcdEndpoint = os.Getenv("ETCD_ENDPOINT")
+	}
+	if os.Getenv("ETCD_CERT_FILE") != "" {
+		etcdCertFile = os.Getenv("ETCD_CERT_FILE")
+	}
+	if os.Getenv("ETCD_KEY_FILE") != "" {
+		etcdKeyFile = os.Getenv("ETCD_KEY_FILE")
+	}
+	if os.Getenv("ETCD_CA_FILE") != "" {
+		etcdCaFile = os.Getenv("ETCD_CA_FILE")
+	}
+	if os.Getenv("ETCD_CONFIG_PATH") != "" {
+		etcdConfigPath = os.Getenv("ETCD_CONFIG_PATH")
+	}
+}
+
 // NewConfig loads configuration from etcd and returns *Config struct
 // It also starts a goroutine in the background to keep config up-to-date
 func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
@@ -51,27 +73,15 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 		return Cnf
 	}
 
-	// Construct the ETCD endpoint
-	etcdEndpoint := getEtcdEndpoint()
-	logger.Infof("ETCD Endpoint: %s", etcdEndpoint)
-
-	// ETCD config
-	etcdClientConfig := client.Config{
-		Endpoints: []string{etcdEndpoint},
-		Transport: client.DefaultTransport,
-		// set timeout per request to fail fast when the target endpoint is unavailable
-		HeaderTimeoutPerRequest: time.Second,
-	}
-
-	// ETCD client
-	etcdClient, err := client.New(etcdClientConfig)
+	// Init ETCD client
+	etcdClient, err := newEtcdClient(etcdEndpoint, etcdCertFile, etcdKeyFile, etcdCaFile)
 	if err != nil {
 		logger.Fatal(err)
 		os.Exit(1)
 	}
 
 	// ETCD keys API
-	kapi := client.NewKeysAPI(etcdClient)
+	kapi := client.NewKeysAPI(*etcdClient)
 
 	// If the config must be loaded once successfully
 	if mustLoadOnce {
@@ -139,16 +149,51 @@ func RefreshConfig(newCnf *Config) {
 	*Cnf = *newCnf
 }
 
-// getEtcdURL builds ETCD endpoint from environment variables
-func getEtcdEndpoint() string {
-	// Construct the ETCD URL
-	etcdHost := "localhost"
-	if os.Getenv("ETCD_HOST") != "" {
-		etcdHost = os.Getenv("ETCD_HOST")
+func newEtcdClient(theEndpoint, certFile, keyFile, caFile string) (*client.Client, error) {
+	// Log the etcd endpoint for debugging purposes
+	logger.Infof("ETCD Endpoint: %s", etcdEndpoint)
+
+	// Start with the default HTTP transport
+	var transport = client.DefaultTransport
+
+	// Optionally, configure TLS transport
+	if certFile != "" && keyFile != "" && caFile != "" {
+		// Load client cert
+		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+		if err != nil {
+			return nil, err
+		}
+
+		// Load CA cert
+		caCert, err := ioutil.ReadFile(caFile)
+		if err != nil {
+			return nil, err
+		}
+		caCertPool := x509.NewCertPool()
+		caCertPool.AppendCertsFromPEM(caCert)
+
+		// Setup HTTPS client
+		tlsConfig := &tls.Config{
+			Certificates: []tls.Certificate{cert},
+			RootCAs:      caCertPool,
+		}
+		tlsConfig.BuildNameToCertificate()
+		transport = &http.Transport{TLSClientConfig: tlsConfig}
 	}
-	etcdPort := "2379"
-	if os.Getenv("ETCD_PORT") != "" {
-		etcdPort = os.Getenv("ETCD_PORT")
+
+	// ETCD config
+	etcdClientConfig := client.Config{
+		Endpoints: []string{theEndpoint},
+		Transport: transport,
+		// set timeout per request to fail fast when the target endpoint is unavailable
+		HeaderTimeoutPerRequest: time.Second,
 	}
-	return fmt.Sprintf("http://%s:%s", etcdHost, etcdPort)
+
+	// ETCD client
+	etcdClient, err := client.New(etcdClientConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &etcdClient, nil
 }

@@ -474,7 +474,7 @@ Build a Docker image and run the app in a container:
 
 ```
 docker build -t go-oauth2-server .
-docker run -e ETCD_HOST=localhost -e ETCD_PORT=2379 -p 6060:8080 go-oauth2-server
+docker run -e ETCD_ENDPOINT=localhost:2379 -p 6060:8080 go-oauth2-server
 ```
 
 You can load fixtures with `docker exec` command:
