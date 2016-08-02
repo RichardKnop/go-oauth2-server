@@ -16,6 +16,9 @@ WORKDIR /go/src/github.com/RichardKnop/go-oauth2-server
 # either manually or with a tool like "godep".)
 RUN go install github.com/RichardKnop/go-oauth2-server
 
+# Set environment variables
+ENV PATH /go/bin:$PATH
+
 # Copy the docker-entrypoint.sh script and use it as entrypoint
 COPY ./docker-compose/docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]

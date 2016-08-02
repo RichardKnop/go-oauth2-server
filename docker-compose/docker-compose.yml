@@ -12,6 +12,7 @@ services:
       - etcd
     ports:
       - "8080:8080"
+    command: [go-oauth2-server, runserver]
   pg:
     image: "postgres"
   etcd:
