@@ -12,7 +12,7 @@
 		},
 		{
 			"ImportPath": "github.com/RichardKnop/logging",
-			"Rev": "63885f85a8b1d13b15b42b67f2c4a29c8287c583"
+			"Rev": "fd79542dd0a63073339c8150b5da484c8d6d1e25"
 		},
 		{
 			"ImportPath": "github.com/RichardKnop/uuid",
