@@ -19,6 +19,8 @@ func (s *Service) GrantAccessToken(client *Client, user *User, expiresIn int, sc
 	if err := s.db.Create(accessToken).Error; err != nil {
 		return nil, err
 	}
+	accessToken.Client = client
+	accessToken.User = user
 
 	return accessToken, nil
 }

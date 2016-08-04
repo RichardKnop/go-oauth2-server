@@ -21,6 +21,8 @@ func (s *Service) GrantAuthorizationCode(client *Client, user *User, expiresIn i
 	if err := s.db.Create(authorizationCode).Error; err != nil {
 		return nil, err
 	}
+	authorizationCode.Client = client
+	authorizationCode.User = user
 
 	return authorizationCode, nil
 }

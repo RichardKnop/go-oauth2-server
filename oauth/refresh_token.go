@@ -46,6 +46,8 @@ func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, expiresIn 
 		if err := s.db.Create(refreshToken).Error; err != nil {
 			return nil, err
 		}
+		refreshToken.Client = client
+		refreshToken.User = user
 	}
 
 	return refreshToken, nil

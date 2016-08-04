@@ -102,67 +102,40 @@ func (ac *AuthorizationCode) TableName() string {
 
 // NewRefreshToken creates new RefreshToken instance
 func NewRefreshToken(client *Client, user *User, expiresIn int, scope string) *RefreshToken {
-	clientID := util.PositiveIntOrNull(int64(client.ID))
-	userID := util.PositiveIntOrNull(0) // user ID can be NULL
-	if user != nil {
-		userID = util.PositiveIntOrNull(int64(user.ID))
-	}
 	refreshToken := &RefreshToken{
-		ClientID:  clientID,
-		UserID:    userID,
+		ClientID:  util.PositiveIntOrNull(int64(client.ID)),
 		Token:     uuid.New(),
 		ExpiresAt: time.Now().Add(time.Duration(expiresIn) * time.Second),
 		Scope:     scope,
 	}
-	if clientID.Valid {
-		refreshToken.Client = client
-	}
-	if userID.Valid {
-		refreshToken.User = user
+	if user != nil {
+		refreshToken.UserID = util.PositiveIntOrNull(int64(user.ID))
 	}
 	return refreshToken
 }
 
 // NewAccessToken creates new AccessToken instance
 func NewAccessToken(client *Client, user *User, expiresIn int, scope string) *AccessToken {
-	clientID := util.PositiveIntOrNull(int64(client.ID))
-	userID := util.PositiveIntOrNull(0) // user ID can be NULL
-	if user != nil {
-		userID = util.PositiveIntOrNull(int64(user.ID))
-	}
 	accessToken := &AccessToken{
-		ClientID:  clientID,
-		UserID:    userID,
+		ClientID:  util.PositiveIntOrNull(int64(client.ID)),
 		Token:     uuid.New(),
 		ExpiresAt: time.Now().Add(time.Duration(expiresIn) * time.Second),
 		Scope:     scope,
 	}
-	if clientID.Valid {
-		accessToken.Client = client
-	}
-	if userID.Valid {
-		accessToken.User = user
+	if user != nil {
+		accessToken.UserID = util.PositiveIntOrNull(int64(user.ID))
 	}
 	return accessToken
 }
 
 // NewAuthorizationCode creates new AuthorizationCode instance
 func NewAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI, scope string) *AuthorizationCode {
-	clientID := util.PositiveIntOrNull(int64(client.ID))
-	userID := util.PositiveIntOrNull(int64(user.ID))
-	authorizationCode := &AuthorizationCode{
-		ClientID:    clientID,
-		UserID:      userID,
+	return &AuthorizationCode{
+		ClientID:    util.PositiveIntOrNull(int64(client.ID)),
+		UserID:      util.PositiveIntOrNull(int64(user.ID)),
 		Code:        uuid.New(),
 		ExpiresAt:   time.Now().Add(time.Duration(expiresIn) * time.Second),
 		RedirectURI: util.StringOrNull(redirectURI),
 		Scope:       scope,
 	}
-	if clientID.Valid {
-		authorizationCode.Client = client
-	}
-	if userID.Valid {
-		authorizationCode.User = user
-	}
-	return authorizationCode
 }
