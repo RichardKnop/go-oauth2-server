@@ -3,8 +3,6 @@ package oauth
 import (
 	"errors"
 	"time"
-
-	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 var (
@@ -31,10 +29,8 @@ func (s *Service) GrantAuthorizationCode(client *Client, user *User, expiresIn i
 func (s *Service) GetValidAuthorizationCode(code string, client *Client) (*AuthorizationCode, error) {
 	// Fetch the auth code from the database
 	authorizationCode := new(AuthorizationCode)
-	clientID := util.PositiveIntOrNull(int64(client.ID))
-	notFound := s.db.Where(AuthorizationCode{ClientID: clientID}).
-		Where("code = ?", code).Preload("Client").Preload("User").
-		First(authorizationCode).RecordNotFound()
+	notFound := AuthorizationCodePreload(s.db).Where("client_id = ?", client.ID).
+		Where("code = ?", code).First(authorizationCode).RecordNotFound()
 
 	// Not found
 	if notFound {

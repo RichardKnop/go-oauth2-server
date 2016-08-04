@@ -2,8 +2,6 @@ package oauth
 
 import (
 	"time"
-
-	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 // TokenType is default type of generated tokens.
@@ -12,7 +10,9 @@ const TokenType = "Bearer"
 // GrantAccessToken deletes old tokens and grants a new access token
 func (s *Service) GrantAccessToken(client *Client, user *User, expiresIn int, scope string) (*AccessToken, error) {
 	// Delete expired access tokens
-	s.DeleteExpiredAccessTokens(client, user)
+	if err := s.DeleteExpiredAccessTokens(client, user); err != nil {
+		return nil, err
+	}
 
 	// Create a new access token
 	accessToken := NewAccessToken(client, user, expiresIn, scope)
@@ -26,14 +26,12 @@ func (s *Service) GrantAccessToken(client *Client, user *User, expiresIn int, sc
 }
 
 // DeleteExpiredAccessTokens deletes expired access tokens
-func (s *Service) DeleteExpiredAccessTokens(client *Client, user *User) {
-	clientID := util.PositiveIntOrNull(int64(client.ID))
-	userID := util.PositiveIntOrNull(0) // user ID can be NULL
-	if user != nil {
-		userID = util.PositiveIntOrNull(int64(user.ID))
+func (s *Service) DeleteExpiredAccessTokens(client *Client, user *User) error {
+	query := s.db.Unscoped().Where("client_id = ?", client.ID)
+	if user != nil && user.ID > 0 {
+		query = query.Where("user_id = ?", user.ID)
+	} else {
+		query = query.Where("user_id IS NULL")
 	}
-	s.db.Unscoped().Where(AccessToken{
-		ClientID: clientID,
-		UserID:   userID,
-	}).Where("expires_at <= ?", time.Now()).Delete(new(AccessToken))
+	return query.Where("expires_at <= ?", time.Now()).Delete(new(AccessToken)).Error
 }

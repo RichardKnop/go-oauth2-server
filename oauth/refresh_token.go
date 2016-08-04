@@ -3,8 +3,6 @@ package oauth
 import (
 	"errors"
 	"time"
-
-	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 var (
@@ -19,15 +17,13 @@ var (
 func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, expiresIn int, scope string) (*RefreshToken, error) {
 	// Try to fetch an existing refresh token first
 	refreshToken := new(RefreshToken)
-	clientID := util.PositiveIntOrNull(int64(client.ID))
-	userID := util.PositiveIntOrNull(0) // user ID can be NULL
-	if user != nil {
-		userID = util.PositiveIntOrNull(int64(user.ID))
+	query := RefreshTokenPreload(s.db).Where("client_id = ?", client.ID)
+	if user != nil && user.ID > 0 {
+		query = query.Where("user_id = ?", user.ID)
+	} else {
+		query = query.Where("user_id IS NULL")
 	}
-	found := !s.db.Where(RefreshToken{
-		ClientID: clientID,
-		UserID:   userID,
-	}).Preload("Client").Preload("User").First(refreshToken).RecordNotFound()
+	found := !query.First(refreshToken).RecordNotFound()
 
 	// Check if the token is expired, if found
 	var expired bool
@@ -57,10 +53,8 @@ func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, expiresIn 
 func (s *Service) GetValidRefreshToken(token string, client *Client) (*RefreshToken, error) {
 	// Fetch the refresh token from the database
 	refreshToken := new(RefreshToken)
-	notFound := s.db.Where(RefreshToken{
-		ClientID: util.PositiveIntOrNull(int64(client.ID)),
-	}).Where("token = ?", token).Preload("Client").Preload("User").
-		First(refreshToken).RecordNotFound()
+	notFound := RefreshTokenPreload(s.db).Where("client_id = ?", client.ID).
+		Where("token = ?", token).First(refreshToken).RecordNotFound()
 
 	// Not found
 	if notFound {

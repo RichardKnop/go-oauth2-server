@@ -30,11 +30,11 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 
 	// Check the access token was inserted
 	accessToken := new(oauth.AccessToken)
-	assert.False(suite.T(), suite.db.Preload("Client").Preload("User").
+	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
 		First(accessToken).RecordNotFound())
 
 	// Client credentials grant does not produce refresh token
-	assert.True(suite.T(), suite.db.Preload("Client").Preload("User").
+	assert.True(suite.T(), oauth.RefreshTokenPreload(suite.db).
 		First(new(oauth.RefreshToken)).RecordNotFound())
 
 	// Check the response body

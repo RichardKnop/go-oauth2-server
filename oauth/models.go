@@ -139,3 +139,39 @@ func NewAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI
 		Scope:       scope,
 	}
 }
+
+// AuthorizationCodePreload sets up Gorm preloads for an auth code object
+func AuthorizationCodePreload(db *gorm.DB) *gorm.DB {
+	return AuthorizationCodePreloadWithPrefix(db, "")
+}
+
+// AuthorizationCodePreloadWithPrefix sets up Gorm preloads for an auth code object,
+// and prefixes with prefix for nested objects
+func AuthorizationCodePreloadWithPrefix(db *gorm.DB, prefix string) *gorm.DB {
+	return db.
+		Preload(prefix + "Client").Preload(prefix + "User")
+}
+
+// AccessTokenPreload sets up Gorm preloads for an access token object
+func AccessTokenPreload(db *gorm.DB) *gorm.DB {
+	return AccessTokenPreloadWithPrefix(db, "")
+}
+
+// AccessTokenPreloadWithPrefix sets up Gorm preloads for an access token object,
+// and prefixes with prefix for nested objects
+func AccessTokenPreloadWithPrefix(db *gorm.DB, prefix string) *gorm.DB {
+	return db.
+		Preload(prefix + "Client").Preload(prefix + "User")
+}
+
+// RefreshTokenPreload sets up Gorm preloads for a refresh token object
+func RefreshTokenPreload(db *gorm.DB) *gorm.DB {
+	return RefreshTokenPreloadWithPrefix(db, "")
+}
+
+// RefreshTokenPreloadWithPrefix sets up Gorm preloads for a refresh token object,
+// and prefixes with prefix for nested objects
+func RefreshTokenPreloadWithPrefix(db *gorm.DB, prefix string) *gorm.DB {
+	return db.
+		Preload(prefix + "Client").Preload(prefix + "User")
+}

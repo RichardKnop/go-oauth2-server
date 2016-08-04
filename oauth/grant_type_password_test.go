@@ -32,10 +32,10 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 
 	// Check the correct data was inserted
 	accessToken := new(oauth.AccessToken)
-	assert.False(suite.T(), suite.db.Preload("Client").Preload("User").
+	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
 		First(accessToken).RecordNotFound())
 	refreshToken := new(oauth.RefreshToken)
-	assert.False(suite.T(), suite.db.Preload("Client").Preload("User").
+	assert.False(suite.T(), oauth.RefreshTokenPreload(suite.db).
 		First(refreshToken).RecordNotFound())
 
 	// Check the response body

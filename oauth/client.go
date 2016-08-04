@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"errors"
+	"strings"
 
 	"github.com/RichardKnop/go-oauth2-server/password"
 	"github.com/RichardKnop/go-oauth2-server/util"
@@ -27,7 +28,7 @@ func (s *Service) ClientExists(clientID string) bool {
 func (s *Service) FindClientByClientID(clientID string) (*Client, error) {
 	// Client IDs are case insensitive
 	client := new(Client)
-	notFound := s.db.Where("LOWER(key) = LOWER(?)", clientID).
+	notFound := s.db.Where("key = LOWER(?)", clientID).
 		First(client).RecordNotFound()
 
 	// Not found
@@ -70,7 +71,7 @@ func createClientCommon(db *gorm.DB, clientID, secret, redirectURI string) (*Cli
 		return nil, err
 	}
 	client := &Client{
-		Key:         clientID,
+		Key:         strings.ToLower(clientID),
 		Secret:      string(secretHash),
 		RedirectURI: util.StringOrNull(redirectURI),
 	}

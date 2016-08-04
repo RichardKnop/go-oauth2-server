@@ -29,23 +29,16 @@ func (s *Service) Authenticate(token string) (*AccessToken, error) {
 	}
 
 	// Extend refresh token expiration database
-	query := s.db.Model(new(RefreshToken)).Where(
-		"client_id = ?",
-		accessToken.ClientID.Int64,
-	)
+	query := s.db.Model(new(RefreshToken)).Where("client_id = ?", accessToken.ClientID.Int64)
 	if accessToken.UserID.Valid {
-		query = query.Where(
-			"user_id = ?",
-			accessToken.UserID.Int64,
-		)
+		query = query.Where("user_id = ?", accessToken.UserID.Int64)
 	} else {
 		query = query.Where("user_id IS NULL")
 	}
-	err := query.UpdateColumn(
-		"expires_at",
-		time.Now().Add(time.Duration(s.cnf.Oauth.RefreshTokenLifetime)*time.Second),
-	).Error
-	if err != nil {
+	increasedExpiresAt := time.Now().Add(
+		time.Duration(s.cnf.Oauth.RefreshTokenLifetime) * time.Second,
+	)
+	if err := query.UpdateColumn("expires_at", increasedExpiresAt).Error; err != nil {
 		return nil, err
 	}
 

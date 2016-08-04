@@ -14,35 +14,6 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 		tokens       []*oauth.RefreshToken
 	)
 
-	// Since there is no client only token,
-	// a new one should be created and returned
-	refreshToken, err = suite.service.GetOrCreateRefreshToken(
-		suite.clients[0], // client
-		nil,              // user
-		3600,             // expires in
-		"read_write",     // scope
-	)
-
-	// Error should be nil
-	if assert.Nil(suite.T(), err) {
-		// Fetch all refresh tokens
-		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
-
-		// There should be just one right now
-		assert.Equal(suite.T(), 1, len(tokens))
-
-		// Correct refresh token object should be returned
-		assert.NotNil(suite.T(), refreshToken)
-		assert.Equal(suite.T(), tokens[0].Token, refreshToken.Token)
-
-		// Client ID should be set
-		assert.True(suite.T(), tokens[0].ClientID.Valid)
-		assert.Equal(suite.T(), int64(suite.clients[0].ID), tokens[0].ClientID.Int64)
-
-		// User ID should be nil
-		assert.False(suite.T(), tokens[0].UserID.Valid)
-	}
-
 	// Since there is no user specific token,
 	// a new one should be created and returned
 	refreshToken, err = suite.service.GetOrCreateRefreshToken(
@@ -55,9 +26,68 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		oauth.RefreshTokenPreload(suite.db).Order("id").Find(&tokens)
 
-		// There should be 2 tokens now
+		// There should be just one token now
+		assert.Equal(suite.T(), 1, len(tokens))
+
+		// Correct refresh token object should be returned
+		assert.NotNil(suite.T(), refreshToken)
+		assert.Equal(suite.T(), tokens[0].Token, refreshToken.Token)
+
+		// Client ID should be set
+		assert.True(suite.T(), tokens[0].ClientID.Valid)
+		assert.Equal(suite.T(), suite.clients[0].ID, tokens[0].Client.ID)
+
+		// User ID should be set
+		assert.True(suite.T(), tokens[0].UserID.Valid)
+		assert.Equal(suite.T(), suite.users[0].ID, tokens[0].User.ID)
+	}
+
+	// Valid user specific token exists, new one should NOT be created
+	refreshToken, err = suite.service.GetOrCreateRefreshToken(
+		suite.clients[0], // client
+		suite.users[0],   // user
+		3600,             // expires in
+		"read_write",     // scope
+	)
+
+	// Error should be nil
+	if assert.Nil(suite.T(), err) {
+		// Fetch all refresh tokens
+		oauth.RefreshTokenPreload(suite.db).Order("id").Find(&tokens)
+
+		// There should be just one token now
+		assert.Equal(suite.T(), 1, len(tokens))
+
+		// Correct refresh token object should be returned
+		assert.NotNil(suite.T(), refreshToken)
+		assert.Equal(suite.T(), tokens[0].Token, refreshToken.Token)
+
+		// Client ID should be set
+		assert.True(suite.T(), tokens[0].ClientID.Valid)
+		assert.Equal(suite.T(), suite.clients[0].ID, tokens[0].Client.ID)
+
+		// User ID should be set
+		assert.True(suite.T(), tokens[0].UserID.Valid)
+		assert.Equal(suite.T(), suite.users[0].ID, tokens[0].User.ID)
+	}
+
+	// Since there is no client only token,
+	// a new one should be created and returned
+	refreshToken, err = suite.service.GetOrCreateRefreshToken(
+		suite.clients[0], // client
+		nil,              // user
+		3600,             // expires in
+		"read_write",     // scope
+	)
+
+	// Error should be nil
+	if assert.Nil(suite.T(), err) {
+		// Fetch all refresh tokens
+		oauth.RefreshTokenPreload(suite.db).Order("id").Find(&tokens)
+
+		// There should be 2 tokens
 		assert.Equal(suite.T(), 2, len(tokens))
 
 		// Correct refresh token object should be returned
@@ -66,11 +96,38 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 
 		// Client ID should be set
 		assert.True(suite.T(), tokens[1].ClientID.Valid)
-		assert.Equal(suite.T(), int64(suite.clients[0].ID), tokens[1].ClientID.Int64)
+		assert.Equal(suite.T(), suite.clients[0].ID, tokens[1].Client.ID)
 
-		// User ID should be set
-		assert.True(suite.T(), tokens[1].UserID.Valid)
-		assert.Equal(suite.T(), int64(suite.users[0].ID), tokens[1].UserID.Int64)
+		// User ID should be nil
+		assert.False(suite.T(), tokens[1].UserID.Valid)
+	}
+
+	// Valid client only token exists, new one should NOT be created
+	refreshToken, err = suite.service.GetOrCreateRefreshToken(
+		suite.clients[0], // client
+		nil,              // user
+		3600,             // expires in
+		"read_write",     // scope
+	)
+
+	// Error should be nil
+	if assert.Nil(suite.T(), err) {
+		// Fetch all refresh tokens
+		oauth.RefreshTokenPreload(suite.db).Order("id").Find(&tokens)
+
+		// There should be 2 tokens
+		assert.Equal(suite.T(), 2, len(tokens))
+
+		// Correct refresh token object should be returned
+		assert.NotNil(suite.T(), refreshToken)
+		assert.Equal(suite.T(), tokens[1].Token, refreshToken.Token)
+
+		// Client ID should be set
+		assert.True(suite.T(), tokens[1].ClientID.Valid)
+		assert.Equal(suite.T(), suite.clients[0].ID, tokens[1].Client.ID)
+
+		// User ID should be nil
+		assert.False(suite.T(), tokens[1].UserID.Valid)
 	}
 }
 
@@ -103,7 +160,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Correct refresh token should be returned
 	if assert.NotNil(suite.T(), refreshToken) {
 		// Fetch all refresh tokens
-		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		oauth.RefreshTokenPreload(suite.db).Order("id").Find(&tokens)
 
 		// There should be just one token right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -146,7 +203,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Correct refresh token should be returned
 	if assert.NotNil(suite.T(), refreshToken) {
 		// Fetch all refresh tokens
-		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		oauth.RefreshTokenPreload(suite.db).Order("id").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -194,7 +251,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		suite.db.Unscoped().Preload("Client").Preload("User").Order("id").Find(&tokens)
+		oauth.RefreshTokenPreload(suite.db.Unscoped()).Order("id").Find(&tokens)
 
 		// There should be just one token right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -234,7 +291,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		suite.db.Unscoped().Preload("Client").Preload("User").Order("id").Find(&tokens)
+		oauth.RefreshTokenPreload(suite.db.Unscoped()).Order("id").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))

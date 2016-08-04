@@ -78,7 +78,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 
 	// Check the correct data was inserted
 	accessToken := new(oauth.AccessToken)
-	assert.False(suite.T(), suite.db.Preload("Client").Preload("User").
+	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
 		First(accessToken).RecordNotFound())
 
 	// Check the response body
@@ -125,7 +125,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 
 	// Check the correct data was inserted
 	accessToken := new(oauth.AccessToken)
-	assert.False(suite.T(), suite.db.Preload("Client").Preload("User").
+	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
 		First(accessToken).RecordNotFound())
 
 	// Check the response body

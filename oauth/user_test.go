@@ -8,6 +8,73 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
+func (suite *OauthTestSuite) TestUserExistsFindsValidUser() {
+	validUsername := suite.users[0].Username
+	assert.True(suite.T(), suite.service.UserExists(validUsername))
+}
+
+func (suite *OauthTestSuite) TestUserExistsDoesntFindInvalidUser() {
+	invalidUsername := "bogus_name"
+	assert.False(suite.T(), suite.service.UserExists(invalidUsername))
+}
+
+func (suite *OauthTestSuite) TestUpdateUsernameWorksWithValidEntry() {
+	user, err := suite.service.CreateUser(
+		"test@newuser",  // username
+		"test_password", // password
+	)
+
+	assert.NoError(suite.T(), err)
+	assert.NotNil(suite.T(), user)
+	assert.Equal(suite.T(), "test@newuser", user.Username)
+
+	newUsername := "mynew@email"
+
+	err = suite.service.UpdateUsername(user, newUsername)
+
+	assert.NoError(suite.T(), err)
+
+	assert.Equal(suite.T(), newUsername, user.Username)
+}
+
+func (suite *OauthTestSuite) TestUpdateUsernameTxWorksWithValidEntry() {
+	user, err := suite.service.CreateUser(
+		"test@newuser",  // username
+		"test_password", // password
+	)
+
+	assert.NoError(suite.T(), err)
+	assert.NotNil(suite.T(), user)
+	assert.Equal(suite.T(), "test@newuser", user.Username)
+
+	newUsername := "mynew@email"
+
+	err = suite.service.UpdateUsernameTx(suite.db, user, newUsername)
+
+	assert.NoError(suite.T(), err)
+
+	assert.Equal(suite.T(), newUsername, user.Username)
+}
+
+func (suite *OauthTestSuite) TestUpdateUsernameFailsWithABlankEntry() {
+	user, err := suite.service.CreateUser(
+		"test@newuser",  // username
+		"test_password", // password
+	)
+
+	assert.NoError(suite.T(), err)
+	assert.NotNil(suite.T(), user)
+	assert.Equal(suite.T(), "test@newuser", user.Username)
+
+	newUsername := ""
+
+	err = suite.service.UpdateUsername(user, newUsername)
+
+	assert.EqualError(suite.T(), err, oauth.ErrCannotSetEmptyUsername.Error())
+
+	assert.NotEqual(suite.T(), newUsername, user.Username)
+}
+
 func (suite *OauthTestSuite) TestFindUserByUsername() {
 	var (
 		user *oauth.User
@@ -35,6 +102,17 @@ func (suite *OauthTestSuite) TestFindUserByUsername() {
 	if assert.NotNil(suite.T(), user) {
 		assert.Equal(suite.T(), "test@user", user.Username)
 	}
+
+	// Test username case insensitiviness
+	user, err = suite.service.FindUserByUsername("TeSt@UsEr")
+
+	// Error should be nil
+	assert.Nil(suite.T(), err)
+
+	// Correct user object should be returned
+	if assert.NotNil(suite.T(), user) {
+		assert.Equal(suite.T(), "test@user", user.Username)
+	}
 }
 
 func (suite *OauthTestSuite) TestCreateUser() {
@@ -54,7 +132,7 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), oauth.ErrUsernameTaken, err)
+		assert.Equal(suite.T(), oauth.ErrUsernameTaken.Error(), err.Error())
 	}
 
 	// We try to insert a unique user
@@ -69,6 +147,20 @@ func (suite *OauthTestSuite) TestCreateUser() {
 	// Correct user object should be returned
 	if assert.NotNil(suite.T(), user) {
 		assert.Equal(suite.T(), "test@newuser", user.Username)
+	}
+
+	// Test username case insensitivity
+	user, err = suite.service.CreateUser(
+		"TeSt@NeWuSeR2", // username
+		"test_password", // password
+	)
+
+	// Error should be nil
+	assert.Nil(suite.T(), err)
+
+	// Correct user object should be returned
+	if assert.NotNil(suite.T(), user) {
+		assert.Equal(suite.T(), "test@newuser2", user.Username)
 	}
 }
 
@@ -86,8 +178,8 @@ func (suite *OauthTestSuite) TestSetPassword() {
 	err = suite.db.Create(user).Error
 	assert.NoError(suite.T(), err, "Inserting test data failed")
 
-	// Try to set a short password
-	err = suite.service.SetPassword(user, "short")
+	// Try to set an empty password
+	err = suite.service.SetPassword(user, "")
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
@@ -153,6 +245,17 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// When we try to authenticate with valid username and password
 	user, err = suite.service.AuthUser("test@user", "test_password")
+
+	// Error should be nil
+	assert.Nil(suite.T(), err)
+
+	// Correct user object should be returned
+	if assert.NotNil(suite.T(), user) {
+		assert.Equal(suite.T(), "test@user", user.Username)
+	}
+
+	// Test username case insensitivity
+	user, err = suite.service.AuthUser("TeSt@UsEr", "test_password")
 
 	// Error should be nil
 	assert.Nil(suite.T(), err)

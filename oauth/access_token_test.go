@@ -28,7 +28,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		oauth.AccessTokenPreload(suite.db).Order("id").Find(&tokens)
 
 		// There should be just one right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -58,7 +58,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		suite.db.Preload("Client").Preload("User").Order("id").Find(&tokens)
+		oauth.AccessTokenPreload(suite.db).Order("id").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -140,10 +140,12 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	}
 
 	// This should only delete test_token_2
+	suite.db.LogMode(true)
 	suite.service.DeleteExpiredAccessTokens(
 		suite.clients[0], // client
-		new(oauth.User),  // empty user
+		nil,              // empty user
 	)
+	suite.db.LogMode(false)
 
 	// Check the test_token_2 was deleted
 	notFound = suite.db.Unscoped().Where("token = ?", "test_token_2").

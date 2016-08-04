@@ -3,6 +3,7 @@ package oauth
 import (
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	pass "github.com/RichardKnop/go-oauth2-server/password"
@@ -23,6 +24,8 @@ var (
 	ErrUserNotFound = errors.New("User not found")
 	// ErrInvalidUserPassword ...
 	ErrInvalidUserPassword = errors.New("Invalid user password")
+	// ErrCannotSetEmptyUsername ...
+	ErrCannotSetEmptyUsername = errors.New("Cannot set empty username")
 	// ErrUserPasswordNotSet ...
 	ErrUserPasswordNotSet = errors.New("User password not set")
 	// ErrUsernameTaken ...
@@ -39,7 +42,7 @@ func (s *Service) UserExists(username string) bool {
 func (s *Service) FindUserByUsername(username string) (*User, error) {
 	// Usernames are case insensitive
 	user := new(User)
-	notFound := s.db.Where("LOWER(username) = LOWER(?)", username).
+	notFound := s.db.Where("username = LOWER(?)", username).
 		First(user).RecordNotFound()
 
 	// Not found
@@ -91,10 +94,24 @@ func (s *Service) AuthUser(username, password string) (*User, error) {
 	return user, nil
 }
 
+// UpdateUsername ...
+func (s *Service) UpdateUsername(user *User, username string) error {
+	if username == "" {
+		return ErrCannotSetEmptyUsername
+	}
+
+	return s.updateUsernameCommon(s.db, user, username)
+}
+
+// UpdateUsernameTx ...
+func (s *Service) UpdateUsernameTx(tx *gorm.DB, user *User, username string) error {
+	return s.updateUsernameCommon(tx, user, username)
+}
+
 func (s *Service) createUserCommon(db *gorm.DB, username, password string) (*User, error) {
 	// Start with a user without a password
 	user := &User{
-		Username: username,
+		Username: strings.ToLower(username),
 		Password: util.StringOrNull(""),
 	}
 
@@ -138,4 +155,11 @@ func (s *Service) setPasswordCommon(db *gorm.DB, user *User, password string) er
 		Password: util.StringOrNull(string(passwordHash)),
 		Model:    gorm.Model{UpdatedAt: time.Now()},
 	}).Error
+}
+
+func (s *Service) updateUsernameCommon(db *gorm.DB, user *User, username string) error {
+	if username == "" {
+		return ErrCannotSetEmptyUsername
+	}
+	return db.Model(user).UpdateColumn("username", strings.ToLower(username)).Error
 }
