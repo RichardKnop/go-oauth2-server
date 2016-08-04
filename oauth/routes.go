@@ -6,7 +6,7 @@ import (
 )
 
 // RegisterRoutes registers route handlers for the oauth service
-func RegisterRoutes(router *mux.Router, service *Service) {
+func RegisterRoutes(router *mux.Router, service ServiceInterface) {
 	subRouter := router.PathPrefix("/v1/oauth").Subrouter()
 	routes.AddRoutes(newRoutes(service), subRouter)
 }
