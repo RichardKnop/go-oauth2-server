@@ -52,7 +52,7 @@ func (suite *OauthTestSuite) TestCreateClient() {
 
 	// Correct error should be returned
 	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), "UNIQUE constraint failed: oauth_clients.key", err.Error())
+		assert.Equal(suite.T(), oauth.ErrClientIDTaken, err)
 	}
 
 	// We try to insert a unique client

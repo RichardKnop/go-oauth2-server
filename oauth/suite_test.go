@@ -13,7 +13,10 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-var testDbPath = "/tmp/oauth_testdb.sqlite"
+var (
+	testDbUser = "go_oauth2_server"
+	testDbName = "go_oauth2_server_oauth_test"
+)
 
 var testFixtures = []string{
 	"./oauth/fixtures/scopes.yml",
@@ -51,7 +54,12 @@ func (suite *OauthTestSuite) SetupSuite() {
 	suite.cnf = config.NewConfig(false, false)
 
 	// Create the test database
-	db, err := database.CreateTestDatabase(testDbPath, testMigrations, testFixtures)
+	db, err := database.CreateTestDatabasePostgres(
+		testDbUser,
+		testDbName,
+		testMigrations,
+		testFixtures,
+	)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -96,7 +104,7 @@ func (suite *OauthTestSuite) TearDownTest() {
 	suite.db.Unscoped().Delete(new(oauth.RefreshToken))
 	suite.db.Unscoped().Delete(new(oauth.AccessToken))
 	suite.db.Unscoped().Not("id", []int64{1, 2}).Delete(new(oauth.User))
-	suite.db.Unscoped().Not("id", []int64{1, 2, 3}).Delete(new(oauth.Client))
+	suite.db.Unscoped().Not("id", []int64{1, 2}).Delete(new(oauth.Client))
 }
 
 // TestOauthTestSuite ...

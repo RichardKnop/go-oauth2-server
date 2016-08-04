@@ -41,12 +41,12 @@ func (s *Service) FindClientByClientID(clientID string) (*Client, error) {
 
 // CreateClient saves a new client to database
 func (s *Service) CreateClient(clientID, secret, redirectURI string) (*Client, error) {
-	return createClientCommon(s.db, clientID, secret, redirectURI)
+	return s.createClientCommon(s.db, clientID, secret, redirectURI)
 }
 
 // CreateClientTx saves a new client to database using injected db object
 func (s *Service) CreateClientTx(tx *gorm.DB, clientID, secret, redirectURI string) (*Client, error) {
-	return createClientCommon(tx, clientID, secret, redirectURI)
+	return s.createClientCommon(tx, clientID, secret, redirectURI)
 }
 
 // AuthClient authenticates client
@@ -65,11 +65,18 @@ func (s *Service) AuthClient(clientID, secret string) (*Client, error) {
 	return client, nil
 }
 
-func createClientCommon(db *gorm.DB, clientID, secret, redirectURI string) (*Client, error) {
+func (s *Service) createClientCommon(db *gorm.DB, clientID, secret, redirectURI string) (*Client, error) {
+	// Check client ID
+	if s.ClientExists(clientID) {
+		return nil, ErrClientIDTaken
+	}
+
+	// Hash password
 	secretHash, err := password.HashPassword(secret)
 	if err != nil {
 		return nil, err
 	}
+
 	client := &Client{
 		Key:         strings.ToLower(clientID),
 		Secret:      string(secretHash),
