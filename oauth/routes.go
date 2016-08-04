@@ -18,13 +18,13 @@ func newRoutes(service ServiceInterface) []routes.Route {
 			Name:        "oauth_tokens",
 			Method:      "POST",
 			Pattern:     "/tokens",
-			HandlerFunc: service.tokensHandler,
+			HandlerFunc: service.TokensHandler,
 		},
 		routes.Route{
 			Name:        "oauth_introspect",
 			Method:      "POST",
 			Pattern:     "/introspect",
-			HandlerFunc: service.introspectHandler,
+			HandlerFunc: service.IntrospectHandler,
 		},
 	}
 }

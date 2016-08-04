@@ -32,8 +32,8 @@ func (s *Service) basicAuthClient(r *http.Request) (*Client, error) {
 	return client, nil
 }
 
-// Handles all OAuth 2.0 grant types (POST /v1/oauth/tokens)
-func (s *Service) tokensHandler(w http.ResponseWriter, r *http.Request) {
+// TokensHandler - all OAuth 2.0 grant types (POST /v1/oauth/tokens)
+func (s *Service) TokensHandler(w http.ResponseWriter, r *http.Request) {
 	// Parse the form so r.Form becomes available
 	if err := r.ParseForm(); err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)
@@ -65,8 +65,8 @@ func (s *Service) tokensHandler(w http.ResponseWriter, r *http.Request) {
 	grantHandler(w, r, client)
 }
 
-// Handles OAuth 2.0 introspect request (POST /v1/oauth/introspect)
-func (s *Service) introspectHandler(w http.ResponseWriter, r *http.Request) {
+// IntrospectHandler - OAuth 2.0 introspect request (POST /v1/oauth/introspect)
+func (s *Service) IntrospectHandler(w http.ResponseWriter, r *http.Request) {
 	client, err := s.basicAuthClient(r)
 	if err != nil {
 		response.UnauthorizedError(w, err.Error())

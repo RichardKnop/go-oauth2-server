@@ -33,7 +33,7 @@ type ServiceInterface interface {
 	GetValidRefreshToken(token string, client *Client) (*RefreshToken, error)
 	Authenticate(token string) (*AccessToken, error)
 
-	// Needed for the newRoutes to be able to register handlers
-	tokensHandler(w http.ResponseWriter, r *http.Request)
-	introspectHandler(w http.ResponseWriter, r *http.Request)
+	// Needed for the NewRoutes to be able to register handlers
+	TokensHandler(w http.ResponseWriter, r *http.Request)
+	IntrospectHandler(w http.ResponseWriter, r *http.Request)
 }

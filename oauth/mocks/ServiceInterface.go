@@ -437,9 +437,9 @@ func (_m *ServiceInterface) Authenticate(token string) (*oauth.AccessToken, erro
 
 	return r0, r1
 }
-func (_m *ServiceInterface) tokensHandler(w http.ResponseWriter, r *http.Request) {
+func (_m *ServiceInterface) TokensHandler(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
-func (_m *ServiceInterface) introspectHandler(w http.ResponseWriter, r *http.Request) {
+func (_m *ServiceInterface) IntrospectHandler(w http.ResponseWriter, r *http.Request) {
 	_m.Called(w, r)
 }
