@@ -1,4 +1,4 @@
-[![Codeship Status for AreaHQ/logging](https://codeship.com/projects/a2b1c4c0-a3a2-0133-00d6-3641d785a31d/status?branch=master)](https://codeship.com/projects/129304)
+[![Codeship Status for RichardKnop/logging](https://codeship.com/projects/3844b520-3c97-0134-92d6-6a89aa757e0d/status?branch=master)](https://codeship.com/projects/166987)
 
 # Logging
 

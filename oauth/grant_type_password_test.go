@@ -1,13 +1,12 @@
 package oauth_test
 
 import (
-	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strings"
 
 	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -23,31 +22,25 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 		"scope":      {"read_write"},
 	}
 
-	// And serve the request
+	// Serve the request
 	w := httptest.NewRecorder()
 	suite.router.ServeHTTP(w, r)
 
-	// Check the status code
-	assert.Equal(suite.T(), 200, w.Code)
-
-	// Check the correct data was inserted
-	accessToken := new(oauth.AccessToken)
+	// Fetch data
+	accessToken, refreshToken := new(oauth.AccessToken), new(oauth.RefreshToken)
 	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
 		First(accessToken).RecordNotFound())
-	refreshToken := new(oauth.RefreshToken)
 	assert.False(suite.T(), oauth.RefreshTokenPreload(suite.db).
 		First(refreshToken).RecordNotFound())
 
-	// Check the response body
-	expected, err := json.Marshal(&oauth.AccessTokenResponse{
+	// Check the response
+	expected := &oauth.AccessTokenResponse{
 		UserID:       accessToken.User.MetaUserID,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
 		TokenType:    oauth.TokenType,
 		Scope:        "read_write",
 		RefreshToken: refreshToken.Token,
-	})
-	if assert.NoError(suite.T(), err, "JSON marshalling failed") {
-		assert.Equal(suite.T(), string(expected), strings.TrimSpace(w.Body.String()))
 	}
+	response.TestResponseObject(suite.T(), w, expected, 200)
 }

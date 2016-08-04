@@ -26,9 +26,7 @@ type ServiceInterface interface {
 	GetScope(requestedScope string) (string, error)
 	Login(client *Client, user *User, scope string) (*AccessToken, *RefreshToken, error)
 	GrantAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI, scope string) (*AuthorizationCode, error)
-	GetValidAuthorizationCode(code string, client *Client) (*AuthorizationCode, error)
 	GrantAccessToken(client *Client, user *User, expiresIn int, scope string) (*AccessToken, error)
-	DeleteExpiredAccessTokens(client *Client, user *User) error
 	GetOrCreateRefreshToken(client *Client, user *User, expiresIn int, scope string) (*RefreshToken, error)
 	GetValidRefreshToken(token string, client *Client) (*RefreshToken, error)
 	Authenticate(token string) (*AccessToken, error)

@@ -3,6 +3,8 @@ package oauth
 import (
 	"errors"
 	"time"
+
+	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 var (
@@ -67,4 +69,27 @@ func (s *Service) GetValidRefreshToken(token string, client *Client) (*RefreshTo
 	}
 
 	return refreshToken, nil
+}
+
+// getRefreshTokenScope returns scope for a new refresh token
+func (s *Service) getRefreshTokenScope(rt *RefreshToken, requestedScope string) (string, error) {
+	var (
+		scope = rt.Scope // default to the scope originally granted by the resource owner
+		err   error
+	)
+
+	// If the scope is specified in the request, get the scope string
+	if requestedScope != "" {
+		scope, err = s.GetScope(requestedScope)
+		if err != nil {
+			return "", err
+		}
+	}
+
+	// Requested scope CANNOT include any scope not originally granted
+	if !util.SpaceDelimitedStringNotGreater(scope, rt.Scope) {
+		return "", ErrRequestedScopeCannotBeGreater
+	}
+
+	return scope, nil
 }

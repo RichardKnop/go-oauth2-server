@@ -320,27 +320,6 @@ func (_m *ServiceInterface) GrantAuthorizationCode(client *oauth.Client, user *o
 
 	return r0, r1
 }
-func (_m *ServiceInterface) GetValidAuthorizationCode(code string, client *oauth.Client) (*oauth.AuthorizationCode, error) {
-	ret := _m.Called(code, client)
-
-	var r0 *oauth.AuthorizationCode
-	if rf, ok := ret.Get(0).(func(string, *oauth.Client) *oauth.AuthorizationCode); ok {
-		r0 = rf(code, client)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*oauth.AuthorizationCode)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string, *oauth.Client) error); ok {
-		r1 = rf(code, client)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
 func (_m *ServiceInterface) GrantAccessToken(client *oauth.Client, user *oauth.User, expiresIn int, scope string) (*oauth.AccessToken, error) {
 	ret := _m.Called(client, user, expiresIn, scope)
 
@@ -361,18 +340,6 @@ func (_m *ServiceInterface) GrantAccessToken(client *oauth.Client, user *oauth.U
 	}
 
 	return r0, r1
-}
-func (_m *ServiceInterface) DeleteExpiredAccessTokens(client *oauth.Client, user *oauth.User) error {
-	ret := _m.Called(client, user)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*oauth.Client, *oauth.User) error); ok {
-		r0 = rf(client, user)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
 }
 func (_m *ServiceInterface) GetOrCreateRefreshToken(client *oauth.Client, user *oauth.User, expiresIn int, scope string) (*oauth.RefreshToken, error) {
 	ret := _m.Called(client, user, expiresIn, scope)

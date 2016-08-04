@@ -1,8 +1,6 @@
 package oauth_test
 
 import (
-	"time"
-
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/stretchr/testify/assert"
 )
@@ -45,88 +43,4 @@ func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
 		assert.True(suite.T(), codes[0].UserID.Valid)
 		assert.Equal(suite.T(), int64(suite.users[0].ID), codes[0].UserID.Int64)
 	}
-}
-
-func (suite *OauthTestSuite) TestGetValidAuthorizationCode() {
-	var (
-		authorizationCode *oauth.AuthorizationCode
-		err               error
-	)
-
-	// Insert some test authorization codes
-	testAuthorizationCodes := []*oauth.AuthorizationCode{
-		// Expired authorization code
-		&oauth.AuthorizationCode{
-			Code:      "test_expired_code",
-			ExpiresAt: time.Now().Add(-10 * time.Second),
-			Client:    suite.clients[0],
-			User:      suite.users[0],
-		},
-		// Authorization code
-		&oauth.AuthorizationCode{
-			Code:      "test_code",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
-			Client:    suite.clients[0],
-			User:      suite.users[0],
-		},
-	}
-	for _, testAuthorizationCode := range testAuthorizationCodes {
-		err := suite.db.Create(testAuthorizationCode).Error
-		assert.NoError(suite.T(), err, "Inserting test data failed")
-	}
-
-	// Test passing an empty code
-	authorizationCode, err = suite.service.GetValidAuthorizationCode(
-		"",               // authorization code
-		suite.clients[0], // client
-	)
-
-	// Authorization code should be nil
-	assert.Nil(suite.T(), authorizationCode)
-
-	// Correct error should be returned
-	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), oauth.ErrAuthorizationCodeNotFound, err)
-	}
-
-	// Test passing a bogus code
-	authorizationCode, err = suite.service.GetValidAuthorizationCode(
-		"bogus",          // authorization code
-		suite.clients[0], // client
-	)
-
-	// Authorization code should be nil
-	assert.Nil(suite.T(), authorizationCode)
-
-	// Correct error should be returned
-	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), oauth.ErrAuthorizationCodeNotFound, err)
-	}
-
-	// Test passing an expired code
-	authorizationCode, err = suite.service.GetValidAuthorizationCode(
-		"test_expired_code", // authorization code
-		suite.clients[0],    // client
-	)
-
-	// Authorization code should be nil
-	assert.Nil(suite.T(), authorizationCode)
-
-	// Correct error should be returned
-	if assert.NotNil(suite.T(), err) {
-		assert.Equal(suite.T(), oauth.ErrAuthorizationCodeExpired, err)
-	}
-
-	// Test passing a valid code
-	authorizationCode, err = suite.service.GetValidAuthorizationCode(
-		"test_code",      // authorization code
-		suite.clients[0], // client
-	)
-
-	// Error should be nil
-	assert.Nil(suite.T(), err)
-
-	// Correct authorization code object should be returned
-	assert.NotNil(suite.T(), authorizationCode)
-	assert.Equal(suite.T(), "test_code", authorizationCode.Code)
 }

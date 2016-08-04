@@ -25,12 +25,17 @@ func (s *Service) GrantAuthorizationCode(client *Client, user *User, expiresIn i
 	return authorizationCode, nil
 }
 
-// GetValidAuthorizationCode returns a valid non expired authorization code
-func (s *Service) GetValidAuthorizationCode(code string, client *Client) (*AuthorizationCode, error) {
+// getValidAuthorizationCode returns a valid non expired authorization code
+func (s *Service) getValidAuthorizationCode(code, redirectURI string, client *Client) (*AuthorizationCode, error) {
 	// Fetch the auth code from the database
 	authorizationCode := new(AuthorizationCode)
 	notFound := AuthorizationCodePreload(s.db).Where("client_id = ?", client.ID).
 		Where("code = ?", code).First(authorizationCode).RecordNotFound()
+
+	// Redirect URI must match if it was used to obtain the authorization code
+	if redirectURI != authorizationCode.RedirectURI.String {
+		return nil, ErrInvalidRedirectURI
+	}
 
 	// Not found
 	if notFound {

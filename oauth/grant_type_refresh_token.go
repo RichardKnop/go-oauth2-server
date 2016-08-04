@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/response"
-	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 var (
@@ -15,39 +14,21 @@ var (
 
 func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	// Fetch the refresh token
-	theRefreshToken, err := s.GetValidRefreshToken(
-		r.Form.Get("refresh_token"), // refresh token
-		client, // client
-	)
+	rt, err := s.GetValidRefreshToken(r.Form.Get("refresh_token"), client)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Default to the scope originally granted by the resource owner
-	scope := theRefreshToken.Scope
-
-	// If the scope is specified in the request, get the scope string
-	if r.Form.Get("scope") != "" {
-		scope, err = s.GetScope(r.Form.Get("scope"))
-		if err != nil {
-			response.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-	}
-
-	// Requested scope CANNOT include any scope not originally granted
-	if !util.SpaceDelimitedStringNotGreater(scope, theRefreshToken.Scope) {
-		response.Error(w, ErrRequestedScopeCannotBeGreater.Error(), http.StatusBadRequest)
+	// Get the scope
+	scope, err := s.getRefreshTokenScope(rt, r.Form.Get("scope"))
+	if err != nil {
+		response.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// Log in the user
-	accessToken, refreshToken, err := s.Login(
-		theRefreshToken.Client,
-		theRefreshToken.User,
-		scope,
-	)
+	accessToken, refreshToken, err := s.Login(rt.Client, rt.User, scope)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusInternalServerError)
 		return

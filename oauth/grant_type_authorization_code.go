@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/RichardKnop/go-oauth2-server/response"
-	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 var (
@@ -15,18 +14,13 @@ var (
 
 func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
 	// Fetch the authorization code
-	authorizationCode, err := s.GetValidAuthorizationCode(
-		r.Form.Get("code"), // authorization code
-		client,             // client
+	authorizationCode, err := s.getValidAuthorizationCode(
+		r.Form.Get("code"),
+		r.Form.Get("redirect_uri"),
+		client,
 	)
 	if err != nil {
 		response.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// Redirect URI must match if it was used to obtain the authorization code
-	if util.StringOrNull(r.Form.Get("redirect_uri")) != authorizationCode.RedirectURI {
-		response.Error(w, ErrInvalidRedirectURI.Error(), http.StatusBadRequest)
 		return
 	}
 

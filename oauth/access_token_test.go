@@ -18,7 +18,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	accessToken, err = suite.service.GrantAccessToken(
 		suite.clients[0], // client
 		nil,              // user
-		3600,             // expires int
+		3600,             // expires in
 		"scope doesn't matter", // scope
 	)
 
@@ -48,7 +48,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	accessToken, err = suite.service.GrantAccessToken(
 		suite.clients[0], // client
 		suite.users[0],   // user
-		3600,             // expires int
+		3600,             // expires in
 		"scope doesn't matter", // scope
 	)
 
@@ -76,51 +76,55 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	}
 }
 
-func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
+func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 	var (
+		testAccessTokens = []*oauth.AccessToken{
+			// Expired access token with a user
+			&oauth.AccessToken{
+				Token:     "test_token_1",
+				ExpiresAt: time.Now().Add(-10 * time.Second),
+				Client:    suite.clients[0],
+				User:      suite.users[0],
+			},
+			// Expired access token without a user
+			&oauth.AccessToken{
+				Token:     "test_token_2",
+				ExpiresAt: time.Now().Add(-10 * time.Second),
+				Client:    suite.clients[0],
+			},
+			// Access token with a user
+			&oauth.AccessToken{
+				Token:     "test_token_3",
+				ExpiresAt: time.Now().Add(+10 * time.Second),
+				Client:    suite.clients[0],
+				User:      suite.users[0],
+			},
+			// Access token without a user
+			&oauth.AccessToken{
+				Token:     "test_token_4",
+				ExpiresAt: time.Now().Add(+10 * time.Second),
+				Client:    suite.clients[0],
+			},
+		}
+		err            error
 		notFound       bool
 		existingTokens []string
 	)
 
-	// Insert some test access tokens
-	testAccessTokens := []*oauth.AccessToken{
-		// Expired access token with a user
-		&oauth.AccessToken{
-			Token:     "test_token_1",
-			ExpiresAt: time.Now().Add(-10 * time.Second),
-			Client:    suite.clients[0],
-			User:      suite.users[0],
-		},
-		// Expired access token without a user
-		&oauth.AccessToken{
-			Token:     "test_token_2",
-			ExpiresAt: time.Now().Add(-10 * time.Second),
-			Client:    suite.clients[0],
-		},
-		// Access token with a user
-		&oauth.AccessToken{
-			Token:     "test_token_3",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
-			Client:    suite.clients[0],
-			User:      suite.users[0],
-		},
-		// Access token without a user
-		&oauth.AccessToken{
-			Token:     "test_token_4",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
-			Client:    suite.clients[0],
-		},
-	}
+	// Insert test access tokens
 	for _, testAccessToken := range testAccessTokens {
-		err := suite.db.Create(testAccessToken).Error
+		err = suite.db.Create(testAccessToken).Error
 		assert.NoError(suite.T(), err, "Inserting test data failed")
 	}
 
 	// This should only delete test_token_1
-	suite.service.DeleteExpiredAccessTokens(
+	_, err = suite.service.GrantAccessToken(
 		suite.clients[0], // client
 		suite.users[0],   // user
+		3600,             // expires in
+		"scope doesn't matter", // scope
 	)
+	assert.NoError(suite.T(), err)
 
 	// Check the test_token_1 was deleted
 	notFound = suite.db.Unscoped().Where("token = ?", "test_token_1").
@@ -140,12 +144,13 @@ func (suite *OauthTestSuite) TestDeleteExpiredAccessTokensClient() {
 	}
 
 	// This should only delete test_token_2
-	suite.db.LogMode(true)
-	suite.service.DeleteExpiredAccessTokens(
+	_, err = suite.service.GrantAccessToken(
 		suite.clients[0], // client
-		nil,              // empty user
+		nil,              // user
+		3600,             // expires in
+		"scope doesn't matter", // scope
 	)
-	suite.db.LogMode(false)
+	assert.NoError(suite.T(), err)
 
 	// Check the test_token_2 was deleted
 	notFound = suite.db.Unscoped().Where("token = ?", "test_token_2").
