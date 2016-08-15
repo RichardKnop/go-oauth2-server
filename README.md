@@ -11,9 +11,7 @@
 
 This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3). Excerpts from the specification are included in this README file to describe different grant types. Please read the full spec for more detailed information.
 
-It relies on `Postgres` for database and `etcd` for configuration but both are easily customizable since flexible libraries have been used:
-
-* [gorm](https://github.com/jinzhu/gorm) for database communication
+It relies on `Postgres` for database and `etcd` for configuration but both are easily customizable. An [ORM library](https://github.com/jinzhu/gorm) is used for database communication.
 
 # Index
 
