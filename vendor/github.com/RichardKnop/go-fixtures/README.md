@@ -48,7 +48,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	fixtures "github.com/RichardKnop/go-fixtures"
+	"github.com/RichardKnop/go-fixtures"
 	"github.com/urfave/cli"
 	// Drivers
 	_ "github.com/lib/pq"

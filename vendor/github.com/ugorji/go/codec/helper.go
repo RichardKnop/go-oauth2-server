@@ -206,10 +206,10 @@ const (
 	containerArrayEnd
 )
 
-// sfiIdx used for tracking where a fieldName is seen in a []*structFieldInfo
+// sfiIdx used for tracking where a (field/enc)Name is seen in a []*structFieldInfo
 type sfiIdx struct {
-	fieldName string
-	index     int
+	name  string
+	index int
 }
 
 // do not recurse if a containing type refers to an embedded type
@@ -996,26 +996,35 @@ LOOP:
 	}
 }
 
-// resolves the struct field info get from a call to rget2.
+// resolves the struct field info got from a call to rget.
 // Returns a trimmed, unsorted and sorted []*structFieldInfo.
 func rgetResolveSFI(x []*structFieldInfo, pv []sfiIdx) (y, z []*structFieldInfo) {
 	var n int
 	for i, v := range x {
-		xf := v.fieldName
+		xn := v.encName //TODO: fieldName or encName? use encName for now.
 		var found bool
-		for _, k := range pv {
-			if k.fieldName == xf {
-				if len(v.is) < len(x[k.index].is) {
-					x[k.index] = nil
-					k.index = i
-					n++
+		for j, k := range pv {
+			if k.name == xn {
+				// one of them must be reset to nil, and the index updated appropriately to the other one
+				if len(v.is) == len(x[k.index].is) {
+				} else if len(v.is) < len(x[k.index].is) {
+					pv[j].index = i
+					if x[k.index] != nil {
+						x[k.index] = nil
+						n++
+					}
+				} else {
+					if x[i] != nil {
+						x[i] = nil
+						n++
+					}
 				}
 				found = true
 				break
 			}
 		}
 		if !found {
-			pv = append(pv, sfiIdx{xf, i})
+			pv = append(pv, sfiIdx{xn, i})
 		}
 	}
 

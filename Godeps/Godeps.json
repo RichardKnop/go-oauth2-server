@@ -1,6 +1,6 @@
 {
 	"ImportPath": "github.com/RichardKnop/go-oauth2-server",
-	"GoVersion": "go1.6",
+	"GoVersion": "go1.7",
 	"GodepVersion": "v74",
 	"Packages": [
 		"./..."
@@ -8,7 +8,7 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/RichardKnop/go-fixtures",
-			"Rev": "004084944521ee28c185eaab8048137fafacd250"
+			"Rev": "4a72fc49528964aeba0779e9c521183739a791c7"
 		},
 		{
 			"ImportPath": "github.com/RichardKnop/logging",
@@ -20,32 +20,33 @@
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/client",
-			"Comment": "v3.0.0-beta.0-1139-g1b5a129",
-			"Rev": "1b5a129bbe36aae8f154cbdb7959bc75e713181c"
+			"Comment": "v3.0.0-beta.0-1253-gc388b2f",
+			"Rev": "c388b2f22f1285e0a686d0594c85a053016df010"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/pathutil",
-			"Comment": "v3.0.0-beta.0-1139-g1b5a129",
-			"Rev": "1b5a129bbe36aae8f154cbdb7959bc75e713181c"
+			"Comment": "v3.0.0-beta.0-1253-gc388b2f",
+			"Rev": "c388b2f22f1285e0a686d0594c85a053016df010"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/types",
-			"Comment": "v3.0.0-beta.0-1139-g1b5a129",
-			"Rev": "1b5a129bbe36aae8f154cbdb7959bc75e713181c"
+			"Comment": "v3.0.0-beta.0-1253-gc388b2f",
+			"Rev": "c388b2f22f1285e0a686d0594c85a053016df010"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
-			"Rev": "5215b55f46b2b919f50a1df0eaa5886afe4e3b3d"
+			"Comment": "v1.0.0",
+			"Rev": "6cf5744a041a0022271cefed95ba843f6d87fd51"
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
-			"Comment": "v1.1-4-gaed02d1",
-			"Rev": "aed02d124ae4a0e94fea4541c8effd05bf0c8296"
+			"Comment": "v1.1-7-g08b5f42",
+			"Rev": "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Comment": "v1.1-20-g7804150",
-			"Rev": "780415097119f6f61c55475fe59b66f3c3e9ea53"
+			"Comment": "v1.1-23-g34bf6dc",
+			"Rev": "34bf6dc9faa08144e925df4fa1838551b16d6c2a"
 		},
 		{
 			"ImportPath": "github.com/gorilla/securecookie",
@@ -58,12 +59,12 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Comment": "v1.0-62-g2f27f0f",
-			"Rev": "2f27f0f27f12f5c68ae4b12213b34fdff312dcf3"
+			"Comment": "v1.0-64-gf26fa24",
+			"Rev": "f26fa242cc1bf884f9a4f98849f70fb8e73f441f"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
-			"Rev": "8f4d3a0d04ce0b7c0cf3126fb98524246d00d102"
+			"Rev": "74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff"
 		},
 		{
 			"ImportPath": "github.com/lib/pq",
@@ -77,8 +78,8 @@
 		},
 		{
 			"ImportPath": "github.com/mattn/go-sqlite3",
-			"Comment": "v1.1.0-76-gc3e9588",
-			"Rev": "c3e9588849195eefa783417c3a53d092f6e93526"
+			"Comment": "v1.1.0-78-gb5c99a7",
+			"Rev": "b5c99a720374818b629fd1fbf6d2cbb4fb9a5644"
 		},
 		{
 			"ImportPath": "github.com/oxtoacart/bpool",
@@ -119,7 +120,7 @@
 		},
 		{
 			"ImportPath": "github.com/ugorji/go/codec",
-			"Rev": "4a1cb5252a6951f715a85d0e4be334c2a2dbf2a2"
+			"Rev": "5cd0f2b3b6cca8e3a0a4101821e41a73cb59bed6"
 		},
 		{
 			"ImportPath": "github.com/unrolled/secure",
@@ -127,8 +128,8 @@
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",
-			"Comment": "v1.18.0-47-g168c954",
-			"Rev": "168c95418e66e019fe17b8f4f5c45aa62ff80e23"
+			"Comment": "v1.18.0-53-g05fe449",
+			"Rev": "05fe449c81eb7305a34e9253c321c960a1c5e057"
 		},
 		{
 			"ImportPath": "github.com/urfave/negroni",
@@ -137,19 +138,19 @@
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
-			"Rev": "a548aac93ed489257b9d959b40fe1e8c1e20778c"
+			"Rev": "351dc6a5bf92a5f2ae22fadeee08eb6a45aa2d93"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/blowfish",
-			"Rev": "a548aac93ed489257b9d959b40fe1e8c1e20778c"
+			"Rev": "351dc6a5bf92a5f2ae22fadeee08eb6a45aa2d93"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "07b51741c1d6423d4a6abab1c49940ec09cb1aaf"
+			"Rev": "6250b412798208e6c90b03b7c4f226de5aa299e2"
 		},
 		{
 			"ImportPath": "golang.org/x/net/netutil",
-			"Rev": "07b51741c1d6423d4a6abab1c49940ec09cb1aaf"
+			"Rev": "6250b412798208e6c90b03b7c4f226de5aa299e2"
 		},
 		{
 			"ImportPath": "gopkg.in/tylerb/graceful.v1",
