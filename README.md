@@ -471,8 +471,8 @@ make test
 Build a Docker image and run the app in a container:
 
 ```
-docker build -t go-oauth2-server .
-docker run -e ETCD_ENDPOINT=localhost:2379 -p 6060:8080 go-oauth2-server
+docker build -t go-oauth2-server:latest .
+docker run -e ETCD_ENDPOINT=localhost:2379 -p 8080:8080 --name go-oauth2-server go-oauth2-server:latest
 ```
 
 You can load fixtures with `docker exec` command:
@@ -483,21 +483,15 @@ docker exec <container_id> /go/bin/go-oauth2-server loaddata \
 	oauth/fixtures/test_clients.yml
 ```
 
-## Docker-compose
+# Docker Compose
 
-You can use [docker-compose](https://docs.docker.com/compose/) to start app, postgres, etcd in separate linked containers:
+You can use [docker-compose](https://docs.docker.com/compose/) to start the app, postgres, etcd in separate linked containers:
 
 ```
-cd APP_ROOT_DIR/docker-compose
 docker-compose up
 ```
 
-During up process all configuration and fixtures will be loaded. After successful up you can check, that app is running using for example token introspection request:
+During up process all configuration and fixtures will be loaded. After successful up you can check, that app is running using for example the health check request:
 ```
-curl --compressed -v localhost:8080/v1/oauth/introspect \
-	-u test_client_1:test_secret \
-	-d "token=00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c" \
-	-d "token_type_hint=access_token"
+curl --compressed -v localhost:8080/v1/health
 ```
-
-> On Mac OS X or Windows host use Docker Machine IP instead of localhost.

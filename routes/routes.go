@@ -3,8 +3,8 @@ package routes
 import (
 	"net/http"
 
-	"github.com/urfave/negroni"
 	"github.com/gorilla/mux"
+	"github.com/urfave/negroni"
 )
 
 // Route ...

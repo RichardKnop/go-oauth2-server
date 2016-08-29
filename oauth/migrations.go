@@ -9,7 +9,10 @@ import (
 
 var (
 	list = []migrations.MigrationStage{
-		{"oauth_initial", migrate0001},
+		{
+			Name:     "oauth_initial",
+			Function: migrate0001,
+		},
 	}
 )
 
@@ -19,8 +22,6 @@ func MigrateAll(db *gorm.DB) error {
 }
 
 func migrate0001(db *gorm.DB, name string) error {
-	var err error
-
 	// Create tables
 	if err := db.CreateTable(new(Client)).Error; err != nil {
 		return fmt.Errorf("Error creating oauth_clients table: %s", err)
@@ -40,7 +41,7 @@ func migrate0001(db *gorm.DB, name string) error {
 	if err := db.CreateTable(new(AuthorizationCode)).Error; err != nil {
 		return fmt.Errorf("Error creating oauth_authorization_codes table: %s", err)
 	}
-	err = db.Model(new(RefreshToken)).AddForeignKey(
+	err := db.Model(new(RefreshToken)).AddForeignKey(
 		"client_id", "oauth_clients(id)",
 		"RESTRICT", "RESTRICT",
 	).Error
