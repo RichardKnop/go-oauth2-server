@@ -7,9 +7,9 @@ if [ "$1" = 'go-oauth2-server' ] && [ "$2" = 'runserver' ]; then
       "Type": "postgres",
       "Host": "postgres",
       "Port": 5432,
-      "User": "example_api",
+      "User": "go_oauth2_server",
       "Password": "",
-      "DatabaseName": "example_api",
+      "DatabaseName": "go_oauth2_server",
       "MaxIdleConns": 5,
       "MaxOpenConns": 5
     },
