@@ -3,8 +3,9 @@ package oauth_test
 import (
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 )
 
 func (suite *OauthTestSuite) TestAuthenticate() {
@@ -18,20 +19,20 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 		// Expired access token
 		&oauth.AccessToken{
 			Token:     "test_expired_token",
-			ExpiresAt: time.Now().Add(-10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
 		// Access token without a user
 		&oauth.AccessToken{
 			Token:     "test_client_token",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 		},
 		// Access token with a user
 		&oauth.AccessToken{
 			Token:     "test_user_token",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
@@ -114,18 +115,18 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 	testAccessTokens = []*oauth.AccessToken{
 		&oauth.AccessToken{
 			Token:     "test_token_1",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
 		&oauth.AccessToken{
 			Token:     "test_token_2",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 		},
 		&oauth.AccessToken{
 			Token:     "test_token_3",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[1],
 		},
@@ -139,18 +140,18 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 	testRefreshTokens = []*oauth.RefreshToken{
 		&oauth.RefreshToken{
 			Token:     "test_token_1",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
 		&oauth.RefreshToken{
 			Token:     "test_token_2",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 		},
 		&oauth.RefreshToken{
 			Token:     "test_token_3",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[1],
 		},
@@ -161,7 +162,10 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 	}
 
 	// Authenticate with the first access token
-	now1 := time.Now()
+	now1 := time.Now().UTC()
+	gorm.NowFunc = func() time.Time {
+		return now1
+	}
 	accessToken, err = suite.service.Authenticate("test_token_1")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), "test_token_1", accessToken.Token)
@@ -194,7 +198,10 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 	)
 
 	// Authenticate with the second access token
-	now2 := time.Now()
+	now2 := time.Now().UTC()
+	gorm.NowFunc = func() time.Time {
+		return now2
+	}
 	accessToken, err = suite.service.Authenticate("test_token_2")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), "test_token_2", accessToken.Token)
@@ -227,7 +234,10 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 	)
 
 	// Authenticate with the third access token
-	now3 := time.Now()
+	now3 := time.Now().UTC()
+	gorm.NowFunc = func() time.Time {
+		return now3
+	}
 	accessToken, err = suite.service.Authenticate("test_token_3")
 	assert.Nil(suite.T(), err)
 	assert.Equal(suite.T(), "test_token_3", accessToken.Token)

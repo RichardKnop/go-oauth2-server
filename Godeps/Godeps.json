@@ -11,6 +11,10 @@
 			"Rev": "4a72fc49528964aeba0779e9c521183739a791c7"
 		},
 		{
+			"ImportPath": "github.com/RichardKnop/jsonhal",
+			"Rev": "b024b7989b3aaefdc41bd7a5f903aefc7a47f936"
+		},
+		{
 			"ImportPath": "github.com/RichardKnop/logging",
 			"Rev": "4aafd532f78490dbd0d430e3d57eabb615b2fbdf"
 		},
@@ -20,23 +24,23 @@
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/client",
-			"Comment": "v3.0.0-beta.0-1253-gc388b2f",
-			"Rev": "c388b2f22f1285e0a686d0594c85a053016df010"
+			"Comment": "v3.1.0-alpha.0-27-gb586060",
+			"Rev": "b5860608125655b6ffa7d271f45a11fb08e72825"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/pathutil",
-			"Comment": "v3.0.0-beta.0-1253-gc388b2f",
-			"Rev": "c388b2f22f1285e0a686d0594c85a053016df010"
+			"Comment": "v3.1.0-alpha.0-27-gb586060",
+			"Rev": "b5860608125655b6ffa7d271f45a11fb08e72825"
 		},
 		{
 			"ImportPath": "github.com/coreos/etcd/pkg/types",
-			"Comment": "v3.0.0-beta.0-1253-gc388b2f",
-			"Rev": "c388b2f22f1285e0a686d0594c85a053016df010"
+			"Comment": "v3.1.0-alpha.0-27-gb586060",
+			"Rev": "b5860608125655b6ffa7d271f45a11fb08e72825"
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
-			"Comment": "v1.0.0",
-			"Rev": "6cf5744a041a0022271cefed95ba843f6d87fd51"
+			"Comment": "v1.0.0-3-g6d21280",
+			"Rev": "6d212800a42e8ab5c146b8ace3490ee17e5225f9"
 		},
 		{
 			"ImportPath": "github.com/gorilla/context",
@@ -45,8 +49,8 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Comment": "v1.1-23-g34bf6dc",
-			"Rev": "34bf6dc9faa08144e925df4fa1838551b16d6c2a"
+			"Comment": "v1.1-25-g0a192a1",
+			"Rev": "0a192a193177452756c362c20087ddafcf6829c4"
 		},
 		{
 			"ImportPath": "github.com/gorilla/securecookie",
@@ -59,8 +63,8 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Comment": "v1.0-64-gf26fa24",
-			"Rev": "f26fa242cc1bf884f9a4f98849f70fb8e73f441f"
+			"Comment": "v1.0-73-g5ec2f6c",
+			"Rev": "5ec2f6ceb66dbb99077a2b48a5a963d073d5459d"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
@@ -68,18 +72,18 @@
 		},
 		{
 			"ImportPath": "github.com/lib/pq",
-			"Comment": "go1.0-cutoff-111-g80f8150",
-			"Rev": "80f8150043c80fb52dee6bc863a709cdac7ec8f8"
+			"Comment": "go1.0-cutoff-117-g50761b0",
+			"Rev": "50761b0867bd1d9d069276790bcd4a3bccf2324a"
 		},
 		{
 			"ImportPath": "github.com/lib/pq/oid",
-			"Comment": "go1.0-cutoff-111-g80f8150",
-			"Rev": "80f8150043c80fb52dee6bc863a709cdac7ec8f8"
+			"Comment": "go1.0-cutoff-117-g50761b0",
+			"Rev": "50761b0867bd1d9d069276790bcd4a3bccf2324a"
 		},
 		{
 			"ImportPath": "github.com/mattn/go-sqlite3",
-			"Comment": "v1.1.0-78-gb5c99a7",
-			"Rev": "b5c99a720374818b629fd1fbf6d2cbb4fb9a5644"
+			"Comment": "v1.1.0-92-g3fb7a0e",
+			"Rev": "3fb7a0e792edd47bf0cf1e919dfc14e2be412e15"
 		},
 		{
 			"ImportPath": "github.com/oxtoacart/bpool",
@@ -120,37 +124,37 @@
 		},
 		{
 			"ImportPath": "github.com/ugorji/go/codec",
-			"Rev": "5cd0f2b3b6cca8e3a0a4101821e41a73cb59bed6"
+			"Rev": "98ef79d6c615fa258e892ed0b11c6e013712693e"
 		},
 		{
 			"ImportPath": "github.com/unrolled/secure",
-			"Rev": "4b41e52ab568cbfd31eda3612d98192da1575c77"
+			"Rev": "32b1280f0305471a0e32abc2b9678621789bb4b0"
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",
-			"Comment": "v1.18.0-53-g05fe449",
-			"Rev": "05fe449c81eb7305a34e9253c321c960a1c5e057"
+			"Comment": "v1.18.0-67-gd53eb99",
+			"Rev": "d53eb991652b1d438abdd34ce4bfa3ef1539108e"
 		},
 		{
 			"ImportPath": "github.com/urfave/negroni",
-			"Comment": "v0.2.0-57-g6edff56",
-			"Rev": "6edff56736fa7bd546812f149e8cdaae61e5a38f"
+			"Comment": "v0.2.0-65-g3f7ce7b",
+			"Rev": "3f7ce7b928e14ff890b067e5bbbc80af73690a9c"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
-			"Rev": "351dc6a5bf92a5f2ae22fadeee08eb6a45aa2d93"
+			"Rev": "6ab629be5e31660579425a738ba8870beb5b7404"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/blowfish",
-			"Rev": "351dc6a5bf92a5f2ae22fadeee08eb6a45aa2d93"
+			"Rev": "6ab629be5e31660579425a738ba8870beb5b7404"
 		},
 		{
 			"ImportPath": "golang.org/x/net/context",
-			"Rev": "6250b412798208e6c90b03b7c4f226de5aa299e2"
+			"Rev": "71a035914f99bb58fe82eac0f1289f10963d876c"
 		},
 		{
 			"ImportPath": "golang.org/x/net/netutil",
-			"Rev": "6250b412798208e6c90b03b7c4f226de5aa299e2"
+			"Rev": "71a035914f99bb58fe82eac0f1289f10963d876c"
 		},
 		{
 			"ImportPath": "gopkg.in/tylerb/graceful.v1",
@@ -159,7 +163,7 @@
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
-			"Rev": "a83829b6f1293c91addabc89d0571c246397bbf4"
+			"Rev": "31c299268d302dd0aa9a0dcf765a3d58971ac83f"
 		}
 	]
 }

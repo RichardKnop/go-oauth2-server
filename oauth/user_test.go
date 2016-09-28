@@ -2,8 +2,8 @@ package oauth_test
 
 import (
 	"github.com/stretchr/testify/assert"
-
 	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
 	pass "github.com/RichardKnop/go-oauth2-server/password"
 	"github.com/RichardKnop/go-oauth2-server/util"
 )
@@ -20,6 +20,7 @@ func (suite *OauthTestSuite) TestUserExistsDoesntFindInvalidUser() {
 
 func (suite *OauthTestSuite) TestUpdateUsernameWorksWithValidEntry() {
 	user, err := suite.service.CreateUser(
+		roles.User,      // role ID
 		"test@newuser",  // username
 		"test_password", // password
 	)
@@ -39,6 +40,7 @@ func (suite *OauthTestSuite) TestUpdateUsernameWorksWithValidEntry() {
 
 func (suite *OauthTestSuite) TestUpdateUsernameTxWorksWithValidEntry() {
 	user, err := suite.service.CreateUser(
+		roles.User,      // role ID
 		"test@newuser",  // username
 		"test_password", // password
 	)
@@ -58,6 +60,7 @@ func (suite *OauthTestSuite) TestUpdateUsernameTxWorksWithValidEntry() {
 
 func (suite *OauthTestSuite) TestUpdateUsernameFailsWithABlankEntry() {
 	user, err := suite.service.CreateUser(
+		roles.User,      // role ID
 		"test@newuser",  // username
 		"test_password", // password
 	)
@@ -123,6 +126,7 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 	// We try to insert a non unique user
 	user, err = suite.service.CreateUser(
+		roles.User,      // role ID
 		"test@user",     // username
 		"test_password", // password
 	)
@@ -137,6 +141,7 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 	// We try to insert a unique user
 	user, err = suite.service.CreateUser(
+		roles.User,      // role ID
 		"test@newuser",  // username
 		"test_password", // password
 	)
@@ -151,6 +156,7 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 	// Test username case insensitivity
 	user, err = suite.service.CreateUser(
+		roles.User,      // role ID
 		"TeSt@NeWuSeR2", // username
 		"test_password", // password
 	)
@@ -172,6 +178,7 @@ func (suite *OauthTestSuite) TestSetPassword() {
 
 	// Insert a test user without a password
 	user = &oauth.User{
+		RoleID:   util.StringOrNull(roles.User),
 		Username: "test@user_nopass",
 		Password: util.StringOrNull(""),
 	}
@@ -205,6 +212,7 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// Insert a test user without a password
 	err = suite.db.Create(&oauth.User{
+		RoleID:   util.StringOrNull(roles.User),
 		Username: "test@user_nopass",
 		Password: util.StringOrNull(""),
 	}).Error
@@ -273,6 +281,7 @@ func (suite *OauthTestSuite) TestBlankPassword() {
 	)
 
 	user, err = suite.service.CreateUser(
+		roles.User,         // role ID
 		"test@user_nopass", // username
 		"",                 // password
 	)

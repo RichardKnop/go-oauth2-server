@@ -1,30 +1,37 @@
 package oauth
 
 import (
-	"github.com/RichardKnop/go-oauth2-server/routes"
 	"github.com/gorilla/mux"
+	"github.com/RichardKnop/go-oauth2-server/routes"
+)
+
+const (
+	tokensResource     = "tokens"
+	tokensPath         = "/" + tokensResource
+	introspectResource = "introspect"
+	introspectPath     = "/" + introspectResource
 )
 
 // RegisterRoutes registers route handlers for the oauth service
-func RegisterRoutes(router *mux.Router, service ServiceInterface) {
-	subRouter := router.PathPrefix("/v1/oauth").Subrouter()
-	routes.AddRoutes(newRoutes(service), subRouter)
+func (s *Service) RegisterRoutes(router *mux.Router, prefix string) {
+	subRouter := router.PathPrefix(prefix).Subrouter()
+	routes.AddRoutes(s.GetRoutes(), subRouter)
 }
 
-// newRoutes returns []routes.Route slice for the oauth service
-func newRoutes(service ServiceInterface) []routes.Route {
+// GetRoutes returns []routes.Route slice for the oauth service
+func (s *Service) GetRoutes() []routes.Route {
 	return []routes.Route{
 		routes.Route{
 			Name:        "oauth_tokens",
 			Method:      "POST",
-			Pattern:     "/tokens",
-			HandlerFunc: service.TokensHandler,
+			Pattern:     tokensPath,
+			HandlerFunc: s.tokensHandler,
 		},
 		routes.Route{
 			Name:        "oauth_introspect",
 			Method:      "POST",
-			Pattern:     "/introspect",
-			HandlerFunc: service.IntrospectHandler,
+			Pattern:     introspectPath,
+			HandlerFunc: s.introspectHandler,
 		},
 	}
 }

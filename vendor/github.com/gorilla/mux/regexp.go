@@ -24,7 +24,7 @@ import (
 // Previously we accepted only Python-like identifiers for variable
 // names ([a-zA-Z_][a-zA-Z0-9_]*), but currently the only restriction is that
 // name and pattern can't be empty, and names can't contain a colon.
-func newRouteRegexp(tpl string, matchHost, matchPrefix, matchQuery, strictSlash bool) (*routeRegexp, error) {
+func newRouteRegexp(tpl string, matchHost, matchPrefix, matchQuery, strictSlash, useEncodedPath bool) (*routeRegexp, error) {
 	// Check if it is well-formed.
 	idxs, errBraces := braceIndices(tpl)
 	if errBraces != nil {
@@ -111,14 +111,15 @@ func newRouteRegexp(tpl string, matchHost, matchPrefix, matchQuery, strictSlash 
 	}
 	// Done!
 	return &routeRegexp{
-		template:    template,
-		matchHost:   matchHost,
-		matchQuery:  matchQuery,
-		strictSlash: strictSlash,
-		regexp:      reg,
-		reverse:     reverse.String(),
-		varsN:       varsN,
-		varsR:       varsR,
+		template:       template,
+		matchHost:      matchHost,
+		matchQuery:     matchQuery,
+		strictSlash:    strictSlash,
+		useEncodedPath: useEncodedPath,
+		regexp:         reg,
+		reverse:        reverse.String(),
+		varsN:          varsN,
+		varsR:          varsR,
 	}, nil
 }
 
@@ -133,6 +134,9 @@ type routeRegexp struct {
 	matchQuery bool
 	// The strictSlash value defined on the route, but disabled if PathPrefix was used.
 	strictSlash bool
+	// Determines whether to use encoded path from getPath function or unencoded
+	// req.URL.Path for path matching
+	useEncodedPath bool
 	// Expanded regexp.
 	regexp *regexp.Regexp
 	// Reverse template.
@@ -149,7 +153,10 @@ func (r *routeRegexp) Match(req *http.Request, match *RouteMatch) bool {
 		if r.matchQuery {
 			return r.matchQueryString(req)
 		}
-		path := getPath(req)
+		path := req.URL.Path
+		if r.useEncodedPath {
+			path = getPath(req)
+		}
 		return r.regexp.MatchString(path)
 	}
 
@@ -253,7 +260,10 @@ func (v *routeRegexpGroup) setMatch(req *http.Request, m *RouteMatch, r *Route) 
 			extractVars(host, matches, v.host.varsN, m.Vars)
 		}
 	}
-	path := getPath(req)
+	path := req.URL.Path
+	if r.useEncodedPath {
+		path = getPath(req)
+	}
 	// Store path variables.
 	if v.path != nil {
 		matches := v.path.regexp.FindStringSubmatchIndex(path)
@@ -300,14 +310,7 @@ func getHost(r *http.Request) string {
 }
 
 func extractVars(input string, matches []int, names []string, output map[string]string) {
-	matchesCount := 0
-	prevEnd := -1
-	for i := 2; i < len(matches) && matchesCount < len(names); i += 2 {
-		if prevEnd < matches[i+1] {
-			value := input[matches[i]:matches[i+1]]
-			output[names[matchesCount]] = value
-			prevEnd = matches[i+1]
-			matchesCount++
-		}
+	for i, name := range names {
+		output[name] = input[matches[2*i+2]:matches[2*i+3]]
 	}
 }

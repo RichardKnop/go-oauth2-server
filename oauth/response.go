@@ -19,3 +19,20 @@ type IntrospectResponse struct {
 	TokenType string `json:"token_type,omitempty"`
 	ExpiresAt int    `json:"exp,omitempty"`
 }
+
+// NewAccessTokenResponse ...
+func NewAccessTokenResponse(accessToken *AccessToken, refreshToken *RefreshToken, lifetime int, theTokenType string) (*AccessTokenResponse, error) {
+	response := &AccessTokenResponse{
+		AccessToken: accessToken.Token,
+		ExpiresIn:   lifetime,
+		TokenType:   theTokenType,
+		Scope:       accessToken.Scope,
+	}
+	if accessToken.User != nil {
+		response.UserID = accessToken.User.MetaUserID
+	}
+	if refreshToken != nil {
+		response.RefreshToken = refreshToken.Token
+	}
+	return response, nil
+}

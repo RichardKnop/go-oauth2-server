@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/RichardKnop/uuid"
 	"github.com/jinzhu/gorm"
@@ -35,9 +36,23 @@ func (s *Scope) TableName() string {
 	return "oauth_scopes"
 }
 
+// Role is a one of roles user can have (currently superuser or user)
+type Role struct {
+	database.TimestampModel
+	ID   string `gorm:"primary_key" sql:"type:varchar(20)"`
+	Name string `sql:"type:varchar(50);unique;not null"`
+}
+
+// TableName specifies table name
+func (r *Role) TableName() string {
+	return "oauth_roles"
+}
+
 // User ...
 type User struct {
 	gorm.Model
+	RoleID     sql.NullString `sql:"type:varchar(20);index;not null"`
+	Role       *Role
 	Username   string         `sql:"type:varchar(254);unique;not null"`
 	Password   sql.NullString `sql:"type:varchar(60)"`
 	MetaUserID uint           `sql:"index"`
@@ -105,7 +120,7 @@ func NewRefreshToken(client *Client, user *User, expiresIn int, scope string) *R
 	refreshToken := &RefreshToken{
 		ClientID:  util.PositiveIntOrNull(int64(client.ID)),
 		Token:     uuid.New(),
-		ExpiresAt: time.Now().Add(time.Duration(expiresIn) * time.Second),
+		ExpiresAt: time.Now().UTC().Add(time.Duration(expiresIn) * time.Second),
 		Scope:     scope,
 	}
 	if user != nil {
@@ -119,7 +134,7 @@ func NewAccessToken(client *Client, user *User, expiresIn int, scope string) *Ac
 	accessToken := &AccessToken{
 		ClientID:  util.PositiveIntOrNull(int64(client.ID)),
 		Token:     uuid.New(),
-		ExpiresAt: time.Now().Add(time.Duration(expiresIn) * time.Second),
+		ExpiresAt: time.Now().UTC().Add(time.Duration(expiresIn) * time.Second),
 		Scope:     scope,
 	}
 	if user != nil {
@@ -134,7 +149,7 @@ func NewAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI
 		ClientID:    util.PositiveIntOrNull(int64(client.ID)),
 		UserID:      util.PositiveIntOrNull(int64(user.ID)),
 		Code:        uuid.New(),
-		ExpiresAt:   time.Now().Add(time.Duration(expiresIn) * time.Second),
+		ExpiresAt:   time.Now().UTC().Add(time.Duration(expiresIn) * time.Second),
 		RedirectURI: util.StringOrNull(redirectURI),
 		Scope:       scope,
 	}

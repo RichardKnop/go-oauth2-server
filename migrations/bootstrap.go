@@ -2,7 +2,6 @@ package migrations
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/jinzhu/gorm"
 )
@@ -19,11 +18,11 @@ func Bootstrap(db *gorm.DB) error {
 	exists := nil == db.Where("name = ?", migrationName).First(migration).Error
 
 	if exists {
-		log.Printf("Skipping %s migration", migrationName)
+		logger.Infof("Skipping %s migration", migrationName)
 		return nil
 	}
 
-	log.Printf("Running %s migration", migrationName)
+	logger.Infof("Running %s migration", migrationName)
 
 	// Create migrations table
 	if err := db.CreateTable(new(Migration)).Error; err != nil {
@@ -34,7 +33,6 @@ func Bootstrap(db *gorm.DB) error {
 	// so we don't rerun this migration again
 	migration.Name = migrationName
 	if err := db.Create(migration).Error; err != nil {
-		log.Printf("Error saving record to migrations table: %s", err)
 		return fmt.Errorf("Error saving record to migrations table: %s", err)
 	}
 

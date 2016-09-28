@@ -12,6 +12,8 @@ var (
 	ErrRefreshTokenNotFound = errors.New("Refresh token not found")
 	// ErrRefreshTokenExpired ...
 	ErrRefreshTokenExpired = errors.New("Refresh token expired")
+	// ErrRequestedScopeCannotBeGreater ...
+	ErrRequestedScopeCannotBeGreater = errors.New("Requested scope cannot be greater")
 )
 
 // GetOrCreateRefreshToken retrieves an existing refresh token, if expired,
@@ -30,7 +32,7 @@ func (s *Service) GetOrCreateRefreshToken(client *Client, user *User, expiresIn 
 	// Check if the token is expired, if found
 	var expired bool
 	if found {
-		expired = time.Now().After(refreshToken.ExpiresAt)
+		expired = time.Now().UTC().After(refreshToken.ExpiresAt)
 	}
 
 	// If the refresh token has expired, delete it
@@ -64,7 +66,7 @@ func (s *Service) GetValidRefreshToken(token string, client *Client) (*RefreshTo
 	}
 
 	// Check the refresh token hasn't expired
-	if time.Now().After(refreshToken.ExpiresAt) {
+	if time.Now().UTC().After(refreshToken.ExpiresAt) {
 		return nil, ErrRefreshTokenExpired
 	}
 
@@ -72,9 +74,9 @@ func (s *Service) GetValidRefreshToken(token string, client *Client) (*RefreshTo
 }
 
 // getRefreshTokenScope returns scope for a new refresh token
-func (s *Service) getRefreshTokenScope(rt *RefreshToken, requestedScope string) (string, error) {
+func (s *Service) getRefreshTokenScope(refreshToken *RefreshToken, requestedScope string) (string, error) {
 	var (
-		scope = rt.Scope // default to the scope originally granted by the resource owner
+		scope = refreshToken.Scope // default to the scope originally granted by the resource owner
 		err   error
 	)
 
@@ -87,7 +89,7 @@ func (s *Service) getRefreshTokenScope(rt *RefreshToken, requestedScope string) 
 	}
 
 	// Requested scope CANNOT include any scope not originally granted
-	if !util.SpaceDelimitedStringNotGreater(scope, rt.Scope) {
+	if !util.SpaceDelimitedStringNotGreater(scope, refreshToken.Scope) {
 		return "", ErrRequestedScopeCannotBeGreater
 	}
 

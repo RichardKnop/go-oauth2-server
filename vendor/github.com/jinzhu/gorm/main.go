@@ -75,6 +75,9 @@ func Open(dialect string, args ...interface{}) (*DB, error) {
 
 		if err == nil {
 			err = db.DB().Ping() // Send a ping to make sure the database connection is alive.
+			if err != nil {
+				db.DB().Close()
+			}
 		}
 	}
 
@@ -89,6 +92,11 @@ func (s *DB) Close() error {
 // DB get `*sql.DB` from current connection
 func (s *DB) DB() *sql.DB {
 	return s.db.(*sql.DB)
+}
+
+// Dialect get dialect
+func (s *DB) Dialect() Dialect {
+	return s.parent.dialect
 }
 
 // New clone a new db connection without search conditions
@@ -363,10 +371,14 @@ func (s *DB) UpdateColumns(values interface{}) *DB {
 // Save update value in database, if the value doesn't have primary key, will insert it
 func (s *DB) Save(value interface{}) *DB {
 	scope := s.clone().NewScope(value)
-	if scope.PrimaryKeyZero() {
-		return scope.callCallbacks(s.parent.callbacks.creates).db
+	if !scope.PrimaryKeyZero() {
+		newDB := scope.callCallbacks(s.parent.callbacks.updates).db
+		if newDB.Error == nil && newDB.RowsAffected == 0 {
+			return s.New().FirstOrCreate(value)
+		}
+		return newDB
 	}
-	return scope.callCallbacks(s.parent.callbacks.updates).db
+	return scope.callCallbacks(s.parent.callbacks.creates).db
 }
 
 // Create insert the value into database

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/response"
+	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 )
 
 var (
@@ -12,41 +12,36 @@ var (
 	ErrInvalidUsernameOrPassword = errors.New("Invalid username or password")
 )
 
-func (s *Service) passwordGrant(w http.ResponseWriter, r *http.Request, client *Client) {
-	// Get user credentials from form data
-	username := r.Form.Get("username") // usually an email
-	password := r.Form.Get("password")
-
-	// Authenticate the user
-	user, err := s.AuthUser(username, password)
-	if err != nil {
-		// For security reasons, return a general error message
-		response.UnauthorizedError(w, ErrInvalidUsernameOrPassword.Error())
-		return
-	}
-
+func (s *Service) passwordGrant(r *http.Request, client *Client) (*AccessTokenResponse, error) {
 	// Get the scope string
 	scope, err := s.GetScope(r.Form.Get("scope"))
 	if err != nil {
-		response.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return nil, err
+	}
+
+	// Authenticate the user
+	user, err := s.AuthUser(r.Form.Get("username"), r.Form.Get("password"))
+	if err != nil {
+		// For security reasons, return a general error message
+		return nil, ErrInvalidUsernameOrPassword
 	}
 
 	// Log in the user
 	accessToken, refreshToken, err := s.Login(client, user, scope)
 	if err != nil {
-		response.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
-	// Write the JSON access token to the response
-	accessTokenRespone := &AccessTokenResponse{
-		UserID:       user.MetaUserID,
-		AccessToken:  accessToken.Token,
-		ExpiresIn:    s.cnf.Oauth.AccessTokenLifetime,
-		TokenType:    TokenType,
-		Scope:        accessToken.Scope,
-		RefreshToken: refreshToken.Token,
+	// Create response
+	accessTokenResponse, err := NewAccessTokenResponse(
+		accessToken,
+		refreshToken,
+		s.cnf.Oauth.AccessTokenLifetime,
+		tokentypes.Bearer,
+	)
+	if err != nil {
+		return nil, err
 	}
-	response.WriteJSON(w, accessTokenRespone, 200)
+
+	return accessTokenResponse, nil
 }

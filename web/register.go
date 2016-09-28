@@ -2,6 +2,8 @@ package web
 
 import (
 	"net/http"
+
+	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
 )
 
 func (s *Service) registerForm(w http.ResponseWriter, r *http.Request) {
@@ -37,6 +39,7 @@ func (s *Service) register(w http.ResponseWriter, r *http.Request) {
 
 	// Create a user
 	_, err = s.oauthService.CreateUser(
+		roles.User,             // role ID
 		r.Form.Get("email"),    // username
 		r.Form.Get("password"), // password
 	)

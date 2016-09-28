@@ -5,9 +5,10 @@ import (
 	"net/http/httptest"
 	"net/url"
 
-	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
+	"github.com/RichardKnop/go-oauth2-server/test-util"
 )
 
 func (suite *OauthTestSuite) TestClientCredentialsGrant() {
@@ -27,16 +28,16 @@ func (suite *OauthTestSuite) TestClientCredentialsGrant() {
 	// Fetch data
 	accessToken := new(oauth.AccessToken)
 	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
-		First(accessToken).RecordNotFound())
+		Last(accessToken).RecordNotFound())
 
 	// Check the response
 	expected := &oauth.AccessTokenResponse{
 		AccessToken: accessToken.Token,
 		ExpiresIn:   3600,
-		TokenType:   oauth.TokenType,
+		TokenType:   tokentypes.Bearer,
 		Scope:       "read_write",
 	}
-	response.TestResponseObject(suite.T(), w, expected, 200)
+	testutil.TestResponseObject(suite.T(), w, expected, 200)
 
 	// Client credentials grant does not produce refresh token
 	assert.True(suite.T(), oauth.RefreshTokenPreload(suite.db).

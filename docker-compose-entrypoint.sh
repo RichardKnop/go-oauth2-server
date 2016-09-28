@@ -29,6 +29,7 @@ if [ "$1" = 'go-oauth2-server' ] && [ "$2" = 'runserver' ]; then
 
   $1 migrate
   $1 loaddata oauth/fixtures/scopes.yml
+  $1 loaddata oauth/fixtures/roles.yml
   $1 loaddata oauth/fixtures/test_clients.yml
 fi
 

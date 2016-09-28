@@ -141,7 +141,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Insert an access token without a user
 	err = suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token",
-		ExpiresAt: time.Now().Add(+10 * time.Second),
+		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
 	}).Error
 	assert.NoError(suite.T(), err, "Inserting test data failed")
@@ -182,7 +182,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Insert an access token with a user
 	err = suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token2",
-		ExpiresAt: time.Now().Add(+10 * time.Second),
+		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
 		User:      suite.users[0],
 	}).Error
@@ -234,7 +234,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Insert an expired client only test refresh token
 	err = suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token",
-		ExpiresAt: time.Now().Add(-10 * time.Second),
+		ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 		Client:    suite.clients[0],
 	}).Error
 	assert.NoError(suite.T(), err, "Inserting test data failed")
@@ -273,7 +273,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Insert an expired user specific test refresh token
 	err = suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token",
-		ExpiresAt: time.Now().Add(-10 * time.Second),
+		ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 		Client:    suite.clients[0],
 		User:      suite.users[0],
 	}).Error
@@ -323,14 +323,14 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 		// Expired test refresh token
 		&oauth.RefreshToken{
 			Token:     "test_expired_token",
-			ExpiresAt: time.Now().Add(-10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
 		// Refresh token
 		&oauth.RefreshToken{
 			Token:     "test_token",
-			ExpiresAt: time.Now().Add(+10 * time.Second),
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},

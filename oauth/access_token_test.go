@@ -3,8 +3,8 @@ package oauth_test
 import (
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
 )
 
 func (suite *OauthTestSuite) TestGrantAccessToken() {
@@ -82,27 +82,27 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 			// Expired access token with a user
 			&oauth.AccessToken{
 				Token:     "test_token_1",
-				ExpiresAt: time.Now().Add(-10 * time.Second),
+				ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 				Client:    suite.clients[0],
 				User:      suite.users[0],
 			},
 			// Expired access token without a user
 			&oauth.AccessToken{
 				Token:     "test_token_2",
-				ExpiresAt: time.Now().Add(-10 * time.Second),
+				ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 				Client:    suite.clients[0],
 			},
 			// Access token with a user
 			&oauth.AccessToken{
 				Token:     "test_token_3",
-				ExpiresAt: time.Now().Add(+10 * time.Second),
+				ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 				Client:    suite.clients[0],
 				User:      suite.users[0],
 			},
 			// Access token without a user
 			&oauth.AccessToken{
 				Token:     "test_token_4",
-				ExpiresAt: time.Now().Add(+10 * time.Second),
+				ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 				Client:    suite.clients[0],
 			},
 		}

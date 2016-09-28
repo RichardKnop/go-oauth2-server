@@ -3,13 +3,61 @@ package mocks
 import "github.com/RichardKnop/go-oauth2-server/oauth"
 import "github.com/stretchr/testify/mock"
 
-import "net/http"
+import "github.com/gorilla/mux"
 import "github.com/jinzhu/gorm"
+import "github.com/RichardKnop/go-oauth2-server/config"
+import "github.com/RichardKnop/go-oauth2-server/routes"
 
 type ServiceInterface struct {
 	mock.Mock
 }
 
+func (_m *ServiceInterface) GetConfig() *config.Config {
+	ret := _m.Called()
+
+	var r0 *config.Config
+	if rf, ok := ret.Get(0).(func() *config.Config); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*config.Config)
+		}
+	}
+
+	return r0
+}
+func (_m *ServiceInterface) RestrictToRoles(allowedRoles ...string) {
+	_m.Called(allowedRoles)
+}
+func (_m *ServiceInterface) IsRoleAllowed(role string) bool {
+	ret := _m.Called(role)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(role)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	return r0
+}
+func (_m *ServiceInterface) GetRoutes() []routes.Route {
+	ret := _m.Called()
+
+	var r0 []routes.Route
+	if rf, ok := ret.Get(0).(func() []routes.Route); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]routes.Route)
+		}
+	}
+
+	return r0
+}
+func (_m *ServiceInterface) RegisterRoutes(router *mux.Router, prefix string) {
+	_m.Called(router, prefix)
+}
 func (_m *ServiceInterface) ClientExists(clientID string) bool {
 	ret := _m.Called(clientID)
 
@@ -139,12 +187,12 @@ func (_m *ServiceInterface) FindUserByUsername(username string) (*oauth.User, er
 
 	return r0, r1
 }
-func (_m *ServiceInterface) CreateUser(username string, password string) (*oauth.User, error) {
-	ret := _m.Called(username, password)
+func (_m *ServiceInterface) CreateUser(roleID string, username string, password string) (*oauth.User, error) {
+	ret := _m.Called(roleID, username, password)
 
 	var r0 *oauth.User
-	if rf, ok := ret.Get(0).(func(string, string) *oauth.User); ok {
-		r0 = rf(username, password)
+	if rf, ok := ret.Get(0).(func(string, string, string) *oauth.User); ok {
+		r0 = rf(roleID, username, password)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*oauth.User)
@@ -152,20 +200,20 @@ func (_m *ServiceInterface) CreateUser(username string, password string) (*oauth
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(username, password)
+	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
+		r1 = rf(roleID, username, password)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	return r0, r1
 }
-func (_m *ServiceInterface) CreateUserTx(tx *gorm.DB, username string, password string) (*oauth.User, error) {
-	ret := _m.Called(tx, username, password)
+func (_m *ServiceInterface) CreateUserTx(tx *gorm.DB, roleID string, username string, password string) (*oauth.User, error) {
+	ret := _m.Called(tx, roleID, username, password)
 
 	var r0 *oauth.User
-	if rf, ok := ret.Get(0).(func(*gorm.DB, string, string) *oauth.User); ok {
-		r0 = rf(tx, username, password)
+	if rf, ok := ret.Get(0).(func(*gorm.DB, string, string, string) *oauth.User); ok {
+		r0 = rf(tx, roleID, username, password)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*oauth.User)
@@ -173,8 +221,8 @@ func (_m *ServiceInterface) CreateUserTx(tx *gorm.DB, username string, password 
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*gorm.DB, string, string) error); ok {
-		r1 = rf(tx, username, password)
+	if rf, ok := ret.Get(1).(func(*gorm.DB, string, string, string) error); ok {
+		r1 = rf(tx, roleID, username, password)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -404,9 +452,45 @@ func (_m *ServiceInterface) Authenticate(token string) (*oauth.AccessToken, erro
 
 	return r0, r1
 }
-func (_m *ServiceInterface) TokensHandler(w http.ResponseWriter, r *http.Request) {
-	_m.Called(w, r)
+func (_m *ServiceInterface) NewIntrospectResponseFromAccessToken(accessToken *oauth.AccessToken) (*oauth.IntrospectResponse, error) {
+	ret := _m.Called(accessToken)
+
+	var r0 *oauth.IntrospectResponse
+	if rf, ok := ret.Get(0).(func(*oauth.AccessToken) *oauth.IntrospectResponse); ok {
+		r0 = rf(accessToken)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oauth.IntrospectResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*oauth.AccessToken) error); ok {
+		r1 = rf(accessToken)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
-func (_m *ServiceInterface) IntrospectHandler(w http.ResponseWriter, r *http.Request) {
-	_m.Called(w, r)
+func (_m *ServiceInterface) NewIntrospectResponseFromRefreshToken(refreshToken *oauth.RefreshToken) (*oauth.IntrospectResponse, error) {
+	ret := _m.Called(refreshToken)
+
+	var r0 *oauth.IntrospectResponse
+	if rf, ok := ret.Get(0).(func(*oauth.RefreshToken) *oauth.IntrospectResponse); ok {
+		r0 = rf(refreshToken)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*oauth.IntrospectResponse)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*oauth.RefreshToken) error); ok {
+		r1 = rf(refreshToken)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }

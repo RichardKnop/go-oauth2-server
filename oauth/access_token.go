@@ -4,9 +4,6 @@ import (
 	"time"
 )
 
-// TokenType is default type of generated tokens.
-const TokenType = "Bearer"
-
 // GrantAccessToken deletes old tokens and grants a new access token
 func (s *Service) GrantAccessToken(client *Client, user *User, expiresIn int, scope string) (*AccessToken, error) {
 	// Begin a transaction

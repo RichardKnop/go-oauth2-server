@@ -1,23 +1,24 @@
 package health
 
 import (
-	"github.com/RichardKnop/go-oauth2-server/routes"
 	"github.com/gorilla/mux"
+	"github.com/RichardKnop/go-oauth2-server/routes"
 )
 
 // RegisterRoutes registers route handlers for the health service
-func RegisterRoutes(router *mux.Router, service *Service) {
-	routes.AddRoutes(newRoutes(service), router)
+func (s *Service) RegisterRoutes(router *mux.Router, prefix string) {
+	subRouter := router.PathPrefix(prefix).Subrouter()
+	routes.AddRoutes(s.GetRoutes(), subRouter)
 }
 
-// newRoutes returns []routes.Route slice for the health service
-func newRoutes(service *Service) []routes.Route {
+// GetRoutes returns []routes.Route slice for the health service
+func (s *Service) GetRoutes() []routes.Route {
 	return []routes.Route{
 		routes.Route{
 			Name:        "health_check",
 			Method:      "GET",
-			Pattern:     "/v1/health",
-			HandlerFunc: service.healthcheck,
+			Pattern:     "/health",
+			HandlerFunc: s.healthcheck,
 		},
 	}
 }

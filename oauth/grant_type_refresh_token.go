@@ -1,49 +1,44 @@
 package oauth
 
 import (
-	"errors"
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/response"
+	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 )
 
-var (
-	// ErrRequestedScopeCannotBeGreater ...
-	ErrRequestedScopeCannotBeGreater = errors.New("Requested scope cannot be greater")
-)
-
-func (s *Service) refreshTokenGrant(w http.ResponseWriter, r *http.Request, client *Client) {
+func (s *Service) refreshTokenGrant(r *http.Request, client *Client) (*AccessTokenResponse, error) {
 	// Fetch the refresh token
-	rt, err := s.GetValidRefreshToken(r.Form.Get("refresh_token"), client)
+	theRefreshToken, err := s.GetValidRefreshToken(r.Form.Get("refresh_token"), client)
 	if err != nil {
-		response.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return nil, err
 	}
 
 	// Get the scope
-	scope, err := s.getRefreshTokenScope(rt, r.Form.Get("scope"))
+	scope, err := s.getRefreshTokenScope(theRefreshToken, r.Form.Get("scope"))
 	if err != nil {
-		response.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return nil, err
 	}
 
 	// Log in the user
-	accessToken, refreshToken, err := s.Login(rt.Client, rt.User, scope)
+	accessToken, refreshToken, err := s.Login(
+		theRefreshToken.Client,
+		theRefreshToken.User,
+		scope,
+	)
 	if err != nil {
-		response.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
-	// Write the JSON access token to the response
-	accessTokenRespone := &AccessTokenResponse{
-		AccessToken:  accessToken.Token,
-		ExpiresIn:    s.cnf.Oauth.AccessTokenLifetime,
-		TokenType:    TokenType,
-		Scope:        accessToken.Scope,
-		RefreshToken: refreshToken.Token,
+	// Create response
+	accessTokenResponse, err := NewAccessTokenResponse(
+		accessToken,
+		refreshToken,
+		s.cnf.Oauth.AccessTokenLifetime,
+		tokentypes.Bearer,
+	)
+	if err != nil {
+		return nil, err
 	}
-	if accessToken.User != nil {
-		accessTokenRespone.UserID = accessToken.User.MetaUserID
-	}
-	response.WriteJSON(w, accessTokenRespone, 200)
+
+	return accessTokenResponse, nil
 }

@@ -27,13 +27,12 @@ It relies on `Postgres` for database and `etcd` for configuration but both are e
       * [Client Credentials](#client-credentials)
     * [Refreshing An Access Token](#refreshing-an-access-token)
     * [Token Introspection](#token-introspection)
-* [Development](#development)
-  * [Dependencies](#dependencies)
-  * [Setup](#setup)
-  * [Test Data](#test-data)
-  * [Testing](#testing)
-  * [Docker](#docker)
-  * [Docker-compose](#docker-compose)
+* [Dependencies](#dependencies)
+* [Setup](#setup)
+* [Test Data](#test-data)
+* [Testing](#testing)
+* [Docker](#docker)
+* [Docker Compose](#docker-compose)
 
 # API
 
@@ -111,7 +110,7 @@ https://www.example.com/?code=7afb1c55-76e4-4c76-adb7-9d657cb47a27&state=somesta
 
 The client requests an access token from the authorization server's token endpoint by including the authorization code received in the previous step. When making the request, the client authenticates with the authorization server. The client includes the redirection URI used to obtain the authorization code for verification.
 
-```
+```sh
 curl --compressed -v localhost:8080/v1/oauth/tokens \
 	-u test_client_1:test_secret \
 	-d "grant_type=authorization_code" \
@@ -247,7 +246,7 @@ The resource owner provides the client with its username and password.
 
 The client requests an access token from the authorization server's token endpoint by including the credentials received from the resource owner. When making the request, the client authenticates with the authorization server.
 
-```
+```sh
 curl --compressed -v localhost:8080/v1/oauth/tokens \
 	-u test_client_1:test_secret \
 	-d "grant_type=password" \
@@ -289,7 +288,7 @@ The client credentials grant type MUST only be used by confidential clients.
 
 The client authenticates with the authorization server and requests an access token from the token endpoint.
 
-```
+```sh
 curl --compressed -v localhost:8080/v1/oauth/tokens \
 	-u test_client_1:test_secret \
 	-d "grant_type=client_credentials" \
@@ -314,7 +313,7 @@ http://tools.ietf.org/html/rfc6749#section-6
 
 If the authorization server issued a refresh token to the client, the client can make a refresh request to the token endpoint in order to refresh the access token.
 
-```
+```sh
 curl --compressed -v localhost:8080/v1/oauth/tokens \
 	-u test_client_1:test_secret \
 	-d "grant_type=refresh_token" \
@@ -350,7 +349,7 @@ https://tools.ietf.org/html/rfc7662
 
 If the authorization server issued a access token or refresh token to the client, the client can make a request to the introspect endpoint in order to learn meta-information about a token.
 
-```
+```sh
 curl --compressed -v localhost:8080/v1/oauth/introspect \
 	-u test_client_1:test_secret \
 	-d "token=00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c" \
@@ -370,44 +369,36 @@ The authorization server responds meta-information about a token.
 }
 ```
 
-# Development
-
-## Dependencies
+# Dependencies
 
 According to [Go 1.5 Vendor experiment](https://docs.google.com/document/d/1Bz5-UB7g2uPBdOx-rw5t9MxJwkfpx90cqG9AFL0JAYo), all dependencies are stored in the vendor directory. This approach is called `vendoring` and is the best practice for Go projects to lock versions of dependencies in order to achieve reproducible builds.
 
 To update dependencies during development:
 
-```
+```sh
 make update-deps
 ```
 
 To install dependencies:
 
-```
+```sh
 make install-deps
 ```
 
-## Setup
+# Setup
 
-If you are developing on OSX, install `etcd`, `Postgres`:
+If you are developing on OSX, install `etcd`, `Postgres` and `nats-streaming-server`:
 
-```
+## etcd
+
+```sh
 brew install etcd
-brew install postgres
-```
-
-You might want to create a `Postgres` database:
-
-```
-createuser --createdb go_oauth2_server
-createdb -U go_oauth2_server go_oauth2_server
 ```
 
 Load a development configuration into `etcd`:
 
-```
-curl -L http://localhost:2379/v2/keys/config/go_oauth2_server.json -XPUT -d value='{
+```sh
+etcdctl set /config/go_oauth2_server.json '{
   "Database": {
     "Type": "postgres",
     "Host": "localhost",
@@ -433,65 +424,92 @@ curl -L http://localhost:2379/v2/keys/config/go_oauth2_server.json -XPUT -d valu
 }'
 ```
 
+Check the config was loaded properly:
+
+```sh
+etcdctl get /config/go_oauth2_server.json
+```
+
+
+## Postgres
+
+```sh
+brew install postgres
+```
+
+You might want to create a `Postgres` database:
+
+```sh
+createuser --createdb go_oauth2_server
+createdb -U go_oauth2_server go_oauth2_server
+```
+
+# Compile & Run
+
+Compile the app:
+
+```sh
+go install .
+```
+
 Run migrations:
 
-```
-go run main.go migrate
+```sh
+go-oauth2-server migrate
 ```
 
 And finally, run the app:
 
-```
-go run main.go runserver
-```
-
-## Test Data
-
-You might want to insert some test data if you are testing locally using `curl` examples from this README:
-
-```
-go run main.go loaddata \
-	oauth/fixtures/scopes.yml \
-	oauth/fixtures/test_clients.yml \
-	oauth/fixtures/test_users.yml
+```sh
+go-oauth2-server runserver
 ```
 
-## Testing
+When deploying, you can set etcd related environment variables:
+
+* `ETCD_ENDPOINTS`
+* `ETCD_CERT_FILE`
+* `ETCD_KEY_FILE`
+* `ETCD_CA_FILE`
+* `ETCD_CONFIG_PATH`
+
+# Testing
 
 I have used a mix of unit and functional tests so you need to have `sqlite` installed in order for the tests to run successfully as the suite creates an in-memory database.
 
 To run tests:
 
-```
+```sh
 make test
 ```
 
-## Docker
+# Docker
 
 Build a Docker image and run the app in a container:
 
-```
+```sh
 docker build -t go-oauth2-server:latest .
-docker run -e ETCD_ENDPOINT=localhost:2379 -p 8080:8080 --name go-oauth2-server go-oauth2-server:latest
+docker run -e ETCD_ENDPOINTs=localhost:2379 -p 8080:8080 --name go-oauth2-server go-oauth2-server:latest
 ```
 
 You can load fixtures with `docker exec` command:
 
-```
+```sh
 docker exec <container_id> /go/bin/go-oauth2-server loaddata \
-	oauth/fixtures/scopes.yml \
-	oauth/fixtures/test_clients.yml
+  oauth/fixtures/scopes.yml \
+  oauth/fixtures/roles.yml \
+  oauth/fixtures/test_clients.yml
 ```
 
 # Docker Compose
 
 You can use [docker-compose](https://docs.docker.com/compose/) to start the app, postgres, etcd in separate linked containers:
 
-```
+```sh
 docker-compose up
 ```
 
 During up process all configuration and fixtures will be loaded. After successful up you can check, that app is running using for example the health check request:
-```
+
+```sh
 curl --compressed -v localhost:8080/v1/health
 ```

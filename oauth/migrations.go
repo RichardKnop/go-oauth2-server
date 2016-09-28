@@ -3,8 +3,8 @@ package oauth
 import (
 	"fmt"
 
-	"github.com/RichardKnop/go-oauth2-server/migrations"
 	"github.com/jinzhu/gorm"
+	"github.com/RichardKnop/go-oauth2-server/migrations"
 )
 
 var (
@@ -29,6 +29,9 @@ func migrate0001(db *gorm.DB, name string) error {
 	if err := db.CreateTable(new(Scope)).Error; err != nil {
 		return fmt.Errorf("Error creating oauth_scopes table: %s", err)
 	}
+	if err := db.CreateTable(new(Role)).Error; err != nil {
+		return fmt.Errorf("Error creating oauth_roles table: %s", err)
+	}
 	if err := db.CreateTable(new(User)).Error; err != nil {
 		return fmt.Errorf("Error creating oauth_users table: %s", err)
 	}
@@ -41,7 +44,15 @@ func migrate0001(db *gorm.DB, name string) error {
 	if err := db.CreateTable(new(AuthorizationCode)).Error; err != nil {
 		return fmt.Errorf("Error creating oauth_authorization_codes table: %s", err)
 	}
-	err := db.Model(new(RefreshToken)).AddForeignKey(
+	err := db.Model(new(User)).AddForeignKey(
+		"role_id", "oauth_roles(id)",
+		"RESTRICT", "RESTRICT",
+	).Error
+	if err != nil {
+		return fmt.Errorf("Error creating foreign key on "+
+			"oauth_users.role_id for oauth_roles(id): %s", err)
+	}
+	err = db.Model(new(RefreshToken)).AddForeignKey(
 		"client_id", "oauth_clients(id)",
 		"RESTRICT", "RESTRICT",
 	).Error

@@ -1,0 +1,21 @@
+---
+
+#-------#
+# Roles #
+#-------#
+
+- table: 'oauth_roles'
+  pk:
+    id: 'superuser'
+  fields:
+    name: 'Superuser'
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'
+
+- table: 'oauth_roles'
+  pk:
+    id: 'user'
+  fields:
+    name: 'User'
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'

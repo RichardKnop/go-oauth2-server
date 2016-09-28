@@ -1,4 +1,4 @@
-package database
+package testutil
 
 import (
 	"fmt"
@@ -6,10 +6,11 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/jinzhu/gorm"
 	"github.com/RichardKnop/go-fixtures"
 	"github.com/RichardKnop/go-oauth2-server/migrations"
-	"github.com/jinzhu/gorm"
-	// sqlite driver
+	// Drivers
+	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -74,7 +75,6 @@ func rebuildDatabase(dbPath string) (*gorm.DB, error) {
 // rebuildDatabase attempts to delete an existing Postgres
 // database and rebuild it, returning a pointer to it
 func rebuildDatabasePostgres(dbUser, dbName string) (*gorm.DB, error) {
-
 	dropPostgresDB(dbUser, dbName)
 
 	if err := createPostgresDB(dbUser, dbName); err != nil {

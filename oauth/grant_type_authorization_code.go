@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/response"
+	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 )
 
 var (
@@ -12,7 +12,7 @@ var (
 	ErrInvalidRedirectURI = errors.New("Invalid redirect URI")
 )
 
-func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request, client *Client) {
+func (s *Service) authorizationCodeGrant(r *http.Request, client *Client) (*AccessTokenResponse, error) {
 	// Fetch the authorization code
 	authorizationCode, err := s.getValidAuthorizationCode(
 		r.Form.Get("code"),
@@ -20,8 +20,7 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 		client,
 	)
 	if err != nil {
-		response.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return nil, err
 	}
 
 	// Log in the user
@@ -31,23 +30,22 @@ func (s *Service) authorizationCodeGrant(w http.ResponseWriter, r *http.Request,
 		authorizationCode.Scope,
 	)
 	if err != nil {
-		response.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
 	// Delete the authorization code
 	s.db.Unscoped().Delete(&authorizationCode)
 
-	// Write the JSON access token to the response
-	accessTokenRespone := &AccessTokenResponse{
-		AccessToken:  accessToken.Token,
-		ExpiresIn:    s.cnf.Oauth.AccessTokenLifetime,
-		TokenType:    TokenType,
-		Scope:        accessToken.Scope,
-		RefreshToken: refreshToken.Token,
+	// Create response
+	accessTokenResponse, err := NewAccessTokenResponse(
+		accessToken,
+		refreshToken,
+		s.cnf.Oauth.AccessTokenLifetime,
+		tokentypes.Bearer,
+	)
+	if err != nil {
+		return nil, err
 	}
-	if accessToken.User != nil {
-		accessTokenRespone.UserID = accessToken.User.MetaUserID
-	}
-	response.WriteJSON(w, accessTokenRespone, 200)
+
+	return accessTokenResponse, nil
 }

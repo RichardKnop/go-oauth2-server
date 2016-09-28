@@ -4,9 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/health"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/web"
 	"github.com/gorilla/mux"
 	"github.com/phyber/negroni-gzip/gzip"
 	"github.com/urfave/negroni"
@@ -20,15 +17,9 @@ func RunServer() error {
 		return err
 	}
 	defer db.Close()
-
-	// Initialise the health service
-	healthService := health.NewService(db)
-
-	// Initialise the oauth service
-	oauthService := oauth.NewService(cnf, db)
-
-	// Initialise the web service
-	webService := web.NewService(cnf, oauthService)
+	if err := initServices(cnf, db); err != nil {
+		return err
+	}
 
 	// Start a classic negroni app
 	app := negroni.New()
@@ -40,14 +31,10 @@ func RunServer() error {
 	// Create a router instance
 	router := mux.NewRouter()
 
-	// Add routes for the health service (healthcheck endpoint)
-	health.RegisterRoutes(router, healthService)
-
-	// Add routes for the oauth service (REST tokens endpoint)
-	oauth.RegisterRoutes(router, oauthService)
-
-	// Add routes for the web package (register, login authorize web pages)
-	web.RegisterRoutes(router, webService)
+	// Add routes
+	healthService.RegisterRoutes(router, "/v1")
+	oauthService.RegisterRoutes(router, "/v1/oauth")
+	webService.RegisterRoutes(router, "/web")
 
 	// Set the router
 	app.UseHandler(router)

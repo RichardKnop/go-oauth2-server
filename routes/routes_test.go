@@ -1,4 +1,4 @@
-package routes
+package routes_test
 
 import (
 	"fmt"
@@ -6,9 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/urfave/negroni"
+	"github.com/RichardKnop/go-oauth2-server/routes"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
+	"github.com/urfave/negroni"
 )
 
 // helloWorldMiddleware is a test middleware that writes "hello world" to the
@@ -33,8 +34,8 @@ func TestAddRoutes(t *testing.T) {
 	)
 
 	// Add a test GET route without a middleware
-	AddRoutes([]Route{
-		Route{
+	routes.AddRoutes([]routes.Route{
+		routes.Route{
 			Name:        "foobar_route",
 			Method:      "GET",
 			Pattern:     "/bar",
@@ -43,8 +44,8 @@ func TestAddRoutes(t *testing.T) {
 	}, router.PathPrefix("/foo").Subrouter())
 
 	// Add a test PUT route with a middleware and a named parameter
-	AddRoutes([]Route{
-		Route{
+	routes.AddRoutes([]routes.Route{
+		routes.Route{
 			Name:        "helloworld_route",
 			Method:      "PUT",
 			Pattern:     "/world/{id:[0-9]+}",
@@ -94,8 +95,8 @@ func TestRecoveryMiddlewareHandlesPanic(t *testing.T) {
 	)
 
 	// Add a test GET route without a middleware
-	AddRoutes([]Route{
-		Route{
+	routes.AddRoutes([]routes.Route{
+		routes.Route{
 			Name:    "panic_route",
 			Method:  "GET",
 			Pattern: "/panic",

@@ -2,7 +2,6 @@ package migrations
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/jinzhu/gorm"
 )
@@ -36,12 +35,12 @@ func Migrate(db *gorm.DB, migrations []MigrationStage) error {
 // the specified database and logs any errors
 func MigrateAll(db *gorm.DB, migrationFunctions []func(*gorm.DB) error) {
 	if err := Bootstrap(db); err != nil {
-		log.Print(err)
+		logger.Error(err)
 	}
 
 	for _, m := range migrationFunctions {
 		if err := m(db); err != nil {
-			log.Print(err)
+			logger.Error(err)
 		}
 	}
 }
@@ -52,9 +51,9 @@ func MigrationExists(db *gorm.DB, migrationName string) bool {
 	found := !db.Where("name = ?", migrationName).First(migration).RecordNotFound()
 
 	if found {
-		log.Printf("Skipping %s migration", migrationName)
+		logger.Infof("Skipping %s migration", migrationName)
 	} else {
-		log.Printf("Running %s migration", migrationName)
+		logger.Infof("Running %s migration", migrationName)
 	}
 
 	return found
@@ -66,7 +65,7 @@ func SaveMigration(db *gorm.DB, migrationName string) error {
 	migration.Name = migrationName
 
 	if err := db.Create(migration).Error; err != nil {
-		log.Printf("Error saving record to migrations table: %s", err)
+		logger.Errorf("Error saving record to migrations table: %s", err)
 		return fmt.Errorf("Error saving record to migrations table: %s", err)
 	}
 

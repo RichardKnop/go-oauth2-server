@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/response"
+	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 )
 
 const (
@@ -21,119 +21,104 @@ var (
 	ErrTokenHintInvalid = errors.New("Invalid token hint")
 )
 
-func (s *Service) introspectToken(w http.ResponseWriter, r *http.Request, client *Client) {
+func (s *Service) introspectToken(r *http.Request, client *Client) (*IntrospectResponse, error) {
 	// Parse the form so r.Form becomes available
 	if err := r.ParseForm(); err != nil {
-		response.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return nil, err
 	}
 
+	// Get token from the query
 	token := r.Form.Get("token")
 	if token == "" {
-		response.Error(w, ErrTokenMissing.Error(), http.StatusBadRequest)
-		return
+		return nil, ErrTokenMissing
 	}
 
+	// Get token type hint from the query
 	tokenTypeHint := r.Form.Get("token_type_hint")
 
+	// Default to access token hint
 	if tokenTypeHint == "" {
 		tokenTypeHint = AccessTokenHint
 	}
 
-	var ir *IntrospectResponse
-
 	switch tokenTypeHint {
 	case AccessTokenHint:
-		var ok bool
-		ir, ok = s.introspectAccessToken(w, token)
-		if !ok {
-			ir, _ = s.introspectRefreshToken(w, token, client)
+		accessToken, err := s.Authenticate(token)
+		if err != nil {
+			return nil, err
 		}
+		return s.NewIntrospectResponseFromAccessToken(accessToken)
 	case RefreshTokenHint:
-		var ok bool
-		ir, ok = s.introspectRefreshToken(w, token, client)
-		if !ok {
-			ir, _ = s.introspectAccessToken(w, token)
+		refreshToken, err := s.GetValidRefreshToken(token, client)
+		if err != nil {
+			return nil, err
 		}
+		return s.NewIntrospectResponseFromRefreshToken(refreshToken)
 	default:
-		response.Error(w, ErrTokenHintInvalid.Error(), http.StatusBadRequest)
-		return
+		return nil, ErrTokenHintInvalid
 	}
-
-	if ir == nil {
-		ir = &IntrospectResponse{}
-	}
-
-	response.WriteJSON(w, ir, 200)
 }
 
-// IntrospectResponseAccessToken ...
-func (s *Service) IntrospectResponseAccessToken(at *AccessToken) *IntrospectResponse {
-	ir := IntrospectResponse{
+// NewIntrospectResponseFromAccessToken ...
+func (s *Service) NewIntrospectResponseFromAccessToken(accessToken *AccessToken) (*IntrospectResponse, error) {
+	var introspectResponse = &IntrospectResponse{
 		Active:    true,
-		Scope:     at.Scope,
-		TokenType: TokenType,
-		ExpiresAt: int(at.ExpiresAt.Unix()),
-	}
-	if at.ClientID.Valid {
-		c := new(Client)
-		notFound := s.db.Select("key").First(c, at.ClientID.Int64).RecordNotFound()
-		if !notFound {
-			ir.ClientID = c.Key
-		}
-	}
-	if at.UserID.Valid {
-		u := new(User)
-		notFound := s.db.Select("username").First(u, at.UserID.Int64).RecordNotFound()
-		if !notFound {
-			ir.Username = u.Username
-		}
+		Scope:     accessToken.Scope,
+		TokenType: tokentypes.Bearer,
+		ExpiresAt: int(accessToken.ExpiresAt.Unix()),
 	}
 
-	return &ir
+	if accessToken.ClientID.Valid {
+		client := new(Client)
+		notFound := s.db.Select("key").First(client, accessToken.ClientID.Int64).
+			RecordNotFound()
+		if notFound {
+			return nil, ErrClientNotFound
+		}
+		introspectResponse.ClientID = client.Key
+	}
+
+	if accessToken.UserID.Valid {
+		user := new(User)
+		notFound := s.db.Select("username").First(user, accessToken.UserID.Int64).
+			RecordNotFound()
+		if notFound {
+			return nil, ErrUserNotFound
+		}
+		introspectResponse.Username = user.Username
+	}
+
+	return introspectResponse, nil
 }
 
-// Introspects give token as access token and returns true if it was successful
-func (s *Service) introspectAccessToken(w http.ResponseWriter, token string) (*IntrospectResponse, bool) {
-	at, err := s.Authenticate(token)
-	if err != nil {
-		return nil, false
-	}
-
-	return s.IntrospectResponseAccessToken(at), true
-}
-
-// IntrospectResponseRefreshToken ...
-func (s *Service) IntrospectResponseRefreshToken(rt *RefreshToken) *IntrospectResponse {
-	ir := IntrospectResponse{
+// NewIntrospectResponseFromRefreshToken ...
+func (s *Service) NewIntrospectResponseFromRefreshToken(refreshToken *RefreshToken) (*IntrospectResponse, error) {
+	var introspectResponse = &IntrospectResponse{
 		Active:    true,
-		Scope:     rt.Scope,
-		TokenType: TokenType,
-		ExpiresAt: int(rt.ExpiresAt.Unix()),
-	}
-	if rt.ClientID.Valid {
-		c := new(Client)
-		notFound := s.db.Select("key").First(c, rt.ClientID.Int64).RecordNotFound()
-		if !notFound {
-			ir.ClientID = c.Key
-		}
-	}
-	if rt.UserID.Valid {
-		u := new(User)
-		notFound := s.db.Select("username").First(u, rt.UserID.Int64).RecordNotFound()
-		if !notFound {
-			ir.Username = u.Username
-		}
-	}
-	return &ir
-}
-
-// Introspects given token as refresh token and returns true if it was successful
-func (s *Service) introspectRefreshToken(w http.ResponseWriter, token string, client *Client) (*IntrospectResponse, bool) {
-	rt, err := s.GetValidRefreshToken(token, client)
-	if err != nil {
-		return nil, false
+		Scope:     refreshToken.Scope,
+		TokenType: tokentypes.Bearer,
+		ExpiresAt: int(refreshToken.ExpiresAt.Unix()),
 	}
 
-	return s.IntrospectResponseRefreshToken(rt), true
+	if refreshToken.ClientID.Valid {
+		client := new(Client)
+		notFound := s.db.Select("key").First(client, refreshToken.ClientID.Int64).
+			RecordNotFound()
+		if notFound {
+			return nil, ErrClientNotFound
+		}
+		introspectResponse.ClientID = client.Key
+	}
+
+	if refreshToken.UserID.Valid {
+		user := new(User)
+		notFound := s.db.Select("username").First(user, refreshToken.UserID.Int64).
+			RecordNotFound()
+		if notFound {
+			return nil, ErrUserNotFound
+		}
+		introspectResponse.Username = user.Username
+	}
+
+	return introspectResponse, nil
 }

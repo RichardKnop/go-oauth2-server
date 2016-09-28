@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/coreos/etcd/client"
@@ -14,7 +15,7 @@ import (
 )
 
 var (
-	etcdEndpoint                          = "http://localhost:2379"
+	etcdEndpoints                         = "http://localhost:2379"
 	etcdCertFile, etcdKeyFile, etcdCaFile string
 	etcdConfigPath                        = "/config/go_oauth2_server.json"
 	configLoaded                          bool
@@ -49,8 +50,8 @@ var Cnf = &Config{
 
 func init() {
 	// Overwrite default values with environment variables if they are set
-	if os.Getenv("ETCD_ENDPOINT") != "" {
-		etcdEndpoint = os.Getenv("ETCD_ENDPOINT")
+	if os.Getenv("ETCD_ENDPOINTS") != "" {
+		etcdEndpoints = os.Getenv("ETCD_ENDPOINTS")
 	}
 	if os.Getenv("ETCD_CERT_FILE") != "" {
 		etcdCertFile = os.Getenv("ETCD_CERT_FILE")
@@ -74,7 +75,7 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 	}
 
 	// Init ETCD client
-	etcdClient, err := newEtcdClient(etcdEndpoint, etcdCertFile, etcdKeyFile, etcdCaFile)
+	etcdClient, err := newEtcdClient(etcdEndpoints, etcdCertFile, etcdKeyFile, etcdCaFile)
 	if err != nil {
 		logger.Fatal(err)
 		os.Exit(1)
@@ -84,7 +85,7 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 	kapi := client.NewKeysAPI(*etcdClient)
 
 	// If the config must be loaded once successfully
-	if mustLoadOnce {
+	if mustLoadOnce && !configLoaded {
 		// Read from remote config the first time
 		newCnf, err := LoadConfig(kapi)
 		if err != nil {
@@ -149,9 +150,9 @@ func RefreshConfig(newCnf *Config) {
 	*Cnf = *newCnf
 }
 
-func newEtcdClient(theEndpoint, certFile, keyFile, caFile string) (*client.Client, error) {
+func newEtcdClient(theEndpoints, certFile, keyFile, caFile string) (*client.Client, error) {
 	// Log the etcd endpoint for debugging purposes
-	logger.Infof("ETCD Endpoint: %s", etcdEndpoint)
+	logger.Infof("ETCD Endpoints: %s", theEndpoints)
 
 	// Start with the default HTTP transport
 	var transport = client.DefaultTransport
@@ -183,10 +184,9 @@ func newEtcdClient(theEndpoint, certFile, keyFile, caFile string) (*client.Clien
 
 	// ETCD config
 	etcdClientConfig := client.Config{
-		Endpoints: []string{theEndpoint},
-		Transport: transport,
-		// set timeout per request to fail fast when the target endpoint is unavailable
-		HeaderTimeoutPerRequest: time.Second,
+		Endpoints:               strings.Split(theEndpoints, ","),
+		Transport:               transport,
+		HeaderTimeoutPerRequest: 3 * time.Second,
 	}
 
 	// ETCD client

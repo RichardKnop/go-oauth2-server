@@ -32,14 +32,14 @@ func (s *Service) getValidAuthorizationCode(code, redirectURI string, client *Cl
 	notFound := AuthorizationCodePreload(s.db).Where("client_id = ?", client.ID).
 		Where("code = ?", code).First(authorizationCode).RecordNotFound()
 
-	// Redirect URI must match if it was used to obtain the authorization code
-	if redirectURI != authorizationCode.RedirectURI.String {
-		return nil, ErrInvalidRedirectURI
-	}
-
 	// Not found
 	if notFound {
 		return nil, ErrAuthorizationCodeNotFound
+	}
+
+	// Redirect URI must match if it was used to obtain the authorization code
+	if redirectURI != authorizationCode.RedirectURI.String {
+		return nil, ErrInvalidRedirectURI
 	}
 
 	// Check the authorization code hasn't expired

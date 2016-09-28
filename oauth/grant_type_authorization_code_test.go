@@ -6,10 +6,11 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/response"
-	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
+	"github.com/RichardKnop/go-oauth2-server/test-util"
+	"github.com/RichardKnop/go-oauth2-server/util"
 )
 
 func (suite *OauthTestSuite) TestAuthorizationCodeGrantEmptyNotFound() {
@@ -27,11 +28,11 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantEmptyNotFound() {
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrAuthorizationCodeNotFound.Error(),
-		400,
+		404,
 	)
 }
 
@@ -50,11 +51,11 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantBogusNotFound() {
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrAuthorizationCodeNotFound.Error(),
-		400,
+		404,
 	)
 }
 
@@ -62,7 +63,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantExpired() {
 	// Insert a test authorization code
 	err := suite.db.Create(&oauth.AuthorizationCode{
 		Code:        "test_code",
-		ExpiresAt:   time.Now().Add(-10 * time.Second),
+		ExpiresAt:   time.Now().UTC().Add(-10 * time.Second),
 		Client:      suite.clients[0],
 		User:        suite.users[0],
 		RedirectURI: util.StringOrNull("https://www.example.com"),
@@ -85,7 +86,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantExpired() {
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrAuthorizationCodeExpired.Error(),
@@ -97,7 +98,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 	// Insert a test authorization code
 	err := suite.db.Create(&oauth.AuthorizationCode{
 		Code:        "test_code",
-		ExpiresAt:   time.Now().Add(+10 * time.Second),
+		ExpiresAt:   time.Now().UTC().Add(+10 * time.Second),
 		Client:      suite.clients[0],
 		User:        suite.users[0],
 		RedirectURI: util.StringOrNull("https://www.example.com"),
@@ -120,7 +121,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrInvalidRedirectURI.Error(),
@@ -132,7 +133,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	// Insert a test authorization code
 	err := suite.db.Create(&oauth.AuthorizationCode{
 		Code:        "test_code",
-		ExpiresAt:   time.Now().Add(+10 * time.Second),
+		ExpiresAt:   time.Now().UTC().Add(+10 * time.Second),
 		Client:      suite.clients[0],
 		User:        suite.users[0],
 		RedirectURI: util.StringOrNull("https://www.example.com"),
@@ -157,20 +158,20 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	// Fetch data
 	accessToken, refreshToken := new(oauth.AccessToken), new(oauth.RefreshToken)
 	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
-		First(accessToken).RecordNotFound())
+		Last(accessToken).RecordNotFound())
 	assert.False(suite.T(), oauth.RefreshTokenPreload(suite.db).
-		First(refreshToken).RecordNotFound())
+		Last(refreshToken).RecordNotFound())
 
 	// Check the response
 	expected := &oauth.AccessTokenResponse{
 		UserID:       accessToken.User.MetaUserID,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
-		TokenType:    oauth.TokenType,
+		TokenType:    tokentypes.Bearer,
 		Scope:        "read_write",
 		RefreshToken: refreshToken.Token,
 	}
-	response.TestResponseObject(suite.T(), w, expected, 200)
+	testutil.TestResponseObject(suite.T(), w, expected, 200)
 
 	// The authorization code should get deleted after use
 	assert.True(suite.T(), suite.db.Unscoped().

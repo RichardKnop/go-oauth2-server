@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jinzhu/gorm"
 	pass "github.com/RichardKnop/go-oauth2-server/password"
 	"github.com/RichardKnop/go-oauth2-server/util"
-	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -54,13 +54,13 @@ func (s *Service) FindUserByUsername(username string) (*User, error) {
 }
 
 // CreateUser saves a new user to database
-func (s *Service) CreateUser(username, password string) (*User, error) {
-	return s.createUserCommon(s.db, username, password)
+func (s *Service) CreateUser(roleID, username, password string) (*User, error) {
+	return s.createUserCommon(s.db, roleID, username, password)
 }
 
 // CreateUserTx saves a new user to database using injected db object
-func (s *Service) CreateUserTx(tx *gorm.DB, username, password string) (*User, error) {
-	return s.createUserCommon(tx, username, password)
+func (s *Service) CreateUserTx(tx *gorm.DB, roleID, username, password string) (*User, error) {
+	return s.createUserCommon(tx, roleID, username, password)
 }
 
 // SetPassword sets a user password
@@ -78,7 +78,7 @@ func (s *Service) AuthUser(username, password string) (*User, error) {
 	// Fetch the user
 	user, err := s.FindUserByUsername(username)
 	if err != nil {
-		return nil, ErrUserNotFound
+		return nil, err
 	}
 
 	// Check that the password is set
@@ -108,9 +108,10 @@ func (s *Service) UpdateUsernameTx(tx *gorm.DB, user *User, username string) err
 	return s.updateUsernameCommon(tx, user, username)
 }
 
-func (s *Service) createUserCommon(db *gorm.DB, username, password string) (*User, error) {
+func (s *Service) createUserCommon(db *gorm.DB, roleID, username, password string) (*User, error) {
 	// Start with a user without a password
 	user := &User{
+		RoleID:   util.StringOrNull(roleID),
 		Username: strings.ToLower(username),
 		Password: util.StringOrNull(""),
 	}
@@ -153,7 +154,7 @@ func (s *Service) setPasswordCommon(db *gorm.DB, user *User, password string) er
 	// Set the password on the user object
 	return db.Model(user).UpdateColumns(User{
 		Password: util.StringOrNull(string(passwordHash)),
-		Model:    gorm.Model{UpdatedAt: time.Now()},
+		Model:    gorm.Model{UpdatedAt: time.Now().UTC()},
 	}).Error
 }
 

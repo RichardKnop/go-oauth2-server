@@ -6,13 +6,11 @@ import (
 	"net/http"
 )
 
-const realm = "go_oauth2_server"
+var realm = "go_oauth2_server"
 
 // WriteJSON writes JSON response
 func WriteJSON(w http.ResponseWriter, v interface{}, code int) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.Header().Set("Cache-Control", "no-store")
-	w.Header().Set("Pragma", "no-cache")
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(v)
 }

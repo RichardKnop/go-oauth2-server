@@ -5,9 +5,9 @@ import (
 	"net/http/httptest"
 	"net/url"
 
-	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/test-util"
 )
 
 func (suite *OauthTestSuite) TestTokensHandlerClientAuthenticationRequired() {
@@ -21,7 +21,7 @@ func (suite *OauthTestSuite) TestTokensHandlerClientAuthenticationRequired() {
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrInvalidClientIDOrSecret.Error(),
@@ -41,7 +41,7 @@ func (suite *OauthTestSuite) TestTokensHandlerInvalidGrantType() {
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrInvalidGrantType.Error(),
@@ -60,7 +60,7 @@ func (suite *OauthTestSuite) TestIntrospectHandlerClientAuthenticationRequired()
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrInvalidClientIDOrSecret.Error(),

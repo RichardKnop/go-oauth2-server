@@ -3,6 +3,8 @@ package oauth
 import (
 	"errors"
 	"time"
+
+	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -24,7 +26,7 @@ func (s *Service) Authenticate(token string) (*AccessToken, error) {
 	}
 
 	// Check the access token hasn't expired
-	if time.Now().After(accessToken.ExpiresAt) {
+	if time.Now().UTC().After(accessToken.ExpiresAt) {
 		return nil, ErrAccessTokenExpired
 	}
 
@@ -35,7 +37,7 @@ func (s *Service) Authenticate(token string) (*AccessToken, error) {
 	} else {
 		query = query.Where("user_id IS NULL")
 	}
-	increasedExpiresAt := time.Now().Add(
+	increasedExpiresAt := gorm.NowFunc().Add(
 		time.Duration(s.cnf.Oauth.RefreshTokenLifetime) * time.Second,
 	)
 	if err := query.UpdateColumn("expires_at", increasedExpiresAt).Error; err != nil {

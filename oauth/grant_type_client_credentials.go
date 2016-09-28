@@ -3,15 +3,14 @@ package oauth
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/response"
+	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 )
 
-func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request, client *Client) {
+func (s *Service) clientCredentialsGrant(r *http.Request, client *Client) (*AccessTokenResponse, error) {
 	// Get the scope string
 	scope, err := s.GetScope(r.Form.Get("scope"))
 	if err != nil {
-		response.Error(w, err.Error(), http.StatusBadRequest)
-		return
+		return nil, err
 	}
 
 	// Create a new access token
@@ -21,13 +20,20 @@ func (s *Service) clientCredentialsGrant(w http.ResponseWriter, r *http.Request,
 		s.cnf.Oauth.AccessTokenLifetime, // expires in
 		scope,
 	)
-
-	// Write the JSON access token to the response
-	accessTokenRespone := &AccessTokenResponse{
-		AccessToken: accessToken.Token,
-		ExpiresIn:   s.cnf.Oauth.AccessTokenLifetime,
-		TokenType:   TokenType,
-		Scope:       accessToken.Scope,
+	if err != nil {
+		return nil, err
 	}
-	response.WriteJSON(w, accessTokenRespone, 200)
+
+	// Create response
+	accessTokenResponse, err := NewAccessTokenResponse(
+		accessToken,
+		nil, // refresh token
+		s.cnf.Oauth.AccessTokenLifetime,
+		tokentypes.Bearer,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return accessTokenResponse, nil
 }

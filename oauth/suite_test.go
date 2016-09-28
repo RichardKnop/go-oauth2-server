@@ -5,29 +5,29 @@ import (
 	"os"
 	"testing"
 
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/database"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
+	"github.com/RichardKnop/go-oauth2-server/config"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/test-util"
 )
 
 var (
 	testDbUser = "go_oauth2_server"
 	testDbName = "go_oauth2_server_oauth_test"
+
+	testFixtures = []string{
+		"./oauth/fixtures/scopes.yml",
+		"./oauth/fixtures/roles.yml",
+		"./oauth/fixtures/test_clients.yml",
+		"./oauth/fixtures/test_users.yml",
+	}
+
+	testMigrations = []func(*gorm.DB) error{
+		oauth.MigrateAll,
+	}
 )
-
-var testFixtures = []string{
-	"./oauth/fixtures/scopes.yml",
-	"./oauth/fixtures/test_clients.yml",
-	"./oauth/fixtures/test_users.yml",
-}
-
-// db migrations needed for tests
-var testMigrations = []func(*gorm.DB) error{
-	oauth.MigrateAll,
-}
 
 func init() {
 	if err := os.Chdir("../"); err != nil {
@@ -54,7 +54,7 @@ func (suite *OauthTestSuite) SetupSuite() {
 	suite.cnf = config.NewConfig(false, false)
 
 	// Create the test database
-	db, err := database.CreateTestDatabasePostgres(
+	db, err := testutil.CreateTestDatabasePostgres(
 		testDbUser,
 		testDbName,
 		testMigrations,
@@ -82,7 +82,7 @@ func (suite *OauthTestSuite) SetupSuite() {
 
 	// Register routes
 	suite.router = mux.NewRouter()
-	oauth.RegisterRoutes(suite.router, suite.service)
+	suite.service.RegisterRoutes(suite.router, "/v1/oauth")
 }
 
 // The TearDownSuite method will be run by testify once, at the very
@@ -104,7 +104,7 @@ func (suite *OauthTestSuite) TearDownTest() {
 	suite.db.Unscoped().Delete(new(oauth.RefreshToken))
 	suite.db.Unscoped().Delete(new(oauth.AccessToken))
 	suite.db.Unscoped().Not("id", []int64{1, 2}).Delete(new(oauth.User))
-	suite.db.Unscoped().Not("id", []int64{1, 2}).Delete(new(oauth.Client))
+	suite.db.Unscoped().Not("id", []int64{1, 2, 3}).Delete(new(oauth.Client))
 }
 
 // TestOauthTestSuite ...

@@ -6,9 +6,10 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/response"
 	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
+	"github.com/RichardKnop/go-oauth2-server/test-util"
 )
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantEmptyNotFound() {
@@ -26,11 +27,11 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantEmptyNotFound() {
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrRefreshTokenNotFound.Error(),
-		400,
+		404,
 	)
 }
 
@@ -49,11 +50,11 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantBogusNotFound() {
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrRefreshTokenNotFound.Error(),
-		400,
+		404,
 	)
 }
 
@@ -61,7 +62,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExipired() {
 	// Insert a test refresh token
 	err := suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token",
-		ExpiresAt: time.Now().Add(-10 * time.Second),
+		ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 		Client:    suite.clients[0],
 		User:      suite.users[0],
 		Scope:     "read_write",
@@ -83,7 +84,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExipired() {
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrRefreshTokenExpired.Error(),
@@ -95,7 +96,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 	// Insert a test refresh token
 	err := suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token",
-		ExpiresAt: time.Now().Add(+10 * time.Second),
+		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
 		User:      suite.users[0],
 		Scope:     "read_write",
@@ -117,7 +118,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 	suite.router.ServeHTTP(w, r)
 
 	// Check the response
-	response.TestResponseForError(
+	testutil.TestResponseForError(
 		suite.T(),
 		w,
 		oauth.ErrRequestedScopeCannotBeGreater.Error(),
@@ -129,7 +130,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 	// Insert a test refresh token
 	err := suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token",
-		ExpiresAt: time.Now().Add(+10 * time.Second),
+		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
 		User:      suite.users[0],
 		Scope:     "read_write",
@@ -152,25 +153,25 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 	// Fetch data
 	accessToken := new(oauth.AccessToken)
 	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
-		First(accessToken).RecordNotFound())
+		Last(accessToken).RecordNotFound())
 
 	// Check the response body
 	expected := &oauth.AccessTokenResponse{
 		UserID:       accessToken.User.MetaUserID,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
-		TokenType:    oauth.TokenType,
+		TokenType:    tokentypes.Bearer,
 		Scope:        "read_write",
 		RefreshToken: "test_token",
 	}
-	response.TestResponseObject(suite.T(), w, expected, 200)
+	testutil.TestResponseObject(suite.T(), w, expected, 200)
 }
 
 func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	// Insert a test refresh token
 	err := suite.db.Create(&oauth.RefreshToken{
 		Token:     "test_token",
-		ExpiresAt: time.Now().Add(+10 * time.Second),
+		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
 		User:      suite.users[0],
 		Scope:     "read_write",
@@ -194,16 +195,16 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	// Fetch data
 	accessToken := new(oauth.AccessToken)
 	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
-		First(accessToken).RecordNotFound())
+		Last(accessToken).RecordNotFound())
 
 	// Check the response
 	expected := &oauth.AccessTokenResponse{
 		UserID:       accessToken.User.MetaUserID,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
-		TokenType:    oauth.TokenType,
+		TokenType:    tokentypes.Bearer,
 		Scope:        "read_write",
 		RefreshToken: "test_token",
 	}
-	response.TestResponseObject(suite.T(), w, expected, 200)
+	testutil.TestResponseObject(suite.T(), w, expected, 200)
 }
