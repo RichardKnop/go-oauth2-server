@@ -29,5 +29,5 @@ services:
     ports:
       - "8080:8080"
     environment:
-      ETCD_ENDPOINT: "http://etcd:2379"
+      ETCD_ENDPOINTS: "http://etcd:2379"
     command: [go-oauth2-server, runserver]

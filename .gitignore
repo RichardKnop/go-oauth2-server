@@ -1,1 +1,4 @@
 go-oauth2-server
+.bash_profile
+etcd-data
+postgres-data
