@@ -1,8 +1,10 @@
 #!/bin/bash
 set -e
 
+# to make sure etcd is ready (election ended and leader elected)
+while ! ping -c1 etcd &>/dev/null; do :; done
+
 if [ "$1" = 'go-oauth2-server' ] && [ "$2" = 'runserver' ]; then
-  sleep 1s # to make sure etcd is ready (collection ended and leader elected)
   curl -L http://etcd:2379/v2/keys/config/go_oauth2_server.json -XPUT -d value='{
     "Database": {
       "Type": "postgres",
