@@ -1,0 +1,15 @@
+---
+language: go
+
+go:
+  - 1.7
+
+branches:
+  only:
+    - master
+
+before_script:
+  - createuser --createdb go_fixtures
+
+script:
+  - make test

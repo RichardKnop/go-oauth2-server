@@ -25,6 +25,7 @@ type DB struct {
 	source            string
 	values            map[string]interface{}
 	joinTableHandlers map[string]JoinTableHandler
+	blockGlobalUpdate bool
 }
 
 // Open initialize a new db connection, need to import driver first, e.g:
@@ -44,40 +45,40 @@ func Open(dialect string, args ...interface{}) (*DB, error) {
 
 	if len(args) == 0 {
 		err = errors.New("invalid database source")
-	} else {
-		var source string
-		var dbSQL sqlCommon
+		return nil, err
+	}
+	var source string
+	var dbSQL sqlCommon
 
-		switch value := args[0].(type) {
-		case string:
-			var driver = dialect
-			if len(args) == 1 {
-				source = value
-			} else if len(args) >= 2 {
-				driver = value
-				source = args[1].(string)
-			}
-			dbSQL, err = sql.Open(driver, source)
-		case sqlCommon:
-			source = reflect.Indirect(reflect.ValueOf(value)).FieldByName("dsn").String()
-			dbSQL = value
+	switch value := args[0].(type) {
+	case string:
+		var driver = dialect
+		if len(args) == 1 {
+			source = value
+		} else if len(args) >= 2 {
+			driver = value
+			source = args[1].(string)
 		}
+		dbSQL, err = sql.Open(driver, source)
+	case sqlCommon:
+		source = reflect.Indirect(reflect.ValueOf(value)).FieldByName("dsn").String()
+		dbSQL = value
+	}
 
-		db = DB{
-			dialect:   newDialect(dialect, dbSQL.(*sql.DB)),
-			logger:    defaultLogger,
-			callbacks: DefaultCallback,
-			source:    source,
-			values:    map[string]interface{}{},
-			db:        dbSQL,
-		}
-		db.parent = &db
+	db = DB{
+		dialect:   newDialect(dialect, dbSQL.(*sql.DB)),
+		logger:    defaultLogger,
+		callbacks: DefaultCallback,
+		source:    source,
+		values:    map[string]interface{}{},
+		db:        dbSQL,
+	}
+	db.parent = &db
 
-		if err == nil {
-			err = db.DB().Ping() // Send a ping to make sure the database connection is alive.
-			if err != nil {
-				db.DB().Close()
-			}
+	if err == nil {
+		err = db.DB().Ping() // Send a ping to make sure the database connection is alive.
+		if err != nil {
+			db.DB().Close()
 		}
 	}
 
@@ -140,6 +141,18 @@ func (s *DB) LogMode(enable bool) *DB {
 		s.logMode = 1
 	}
 	return s
+}
+
+// BlockGlobalUpdate if true, generates an error on update/delete without where clause.
+// This is to prevent eventual error with empty objects updates/deletions
+func (s *DB) BlockGlobalUpdate(enable bool) *DB {
+	s.blockGlobalUpdate = enable
+	return s
+}
+
+// HasBlockGlobalUpdate return state of block
+func (s *DB) HasBlockGlobalUpdate() bool {
+	return s.blockGlobalUpdate
 }
 
 // SingularTable use singular table by default
@@ -655,9 +668,9 @@ func (s *DB) AddError(err error) error {
 				s.log(err)
 			}
 
-			errors := Errors{errors: s.GetErrors()}
-			errors.Add(err)
-			if len(errors.GetErrors()) > 1 {
+			errors := Errors(s.GetErrors())
+			errors = errors.Add(err)
+			if len(errors) > 1 {
 				err = errors
 			}
 		}
@@ -668,13 +681,13 @@ func (s *DB) AddError(err error) error {
 }
 
 // GetErrors get happened errors from the db
-func (s *DB) GetErrors() (errors []error) {
-	if errs, ok := s.Error.(errorsInterface); ok {
-		return errs.GetErrors()
+func (s *DB) GetErrors() []error {
+	if errs, ok := s.Error.(Errors); ok {
+		return errs
 	} else if s.Error != nil {
 		return []error{s.Error}
 	}
-	return
+	return []error{}
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -682,7 +695,16 @@ func (s *DB) GetErrors() (errors []error) {
 ////////////////////////////////////////////////////////////////////////////////
 
 func (s *DB) clone() *DB {
-	db := DB{db: s.db, parent: s.parent, logger: s.logger, logMode: s.logMode, values: map[string]interface{}{}, Value: s.Value, Error: s.Error}
+	db := DB{
+		db:                s.db,
+		parent:            s.parent,
+		logger:            s.logger,
+		logMode:           s.logMode,
+		values:            map[string]interface{}{},
+		Value:             s.Value,
+		Error:             s.Error,
+		blockGlobalUpdate: s.blockGlobalUpdate,
+	}
 
 	for key, value := range s.values {
 		db.values[key] = value
