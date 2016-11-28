@@ -1,16 +1,15 @@
 package config
 
 import (
-	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
+	"fmt"
 	"os"
 	"strings"
 	"time"
 
-	"github.com/coreos/etcd/client"
+	"github.com/coreos/etcd/clientv3"
+	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
+	"github.com/coreos/etcd/pkg/transport"
 	"golang.org/x/net/context"
 )
 
@@ -19,6 +18,9 @@ var (
 	etcdCertFile, etcdKeyFile, etcdCaFile string
 	etcdConfigPath                        = "/config/go_oauth2_server.json"
 	configLoaded                          bool
+	dialTimeout                           = 5 * time.Second
+	contextTimeout                        = 5 * time.Second
+	reloadDelay                           = time.Second * 10
 )
 
 // Cnf ...
@@ -74,20 +76,10 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 		return Cnf
 	}
 
-	// Init ETCD client
-	etcdClient, err := newEtcdClient(etcdEndpoints, etcdCertFile, etcdKeyFile, etcdCaFile)
-	if err != nil {
-		logger.Fatal(err)
-		os.Exit(1)
-	}
-
-	// ETCD keys API
-	kapi := client.NewKeysAPI(*etcdClient)
-
 	// If the config must be loaded once successfully
 	if mustLoadOnce && !configLoaded {
 		// Read from remote config the first time
-		newCnf, err := LoadConfig(kapi)
+		newCnf, err := LoadConfig()
 		if err != nil {
 			logger.Fatal(err)
 			os.Exit(1)
@@ -106,10 +98,10 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 		go func() {
 			for {
 				// Delay after each request
-				time.Sleep(time.Second * 10)
+				<-time.After(reloadDelay)
 
 				// Attempt to reload the config
-				newCnf, err := LoadConfig(kapi)
+				newCnf, err := LoadConfig()
 				if err != nil {
 					logger.Error(err)
 					continue
@@ -129,16 +121,38 @@ func NewConfig(mustLoadOnce bool, keepReloading bool) *Config {
 }
 
 // LoadConfig gets the JSON from ETCD and unmarshals it to the config object
-func LoadConfig(kapi client.KeysAPI) (*Config, error) {
-	// Read from remote config the first time
-	resp, err := kapi.Get(context.Background(), etcdConfigPath, nil)
+func LoadConfig() (*Config, error) {
+	cli, err := newEtcdClient(etcdEndpoints, etcdCertFile, etcdKeyFile, etcdCaFile)
 	if err != nil {
 		return nil, err
+	}
+	defer cli.Close()
+
+	// Read from remote config the first time
+	ctx, cancel := context.WithTimeout(context.Background(), contextTimeout)
+	resp, err := cli.Get(ctx, etcdConfigPath)
+	cancel()
+	if err != nil {
+		switch err {
+		case context.Canceled:
+			return nil, fmt.Errorf("ctx is canceled by another routine: %v", err)
+		case context.DeadlineExceeded:
+			return nil, fmt.Errorf("ctx is attached with a deadline is exceeded: %v", err)
+		case rpctypes.ErrEmptyKey:
+			return nil, fmt.Errorf("client-side error: %v", err)
+		default:
+			return nil, fmt.Errorf("bad cluster endpoints, which are not etcd servers: %v", err)
+		}
+	}
+
+	if len(resp.Kvs) == 0 {
+		return nil, fmt.Errorf("key not found: %s", etcdConfigPath)
 	}
 
 	// Unmarshal the config JSON into the cnf object
 	newCnf := new(Config)
-	if err := json.Unmarshal([]byte(resp.Node.Value), newCnf); err != nil {
+
+	if err := json.Unmarshal([]byte(resp.Kvs[0].Value), newCnf); err != nil {
 		return nil, err
 	}
 
@@ -150,50 +164,34 @@ func RefreshConfig(newCnf *Config) {
 	*Cnf = *newCnf
 }
 
-func newEtcdClient(theEndpoints, certFile, keyFile, caFile string) (*client.Client, error) {
+func newEtcdClient(theEndpoints, certFile, keyFile, caFile string) (*clientv3.Client, error) {
 	// Log the etcd endpoint for debugging purposes
 	logger.Infof("ETCD Endpoints: %s", theEndpoints)
 
-	// Start with the default HTTP transport
-	var transport = client.DefaultTransport
+	// ETCD config
+	etcdConfig := clientv3.Config{
+		Endpoints:   strings.Split(theEndpoints, ","),
+		DialTimeout: dialTimeout,
+	}
 
 	// Optionally, configure TLS transport
 	if certFile != "" && keyFile != "" && caFile != "" {
 		// Load client cert
-		cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-		if err != nil {
-			return nil, err
+		tlsInfo := transport.TLSInfo{
+			CertFile:      certFile,
+			KeyFile:       keyFile,
+			TrustedCAFile: caFile,
 		}
-
-		// Load CA cert
-		caCert, err := ioutil.ReadFile(caFile)
-		if err != nil {
-			return nil, err
-		}
-		caCertPool := x509.NewCertPool()
-		caCertPool.AppendCertsFromPEM(caCert)
 
 		// Setup HTTPS client
-		tlsConfig := &tls.Config{
-			Certificates: []tls.Certificate{cert},
-			RootCAs:      caCertPool,
+		tlsConfig, err := tlsInfo.ClientConfig()
+		if err != nil {
+			return nil, err
 		}
-		tlsConfig.BuildNameToCertificate()
-		transport = &http.Transport{TLSClientConfig: tlsConfig}
-	}
-
-	// ETCD config
-	etcdClientConfig := client.Config{
-		Endpoints:               strings.Split(theEndpoints, ","),
-		Transport:               transport,
-		HeaderTimeoutPerRequest: 3 * time.Second,
+		// Add TLS config
+		etcdConfig.TLS = tlsConfig
 	}
 
 	// ETCD client
-	etcdClient, err := client.New(etcdClientConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	return &etcdClient, nil
+	return clientv3.New(etcdConfig)
 }

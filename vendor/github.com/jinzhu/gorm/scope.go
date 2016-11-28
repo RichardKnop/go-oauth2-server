@@ -329,7 +329,12 @@ func (scope *Scope) QuotedTableName() (name string) {
 
 // CombinedConditionSql return combined condition sql
 func (scope *Scope) CombinedConditionSql() string {
-	return scope.joinsSQL() + scope.whereSQL() + scope.groupSQL() +
+	joinSql := scope.joinsSQL()
+	whereSql := scope.whereSQL()
+	if scope.Search.raw {
+		whereSql = strings.TrimSuffix(strings.TrimPrefix(whereSql, "WHERE ("), ")")
+	}
+	return joinSql + whereSql + scope.groupSQL() +
 		scope.havingSQL() + scope.orderSQL() + scope.limitAndOffsetSQL()
 }
 
@@ -530,7 +535,7 @@ func (scope *Scope) buildWhereCondition(clause map[string]interface{}) (str stri
 		newScope := scope.New(value)
 		for _, field := range newScope.Fields() {
 			if !field.IsIgnored && !field.IsBlank {
-				sqls = append(sqls, fmt.Sprintf("(%v.%v = %v)", newScope.QuotedTableName(), scope.Quote(field.DBName), scope.AddToVars(field.Field.Interface())))
+				sqls = append(sqls, fmt.Sprintf("(%v.%v = %v)", scope.QuotedTableName(), scope.Quote(field.DBName), scope.AddToVars(field.Field.Interface())))
 			}
 		}
 		return strings.Join(sqls, " AND ")
@@ -602,7 +607,7 @@ func (scope *Scope) buildNotCondition(clause map[string]interface{}) (str string
 		var newScope = scope.New(value)
 		for _, field := range newScope.Fields() {
 			if !field.IsBlank {
-				sqls = append(sqls, fmt.Sprintf("(%v.%v <> %v)", newScope.QuotedTableName(), scope.Quote(field.DBName), scope.AddToVars(field.Field.Interface())))
+				sqls = append(sqls, fmt.Sprintf("(%v.%v <> %v)", scope.QuotedTableName(), scope.Quote(field.DBName), scope.AddToVars(field.Field.Interface())))
 			}
 		}
 		return strings.Join(sqls, " AND ")
@@ -792,7 +797,7 @@ func (scope *Scope) joinsSQL() string {
 
 func (scope *Scope) prepareQuerySQL() {
 	if scope.Search.raw {
-		scope.Raw(strings.TrimSuffix(strings.TrimPrefix(scope.CombinedConditionSql(), " WHERE ("), ")"))
+		scope.Raw(scope.CombinedConditionSql())
 	} else {
 		scope.Raw(fmt.Sprintf("SELECT %v FROM %v %v", scope.selectSQL(), scope.QuotedTableName(), scope.CombinedConditionSql()))
 	}
@@ -964,8 +969,13 @@ func (scope *Scope) changeableField(field *Field) bool {
 }
 
 func (scope *Scope) shouldSaveAssociations() bool {
-	if saveAssociations, ok := scope.Get("gorm:save_associations"); ok && !saveAssociations.(bool) {
-		return false
+	if saveAssociations, ok := scope.Get("gorm:save_associations"); ok {
+		if v, ok := saveAssociations.(bool); ok && !v {
+			return false
+		}
+		if v, ok := saveAssociations.(string); ok && (v != "skip") {
+			return false
+		}
 	}
 	return true && !scope.HasError()
 }
@@ -1206,29 +1216,43 @@ func (scope *Scope) autoIndex() *Scope {
 
 func (scope *Scope) getColumnAsArray(columns []string, values ...interface{}) (results [][]interface{}) {
 	for _, value := range values {
-		indirectValue := reflect.ValueOf(value)
-		for indirectValue.Kind() == reflect.Ptr {
-			indirectValue = indirectValue.Elem()
-		}
+		indirectValue := indirect(reflect.ValueOf(value))
 
 		switch indirectValue.Kind() {
 		case reflect.Slice:
 			for i := 0; i < indirectValue.Len(); i++ {
 				var result []interface{}
 				var object = indirect(indirectValue.Index(i))
+				var hasValue = false
 				for _, column := range columns {
-					result = append(result, object.FieldByName(column).Interface())
+					field := object.FieldByName(column)
+					if hasValue || !isBlank(field) {
+						hasValue = true
+					}
+					result = append(result, field.Interface())
 				}
-				results = append(results, result)
+
+				if hasValue {
+					results = append(results, result)
+				}
 			}
 		case reflect.Struct:
 			var result []interface{}
+			var hasValue = false
 			for _, column := range columns {
-				result = append(result, indirectValue.FieldByName(column).Interface())
+				field := indirectValue.FieldByName(column)
+				if hasValue || !isBlank(field) {
+					hasValue = true
+				}
+				result = append(result, field.Interface())
 			}
-			results = append(results, result)
+
+			if hasValue {
+				results = append(results, result)
+			}
 		}
 	}
+
 	return
 }
 
@@ -1269,4 +1293,11 @@ func (scope *Scope) getColumnAsScope(column string) *Scope {
 		}
 	}
 	return nil
+}
+
+func (scope *Scope) hasConditions() bool {
+	return !scope.PrimaryKeyZero() ||
+		len(scope.Search.whereConditions) > 0 ||
+		len(scope.Search.orConditions) > 0 ||
+		len(scope.Search.notConditions) > 0
 }

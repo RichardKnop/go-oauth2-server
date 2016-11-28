@@ -424,6 +424,8 @@ etcdctl set /config/go_oauth2_server.json '{
 }'
 ```
 
+If you are using etcd API version 3, use `etcdctl put` instead of `etcdctl set`.
+
 Check the config was loaded properly:
 
 ```sh

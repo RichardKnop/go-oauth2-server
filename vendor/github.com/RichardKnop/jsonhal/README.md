@@ -1,5 +1,8 @@
 [![Codeship Status for RichardKnop/jsonhal](https://codeship.com/projects/8537a230-37b2-0134-07fa-02b643534a44/status?branch=master)](https://codeship.com/projects/165842)
 
+[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/RichardKnop/jsonhal)
+[![Travis Status for RichardKnop/jsonhal](https://travis-ci.org/RichardKnop/jsonhal.svg?branch=master)](https://travis-ci.org/RichardKnop/jsonhal)
+
 # jsonhal
 
 A simple Go package to make custom structs marshal into [HAL](http://stateless.co/hal_specification.html) compatible JSON responses.

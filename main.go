@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/RichardKnop/go-oauth2-server/commands"
+	"github.com/RichardKnop/go-oauth2-server/cmd"
 	"github.com/urfave/cli"
 )
 
@@ -29,21 +29,21 @@ func main() {
 			Name:  "migrate",
 			Usage: "run migrations",
 			Action: func(c *cli.Context) error {
-				return commands.Migrate()
+				return cmd.Migrate()
 			},
 		},
 		{
 			Name:  "loaddata",
 			Usage: "load data from fixture",
 			Action: func(c *cli.Context) error {
-				return commands.LoadData(c.Args())
+				return cmd.LoadData(c.Args())
 			},
 		},
 		{
 			Name:  "runserver",
 			Usage: "run web server",
 			Action: func(c *cli.Context) error {
-				return commands.RunServer()
+				return cmd.RunServer()
 			},
 		},
 	}
