@@ -5,7 +5,7 @@ set -e
 while ! ping -c1 etcd &>/dev/null; do :; done
 
 if [ "$1" = 'go-oauth2-server' ] && [ "$2" = 'runserver' ]; then
-  curl -L http://etcd:2379/v2/keys/config/go_oauth2_server.json -XPUT -d value='{
+  etcdctl --endpoints=etcd:2379 put /config/go_oauth2_server.json '{
     "Database": {
       "Type": "postgres",
       "Host": "postgres",
