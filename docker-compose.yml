@@ -1,5 +1,23 @@
 version: "2"
 services:
+  etcd:
+    image: quay.io/coreos/etcd
+    command: etcd --initial-cluster-state new --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://127.0.0.1:2379
+    volumes:
+      - ./etcd-data:/default.etcd
+    environment:
+      - ETCDCTL_API=3
+  etcd-config:
+    build:
+      context: .
+      dockerfile: ./Dockerfile-etcd-config
+    environment:
+      - ETCDCTL_API=3
+      - ETCDCTL_ENDPOINTS=etcd:2379
+    depends_on:
+      - etcd
+    links:
+      - etcd
   postgres:
     image: "postgres"
     volumes:
@@ -8,22 +26,16 @@ services:
       POSTGRES_USER: "go_oauth2_server"
       POSTGRES_PASSWORD: ""
       POSTGRES_DB: "go_oauth2_server"
-  etcd:
-    depends_on:
-      - postgres
-    image: "elcolio/etcd"
-    volumes:
-      - ./etcd-data:/data
   go-oauth2-server:
     depends_on:
-      - etcd
+      - etcd-config
       - postgres
     links:
       - etcd
       - postgres
     build:
       context: .
-      dockerfile: ./Dockerfile-compose
+      dockerfile: ./Dockerfile
     image: go-oauth2-server:latest
     container_name: go-oauth2-server
     ports:
