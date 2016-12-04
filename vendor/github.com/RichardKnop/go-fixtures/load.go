@@ -44,6 +44,9 @@ func Load(data []byte, db *sql.DB, driver string) error {
 			row.Table,
 			row.GetWhere(driver, 0),
 		)
+		if driver == "mysql" {
+			selectQuery = strings.Replace(selectQuery, "\"", "", -1)
+		}
 		var count int
 		err = tx.QueryRow(selectQuery, row.GetPKValues()...).Scan(&count)
 		if err != nil {
@@ -59,6 +62,9 @@ func Load(data []byte, db *sql.DB, driver string) error {
 				strings.Join(row.GetInsertColumns(), ", "),
 				strings.Join(row.GetInsertPlaceholders(driver), ", "),
 			)
+			if driver == "mysql" {
+				insertQuery = strings.Replace(insertQuery, "\"", "", -1)
+			}
 			_, err := tx.Exec(insertQuery, row.GetInsertValues()...)
 			if err != nil {
 				tx.Rollback() // rollback the transaction
@@ -79,6 +85,9 @@ func Load(data []byte, db *sql.DB, driver string) error {
 				strings.Join(row.GetUpdatePlaceholders(driver), ", "),
 				row.GetWhere(driver, row.GetUpdateColumnsLength()),
 			)
+			if driver == "mysql" {
+				updateQuery = strings.Replace(updateQuery, "\"", "", -1)
+			}
 			values := append(row.GetUpdateValues(), row.GetPKValues()...)
 			_, err := tx.Exec(updateQuery, values...)
 			if err != nil {

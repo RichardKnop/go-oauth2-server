@@ -1,15 +1,15 @@
 package oauth_test
 
 import (
-	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
 	var (
-		authorizationCode *oauth.AuthorizationCode
+		authorizationCode *models.OauthAuthorizationCode
 		err               error
-		codes             []*oauth.AuthorizationCode
+		codes             []*models.OauthAuthorizationCode
 	)
 
 	// Grant an authorization code
@@ -27,7 +27,7 @@ func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
 	// Correct authorization code object should be returned
 	if assert.NotNil(suite.T(), authorizationCode) {
 		// Fetch all auth codes
-		oauth.AuthorizationCodePreload(suite.db).Order("id").Find(&codes)
+		models.OauthAuthorizationCodePreload(suite.db).Order("id").Find(&codes)
 
 		// There should be just one right now
 		assert.Equal(suite.T(), 1, len(codes))

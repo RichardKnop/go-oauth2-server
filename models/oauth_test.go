@@ -1,25 +1,25 @@
-package oauth_test
+package models_test
 
 import (
 	"database/sql/driver"
 	"testing"
 
-	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewAccessToken(t *testing.T) {
 	var (
-		client      = &oauth.Client{Model: gorm.Model{ID: 1}}
-		user        = &oauth.User{Model: gorm.Model{ID: 2}}
-		accessToken *oauth.AccessToken
+		client      = &models.OauthClient{Model: gorm.Model{ID: 1}}
+		user        = &models.OauthUser{Model: gorm.Model{ID: 2}}
+		accessToken *models.OauthAccessToken
 		v           driver.Value
 		err         error
 	)
 
 	// When user object is nil
-	accessToken = oauth.NewAccessToken(
+	accessToken = models.NewOauthAccessToken(
 		client, // client
 		nil,    // user
 		3600,   // expires in
@@ -43,7 +43,7 @@ func TestNewAccessToken(t *testing.T) {
 	assert.Nil(t, v)
 
 	// When user object is not nil
-	accessToken = oauth.NewAccessToken(
+	accessToken = models.NewOauthAccessToken(
 		client, // client
 		user,   // user
 		3600,   // expires in
@@ -69,15 +69,15 @@ func TestNewAccessToken(t *testing.T) {
 
 func TestNewRefreshToken(t *testing.T) {
 	var (
-		client       = &oauth.Client{Model: gorm.Model{ID: 1}}
-		user         = &oauth.User{Model: gorm.Model{ID: 2}}
-		refreshToken *oauth.RefreshToken
+		client       = &models.OauthClient{Model: gorm.Model{ID: 1}}
+		user         = &models.OauthUser{Model: gorm.Model{ID: 2}}
+		refreshToken *models.OauthRefreshToken
 		v            driver.Value
 		err          error
 	)
 
 	// When user object is nil
-	refreshToken = oauth.NewRefreshToken(
+	refreshToken = models.NewOauthRefreshToken(
 		client,                 // client
 		nil,                    // user
 		1209600,                // expires in
@@ -101,7 +101,7 @@ func TestNewRefreshToken(t *testing.T) {
 	assert.Nil(t, v)
 
 	// When user object is not nil
-	refreshToken = oauth.NewRefreshToken(
+	refreshToken = models.NewOauthRefreshToken(
 		client,                 // client
 		user,                   // user
 		1209600,                // expires in
@@ -127,15 +127,15 @@ func TestNewRefreshToken(t *testing.T) {
 
 func TestNewAuthorizationCode(t *testing.T) {
 	var (
-		client            = &oauth.Client{Model: gorm.Model{ID: 1}}
-		user              = &oauth.User{Model: gorm.Model{ID: 2}}
-		authorizationCode *oauth.AuthorizationCode
+		client            = &models.OauthClient{Model: gorm.Model{ID: 1}}
+		user              = &models.OauthUser{Model: gorm.Model{ID: 2}}
+		authorizationCode *models.OauthAuthorizationCode
 		v                 driver.Value
 		err               error
 	)
 
 	// When user object is not nil
-	authorizationCode = oauth.NewAuthorizationCode(
+	authorizationCode = models.NewOauthAuthorizationCode(
 		client, // client
 		user,   // user
 		3600,   // expires in

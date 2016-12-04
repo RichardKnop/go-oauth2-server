@@ -1,11 +1,12 @@
 package oauth_test
 
 import (
-	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
-	pass "github.com/RichardKnop/go-oauth2-server/util/password"
 	"github.com/RichardKnop/go-oauth2-server/util"
+	pass "github.com/RichardKnop/go-oauth2-server/util/password"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestUserExistsFindsValidUser() {
@@ -80,7 +81,7 @@ func (suite *OauthTestSuite) TestUpdateUsernameFailsWithABlankEntry() {
 
 func (suite *OauthTestSuite) TestFindUserByUsername() {
 	var (
-		user *oauth.User
+		user *models.OauthUser
 		err  error
 	)
 
@@ -120,7 +121,7 @@ func (suite *OauthTestSuite) TestFindUserByUsername() {
 
 func (suite *OauthTestSuite) TestCreateUser() {
 	var (
-		user *oauth.User
+		user *models.OauthUser
 		err  error
 	)
 
@@ -172,12 +173,12 @@ func (suite *OauthTestSuite) TestCreateUser() {
 
 func (suite *OauthTestSuite) TestSetPassword() {
 	var (
-		user *oauth.User
+		user *models.OauthUser
 		err  error
 	)
 
 	// Insert a test user without a password
-	user = &oauth.User{
+	user = &models.OauthUser{
 		RoleID:   util.StringOrNull(roles.User),
 		Username: "test@user_nopass",
 		Password: util.StringOrNull(""),
@@ -206,12 +207,12 @@ func (suite *OauthTestSuite) TestSetPassword() {
 
 func (suite *OauthTestSuite) TestAuthUser() {
 	var (
-		user *oauth.User
+		user *models.OauthUser
 		err  error
 	)
 
 	// Insert a test user without a password
-	err = suite.db.Create(&oauth.User{
+	err = suite.db.Create(&models.OauthUser{
 		RoleID:   util.StringOrNull(roles.User),
 		Username: "test@user_nopass",
 		Password: util.StringOrNull(""),
@@ -276,7 +277,7 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 func (suite *OauthTestSuite) TestBlankPassword() {
 	var (
-		user *oauth.User
+		user *models.OauthUser
 		err  error
 	)
 

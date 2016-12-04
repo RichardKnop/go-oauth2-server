@@ -5,17 +5,18 @@ import (
 	"os"
 	"testing"
 
+	"github.com/RichardKnop/go-oauth2-server/config"
+	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/test-util"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/suite"
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/test-util"
 )
 
 var (
-	testDbUser = "go_oauth2_server"
-	testDbName = "go_oauth2_server_oauth_test"
+	testDbUser = "example_api"
+	testDbName = "example_api_oauth_test"
 
 	testFixtures = []string{
 		"./oauth/fixtures/scopes.yml",
@@ -25,7 +26,7 @@ var (
 	}
 
 	testMigrations = []func(*gorm.DB) error{
-		oauth.MigrateAll,
+		models.MigrateAll,
 	}
 )
 
@@ -41,15 +42,14 @@ type OauthTestSuite struct {
 	cnf     *config.Config
 	db      *gorm.DB
 	service *oauth.Service
-	clients []*oauth.Client
-	users   []*oauth.User
+	clients []*models.OauthClient
+	users   []*models.OauthUser
 	router  *mux.Router
 }
 
 // The SetupSuite method will be run by testify once, at the very
 // start of the testing suite, before any tests are run.
 func (suite *OauthTestSuite) SetupSuite() {
-
 	// Initialise the config
 	suite.cnf = config.NewConfig(false, false)
 
@@ -66,13 +66,13 @@ func (suite *OauthTestSuite) SetupSuite() {
 	suite.db = db
 
 	// Fetch test client
-	suite.clients = make([]*oauth.Client, 0)
+	suite.clients = make([]*models.OauthClient, 0)
 	if err := suite.db.Order("id").Find(&suite.clients).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	// Fetch test users
-	suite.users = make([]*oauth.User, 0)
+	suite.users = make([]*models.OauthUser, 0)
 	if err := suite.db.Order("id").Find(&suite.users).Error; err != nil {
 		log.Fatal(err)
 	}
@@ -100,11 +100,11 @@ func (suite *OauthTestSuite) SetupTest() {
 func (suite *OauthTestSuite) TearDownTest() {
 	// Scopes are static, populated from fixtures,
 	// so there is no need to clear them after running a test
-	suite.db.Unscoped().Delete(new(oauth.AuthorizationCode))
-	suite.db.Unscoped().Delete(new(oauth.RefreshToken))
-	suite.db.Unscoped().Delete(new(oauth.AccessToken))
-	suite.db.Unscoped().Not("id", []int64{1, 2}).Delete(new(oauth.User))
-	suite.db.Unscoped().Not("id", []int64{1, 2, 3}).Delete(new(oauth.Client))
+	suite.db.Unscoped().Delete(new(models.OauthAuthorizationCode))
+	suite.db.Unscoped().Delete(new(models.OauthRefreshToken))
+	suite.db.Unscoped().Delete(new(models.OauthAccessToken))
+	suite.db.Unscoped().Not("id", []int64{1, 2}).Delete(new(models.OauthUser))
+	suite.db.Unscoped().Not("id", []int64{1, 2, 3}).Delete(new(models.OauthClient))
 }
 
 // TestOauthTestSuite ...

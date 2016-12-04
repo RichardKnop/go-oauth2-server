@@ -3,6 +3,8 @@ package oauth
 import (
 	"errors"
 	"time"
+
+	"github.com/RichardKnop/go-oauth2-server/models"
 )
 
 var (
@@ -13,9 +15,9 @@ var (
 )
 
 // GrantAuthorizationCode grants a new authorization code
-func (s *Service) GrantAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI, scope string) (*AuthorizationCode, error) {
+func (s *Service) GrantAuthorizationCode(client *models.OauthClient, user *models.OauthUser, expiresIn int, redirectURI, scope string) (*models.OauthAuthorizationCode, error) {
 	// Create a new authorization code
-	authorizationCode := NewAuthorizationCode(client, user, expiresIn, redirectURI, scope)
+	authorizationCode := models.NewOauthAuthorizationCode(client, user, expiresIn, redirectURI, scope)
 	if err := s.db.Create(authorizationCode).Error; err != nil {
 		return nil, err
 	}
@@ -26,10 +28,10 @@ func (s *Service) GrantAuthorizationCode(client *Client, user *User, expiresIn i
 }
 
 // getValidAuthorizationCode returns a valid non expired authorization code
-func (s *Service) getValidAuthorizationCode(code, redirectURI string, client *Client) (*AuthorizationCode, error) {
+func (s *Service) getValidAuthorizationCode(code, redirectURI string, client *models.OauthClient) (*models.OauthAuthorizationCode, error) {
 	// Fetch the auth code from the database
-	authorizationCode := new(AuthorizationCode)
-	notFound := AuthorizationCodePreload(s.db).Where("client_id = ?", client.ID).
+	authorizationCode := new(models.OauthAuthorizationCode)
+	notFound := models.OauthAuthorizationCodePreload(s.db).Where("client_id = ?", client.ID).
 		Where("code = ?", code).First(authorizationCode).RecordNotFound()
 
 	// Not found

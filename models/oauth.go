@@ -1,17 +1,16 @@
-package oauth
+package models
 
 import (
 	"database/sql"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/database"
 	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/RichardKnop/uuid"
 	"github.com/jinzhu/gorm"
 )
 
-// Client ...
-type Client struct {
+// OauthClient ...
+type OauthClient struct {
 	gorm.Model
 	Key         string         `sql:"type:varchar(254);unique;not null"`
 	Secret      string         `sql:"type:varchar(60);not null"`
@@ -19,12 +18,12 @@ type Client struct {
 }
 
 // TableName specifies table name
-func (c *Client) TableName() string {
+func (c *OauthClient) TableName() string {
 	return "oauth_clients"
 }
 
-// Scope ...
-type Scope struct {
+// OauthScope ...
+type OauthScope struct {
 	gorm.Model
 	Scope       string `sql:"type:varchar(200);unique;not null"`
 	Description sql.NullString
@@ -32,78 +31,78 @@ type Scope struct {
 }
 
 // TableName specifies table name
-func (s *Scope) TableName() string {
+func (s *OauthScope) TableName() string {
 	return "oauth_scopes"
 }
 
-// Role is a one of roles user can have (currently superuser or user)
-type Role struct {
-	database.TimestampModel
+// OauthRole is a one of roles user can have (currently superuser or user)
+type OauthRole struct {
+	TimestampModel
 	ID   string `gorm:"primary_key" sql:"type:varchar(20)"`
 	Name string `sql:"type:varchar(50);unique;not null"`
 }
 
 // TableName specifies table name
-func (r *Role) TableName() string {
+func (r *OauthRole) TableName() string {
 	return "oauth_roles"
 }
 
-// User ...
-type User struct {
+// OauthUser ...
+type OauthUser struct {
 	gorm.Model
 	RoleID     sql.NullString `sql:"type:varchar(20);index;not null"`
-	Role       *Role
+	Role       *OauthRole
 	Username   string         `sql:"type:varchar(254);unique;not null"`
 	Password   sql.NullString `sql:"type:varchar(60)"`
 	MetaUserID uint           `sql:"index"`
 }
 
 // TableName specifies table name
-func (u *User) TableName() string {
+func (u *OauthUser) TableName() string {
 	return "oauth_users"
 }
 
-// RefreshToken ...
-type RefreshToken struct {
+// OauthRefreshToken ...
+type OauthRefreshToken struct {
 	gorm.Model
 	ClientID  sql.NullInt64 `sql:"index;not null"`
 	UserID    sql.NullInt64 `sql:"index"`
-	Client    *Client
-	User      *User
+	Client    *OauthClient
+	User      *OauthUser
 	Token     string    `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt time.Time `sql:"not null"`
 	Scope     string    `sql:"type:varchar(200);not null"`
 }
 
 // TableName specifies table name
-func (rt *RefreshToken) TableName() string {
+func (rt *OauthRefreshToken) TableName() string {
 	return "oauth_refresh_tokens"
 }
 
-// AccessToken ...
-type AccessToken struct {
+// OauthAccessToken ...
+type OauthAccessToken struct {
 	gorm.Model
 	ClientID  sql.NullInt64 `sql:"index;not null"`
 	UserID    sql.NullInt64 `sql:"index"`
-	Client    *Client
-	User      *User
+	Client    *OauthClient
+	User      *OauthUser
 	Token     string    `sql:"type:varchar(40);unique;not null"`
 	ExpiresAt time.Time `sql:"not null"`
 	Scope     string    `sql:"type:varchar(200);not null"`
 }
 
 // TableName specifies table name
-func (at *AccessToken) TableName() string {
+func (at *OauthAccessToken) TableName() string {
 	return "oauth_access_tokens"
 }
 
-// AuthorizationCode ...
-type AuthorizationCode struct {
+// OauthAuthorizationCode ...
+type OauthAuthorizationCode struct {
 	gorm.Model
 	ClientID    sql.NullInt64 `sql:"index;not null"`
 	UserID      sql.NullInt64 `sql:"index;not null"`
-	Client      *Client
-	User        *User
+	Client      *OauthClient
+	User        *OauthUser
 	Code        string         `sql:"type:varchar(40);unique;not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
 	ExpiresAt   time.Time      `sql:"not null"`
@@ -111,13 +110,13 @@ type AuthorizationCode struct {
 }
 
 // TableName specifies table name
-func (ac *AuthorizationCode) TableName() string {
+func (ac *OauthAuthorizationCode) TableName() string {
 	return "oauth_authorization_codes"
 }
 
-// NewRefreshToken creates new RefreshToken instance
-func NewRefreshToken(client *Client, user *User, expiresIn int, scope string) *RefreshToken {
-	refreshToken := &RefreshToken{
+// NewOauthRefreshToken creates new OauthRefreshToken instance
+func NewOauthRefreshToken(client *OauthClient, user *OauthUser, expiresIn int, scope string) *OauthRefreshToken {
+	refreshToken := &OauthRefreshToken{
 		ClientID:  util.PositiveIntOrNull(int64(client.ID)),
 		Token:     uuid.New(),
 		ExpiresAt: time.Now().UTC().Add(time.Duration(expiresIn) * time.Second),
@@ -129,9 +128,9 @@ func NewRefreshToken(client *Client, user *User, expiresIn int, scope string) *R
 	return refreshToken
 }
 
-// NewAccessToken creates new AccessToken instance
-func NewAccessToken(client *Client, user *User, expiresIn int, scope string) *AccessToken {
-	accessToken := &AccessToken{
+// NewOauthAccessToken creates new OauthAccessToken instance
+func NewOauthAccessToken(client *OauthClient, user *OauthUser, expiresIn int, scope string) *OauthAccessToken {
+	accessToken := &OauthAccessToken{
 		ClientID:  util.PositiveIntOrNull(int64(client.ID)),
 		Token:     uuid.New(),
 		ExpiresAt: time.Now().UTC().Add(time.Duration(expiresIn) * time.Second),
@@ -143,9 +142,9 @@ func NewAccessToken(client *Client, user *User, expiresIn int, scope string) *Ac
 	return accessToken
 }
 
-// NewAuthorizationCode creates new AuthorizationCode instance
-func NewAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI, scope string) *AuthorizationCode {
-	return &AuthorizationCode{
+// NewOauthAuthorizationCode creates new OauthAuthorizationCode instance
+func NewOauthAuthorizationCode(client *OauthClient, user *OauthUser, expiresIn int, redirectURI, scope string) *OauthAuthorizationCode {
+	return &OauthAuthorizationCode{
 		ClientID:    util.PositiveIntOrNull(int64(client.ID)),
 		UserID:      util.PositiveIntOrNull(int64(user.ID)),
 		Code:        uuid.New(),
@@ -155,38 +154,38 @@ func NewAuthorizationCode(client *Client, user *User, expiresIn int, redirectURI
 	}
 }
 
-// AuthorizationCodePreload sets up Gorm preloads for an auth code object
-func AuthorizationCodePreload(db *gorm.DB) *gorm.DB {
-	return AuthorizationCodePreloadWithPrefix(db, "")
+// OauthAuthorizationCodePreload sets up Gorm preloads for an auth code object
+func OauthAuthorizationCodePreload(db *gorm.DB) *gorm.DB {
+	return OauthAuthorizationCodePreloadWithPrefix(db, "")
 }
 
-// AuthorizationCodePreloadWithPrefix sets up Gorm preloads for an auth code object,
+// OauthAuthorizationCodePreloadWithPrefix sets up Gorm preloads for an auth code object,
 // and prefixes with prefix for nested objects
-func AuthorizationCodePreloadWithPrefix(db *gorm.DB, prefix string) *gorm.DB {
+func OauthAuthorizationCodePreloadWithPrefix(db *gorm.DB, prefix string) *gorm.DB {
 	return db.
 		Preload(prefix + "Client").Preload(prefix + "User")
 }
 
-// AccessTokenPreload sets up Gorm preloads for an access token object
-func AccessTokenPreload(db *gorm.DB) *gorm.DB {
-	return AccessTokenPreloadWithPrefix(db, "")
+// OauthAccessTokenPreload sets up Gorm preloads for an access token object
+func OauthAccessTokenPreload(db *gorm.DB) *gorm.DB {
+	return OauthAccessTokenPreloadWithPrefix(db, "")
 }
 
-// AccessTokenPreloadWithPrefix sets up Gorm preloads for an access token object,
+// OauthAccessTokenPreloadWithPrefix sets up Gorm preloads for an access token object,
 // and prefixes with prefix for nested objects
-func AccessTokenPreloadWithPrefix(db *gorm.DB, prefix string) *gorm.DB {
+func OauthAccessTokenPreloadWithPrefix(db *gorm.DB, prefix string) *gorm.DB {
 	return db.
 		Preload(prefix + "Client").Preload(prefix + "User")
 }
 
-// RefreshTokenPreload sets up Gorm preloads for a refresh token object
-func RefreshTokenPreload(db *gorm.DB) *gorm.DB {
-	return RefreshTokenPreloadWithPrefix(db, "")
+// OauthRefreshTokenPreload sets up Gorm preloads for a refresh token object
+func OauthRefreshTokenPreload(db *gorm.DB) *gorm.DB {
+	return OauthRefreshTokenPreloadWithPrefix(db, "")
 }
 
-// RefreshTokenPreloadWithPrefix sets up Gorm preloads for a refresh token object,
+// OauthRefreshTokenPreloadWithPrefix sets up Gorm preloads for a refresh token object,
 // and prefixes with prefix for nested objects
-func RefreshTokenPreloadWithPrefix(db *gorm.DB, prefix string) *gorm.DB {
+func OauthRefreshTokenPreloadWithPrefix(db *gorm.DB, prefix string) *gorm.DB {
 	return db.
 		Preload(prefix + "Client").Preload(prefix + "User")
 }

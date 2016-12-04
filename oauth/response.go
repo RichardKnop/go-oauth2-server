@@ -1,5 +1,9 @@
 package oauth
 
+import (
+	"github.com/RichardKnop/go-oauth2-server/models"
+)
+
 // AccessTokenResponse ...
 type AccessTokenResponse struct {
 	UserID       uint   `json:"user_id,omitempty"`
@@ -21,7 +25,7 @@ type IntrospectResponse struct {
 }
 
 // NewAccessTokenResponse ...
-func NewAccessTokenResponse(accessToken *AccessToken, refreshToken *RefreshToken, lifetime int, theTokenType string) (*AccessTokenResponse, error) {
+func NewAccessTokenResponse(accessToken *models.OauthAccessToken, refreshToken *models.OauthRefreshToken, lifetime int, theTokenType string) (*AccessTokenResponse, error) {
 	response := &AccessTokenResponse{
 		AccessToken: accessToken.Token,
 		ExpiresIn:   lifetime,

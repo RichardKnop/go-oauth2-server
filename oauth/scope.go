@@ -4,6 +4,8 @@ import (
 	"errors"
 	"sort"
 	"strings"
+
+	"github.com/RichardKnop/go-oauth2-server/models"
 )
 
 var (
@@ -32,7 +34,7 @@ func (s *Service) GetScope(requestedScope string) (string, error) {
 func (s *Service) GetDefaultScope() string {
 	// Fetch default scopes
 	var scopes []string
-	s.db.Model(new(Scope)).Where("is_default = ?", true).Pluck("scope", &scopes)
+	s.db.Model(new(models.OauthScope)).Where("is_default = ?", true).Pluck("scope", &scopes)
 
 	// Sort the scopes alphabetically
 	sort.Strings(scopes)
@@ -48,7 +50,7 @@ func (s *Service) ScopeExists(requestedScope string) bool {
 
 	// Count how many of requested scopes exist in the database
 	var count int
-	s.db.Model(new(Scope)).Where("scope in (?)", scopes).Count(&count)
+	s.db.Model(new(models.OauthScope)).Where("scope in (?)", scopes).Count(&count)
 
 	// Return true only if all requested scopes found
 	return count == len(scopes)

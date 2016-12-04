@@ -2,10 +2,12 @@ package oauth
 
 import (
 	"time"
+
+	"github.com/RichardKnop/go-oauth2-server/models"
 )
 
 // GrantAccessToken deletes old tokens and grants a new access token
-func (s *Service) GrantAccessToken(client *Client, user *User, expiresIn int, scope string) (*AccessToken, error) {
+func (s *Service) GrantAccessToken(client *models.OauthClient, user *models.OauthUser, expiresIn int, scope string) (*models.OauthAccessToken, error) {
 	// Begin a transaction
 	tx := s.db.Begin()
 
@@ -16,13 +18,13 @@ func (s *Service) GrantAccessToken(client *Client, user *User, expiresIn int, sc
 	} else {
 		query = query.Where("user_id IS NULL")
 	}
-	if err := query.Where("expires_at <= ?", time.Now()).Delete(new(AccessToken)).Error; err != nil {
+	if err := query.Where("expires_at <= ?", time.Now()).Delete(new(models.OauthAccessToken)).Error; err != nil {
 		tx.Rollback() // rollback the transaction
 		return nil, err
 	}
 
 	// Create a new access token
-	accessToken := NewAccessToken(client, user, expiresIn, scope)
+	accessToken := models.NewOauthAccessToken(client, user, expiresIn, scope)
 	if err := tx.Create(accessToken).Error; err != nil {
 		tx.Rollback() // rollback the transaction
 		return nil, err

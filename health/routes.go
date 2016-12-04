@@ -2,7 +2,7 @@ package health
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/RichardKnop/go-oauth2-server/routes"
+	"github.com/RichardKnop/go-oauth2-server/util/routes"
 )
 
 // RegisterRoutes registers route handlers for the health service

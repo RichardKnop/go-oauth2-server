@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/util/response"
 )
 
@@ -24,7 +25,7 @@ func (s *Service) tokensHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Map of grant types against handler functions
-	grantTypes := map[string]func(r *http.Request, client *Client) (*AccessTokenResponse, error){
+	grantTypes := map[string]func(r *http.Request, client *models.OauthClient) (*AccessTokenResponse, error){
 		"authorization_code": s.authorizationCodeGrant,
 		"password":           s.passwordGrant,
 		"client_credentials": s.clientCredentialsGrant,
@@ -78,7 +79,7 @@ func (s *Service) introspectHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // Get client credentials from basic auth and try to authenticate client
-func (s *Service) basicAuthClient(r *http.Request) (*Client, error) {
+func (s *Service) basicAuthClient(r *http.Request) (*models.OauthClient, error) {
 	// Get client credentials from basic auth
 	clientID, secret, ok := r.BasicAuth()
 	if !ok {

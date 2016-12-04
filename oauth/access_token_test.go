@@ -3,15 +3,15 @@ package oauth_test
 import (
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/stretchr/testify/assert"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
 )
 
 func (suite *OauthTestSuite) TestGrantAccessToken() {
 	var (
-		accessToken *oauth.AccessToken
+		accessToken *models.OauthAccessToken
 		err         error
-		tokens      []*oauth.AccessToken
+		tokens      []*models.OauthAccessToken
 	)
 
 	// Grant a client only access token
@@ -28,7 +28,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		oauth.AccessTokenPreload(suite.db).Order("id").Find(&tokens)
+		models.OauthAccessTokenPreload(suite.db).Order("id").Find(&tokens)
 
 		// There should be just one right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -58,7 +58,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		oauth.AccessTokenPreload(suite.db).Order("id").Find(&tokens)
+		models.OauthAccessTokenPreload(suite.db).Order("id").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -78,29 +78,29 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 
 func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 	var (
-		testAccessTokens = []*oauth.AccessToken{
+		testAccessTokens = []*models.OauthAccessToken{
 			// Expired access token with a user
-			&oauth.AccessToken{
+			&models.OauthAccessToken{
 				Token:     "test_token_1",
 				ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 				Client:    suite.clients[0],
 				User:      suite.users[0],
 			},
 			// Expired access token without a user
-			&oauth.AccessToken{
+			&models.OauthAccessToken{
 				Token:     "test_token_2",
 				ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 				Client:    suite.clients[0],
 			},
 			// Access token with a user
-			&oauth.AccessToken{
+			&models.OauthAccessToken{
 				Token:     "test_token_3",
 				ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 				Client:    suite.clients[0],
 				User:      suite.users[0],
 			},
 			// Access token without a user
-			&oauth.AccessToken{
+			&models.OauthAccessToken{
 				Token:     "test_token_4",
 				ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 				Client:    suite.clients[0],
@@ -128,7 +128,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 
 	// Check the test_token_1 was deleted
 	notFound = suite.db.Unscoped().Where("token = ?", "test_token_1").
-		First(new(oauth.AccessToken)).RecordNotFound()
+		First(new(models.OauthAccessToken)).RecordNotFound()
 	assert.True(suite.T(), notFound)
 
 	// Check the other three tokens are still around
@@ -139,7 +139,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 	}
 	for _, token := range existingTokens {
 		notFound = suite.db.Unscoped().Where("token = ?", token).
-			First(new(oauth.AccessToken)).RecordNotFound()
+			First(new(models.OauthAccessToken)).RecordNotFound()
 		assert.False(suite.T(), notFound)
 	}
 
@@ -154,7 +154,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 
 	// Check the test_token_2 was deleted
 	notFound = suite.db.Unscoped().Where("token = ?", "test_token_2").
-		First(new(oauth.AccessToken)).RecordNotFound()
+		First(new(models.OauthAccessToken)).RecordNotFound()
 	assert.True(suite.T(), notFound)
 
 	// Check that last two tokens are still around
@@ -164,7 +164,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 	}
 	for _, token := range existingTokens {
 		notFound := suite.db.Unscoped().Where("token = ?", token).
-			First(new(oauth.AccessToken)).RecordNotFound()
+			First(new(models.OauthAccessToken)).RecordNotFound()
 		assert.False(suite.T(), notFound)
 	}
 }

@@ -6,9 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jinzhu/gorm"
-	pass "github.com/RichardKnop/go-oauth2-server/util/password"
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/util"
+	pass "github.com/RichardKnop/go-oauth2-server/util/password"
+	"github.com/jinzhu/gorm"
 )
 
 var (
@@ -39,9 +40,9 @@ func (s *Service) UserExists(username string) bool {
 }
 
 // FindUserByUsername looks up a user by username
-func (s *Service) FindUserByUsername(username string) (*User, error) {
+func (s *Service) FindUserByUsername(username string) (*models.OauthUser, error) {
 	// Usernames are case insensitive
-	user := new(User)
+	user := new(models.OauthUser)
 	notFound := s.db.Where("username = LOWER(?)", username).
 		First(user).RecordNotFound()
 
@@ -54,27 +55,27 @@ func (s *Service) FindUserByUsername(username string) (*User, error) {
 }
 
 // CreateUser saves a new user to database
-func (s *Service) CreateUser(roleID, username, password string) (*User, error) {
+func (s *Service) CreateUser(roleID, username, password string) (*models.OauthUser, error) {
 	return s.createUserCommon(s.db, roleID, username, password)
 }
 
 // CreateUserTx saves a new user to database using injected db object
-func (s *Service) CreateUserTx(tx *gorm.DB, roleID, username, password string) (*User, error) {
+func (s *Service) CreateUserTx(tx *gorm.DB, roleID, username, password string) (*models.OauthUser, error) {
 	return s.createUserCommon(tx, roleID, username, password)
 }
 
 // SetPassword sets a user password
-func (s *Service) SetPassword(user *User, password string) error {
+func (s *Service) SetPassword(user *models.OauthUser, password string) error {
 	return s.setPasswordCommon(s.db, user, password)
 }
 
 // SetPasswordTx sets a user password in a transaction
-func (s *Service) SetPasswordTx(tx *gorm.DB, user *User, password string) error {
+func (s *Service) SetPasswordTx(tx *gorm.DB, user *models.OauthUser, password string) error {
 	return s.setPasswordCommon(tx, user, password)
 }
 
 // AuthUser authenticates user
-func (s *Service) AuthUser(username, password string) (*User, error) {
+func (s *Service) AuthUser(username, password string) (*models.OauthUser, error) {
 	// Fetch the user
 	user, err := s.FindUserByUsername(username)
 	if err != nil {
@@ -95,7 +96,7 @@ func (s *Service) AuthUser(username, password string) (*User, error) {
 }
 
 // UpdateUsername ...
-func (s *Service) UpdateUsername(user *User, username string) error {
+func (s *Service) UpdateUsername(user *models.OauthUser, username string) error {
 	if username == "" {
 		return ErrCannotSetEmptyUsername
 	}
@@ -104,13 +105,13 @@ func (s *Service) UpdateUsername(user *User, username string) error {
 }
 
 // UpdateUsernameTx ...
-func (s *Service) UpdateUsernameTx(tx *gorm.DB, user *User, username string) error {
+func (s *Service) UpdateUsernameTx(tx *gorm.DB, user *models.OauthUser, username string) error {
 	return s.updateUsernameCommon(tx, user, username)
 }
 
-func (s *Service) createUserCommon(db *gorm.DB, roleID, username, password string) (*User, error) {
+func (s *Service) createUserCommon(db *gorm.DB, roleID, username, password string) (*models.OauthUser, error) {
 	// Start with a user without a password
-	user := &User{
+	user := &models.OauthUser{
 		RoleID:   util.StringOrNull(roleID),
 		Username: strings.ToLower(username),
 		Password: util.StringOrNull(""),
@@ -140,7 +141,7 @@ func (s *Service) createUserCommon(db *gorm.DB, roleID, username, password strin
 	return user, nil
 }
 
-func (s *Service) setPasswordCommon(db *gorm.DB, user *User, password string) error {
+func (s *Service) setPasswordCommon(db *gorm.DB, user *models.OauthUser, password string) error {
 	if len(password) < MinPasswordLength {
 		return ErrPasswordTooShort
 	}
@@ -152,13 +153,13 @@ func (s *Service) setPasswordCommon(db *gorm.DB, user *User, password string) er
 	}
 
 	// Set the password on the user object
-	return db.Model(user).UpdateColumns(User{
+	return db.Model(user).UpdateColumns(models.OauthUser{
 		Password: util.StringOrNull(string(passwordHash)),
 		Model:    gorm.Model{UpdatedAt: time.Now().UTC()},
 	}).Error
 }
 
-func (s *Service) updateUsernameCommon(db *gorm.DB, user *User, username string) error {
+func (s *Service) updateUsernameCommon(db *gorm.DB, user *models.OauthUser, username string) error {
 	if username == "" {
 		return ErrCannotSetEmptyUsername
 	}

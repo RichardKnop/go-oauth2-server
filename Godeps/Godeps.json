@@ -8,7 +8,7 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/RichardKnop/go-fixtures",
-			"Rev": "02eae59de1164f5dbda2a316ee818cb2bc55a5cb"
+			"Rev": "dd96a49bac30ff12ff4964862205d64985b04ed8"
 		},
 		{
 			"ImportPath": "github.com/RichardKnop/jsonhal",
@@ -134,8 +134,8 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Comment": "v1.0-96-g066abce",
-			"Rev": "066abcef408f2522f0a89952e44ab17eac176ed0"
+			"Comment": "v1.0-97-geb06255",
+			"Rev": "eb06255b667da417d982c6412c4602e932cc5283"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",

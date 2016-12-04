@@ -6,10 +6,11 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 	"github.com/RichardKnop/go-oauth2-server/test-util"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantEmptyNotFound() {
@@ -60,7 +61,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantBogusNotFound() {
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantExipired() {
 	// Insert a test refresh token
-	err := suite.db.Create(&oauth.RefreshToken{
+	err := suite.db.Create(&models.OauthRefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 		Client:    suite.clients[0],
@@ -94,7 +95,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExipired() {
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 	// Insert a test refresh token
-	err := suite.db.Create(&oauth.RefreshToken{
+	err := suite.db.Create(&models.OauthRefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -128,7 +129,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 	// Insert a test refresh token
-	err := suite.db.Create(&oauth.RefreshToken{
+	err := suite.db.Create(&models.OauthRefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -151,8 +152,8 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 	suite.router.ServeHTTP(w, r)
 
 	// Fetch data
-	accessToken := new(oauth.AccessToken)
-	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
+	accessToken := new(models.OauthAccessToken)
+	assert.False(suite.T(), models.OauthAccessTokenPreload(suite.db).
 		Last(accessToken).RecordNotFound())
 
 	// Check the response body
@@ -169,7 +170,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 
 func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	// Insert a test refresh token
-	err := suite.db.Create(&oauth.RefreshToken{
+	err := suite.db.Create(&models.OauthRefreshToken{
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -193,8 +194,8 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	suite.router.ServeHTTP(w, r)
 
 	// Fetch data
-	accessToken := new(oauth.AccessToken)
-	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
+	accessToken := new(models.OauthAccessToken)
+	assert.False(suite.T(), models.OauthAccessTokenPreload(suite.db).
 		Last(accessToken).RecordNotFound())
 
 	// Check the response

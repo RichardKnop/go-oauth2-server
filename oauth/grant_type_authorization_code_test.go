@@ -6,11 +6,12 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 	"github.com/RichardKnop/go-oauth2-server/test-util"
 	"github.com/RichardKnop/go-oauth2-server/util"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestAuthorizationCodeGrantEmptyNotFound() {
@@ -61,7 +62,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantBogusNotFound() {
 
 func (suite *OauthTestSuite) TestAuthorizationCodeGrantExpired() {
 	// Insert a test authorization code
-	err := suite.db.Create(&oauth.AuthorizationCode{
+	err := suite.db.Create(&models.OauthAuthorizationCode{
 		Code:        "test_code",
 		ExpiresAt:   time.Now().UTC().Add(-10 * time.Second),
 		Client:      suite.clients[0],
@@ -96,7 +97,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantExpired() {
 
 func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 	// Insert a test authorization code
-	err := suite.db.Create(&oauth.AuthorizationCode{
+	err := suite.db.Create(&models.OauthAuthorizationCode{
 		Code:        "test_code",
 		ExpiresAt:   time.Now().UTC().Add(+10 * time.Second),
 		Client:      suite.clients[0],
@@ -131,7 +132,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 
 func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	// Insert a test authorization code
-	err := suite.db.Create(&oauth.AuthorizationCode{
+	err := suite.db.Create(&models.OauthAuthorizationCode{
 		Code:        "test_code",
 		ExpiresAt:   time.Now().UTC().Add(+10 * time.Second),
 		Client:      suite.clients[0],
@@ -156,10 +157,10 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	suite.router.ServeHTTP(w, r)
 
 	// Fetch data
-	accessToken, refreshToken := new(oauth.AccessToken), new(oauth.RefreshToken)
-	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
+	accessToken, refreshToken := new(models.OauthAccessToken), new(models.OauthRefreshToken)
+	assert.False(suite.T(), models.OauthAccessTokenPreload(suite.db).
 		Last(accessToken).RecordNotFound())
-	assert.False(suite.T(), oauth.RefreshTokenPreload(suite.db).
+	assert.False(suite.T(), models.OauthRefreshTokenPreload(suite.db).
 		Last(refreshToken).RecordNotFound())
 
 	// Check the response
@@ -175,5 +176,5 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 
 	// The authorization code should get deleted after use
 	assert.True(suite.T(), suite.db.Unscoped().
-		First(new(oauth.AuthorizationCode)).RecordNotFound())
+		First(new(models.OauthAuthorizationCode)).RecordNotFound())
 }

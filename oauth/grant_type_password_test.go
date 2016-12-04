@@ -5,11 +5,12 @@ import (
 	"net/http/httptest"
 	"net/url"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
 	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 	"github.com/RichardKnop/go-oauth2-server/test-util"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestPasswordGrant() {
@@ -29,10 +30,10 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 	suite.router.ServeHTTP(w, r)
 
 	// Fetch data
-	accessToken, refreshToken := new(oauth.AccessToken), new(oauth.RefreshToken)
-	assert.False(suite.T(), oauth.AccessTokenPreload(suite.db).
+	accessToken, refreshToken := new(models.OauthAccessToken), new(models.OauthRefreshToken)
+	assert.False(suite.T(), models.OauthAccessTokenPreload(suite.db).
 		Last(accessToken).RecordNotFound())
-	assert.False(suite.T(), oauth.RefreshTokenPreload(suite.db).
+	assert.False(suite.T(), models.OauthRefreshTokenPreload(suite.db).
 		Last(refreshToken).RecordNotFound())
 
 	// Check the response

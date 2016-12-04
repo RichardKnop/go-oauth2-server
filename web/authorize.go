@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/session"
 )
 
@@ -116,7 +116,7 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *Service) authorizeCommon(r *http.Request) (session.ServiceInterface, *oauth.Client, *oauth.User, string, *url.URL, error) {
+func (s *Service) authorizeCommon(r *http.Request) (session.ServiceInterface, *models.OauthClient, *models.OauthUser, string, *url.URL, error) {
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {

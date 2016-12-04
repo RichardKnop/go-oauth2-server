@@ -1,14 +1,15 @@
 package oauth_test
 
 import (
-	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestFindRoleByID() {
 	var (
-		role *oauth.Role
+		role *models.OauthRole
 		err  error
 	)
 
