@@ -4,7 +4,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
-	pass "github.com/RichardKnop/go-oauth2-server/password"
+	pass "github.com/RichardKnop/go-oauth2-server/util/password"
 	"github.com/RichardKnop/go-oauth2-server/util"
 )
 

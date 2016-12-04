@@ -4,7 +4,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/RichardKnop/go-oauth2-server/password"
+	"github.com/RichardKnop/go-oauth2-server/util/password"
 	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/jinzhu/gorm"
 )
