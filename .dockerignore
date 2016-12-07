@@ -3,4 +3,5 @@ etcd-data
 postgres-data
 Makefile
 *.MD
+LICENSE
 docs/
