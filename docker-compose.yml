@@ -21,7 +21,7 @@ services:
   postgres:
     image: "postgres"
     volumes:
-      - ./postgres-data:/data
+      - ./postgres-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: "go_oauth2_server"
       POSTGRES_PASSWORD: ""
