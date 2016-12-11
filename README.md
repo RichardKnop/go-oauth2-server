@@ -398,7 +398,7 @@ brew install etcd
 Load a development configuration into `etcd`:
 
 ```sh
-etcdctl put /config/go_oauth2_server.json '{
+ETCDCTL_API=3 etcdctl put /config/go_oauth2_server.json '{
   "Database": {
     "Type": "postgres",
     "Host": "localhost",
