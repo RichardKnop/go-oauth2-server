@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/logger"
 	"github.com/urfave/negroni"
 )
 
@@ -28,7 +29,7 @@ func (l *Logger) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.Ha
 		ip = xff
 	}
 
-	logger.Infof("Started %s %s for %s", r.Method, r.URL.Path, ip)
+	logger.INFO.Printf("Started %s %s for %s", r.Method, r.URL.Path, ip)
 
 	next(rw, r)
 
@@ -38,10 +39,10 @@ func (l *Logger) ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.Ha
 
 	switch {
 	case res.Status() < 400:
-		logger.Info(msg)
+		logger.INFO.Print(msg)
 	case res.Status() < 500:
-		logger.Warning(msg)
+		logger.WARNING.Print(msg)
 	default:
-		logger.Error(msg)
+		logger.ERROR.Print(msg)
 	}
 }
