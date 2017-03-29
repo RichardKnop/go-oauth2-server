@@ -8,7 +8,7 @@ import (
 
 const (
 	// Runtime caller depth
-	depth = 4
+	depth = 3
 )
 
 // Formatter interface

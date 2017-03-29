@@ -11,11 +11,11 @@ const (
 )
 
 // Colour map
-var colour = []string{
-	infoLevel:    fmt.Sprintf(colourSeq, 94), // blue
-	warningLevel: fmt.Sprintf(colourSeq, 95), // pink
-	errorLevel:   fmt.Sprintf(colourSeq, 91), // red
-	fatalLevel:   fmt.Sprintf(colourSeq, 91), // red
+var colour = map[level]string{
+	INFO:    fmt.Sprintf(colourSeq, 94), // blue
+	WARNING: fmt.Sprintf(colourSeq, 95), // pink
+	ERROR:   fmt.Sprintf(colourSeq, 91), // red
+	FATAL:   fmt.Sprintf(colourSeq, 91), // red
 }
 
 // ColouredFormatter colours log messages with ASCI escape codes

@@ -4,7 +4,11 @@
 package jsonhal
 
 import (
+	"errors"
 	"fmt"
+	"reflect"
+
+	"github.com/mitchellh/mapstructure"
 )
 
 // Link represents a link in "_links" object
@@ -60,4 +64,25 @@ func (h *Hal) GetEmbedded(name string) (Embedded, error) {
 		return nil, fmt.Errorf("Embedded \"%s\" not found", name)
 	}
 	return embedded, nil
+}
+
+// CountEmbedded counts number of embedded items
+func (h *Hal) CountEmbedded(name string) (int, error) {
+	e, err := h.GetEmbedded(name)
+	if err != nil {
+		return 0, err
+	}
+	if reflect.TypeOf(interface{}(e)).Kind() != reflect.Slice && reflect.TypeOf(interface{}(e)).Kind() != reflect.Map {
+		return 0, errors.New("Embedded object is not a slice or a map")
+	}
+	return reflect.ValueOf(interface{}(e)).Len(), nil
+}
+
+// DecodeEmbedded decodes embedded objects into a struct
+func (h *Hal) DecodeEmbedded(name string, result interface{}) error {
+	e, err := h.GetEmbedded(name)
+	if err != nil {
+		return err
+	}
+	return mapstructure.Decode(interface{}(e), result)
 }
