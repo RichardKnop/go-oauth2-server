@@ -9,7 +9,8 @@ import (
 )
 
 var (
-	cliApp *cli.App
+	cliApp        *cli.App
+	configBackend string
 )
 
 func init() {
@@ -20,6 +21,13 @@ func init() {
 	cliApp.Author = "Richard Knop"
 	cliApp.Email = "risoknop@gmail.com"
 	cliApp.Version = "0.0.0"
+	cliApp.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:        "configBackend",
+			Value:       "etcd",
+			Destination: &configBackend,
+		},
+	}
 }
 
 func main() {
@@ -29,21 +37,21 @@ func main() {
 			Name:  "migrate",
 			Usage: "run migrations",
 			Action: func(c *cli.Context) error {
-				return cmd.Migrate()
+				return cmd.Migrate(configBackend)
 			},
 		},
 		{
 			Name:  "loaddata",
 			Usage: "load data from fixture",
 			Action: func(c *cli.Context) error {
-				return cmd.LoadData(c.Args())
+				return cmd.LoadData(c.Args(), configBackend)
 			},
 		},
 		{
 			Name:  "runserver",
 			Usage: "run web server",
 			Action: func(c *cli.Context) error {
-				return cmd.RunServer()
+				return cmd.RunServer(configBackend)
 			},
 		},
 	}
