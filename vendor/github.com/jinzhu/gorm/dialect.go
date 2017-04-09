@@ -14,7 +14,7 @@ type Dialect interface {
 	GetName() string
 
 	// SetDB set db for dialect
-	SetDB(db *sql.DB)
+	SetDB(db SQLCommon)
 
 	// BindVar return the placeholder for actual values in SQL statements, in many dbs it is "?", Postgres using $1
 	BindVar(i int) string
@@ -50,7 +50,7 @@ type Dialect interface {
 
 var dialectsMap = map[string]Dialect{}
 
-func newDialect(name string, db *sql.DB) Dialect {
+func newDialect(name string, db SQLCommon) Dialect {
 	if value, ok := dialectsMap[name]; ok {
 		dialect := reflect.New(reflect.TypeOf(value).Elem()).Interface().(Dialect)
 		dialect.SetDB(db)
@@ -68,16 +68,26 @@ func RegisterDialect(name string, dialect Dialect) {
 	dialectsMap[name] = dialect
 }
 
-// ParseFieldStructForDialect parse field struct for dialect
-func ParseFieldStructForDialect(field *StructField) (fieldValue reflect.Value, sqlType string, size int, additionalType string) {
+// ParseFieldStructForDialect get field's sql data type
+var ParseFieldStructForDialect = func(field *StructField, dialect Dialect) (fieldValue reflect.Value, sqlType string, size int, additionalType string) {
 	// Get redirected field type
-	var reflectType = field.Struct.Type
+	var (
+		reflectType = field.Struct.Type
+		dataType    = field.TagSettings["TYPE"]
+	)
+
 	for reflectType.Kind() == reflect.Ptr {
 		reflectType = reflectType.Elem()
 	}
 
 	// Get redirected field value
 	fieldValue = reflect.Indirect(reflect.New(reflectType))
+
+	if gormDataType, ok := fieldValue.Interface().(interface {
+		GormDataType(Dialect) string
+	}); ok {
+		dataType = gormDataType.GormDataType(dialect)
+	}
 
 	// Get scanner's real value
 	var getScannerValue func(reflect.Value)
@@ -102,5 +112,5 @@ func ParseFieldStructForDialect(field *StructField) (fieldValue reflect.Value, s
 		additionalType = additionalType + " DEFAULT " + value
 	}
 
-	return fieldValue, field.TagSettings["TYPE"], size, strings.TrimSpace(additionalType)
+	return fieldValue, dataType, size, strings.TrimSpace(additionalType)
 }

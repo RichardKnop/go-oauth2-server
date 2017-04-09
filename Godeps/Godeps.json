@@ -134,7 +134,7 @@
 		},
 		{
 			"ImportPath": "github.com/hashicorp/consul/api",
-			"Comment": "v0.8.0-25-g3ef7dde",
+			"Comment": "v0.8.0-25-g3ef7dde6",
 			"Rev": "3ef7dde64c27e015c61be5e08c3ca55199726b1a"
 		},
 		{
@@ -148,8 +148,8 @@
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Comment": "v1.0-97-geb06255",
-			"Rev": "eb06255b667da417d982c6412c4602e932cc5283"
+			"Comment": "v1.0-138-g45ccb13",
+			"Rev": "45ccb134373e7d9fa76d5987a6fed6cd5a5adfd4"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
