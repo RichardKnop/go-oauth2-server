@@ -53,6 +53,8 @@ func NewConfig(mustLoadOnce bool, keepReloading bool, configBackend string) *Con
 	switch configBackend {
 	case "etcd":
 		backend = &etcdBackend{}
+	case "consul":
+		backend = &consulBackend{}
 	default:
 		logger.FATAL.Printf("%s is not a valid backend", configBackend)
 		os.Exit(1)

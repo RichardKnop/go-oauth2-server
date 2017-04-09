@@ -19,6 +19,8 @@ var (
 	etcdConfigPath                        = "/config/go_oauth2_server.json"
 )
 
+type etcdBackend struct{}
+
 func (b *etcdBackend) InitConfigBackend() {
 	// Overwrite default values with environment variables if they are set
 	if os.Getenv("ETCD_ENDPOINTS") != "" {
@@ -37,8 +39,6 @@ func (b *etcdBackend) InitConfigBackend() {
 		etcdConfigPath = os.Getenv("ETCD_CONFIG_PATH")
 	}
 }
-
-type etcdBackend struct{}
 
 // LoadConfig gets the JSON from ETCD and unmarshals it to the config object
 func (b *etcdBackend) LoadConfig() (*Config, error) {
