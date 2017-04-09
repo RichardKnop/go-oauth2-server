@@ -5,8 +5,8 @@ import (
 )
 
 // LoadData loads fixtures
-func LoadData(paths []string) error {
-	cnf, db, err := initConfigDB(true, false)
+func LoadData(paths []string, configBackend string) error {
+	cnf, db, err := initConfigDB(true, false, configBackend)
 	if err != nil {
 		return err
 	}
