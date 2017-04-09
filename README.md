@@ -387,7 +387,9 @@ make install-deps
 
 # Setup
 
-If you are developing on OSX, install `etcd`, `Postgres` and `nats-streaming-server`:
+For distributed config storage you can use either etcd or consul (etcd being the default)
+
+If you are developing on OSX, install `etcd` or `consul`, `Postgres` and `nats-streaming-server`:
 
 ## etcd
 
@@ -432,6 +434,48 @@ Check the config was loaded properly:
 etcdctl get /config/go_oauth2_server.json
 ```
 
+## consul
+
+```sh
+brew install consul
+```
+
+
+Load a development configuration into `consul`:
+
+```sh
+consul kv put /config/go_oauth2_server.json '{
+  "Database": {
+    "Type": "postgres",
+    "Host": "localhost",
+    "Port": 5432,
+    "User": "go_oauth2_server",
+    "Password": "",
+    "DatabaseName": "go_oauth2_server",
+    "MaxIdleConns": 5,
+    "MaxOpenConns": 5
+  },
+  "Oauth": {
+    "AccessTokenLifetime": 3600,
+    "RefreshTokenLifetime": 1209600,
+    "AuthCodeLifetime": 3600
+  },
+  "Session": {
+    "Secret": "test_secret",
+    "Path": "/",
+    "MaxAge": 604800,
+    "HTTPOnly": true
+  },
+  "IsDevelopment": true
+}'
+```
+
+Check the config was loaded properly:
+
+```sh
+consul kv get /config/go_oauth2_server.json
+```
+
 
 ## Postgres
 
@@ -454,6 +498,8 @@ Compile the app:
 go install .
 ```
 
+The binary accepts an optional flag of `--configBackend` which can be set to `etcd | consul`, defaults to `etcd`
+
 Run migrations:
 
 ```sh
@@ -473,6 +519,23 @@ When deploying, you can set etcd related environment variables:
 * `ETCD_KEY_FILE`
 * `ETCD_CA_FILE`
 * `ETCD_CONFIG_PATH`
+
+You can also set consul related variables
+
+* `CONSUL_ENDPOINT`
+* `CONSUL_CERT_FILE`
+* `CONSUL_KEY_FILE`
+* `CONSUL_CA_FILE`
+* `CONSUL_CONFIG_PATH`
+
+and the equivalent above commands would be
+
+```sh
+go-oauth2-server --configBackend consul migrate
+```
+```sh
+go-oauth2-server --configBackend consul runserver
+```
 
 # Testing
 

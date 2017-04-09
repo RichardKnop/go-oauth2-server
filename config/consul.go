@@ -20,8 +20,8 @@ type consulBackend struct{}
 
 func (b *consulBackend) InitConfigBackend() {
 	// Overwrite default values with environment variables if they are set
-	if os.Getenv("CONSUL_ENDPOINTS") != "" {
-		consulEndpoint = os.Getenv("CONSUL_ENDPOINTS")
+	if os.Getenv("CONSUL_ENDPOINT") != "" {
+		consulEndpoint = os.Getenv("CONSUL_ENDPOINT")
 	}
 	if os.Getenv("CONSUL_CERT_FILE") != "" {
 		consulCertFile = os.Getenv("CONSUL_CERT_FILE")
