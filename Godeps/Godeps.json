@@ -133,6 +133,20 @@
 			"Rev": "199c40a060d1e55508b3b85182ce6f3895ae6302"
 		},
 		{
+			"ImportPath": "github.com/hashicorp/consul/api",
+			"Comment": "v0.8.0-25-g3ef7dde",
+			"Rev": "3ef7dde64c27e015c61be5e08c3ca55199726b1a"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/go-cleanhttp",
+			"Rev": "3573b8b52aa7b37b9358d966a898feb387f62437"
+		},
+		{
+			"ImportPath": "github.com/hashicorp/serf/coordinate",
+			"Comment": "v0.8.1-30-g19f2c40",
+			"Rev": "19f2c401e122352c047a84d6584dd51e2fb8fcc4"
+		},
+		{
 			"ImportPath": "github.com/jinzhu/gorm",
 			"Comment": "v1.0-97-geb06255",
 			"Rev": "eb06255b667da417d982c6412c4602e932cc5283"
