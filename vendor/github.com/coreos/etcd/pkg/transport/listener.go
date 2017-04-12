@@ -26,11 +26,9 @@ import (
 	"math/big"
 	"net"
 	"os"
-	"path"
-	"strings"
+	"path/filepath"
 	"time"
 
-	"github.com/coreos/etcd/pkg/fileutil"
 	"github.com/coreos/etcd/pkg/tlsutil"
 )
 
@@ -86,12 +84,12 @@ func (info TLSInfo) Empty() bool {
 }
 
 func SelfCert(dirpath string, hosts []string) (info TLSInfo, err error) {
-	if err = fileutil.TouchDirAll(dirpath); err != nil {
+	if err = os.MkdirAll(dirpath, 0700); err != nil {
 		return
 	}
 
-	certPath := path.Join(dirpath, "cert.pem")
-	keyPath := path.Join(dirpath, "key.pem")
+	certPath := filepath.Join(dirpath, "cert.pem")
+	keyPath := filepath.Join(dirpath, "key.pem")
 	_, errcert := os.Stat(certPath)
 	_, errkey := os.Stat(keyPath)
 	if errcert == nil && errkey == nil {
@@ -119,10 +117,11 @@ func SelfCert(dirpath string, hosts []string) (info TLSInfo, err error) {
 	}
 
 	for _, host := range hosts {
-		if ip := net.ParseIP(host); ip != nil {
+		h, _, _ := net.SplitHostPort(host)
+		if ip := net.ParseIP(h); ip != nil {
 			tmpl.IPAddresses = append(tmpl.IPAddresses, ip)
 		} else {
-			tmpl.DNSNames = append(tmpl.DNSNames, strings.Split(host, ":")[0])
+			tmpl.DNSNames = append(tmpl.DNSNames, h)
 		}
 	}
 
@@ -234,8 +233,6 @@ func (info TLSInfo) ClientConfig() (*tls.Config, error) {
 		if err != nil {
 			return nil, err
 		}
-		// if given a CA, trust any host with a cert signed by the CA
-		cfg.ServerName = ""
 	}
 
 	if info.selfCert {
