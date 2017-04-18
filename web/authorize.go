@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
-	"github.com/RichardKnop/go-oauth2-server/session"
+	"github.com/adam-hanna/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/session"
 )
 
 func (s *Service) authorizeForm(w http.ResponseWriter, r *http.Request) {

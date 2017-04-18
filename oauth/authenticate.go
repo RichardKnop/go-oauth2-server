@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/models"
 	"github.com/jinzhu/gorm"
 )
 
@@ -32,9 +32,9 @@ func (s *Service) Authenticate(token string) (*models.OauthAccessToken, error) {
 	}
 
 	// Extend refresh token expiration database
-	query := s.db.Model(new(models.OauthRefreshToken)).Where("client_id = ?", accessToken.ClientID.Int64)
+	query := s.db.Model(new(models.OauthRefreshToken)).Where("client_id = ?", accessToken.ClientID.String)
 	if accessToken.UserID.Valid {
-		query = query.Where("user_id = ?", accessToken.UserID.Int64)
+		query = query.Where("user_id = ?", accessToken.UserID.String)
 	} else {
 		query = query.Where("user_id IS NULL")
 	}

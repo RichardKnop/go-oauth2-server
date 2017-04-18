@@ -3,9 +3,10 @@ package oauth_test
 import (
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/adam-hanna/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/oauth"
 	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/uuid"
 )
 
 func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
@@ -27,7 +28,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		models.OauthRefreshTokenPreload(suite.db).Order("id").Find(&tokens)
+		models.OauthRefreshTokenPreload(suite.db).Order("created_at").Find(&tokens)
 
 		// There should be just one token now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -56,7 +57,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		models.OauthRefreshTokenPreload(suite.db).Order("id").Find(&tokens)
+		models.OauthRefreshTokenPreload(suite.db).Order("created_at").Find(&tokens)
 
 		// There should be just one token now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -86,7 +87,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		models.OauthRefreshTokenPreload(suite.db).Order("id").Find(&tokens)
+		models.OauthRefreshTokenPreload(suite.db).Order("created_at").Find(&tokens)
 
 		// There should be 2 tokens
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -114,7 +115,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		models.OauthRefreshTokenPreload(suite.db).Order("id").Find(&tokens)
+		models.OauthRefreshTokenPreload(suite.db).Order("created_at").Find(&tokens)
 
 		// There should be 2 tokens
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -141,6 +142,10 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 
 	// Insert an access token without a user
 	err = suite.db.Create(&models.OauthRefreshToken{
+		MyGormModel: models.MyGormModel{
+			ID: 			 uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -161,7 +166,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Correct refresh token should be returned
 	if assert.NotNil(suite.T(), refreshToken) {
 		// Fetch all refresh tokens
-		models.OauthRefreshTokenPreload(suite.db).Order("id").Find(&tokens)
+		models.OauthRefreshTokenPreload(suite.db).Order("created_at").Find(&tokens)
 
 		// There should be just one token right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -174,7 +179,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 
 		// Client ID should be set
 		assert.True(suite.T(), tokens[0].ClientID.Valid)
-		assert.Equal(suite.T(), int64(suite.clients[0].ID), tokens[0].ClientID.Int64)
+		assert.Equal(suite.T(), string(suite.clients[0].ID), tokens[0].ClientID.String)
 
 		// User ID should be nil
 		assert.False(suite.T(), tokens[0].UserID.Valid)
@@ -182,6 +187,10 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 
 	// Insert an access token with a user
 	err = suite.db.Create(&models.OauthRefreshToken{
+		MyGormModel: models.MyGormModel{
+			ID: 			 uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Token:     "test_token2",
 		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -204,7 +213,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Correct refresh token should be returned
 	if assert.NotNil(suite.T(), refreshToken) {
 		// Fetch all refresh tokens
-		models.OauthRefreshTokenPreload(suite.db).Order("id").Find(&tokens)
+		models.OauthRefreshTokenPreload(suite.db).Order("created_at").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -217,11 +226,11 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 
 		// Client ID should be set
 		assert.True(suite.T(), tokens[1].ClientID.Valid)
-		assert.Equal(suite.T(), int64(suite.clients[0].ID), tokens[1].ClientID.Int64)
+		assert.Equal(suite.T(), string(suite.clients[0].ID), tokens[1].ClientID.String)
 
 		// User ID should be set
 		assert.True(suite.T(), tokens[1].UserID.Valid)
-		assert.Equal(suite.T(), int64(suite.users[0].ID), tokens[1].UserID.Int64)
+		assert.Equal(suite.T(), string(suite.users[0].ID), tokens[1].UserID.String)
 	}
 }
 
@@ -234,6 +243,10 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 
 	// Insert an expired client only test refresh token
 	err = suite.db.Create(&models.OauthRefreshToken{
+		MyGormModel: models.MyGormModel{
+			ID: 			 uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 		Client:    suite.clients[0],
@@ -252,7 +265,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		models.OauthRefreshTokenPreload(suite.db.Unscoped()).Order("id").Find(&tokens)
+		models.OauthRefreshTokenPreload(suite.db.Unscoped()).Order("created_at").Find(&tokens)
 
 		// There should be just one token right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -265,7 +278,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 
 		// Client ID should be set
 		assert.True(suite.T(), tokens[0].ClientID.Valid)
-		assert.Equal(suite.T(), int64(suite.clients[0].ID), tokens[0].ClientID.Int64)
+		assert.Equal(suite.T(), string(suite.clients[0].ID), tokens[0].ClientID.String)
 
 		// User ID should be nil
 		assert.False(suite.T(), tokens[0].UserID.Valid)
@@ -273,6 +286,10 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 
 	// Insert an expired user specific test refresh token
 	err = suite.db.Create(&models.OauthRefreshToken{
+		MyGormModel: models.MyGormModel{
+			ID: 			 uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 		Client:    suite.clients[0],
@@ -292,7 +309,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Error should be nil
 	if assert.Nil(suite.T(), err) {
 		// Fetch all refresh tokens
-		models.OauthRefreshTokenPreload(suite.db.Unscoped()).Order("id").Find(&tokens)
+		models.OauthRefreshTokenPreload(suite.db.Unscoped()).Order("created_at").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -305,11 +322,11 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 
 		// Client ID should be set
 		assert.True(suite.T(), tokens[1].ClientID.Valid)
-		assert.Equal(suite.T(), int64(suite.clients[0].ID), tokens[1].ClientID.Int64)
+		assert.Equal(suite.T(), string(suite.clients[0].ID), tokens[1].ClientID.String)
 
 		// User ID should be set
 		assert.True(suite.T(), tokens[1].UserID.Valid)
-		assert.Equal(suite.T(), int64(suite.users[0].ID), tokens[1].UserID.Int64)
+		assert.Equal(suite.T(), string(suite.users[0].ID), tokens[1].UserID.String)
 	}
 }
 
@@ -323,6 +340,10 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 	testRefreshTokens := []*models.OauthRefreshToken{
 		// Expired test refresh token
 		&models.OauthRefreshToken{
+			MyGormModel: models.MyGormModel{
+				ID: 			 uuid.New(),
+				CreatedAt: time.Now().UTC(),
+			},
 			Token:     "test_expired_token",
 			ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 			Client:    suite.clients[0],
@@ -330,6 +351,10 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 		},
 		// Refresh token
 		&models.OauthRefreshToken{
+			MyGormModel: models.MyGormModel{
+				ID: 			 uuid.New(),
+				CreatedAt: time.Now().UTC(),
+			},
 			Token:     "test_token",
 			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],

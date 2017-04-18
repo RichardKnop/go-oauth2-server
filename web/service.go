@@ -1,8 +1,8 @@
 package web
 
 import (
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/adam-hanna/go-oauth2-server/config"
+	"github.com/adam-hanna/go-oauth2-server/oauth"
 )
 
 // Service struct keeps variables for reuse

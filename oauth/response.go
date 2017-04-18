@@ -1,12 +1,12 @@
 package oauth
 
 import (
-	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/models"
 )
 
 // AccessTokenResponse ...
 type AccessTokenResponse struct {
-	UserID       uint   `json:"user_id,omitempty"`
+	UserID       string   `json:"user_id,omitempty"`
 	AccessToken  string `json:"access_token"`
 	ExpiresIn    int    `json:"expires_in"`
 	TokenType    string `json:"token_type"`

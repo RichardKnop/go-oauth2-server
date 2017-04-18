@@ -3,8 +3,9 @@ package oauth_test
 import (
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/models"
 	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/uuid"
 )
 
 func (suite *OauthTestSuite) TestGrantAccessToken() {
@@ -28,7 +29,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		models.OauthAccessTokenPreload(suite.db).Order("id").Find(&tokens)
+		models.OauthAccessTokenPreload(suite.db).Order("created_at").Find(&tokens)
 
 		// There should be just one right now
 		assert.Equal(suite.T(), 1, len(tokens))
@@ -38,7 +39,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 
 		// Client id should be set
 		assert.True(suite.T(), tokens[0].ClientID.Valid)
-		assert.Equal(suite.T(), int64(suite.clients[0].ID), tokens[0].ClientID.Int64)
+		assert.Equal(suite.T(), string(suite.clients[0].ID), tokens[0].ClientID.String)
 
 		// User id should be nil
 		assert.False(suite.T(), tokens[0].UserID.Valid)
@@ -58,7 +59,7 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 	// Correct access token object should be returned
 	if assert.NotNil(suite.T(), accessToken) {
 		// Fetch all access tokens
-		models.OauthAccessTokenPreload(suite.db).Order("id").Find(&tokens)
+		models.OauthAccessTokenPreload(suite.db).Order("created_at").Find(&tokens)
 
 		// There should be 2 tokens now
 		assert.Equal(suite.T(), 2, len(tokens))
@@ -68,11 +69,11 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 
 		// Client id should be set
 		assert.True(suite.T(), tokens[1].ClientID.Valid)
-		assert.Equal(suite.T(), int64(suite.clients[0].ID), tokens[1].ClientID.Int64)
+		assert.Equal(suite.T(), string(suite.clients[0].ID), tokens[1].ClientID.String)
 
 		// User id should be set
 		assert.True(suite.T(), tokens[1].UserID.Valid)
-		assert.Equal(suite.T(), int64(suite.users[0].ID), tokens[1].UserID.Int64)
+		assert.Equal(suite.T(), string(suite.users[0].ID), tokens[1].UserID.String)
 	}
 }
 
@@ -81,6 +82,10 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 		testAccessTokens = []*models.OauthAccessToken{
 			// Expired access token with a user
 			&models.OauthAccessToken{
+				MyGormModel: models.MyGormModel{
+					ID: 			 uuid.New(),
+					CreatedAt: time.Now().UTC(),
+				},
 				Token:     "test_token_1",
 				ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 				Client:    suite.clients[0],
@@ -88,12 +93,20 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 			},
 			// Expired access token without a user
 			&models.OauthAccessToken{
+				MyGormModel: models.MyGormModel{
+					ID: 			 uuid.New(),
+					CreatedAt: time.Now().UTC(),
+				},
 				Token:     "test_token_2",
 				ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 				Client:    suite.clients[0],
 			},
 			// Access token with a user
 			&models.OauthAccessToken{
+				MyGormModel: models.MyGormModel{
+					ID: 			 uuid.New(),
+					CreatedAt: time.Now().UTC(),
+				},
 				Token:     "test_token_3",
 				ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 				Client:    suite.clients[0],
@@ -101,6 +114,10 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 			},
 			// Access token without a user
 			&models.OauthAccessToken{
+				MyGormModel: models.MyGormModel{
+					ID: 			 uuid.New(),
+					CreatedAt: time.Now().UTC(),
+				},
 				Token:     "test_token_4",
 				ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 				Client:    suite.clients[0],

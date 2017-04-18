@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/database"
-	"github.com/RichardKnop/go-oauth2-server/health"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/web"
+	"github.com/adam-hanna/go-oauth2-server/config"
+	"github.com/adam-hanna/go-oauth2-server/database"
+	"github.com/adam-hanna/go-oauth2-server/health"
+	"github.com/adam-hanna/go-oauth2-server/oauth"
+	"github.com/adam-hanna/go-oauth2-server/web"
 	"github.com/jinzhu/gorm"
 )
 

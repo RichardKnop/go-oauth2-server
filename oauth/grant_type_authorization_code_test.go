@@ -6,12 +6,13 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
-	"github.com/RichardKnop/go-oauth2-server/test-util"
-	"github.com/RichardKnop/go-oauth2-server/util"
+	"github.com/adam-hanna/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/oauth"
+	"github.com/adam-hanna/go-oauth2-server/oauth/tokentypes"
+	"github.com/adam-hanna/go-oauth2-server/test-util"
+	"github.com/adam-hanna/go-oauth2-server/util"
 	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/uuid"
 )
 
 func (suite *OauthTestSuite) TestAuthorizationCodeGrantEmptyNotFound() {
@@ -63,6 +64,10 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantBogusNotFound() {
 func (suite *OauthTestSuite) TestAuthorizationCodeGrantExpired() {
 	// Insert a test authorization code
 	err := suite.db.Create(&models.OauthAuthorizationCode{
+		MyGormModel: models.MyGormModel{
+			ID: 			 uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Code:        "test_code",
 		ExpiresAt:   time.Now().UTC().Add(-10 * time.Second),
 		Client:      suite.clients[0],
@@ -98,6 +103,10 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantExpired() {
 func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 	// Insert a test authorization code
 	err := suite.db.Create(&models.OauthAuthorizationCode{
+		MyGormModel: models.MyGormModel{
+			ID: 			 uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Code:        "test_code",
 		ExpiresAt:   time.Now().UTC().Add(+10 * time.Second),
 		Client:      suite.clients[0],
@@ -133,6 +142,10 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	// Insert a test authorization code
 	err := suite.db.Create(&models.OauthAuthorizationCode{
+		MyGormModel: models.MyGormModel{
+			ID: 			 uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Code:        "test_code",
 		ExpiresAt:   time.Now().UTC().Add(+10 * time.Second),
 		Client:      suite.clients[0],
