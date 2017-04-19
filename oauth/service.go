@@ -13,8 +13,8 @@ type Service struct {
 	allowedRoles []string
 }
 
-// NewOauthService returns a new Service instance
-func NewOauthService(cnf *config.Config, db *gorm.DB) *Service {
+// NewService returns a new Service instance
+func NewService(cnf *config.Config, db *gorm.DB) *Service {
 	return &Service{
 		cnf:          cnf,
 		db:           db,

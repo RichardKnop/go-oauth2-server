@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"fmt"
-
 	"github.com/adam-hanna/go-oauth2-server/config"
 	"github.com/adam-hanna/go-oauth2-server/database"
 	"github.com/adam-hanna/go-oauth2-server/health"
@@ -36,14 +34,13 @@ func initConfigDB(mustLoadOnce, keepReloading bool, configBackend string) (*conf
 
 // initServices starts up all services and sets above defined variables
 func initServices(cnf *config.Config, db *gorm.DB) error {
-	healthService = health.NewHealthService(db)
-	
-	oauthService = oauth.NewOauthService(cnf, db)
-	
-	sessionService = session.NewSessionService(cnf, sessions.NewCookieStore([]byte(cnf.Session.Secret)))
-	
-	webService = web.NewWebService(cnf, oauthService, sessionService)
-	fmt.Println("after webservice")
+	healthService = health.NewService(db)
+
+	oauthService = oauth.NewService(cnf, db)
+
+	sessionService = session.NewService(cnf, sessions.NewCookieStore([]byte(cnf.Session.Secret)))
+
+	webService = web.NewService(cnf, oauthService, sessionService)
 
 	return nil
 }

@@ -16,8 +16,8 @@ type Service struct {
 	sessionService session.ServiceInterface
 }
 
-// NewWebService returns a new Service instance
-func NewWebService(cnf *config.Config, oauthService oauth.ServiceInterface, sessionService session.ServiceInterface) *Service {
+// NewService returns a new Service instance
+func NewService(cnf *config.Config, oauthService oauth.ServiceInterface, sessionService session.ServiceInterface) *Service {
 	return &Service{
 		cnf:            cnf,
 		oauthService:   oauthService,
