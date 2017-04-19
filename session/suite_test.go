@@ -31,7 +31,7 @@ func (suite *SessionTestSuite) SetupSuite() {
 	r, err := http.NewRequest("GET", "http://1.2.3.4/foo/bar", nil)
 	assert.NoError(suite.T(), err, "Request setup should not get an error")
 	w := httptest.NewRecorder()
-	suite.service = session.NewService(suite.cnf, r, w)
+	suite.service.InitSessionService(suite.cnf, r, w)
 }
 
 // The TearDownSuite method will be run by testify once, at the very

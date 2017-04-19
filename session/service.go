@@ -40,20 +40,24 @@ func init() {
 	gob.Register(new(UserSession))
 }
 
-// InitSessionService starts a new Service instance
-func (s *Service) InitSessionService(cnf *config.Config, r *http.Request, w http.ResponseWriter) {
-	s = &Service{
+// NewSessionService starts a new Service instance
+func NewSessionService(cnf *config.Config, sessionStore sessions.Store) *Service {
+	return &Service{
 		// Session cookie storage
-		sessionStore: sessions.NewCookieStore([]byte(cnf.Session.Secret)),
+		sessionStore: sessionStore,
 		// Session options
 		sessionOptions: &sessions.Options{
 			Path:     cnf.Session.Path,
 			MaxAge:   cnf.Session.MaxAge,
 			HttpOnly: cnf.Session.HTTPOnly,
 		},
-		r: r,
-		w: w,
 	}
+}
+
+// SetSessionService sets the request and responseWriter on the session service
+func (s *Service) SetSessionService(r *http.Request, w http.ResponseWriter) {
+	s.r = r
+	s.w = w
 }
 
 // StartSession starts a new session. This method must be called before other

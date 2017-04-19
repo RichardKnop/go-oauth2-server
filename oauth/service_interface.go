@@ -11,10 +11,10 @@ import (
 // ServiceInterface defines exported methods
 type ServiceInterface interface {
 	// Exported methods
-	InitOauthService(cnf *config.Config, db *gorm.DB)
 	GetConfig() *config.Config
 	RestrictToRoles(allowedRoles ...string)
 	IsRoleAllowed(role string) bool
+	FindRoleByID(id string) (*models.OauthRole, error)
 	GetRoutes() []routes.Route
 	RegisterRoutes(router *mux.Router, prefix string)
 	ClientExists(clientID string) bool
@@ -32,6 +32,8 @@ type ServiceInterface interface {
 	UpdateUsernameTx(db *gorm.DB, user *models.OauthUser, username string) error
 	AuthUser(username, thePassword string) (*models.OauthUser, error)
 	GetScope(requestedScope string) (string, error)
+	GetDefaultScope() string
+	ScopeExists(requestedScope string) bool
 	Login(client *models.OauthClient, user *models.OauthUser, scope string) (*models.OauthAccessToken, *models.OauthRefreshToken, error)
 	GrantAuthorizationCode(client *models.OauthClient, user *models.OauthUser, expiresIn int, redirectURI, scope string) (*models.OauthAuthorizationCode, error)
 	GrantAccessToken(client *models.OauthClient, user *models.OauthUser, expiresIn int, scope string) (*models.OauthAccessToken, error)

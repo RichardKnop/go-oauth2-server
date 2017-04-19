@@ -13,9 +13,9 @@ type Service struct {
 	allowedRoles []string
 }
 
-// InitOauthService starts a new Service instance
-func (s *Service) InitOauthService(cnf *config.Config, db *gorm.DB) {
-	s = &Service{
+// NewOauthService returns a new Service instance
+func NewOauthService(cnf *config.Config, db *gorm.DB) *Service {
+	return &Service{
 		cnf:          cnf,
 		db:           db,
 		allowedRoles: []string{roles.Superuser, roles.User},

@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/adam-hanna/go-oauth2-server/models"
@@ -27,12 +28,15 @@ func (s *Service) ClientExists(clientID string) bool {
 
 // FindClientByClientID looks up a client by client ID
 func (s *Service) FindClientByClientID(clientID string) (*models.OauthClient, error) {
+	fmt.Println("In FindClientByClientID", clientID)
 	// Client IDs are case insensitive
 	client := new(models.OauthClient)
+	fmt.Println("client", client)
 	notFound := s.db.Where("key = LOWER(?)", clientID).
 		First(client).RecordNotFound()
 
 	// Not found
+	fmt.Println("notFound", notFound)
 	if notFound {
 		return nil, ErrClientNotFound
 	}
@@ -52,6 +56,7 @@ func (s *Service) CreateClientTx(tx *gorm.DB, clientID, secret, redirectURI stri
 
 // AuthClient authenticates client
 func (s *Service) AuthClient(clientID, secret string) (*models.OauthClient, error) {
+	fmt.Println("In AuthClient")
 	// Fetch the client
 	client, err := s.FindClientByClientID(clientID)
 	if err != nil {

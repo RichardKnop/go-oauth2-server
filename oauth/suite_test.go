@@ -78,7 +78,7 @@ func (suite *OauthTestSuite) SetupSuite() {
 	}
 
 	// Initialise the service
-	suite.service = oauth.NewService(suite.cnf, suite.db)
+	suite.service.InitOauthService(suite.cnf, suite.db)
 
 	// Register routes
 	suite.router = mux.NewRouter()

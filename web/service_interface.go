@@ -13,7 +13,6 @@ import (
 // ServiceInterface defines exported methods
 type ServiceInterface interface {
 	// Exported methods
-	InitWebService(cnf *config.Config, oauthService oauth.ServiceInterface, sessionService session.ServiceInterface)
 	GetConfig() *config.Config
 	GetOauthService() oauth.ServiceInterface
 	GetSessionService() session.ServiceInterface
@@ -21,6 +20,7 @@ type ServiceInterface interface {
 	RegisterRoutes(router *mux.Router, prefix string)
 
 	// Needed for the newRoutes to be able to register handlers
+	setSessionService(r *http.Request, w http.ResponseWriter)
 	authorizeForm(w http.ResponseWriter, r *http.Request)
 	authorize(w http.ResponseWriter, r *http.Request)
 	loginForm(w http.ResponseWriter, r *http.Request)
