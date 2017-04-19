@@ -1,9 +1,9 @@
 package oauth
 
 import (
+	"github.com/adam-hanna/go-oauth2-server/config"
+	"github.com/adam-hanna/go-oauth2-server/oauth/roles"
 	"github.com/jinzhu/gorm"
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
 )
 
 // Service struct keeps objects to avoid passing them around
@@ -13,9 +13,9 @@ type Service struct {
 	allowedRoles []string
 }
 
-// NewService starts a new Service instance
-func NewService(cnf *config.Config, db *gorm.DB) *Service {
-	return &Service{
+// InitService starts a new Service instance
+func (s *Service) InitService(cnf *config.Config, db *gorm.DB) {
+	s = &Service{
 		cnf:          cnf,
 		db:           db,
 		allowedRoles: []string{roles.Superuser, roles.User},

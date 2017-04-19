@@ -1,9 +1,9 @@
 package oauth
 
 import (
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/models"
-	"github.com/RichardKnop/go-oauth2-server/util/routes"
+	"github.com/adam-hanna/go-oauth2-server/config"
+	"github.com/adam-hanna/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/util/routes"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
 )
@@ -11,6 +11,7 @@ import (
 // ServiceInterface defines exported methods
 type ServiceInterface interface {
 	// Exported methods
+	InitService(cnf *config.Config, db *gorm.DB)
 	GetConfig() *config.Config
 	RestrictToRoles(allowedRoles ...string)
 	IsRoleAllowed(role string) bool

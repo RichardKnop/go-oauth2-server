@@ -3,15 +3,17 @@ package web
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/util/routes"
+	"github.com/adam-hanna/go-oauth2-server/config"
+	"github.com/adam-hanna/go-oauth2-server/oauth"
+	"github.com/adam-hanna/go-oauth2-server/session"
+	"github.com/adam-hanna/go-oauth2-server/util/routes"
 	"github.com/gorilla/mux"
 )
 
 // ServiceInterface defines exported methods
 type ServiceInterface interface {
 	// Exported methods
+	InitService(cnf *config.Config, oauthService oauth.ServiceInterface, sessionService session.ServiceInterface)
 	GetConfig() *config.Config
 	GetOauthService() oauth.ServiceInterface
 	GetRoutes() []routes.Route
@@ -25,4 +27,7 @@ type ServiceInterface interface {
 	logout(w http.ResponseWriter, r *http.Request)
 	registerForm(w http.ResponseWriter, r *http.Request)
 	register(w http.ResponseWriter, r *http.Request)
+
+	// Session ServiceInterface
+	session.ServiceInterface
 }

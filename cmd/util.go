@@ -1,18 +1,20 @@
 package cmd
 
 import (
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/database"
-	"github.com/RichardKnop/go-oauth2-server/health"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/RichardKnop/go-oauth2-server/web"
+	"github.com/adam-hanna/go-oauth2-server/config"
+	"github.com/adam-hanna/go-oauth2-server/database"
+	"github.com/adam-hanna/go-oauth2-server/health"
+	"github.com/adam-hanna/go-oauth2-server/oauth"
+	"github.com/adam-hanna/go-oauth2-server/session"
+	"github.com/adam-hanna/go-oauth2-server/web"
 	"github.com/jinzhu/gorm"
 )
 
 var (
-	healthService health.ServiceInterface
-	oauthService  oauth.ServiceInterface
-	webService    web.ServiceInterface
+	healthService  health.ServiceInterface
+	oauthService   oauth.ServiceInterface
+	webService     web.ServiceInterface
+	sessionService session.ServiceInterface
 )
 
 // initConfigDB loads the configuration and connects to the database
@@ -31,11 +33,13 @@ func initConfigDB(mustLoadOnce, keepReloading bool, configBackend string) (*conf
 
 // initServices starts up all services and sets above defined variables
 func initServices(cnf *config.Config, db *gorm.DB) error {
-	healthService = health.NewService(db)
+	healthService.InitService(db)
 
-	oauthService = oauth.NewService(cnf, db)
+	oauthService.InitService(cnf, db)
 
-	webService = web.NewService(cnf, oauthService)
+	sessionService.InitService()
+
+	webService.InitService(cnf, oauthService, sessionService)
 
 	return nil
 }

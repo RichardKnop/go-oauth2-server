@@ -1,21 +1,24 @@
 package web
 
 import (
-	"github.com/RichardKnop/go-oauth2-server/config"
-	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/adam-hanna/go-oauth2-server/config"
+	"github.com/adam-hanna/go-oauth2-server/oauth"
+	"github.com/adam-hanna/go-oauth2-server/session"
 )
 
 // Service struct keeps variables for reuse
 type Service struct {
-	cnf          *config.Config
-	oauthService oauth.ServiceInterface
+	cnf            *config.Config
+	oauthService   oauth.ServiceInterface
+	sessionService session.ServiceInterface
 }
 
-// NewService starts a new Service instance
-func NewService(cnf *config.Config, oauthService oauth.ServiceInterface) *Service {
-	return &Service{
-		cnf:          cnf,
-		oauthService: oauthService,
+// InitService starts a new Service instance
+func (s *Service) InitService(cnf *config.Config, oauthService oauth.ServiceInterface, sessionService session.ServiceInterface) {
+	s = &Service{
+		cnf:            cnf,
+		oauthService:   oauthService,
+		sessionService: sessionService,
 	}
 }
 

@@ -6,8 +6,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
-	"github.com/RichardKnop/go-oauth2-server/session"
+	"github.com/adam-hanna/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/session"
 )
 
 func (s *Service) authorizeForm(w http.ResponseWriter, r *http.Request) {
@@ -18,7 +18,7 @@ func (s *Service) authorizeForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render the template
-	errMsg, _ := sessionService.GetFlashMessage()
+	errMsg, _ := s.sessionService.GetFlashMessage()
 	query := r.URL.Query()
 	query.Set("login_redirect_uri", r.URL.Path)
 	renderTemplate(w, "authorize.html", map[string]interface{}{

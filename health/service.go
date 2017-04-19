@@ -9,7 +9,7 @@ type Service struct {
 	db *gorm.DB
 }
 
-// NewService starts a new Service instance
-func NewService(db *gorm.DB) *Service {
-	return &Service{db: db}
+// InitService starts a new Service instance
+func (s *Service) InitService(db *gorm.DB) {
+	s = &Service{db: db}
 }

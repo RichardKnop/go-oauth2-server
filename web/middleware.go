@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/session"
+	"github.com/adam-hanna/go-oauth2-server/session"
 	"github.com/gorilla/context"
 )
 
@@ -33,7 +33,7 @@ func newGuestMiddleware(service ServiceInterface) *guestMiddleware {
 // ServeHTTP as per the negroni.Handler interface
 func (m *guestMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	// Initialise the session service
-	sessionService := session.NewService(m.service.GetConfig(), r, w)
+	sessionService := m.sessionService.NewService(m.service.GetConfig(), r, w)
 
 	// Attempt to start the session
 	if err := sessionService.StartSession(); err != nil {
@@ -59,7 +59,7 @@ func newLoggedInMiddleware(service ServiceInterface) *loggedInMiddleware {
 // ServeHTTP as per the negroni.Handler interface
 func (m *loggedInMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	// Initialise the session service
-	sessionService := session.NewService(m.service.GetConfig(), r, w)
+	sessionService := m.sessionService.NewService(m.service.GetConfig(), r, w)
 
 	// Attempt to start the session
 	if err := sessionService.StartSession(); err != nil {

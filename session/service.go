@@ -5,16 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/config"
+	"github.com/adam-hanna/go-oauth2-server/config"
 	"github.com/gorilla/sessions"
 )
-
-// this is a private struct that will be used to set the behavior of NewService
-type secretServiceType struct {
-	newServiceFunc NewServiceFuncType
-}
-
-var secretService secretServiceType
 
 // Service wraps session functionality
 type Service struct {
@@ -45,20 +38,11 @@ var (
 func init() {
 	// Register a new datatype for storage in sessions
 	gob.Register(new(UserSession))
-	// set the defualt NewServiceFunc
-	secretService.newServiceFunc = defaultNewService
 }
 
-// NewServiceFuncType defines the input and outputs of the function called NewService
-type NewServiceFuncType func(cnf *config.Config, r *http.Request, w http.ResponseWriter) *Service
-
-// NewService starts a new Service instance
-func NewService(cnf *config.Config, r *http.Request, w http.ResponseWriter) *Service {
-	return secretService.newServiceFunc(cnf, r, w)
-}
-
-func defaultNewService(cnf *config.Config, r *http.Request, w http.ResponseWriter) *Service {
-	return &Service{
+// InitService starts a new Service instance
+func (s *Service) InitService(cnf *config.Config, r *http.Request, w http.ResponseWriter) {
+	s = &Service{
 		// Session cookie storage
 		sessionStore: sessions.NewCookieStore([]byte(cnf.Session.Secret)),
 		// Session options
@@ -70,11 +54,6 @@ func defaultNewService(cnf *config.Config, r *http.Request, w http.ResponseWrite
 		r: r,
 		w: w,
 	}
-}
-
-// SetNewService sets the function being called when NewService is envoked
-func SetNewService(newServiceFunc NewServiceFuncType) {
-	secretService.newServiceFunc = newServiceFunc
 }
 
 // StartSession starts a new session. This method must be called before other

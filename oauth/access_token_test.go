@@ -3,7 +3,7 @@ package oauth_test
 import (
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/models"
 	"github.com/stretchr/testify/assert"
 )
 
