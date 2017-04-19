@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/adam-hanna/go-oauth2-server/config"
@@ -27,7 +26,6 @@ func NewService(cnf *config.Config, oauthService oauth.ServiceInterface, session
 
 // GetConfig returns config.Config instance
 func (s *Service) GetConfig() *config.Config {
-	fmt.Println("in get config", s.cnf)
 	return s.cnf
 }
 
@@ -42,6 +40,5 @@ func (s *Service) GetSessionService() session.ServiceInterface {
 }
 
 func (s *Service) setSessionService(r *http.Request, w http.ResponseWriter) {
-	fmt.Println("oAuth then session", s.oauthService, s.sessionService)
 	s.sessionService.SetSessionService(r, w)
 }

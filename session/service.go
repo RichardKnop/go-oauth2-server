@@ -3,7 +3,6 @@ package session
 import (
 	"encoding/gob"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/adam-hanna/go-oauth2-server/config"
@@ -57,7 +56,6 @@ func NewService(cnf *config.Config, sessionStore sessions.Store) *Service {
 
 // SetSessionService sets the request and responseWriter on the session service
 func (s *Service) SetSessionService(r *http.Request, w http.ResponseWriter) {
-	fmt.Println("In set session service")
 	s.r = r
 	s.w = w
 }

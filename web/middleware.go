@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/adam-hanna/go-oauth2-server/session"
@@ -34,7 +33,6 @@ func newGuestMiddleware(service ServiceInterface) *guestMiddleware {
 // ServeHTTP as per the negroni.Handler interface
 func (m *guestMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	// Initialise the session service
-	fmt.Println("In guest middleware serve http", m)
 	m.service.setSessionService(r, w)
 	sessionService := m.service.GetSessionService()
 
