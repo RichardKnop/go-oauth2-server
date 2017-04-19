@@ -11,7 +11,7 @@ import (
 // ServiceInterface defines exported methods
 type ServiceInterface interface {
 	// Exported methods
-	InitService(cnf *config.Config, db *gorm.DB)
+	InitOauthService(cnf *config.Config, db *gorm.DB)
 	GetConfig() *config.Config
 	RestrictToRoles(allowedRoles ...string)
 	IsRoleAllowed(role string) bool

@@ -13,8 +13,8 @@ type Service struct {
 	sessionService session.ServiceInterface
 }
 
-// InitService starts a new Service instance
-func (s *Service) InitService(cnf *config.Config, oauthService oauth.ServiceInterface, sessionService session.ServiceInterface) {
+// InitWebService starts a new Service instance
+func (s *Service) InitWebService(cnf *config.Config, oauthService oauth.ServiceInterface, sessionService session.ServiceInterface) {
 	s = &Service{
 		cnf:            cnf,
 		oauthService:   oauthService,
@@ -30,4 +30,9 @@ func (s *Service) GetConfig() *config.Config {
 // GetOauthService returns oauth.Service instance
 func (s *Service) GetOauthService() oauth.ServiceInterface {
 	return s.oauthService
+}
+
+// GetSessionService returns session.Service instance
+func (s *Service) GetSessionService() session.ServiceInterface {
+	return s.sessionService
 }

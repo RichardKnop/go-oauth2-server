@@ -33,13 +33,12 @@ func initConfigDB(mustLoadOnce, keepReloading bool, configBackend string) (*conf
 
 // initServices starts up all services and sets above defined variables
 func initServices(cnf *config.Config, db *gorm.DB) error {
-	healthService.InitService(db)
+	healthService.InitHealthService(db)
 
-	oauthService.InitService(cnf, db)
+	oauthService.InitOauthService(cnf, db)
 
-	sessionService.InitService()
-
-	webService.InitService(cnf, oauthService, sessionService)
+	// note: sessionService is initialized within webService
+	webService.InitWebService(cnf, oauthService, sessionService)
 
 	return nil
 }

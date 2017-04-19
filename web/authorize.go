@@ -18,7 +18,7 @@ func (s *Service) authorizeForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render the template
-	errMsg, _ := s.sessionService.GetFlashMessage()
+	errMsg, _ := sessionService.GetFlashMessage()
 	query := r.URL.Query()
 	query.Set("login_redirect_uri", r.URL.Path)
 	renderTemplate(w, "authorize.html", map[string]interface{}{

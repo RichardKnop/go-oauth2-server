@@ -8,7 +8,7 @@ import (
 
 // ServiceInterface defines exported methods
 type ServiceInterface interface {
-	InitService(cnf *config.Config, r *http.Request, w http.ResponseWriter)
+	InitSessionService(cnf *config.Config, r *http.Request, w http.ResponseWriter)
 	StartSession() error
 	GetUserSession() (*UserSession, error)
 	SetUserSession(userSession *UserSession) error

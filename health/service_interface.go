@@ -9,7 +9,7 @@ import (
 // ServiceInterface defines exported methods
 type ServiceInterface interface {
 	// Exported methods
-	InitService(db *gorm.DB)
+	InitHealthService(db *gorm.DB)
 	GetRoutes() []routes.Route
 	RegisterRoutes(router *mux.Router, prefix string)
 }

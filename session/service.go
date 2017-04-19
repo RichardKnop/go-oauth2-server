@@ -40,8 +40,8 @@ func init() {
 	gob.Register(new(UserSession))
 }
 
-// InitService starts a new Service instance
-func (s *Service) InitService(cnf *config.Config, r *http.Request, w http.ResponseWriter) {
+// InitSessionService starts a new Service instance
+func (s *Service) InitSessionService(cnf *config.Config, r *http.Request, w http.ResponseWriter) {
 	s = &Service{
 		// Session cookie storage
 		sessionStore: sessions.NewCookieStore([]byte(cnf.Session.Secret)),
