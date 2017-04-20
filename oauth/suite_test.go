@@ -51,7 +51,7 @@ type OauthTestSuite struct {
 // start of the testing suite, before any tests are run.
 func (suite *OauthTestSuite) SetupSuite() {
 	// Initialise the config
-	suite.cnf = config.NewConfig(false, false)
+	suite.cnf = config.NewConfig(false, false, "etcd")
 
 	// Create the test database
 	db, err := testutil.CreateTestDatabasePostgres(
