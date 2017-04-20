@@ -24,7 +24,7 @@ func renderTemplate(w http.ResponseWriter, name string, data map[string]interfac
 	// Ensure the template exists in the map.
 	tmpl, ok := templates[name]
 	if !ok {
-		return fmt.Errorf("The template %s does not exist.", name)
+		return fmt.Errorf("The template %s does not exist", name)
 	}
 
 	// Create a buffer to temporarily write to and check if any errors were encounted.

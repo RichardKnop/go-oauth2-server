@@ -18,9 +18,9 @@ const (
 
 var (
 	// ErrSessionServiceNotPresent ...
-	ErrSessionServiceNotPresent = errors.New("Session service not present in the request context.")
+	ErrSessionServiceNotPresent = errors.New("Session service not present in the request context")
 	// ErrClientNotPresent ...
-	ErrClientNotPresent = errors.New("Client not present in the request context.")
+	ErrClientNotPresent = errors.New("Client not present in the request context")
 )
 
 // Returns *session.Service from the request context
