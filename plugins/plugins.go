@@ -20,7 +20,7 @@ func NewHealthService(db *gorm.DB) *CustomHealthService {
 	return nil
 }
 
-// CustomAuthService extends health.ServiceInterface
+// CustomAuthService extends oauth.ServiceInterface
 type CustomAuthService struct {
 	oauth.ServiceInterface
 }
@@ -31,7 +31,7 @@ func NewOauthService(cnf *config.Config, db *gorm.DB) *CustomAuthService {
 	return nil
 }
 
-// CustomSessionService extends health.ServiceInterface
+// CustomSessionService extends session.ServiceInterface
 type CustomSessionService struct {
 	session.ServiceInterface
 }
@@ -42,7 +42,7 @@ func NewSessionService(cnf *config.Config) *CustomSessionService {
 	return nil
 }
 
-// CustomWebService extends health.ServiceInterface
+// CustomWebService extends web.ServiceInterface
 type CustomWebService struct {
 	web.ServiceInterface
 }
