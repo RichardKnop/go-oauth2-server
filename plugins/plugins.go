@@ -1,12 +1,18 @@
 package plugins
 
 import (
+	"errors"
+	"log"
+	"net/http"
+
 	"github.com/adam-hanna/go-oauth2-server/config"
 	"github.com/adam-hanna/go-oauth2-server/health"
 	"github.com/adam-hanna/go-oauth2-server/oauth"
 	"github.com/adam-hanna/go-oauth2-server/session"
 	"github.com/adam-hanna/go-oauth2-server/web"
+	"github.com/gorilla/sessions"
 	"github.com/jinzhu/gorm"
+	redisStore "gopkg.in/boj/redistore.v1"
 )
 
 // CustomHealthService extends health.ServiceInterface
@@ -34,12 +40,87 @@ func NewOauthService(cnf *config.Config, db *gorm.DB) *CustomAuthService {
 // CustomSessionService extends health.ServiceInterface
 type CustomSessionService struct {
 	session.ServiceInterface
+	sessionStore   sessions.Store
+	sessionOptions *sessions.Options
+	session        *sessions.Session
+	r              *http.Request
+	w              http.ResponseWriter
+}
+
+func (c *CustomSessionService) SetSessionService(r *http.Request, w http.ResponseWriter) {
+	c.r = r
+	c.w = w
+}
+
+func (c *CustomSessionService) StartSession() error {
+	// Get a session.
+	session, err := store.Get(c.r, session.UserSessionKey)
+	if err != nil {
+		return err
+	}
+
+	c.session = session
+	return nil
+}
+
+func (c *CustomSessionService) GetUserSession() (*session.UserSession, error) {
+	// Make sure StartSession has been called
+	if c.session == nil {
+		return nil, session.ErrSessonNotStarted
+	}
+
+	// Retrieve our user session struct and type-assert it
+	userSession, ok := c.session.Values[session.UserSessionKey].(*session.UserSession)
+	if !ok {
+		return nil, errors.New("User session type assertion error")
+	}
+
+	return userSession, nil
+}
+
+func (c *CustomSessionService) SetUserSession(userSession *session.UserSession) error {
+	// Make sure StartSession has been called
+	if c.session == nil {
+		return ErrSessonNotStarted
+	}
+
+	// Set a new user session
+	c.session.Values[session.UserSessionKey] = userSession
+	return c.session.Save(s.r, s.w)
+}
+
+func (c *CustomSessionService) ClearUserSession() error {
+	c.session.Options.MaxAge = -1
+	return c.sessions.Save(s.r, s.w)
+}
+
+func (c *CustomSessionService) SetFlashMessage(msg string) error {
+
+}
+
+func (c *CustomSessionService) GetFlashMessage() (interface{}, error) {
+
 }
 
 // NewSessionService defines a custom session service if the developer so chooses to implement one
 func NewSessionService(cnf *config.Config) *CustomSessionService {
-	// YOUR CODE, HERE
-	return nil
+	store, err := redisStore.NewRediStore(10, "tcp", ":6379", "", []byte("secret-key"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	// note @adam-hanna: how to handle this?
+	// defer store.Close()
+
+	return &CustomSessionService{
+		// Session cookie storage
+		sessionStore: store,
+		// Session options
+		sessionOptions: &sessions.Options{
+			Path:     cnf.Session.Path,
+			MaxAge:   cnf.Session.MaxAge,
+			HttpOnly: cnf.Session.HTTPOnly,
+		},
+	}
 }
 
 // CustomWebService extends health.ServiceInterface
