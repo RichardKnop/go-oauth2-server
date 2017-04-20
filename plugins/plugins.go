@@ -52,7 +52,7 @@ type CustomSessionService struct {
 
 // NewSessionService defines a custom session service if the developer so chooses to implement one
 func NewSessionService(cnf *config.Config) *CustomSessionService {
-	store, err := redisStore.NewRediStore(10, "tcp", ":6379", "", []byte("secret-key"))
+	store, err := redisStore.NewRediStore(10, "tcp", ":6379", "", []byte(cnf.Session.Secret))
 	if err != nil {
 		log.Fatal(err)
 	}
