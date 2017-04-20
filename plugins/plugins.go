@@ -1,18 +1,21 @@
 package plugins
 
 import (
+	"net/http"
+
 	"github.com/adam-hanna/go-oauth2-server/config"
 	"github.com/adam-hanna/go-oauth2-server/health"
 	"github.com/adam-hanna/go-oauth2-server/oauth"
 	"github.com/adam-hanna/go-oauth2-server/session"
 	"github.com/adam-hanna/go-oauth2-server/web"
+	"github.com/gorilla/sessions"
 	"github.com/jinzhu/gorm"
 )
 
 // CustomHealthService extends health.ServiceInterface
 type CustomHealthService struct {
 	health.ServiceInterface
-	health.Service
+	db *gorm.DB
 }
 
 // NewHealthService defines a custom health service if the developer so chooses to implement one
@@ -24,7 +27,9 @@ func NewHealthService(db *gorm.DB) *CustomHealthService {
 // CustomAuthService extends oauth.ServiceInterface
 type CustomAuthService struct {
 	oauth.ServiceInterface
-	oauth.Service
+	cnf          *config.Config
+	db           *gorm.DB
+	allowedRoles []string
 }
 
 // NewOauthService defines a custom auth service if the developer so chooses to implement one
@@ -36,7 +41,11 @@ func NewOauthService(cnf *config.Config, db *gorm.DB) *CustomAuthService {
 // CustomSessionService extends session.ServiceInterface
 type CustomSessionService struct {
 	session.ServiceInterface
-	session.Service
+	sessionStore   sessions.Store
+	sessionOptions *sessions.Options
+	session        *sessions.Session
+	r              *http.Request
+	w              http.ResponseWriter
 }
 
 // NewSessionService defines a custom session service if the developer so chooses to implement one
@@ -48,7 +57,9 @@ func NewSessionService(cnf *config.Config) *CustomSessionService {
 // CustomWebService extends web.ServiceInterface
 type CustomWebService struct {
 	web.ServiceInterface
-	web.Service
+	cnf            *config.Config
+	oauthService   oauth.ServiceInterface
+	sessionService session.ServiceInterface
 }
 
 // NewWebService defines a custom web service if the developer so chooses to implement one
