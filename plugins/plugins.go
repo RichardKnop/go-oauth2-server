@@ -12,6 +12,7 @@ import (
 // CustomHealthService extends health.ServiceInterface
 type CustomHealthService struct {
 	health.ServiceInterface
+	health.Service
 }
 
 // NewHealthService defines a custom health service if the developer so chooses to implement one
@@ -23,6 +24,7 @@ func NewHealthService(db *gorm.DB) *CustomHealthService {
 // CustomAuthService extends oauth.ServiceInterface
 type CustomAuthService struct {
 	oauth.ServiceInterface
+	oauth.Service
 }
 
 // NewOauthService defines a custom auth service if the developer so chooses to implement one
@@ -34,6 +36,7 @@ func NewOauthService(cnf *config.Config, db *gorm.DB) *CustomAuthService {
 // CustomSessionService extends session.ServiceInterface
 type CustomSessionService struct {
 	session.ServiceInterface
+	session.Service
 }
 
 // NewSessionService defines a custom session service if the developer so chooses to implement one
@@ -45,6 +48,7 @@ func NewSessionService(cnf *config.Config) *CustomSessionService {
 // CustomWebService extends web.ServiceInterface
 type CustomWebService struct {
 	web.ServiceInterface
+	web.Service
 }
 
 // NewWebService defines a custom web service if the developer so chooses to implement one
