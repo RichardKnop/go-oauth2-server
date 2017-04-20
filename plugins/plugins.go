@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -119,7 +120,9 @@ func (c *CustomSessionService) GetFlashMessage() (interface{}, error) {
 	}
 
 	// Get the last flash message from the stack
+	fmt.Println("b4 flashes in plugins")
 	if flashes := c.session.Flashes(); len(flashes) > 0 {
+		fmt.Println("Plugins flashes", flashes)
 		// We need to save the session, otherwise the flash message won't be removed
 		c.session.Save(c.r, c.w)
 		return flashes[0], nil
