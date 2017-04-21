@@ -1,10 +1,12 @@
 package oauth_test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/adam-hanna/go-oauth2-server/models"
 	"github.com/adam-hanna/go-oauth2-server/oauth"
+	"github.com/adam-hanna/go-oauth2-server/session"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 )
@@ -269,4 +271,98 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 		now3.Unix()+int64(suite.cnf.Oauth.RefreshTokenLifetime),
 		refreshTokens[2].ExpiresAt.Unix(),
 	)
+}
+
+func (suite *OauthTestSuite) TestClearUserTokens() {
+	var (
+		testAccessTokens  []*models.OauthAccessToken
+		testRefreshTokens []*models.OauthRefreshToken
+		err               error
+		testUserSession   *session.UserSession
+	)
+
+	// Insert some test access tokens
+	testAccessTokens = []*models.OauthAccessToken{
+		&models.OauthAccessToken{
+			Token:     "test_token_1",
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
+			Client:    suite.clients[0],
+			User:      suite.users[0],
+		},
+		&models.OauthAccessToken{
+			Token:     "test_token_2",
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
+			Client:    suite.clients[1],
+			User:      suite.users[0],
+		},
+		&models.OauthAccessToken{
+			Token:     "test_token_3",
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
+			Client:    suite.clients[0],
+			User:      suite.users[1],
+		},
+	}
+	for _, testAccessToken := range testAccessTokens {
+		err = suite.db.Create(testAccessToken).Error
+		assert.NoError(suite.T(), err, "Inserting test data failed")
+	}
+
+	// Insert some test access tokens
+	testRefreshTokens = []*models.OauthRefreshToken{
+		&models.OauthRefreshToken{
+			Token:     "test_token_1",
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
+			Client:    suite.clients[0],
+			User:      suite.users[0],
+		},
+		&models.OauthRefreshToken{
+			Token:     "test_token_2",
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
+			Client:    suite.clients[1],
+			User:      suite.users[0],
+		},
+		&models.OauthRefreshToken{
+			Token:     "test_token_3",
+			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
+			Client:    suite.clients[0],
+			User:      suite.users[1],
+		},
+	}
+	for _, testRefreshToken := range testRefreshTokens {
+		err = suite.db.Create(testRefreshToken).Error
+		assert.NoError(suite.T(), err, "Inserting test data failed")
+	}
+	fmt.Println(testAccessTokens[0].Client.ID, suite.users[0].ID, testAccessTokens[2].Client.ID, suite.users[1].ID)
+
+	testUserSession = &session.UserSession{
+		ClientID:     suite.clients[0].Key,
+		Username:     suite.users[0].Username,
+		AccessToken:  "test_token_1",
+		RefreshToken: "test_token_1",
+	}
+
+	// Remove test_token_1 from accress and refresh token tables
+	suite.service.ClearUserTokens(testUserSession)
+
+	// Assert that the refresh token was removed
+	found := !models.OauthRefreshTokenPreload(suite.db).Where("token = ?", testUserSession.RefreshToken).First(&models.OauthRefreshToken{}).RecordNotFound()
+	assert.Equal(suite.T(), false, found)
+
+	// Assert that the access token was removed
+	found = !models.OauthAccessTokenPreload(suite.db).Where("token = ?", testUserSession.AccessToken).First(&models.OauthAccessToken{}).RecordNotFound()
+	assert.Equal(suite.T(), false, found)
+
+	// Assert that the other two tokens are still there
+	// Refresh tokens
+	found = !models.OauthRefreshTokenPreload(suite.db).Where("token = ?", "test_token_2").First(&models.OauthRefreshToken{}).RecordNotFound()
+	assert.Equal(suite.T(), true, found)
+	found = !models.OauthRefreshTokenPreload(suite.db).Where("token = ?", "test_token_3").First(&models.OauthRefreshToken{}).RecordNotFound()
+	assert.Equal(suite.T(), true, found)
+
+	// Access tokens
+	found = !models.OauthAccessTokenPreload(suite.db).Where("token = ?", "test_token_2").First(&models.OauthAccessToken{}).RecordNotFound()
+	assert.Equal(suite.T(), true, found)
+	found = !models.OauthAccessTokenPreload(suite.db).Where("token = ?", "test_token_3").First(&models.OauthAccessToken{}).RecordNotFound()
+	assert.Equal(suite.T(), true, found)
+
 }

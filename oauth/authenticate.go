@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/adam-hanna/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/session"
 	"github.com/jinzhu/gorm"
 )
 
@@ -46,4 +47,21 @@ func (s *Service) Authenticate(token string) (*models.OauthAccessToken, error) {
 	}
 
 	return accessToken, nil
+}
+
+// ClearUserTokens deletes the user's access and refresh tokens associated with this client id
+func (s *Service) ClearUserTokens(userSession *session.UserSession) {
+	// Clear all refresh tokens with user_id and client_id
+	refreshToken := new(models.OauthRefreshToken)
+	found := !models.OauthRefreshTokenPreload(s.db).Where("token = ?", userSession.RefreshToken).First(refreshToken).RecordNotFound()
+	if found {
+		s.db.Unscoped().Where("client_id = ? AND user_id = ?", refreshToken.ClientID, refreshToken.UserID).Delete(models.OauthRefreshToken{})
+	}
+
+	// Clear all access tokens with user_id and client_id
+	accessToken := new(models.OauthAccessToken)
+	found = !models.OauthAccessTokenPreload(s.db).Where("token = ?", userSession.AccessToken).First(accessToken).RecordNotFound()
+	if found {
+		s.db.Unscoped().Where("client_id = ? AND user_id = ?", accessToken.ClientID, accessToken.UserID).Delete(models.OauthAccessToken{})
+	}
 }
