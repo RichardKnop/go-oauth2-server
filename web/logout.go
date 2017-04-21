@@ -12,6 +12,16 @@ func (s *Service) logout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get the user session
+	userSession, err := sessionService.GetUserSession()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Delete the access and refresh tokens
+	s.oauthService.ClearUserTokens(userSession)
+
 	// Delete the user session
 	sessionService.ClearUserSession()
 

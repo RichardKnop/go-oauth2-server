@@ -3,6 +3,7 @@ package oauth
 import (
 	"github.com/adam-hanna/go-oauth2-server/config"
 	"github.com/adam-hanna/go-oauth2-server/models"
+	"github.com/adam-hanna/go-oauth2-server/session"
 	"github.com/adam-hanna/go-oauth2-server/util/routes"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -42,5 +43,6 @@ type ServiceInterface interface {
 	Authenticate(token string) (*models.OauthAccessToken, error)
 	NewIntrospectResponseFromAccessToken(accessToken *models.OauthAccessToken) (*IntrospectResponse, error)
 	NewIntrospectResponseFromRefreshToken(refreshToken *models.OauthRefreshToken) (*IntrospectResponse, error)
+	ClearUserTokens(userSession *session.UserSession)
 	Close()
 }
