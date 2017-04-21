@@ -2,7 +2,6 @@ package redis
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -76,12 +75,10 @@ func init() {
 
 // NewPluginService starts the redis connection and sets the session options
 func NewPluginService() *CustomSessionServiceType {
-	fmt.Println("In InitPluginService")
 	store, err := redisStore.NewRediStore(ConnectionConfig.Size, ConnectionConfig.Network, ConnectionConfig.Address, ConnectionConfig.Password, ConnectionConfig.SessionSecrets...)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("In InitPluginService after store")
 
 	return &CustomSessionServiceType{
 		// Session cookie storage
@@ -96,35 +93,29 @@ func NewPluginService() *CustomSessionServiceType {
 }
 
 func (c *CustomSessionServiceType) GetSessionService() session.ServiceInterface {
-	fmt.Println("In GetSessionService", c.sessionOptions.Path)
 	return c
 }
 
 // Close stops the redis connection
 func (c *CustomSessionServiceType) Close() {
-	fmt.Println("In Close")
 	c.sessionStore.Close()
 }
 
 // SetSessionService custom SetSessionStore
 func (c *CustomSessionServiceType) SetSessionService(r *http.Request, w http.ResponseWriter) {
-	fmt.Println("In SetSessionService")
 	c.r = r
 	c.w = w
 }
 
 // StartSession custom StartSession
 func (c *CustomSessionServiceType) StartSession() error {
-	fmt.Println("In StartSession", c.sessionOptions.Path)
 	// Get a session.
 	session, err := c.sessionStore.Get(c.r, session.UserSessionKey)
 	if err != nil {
 		return err
 	}
-	fmt.Println("In StartSession after session")
 
 	c.session = session
-	fmt.Println("In StartSession after set session")
 	return nil
 }
 
@@ -182,9 +173,7 @@ func (c *CustomSessionServiceType) GetFlashMessage() (interface{}, error) {
 	}
 
 	// Get the last flash message from the stack
-	fmt.Println("b4 flashes in plugins")
 	if flashes := c.session.Flashes(); len(flashes) > 0 {
-		fmt.Println("Plugins flashes", flashes)
 		// We need to save the session, otherwise the flash message won't be removed
 		c.session.Save(c.r, c.w)
 		return flashes[0], nil
