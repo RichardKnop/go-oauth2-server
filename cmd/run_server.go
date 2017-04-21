@@ -20,6 +20,7 @@ func RunServer(configBackend string) error {
 	}
 	defer db.Close()
 
+	// configure redis for session store
 	sessionSecrets := make([][]byte, 1)
 	sessionSecrets[0] = []byte(cnf.Session.Secret)
 	redisConfig := redis.ConfigType{
@@ -29,6 +30,8 @@ func RunServer(configBackend string) error {
 		Password:       "",
 		SessionSecrets: sessionSecrets,
 	}
+
+	// start the services
 	services.UseSessionService(redis.NewService(cnf, redisConfig))
 	if err := services.InitServices(cnf, db); err != nil {
 		return err
