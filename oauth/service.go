@@ -41,3 +41,6 @@ func (s *Service) IsRoleAllowed(role string) bool {
 	}
 	return false
 }
+
+// Close stops any running services
+func (s *Service) Close() {}

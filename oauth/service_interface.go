@@ -42,4 +42,5 @@ type ServiceInterface interface {
 	Authenticate(token string) (*models.OauthAccessToken, error)
 	NewIntrospectResponseFromAccessToken(accessToken *models.OauthAccessToken) (*IntrospectResponse, error)
 	NewIntrospectResponseFromRefreshToken(refreshToken *models.OauthRefreshToken) (*IntrospectResponse, error)
+	Close()
 }
