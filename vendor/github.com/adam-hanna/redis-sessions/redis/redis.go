@@ -5,25 +5,19 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/adam-hanna/go-oauth2-server/config"
 	"github.com/adam-hanna/go-oauth2-server/session"
 	"github.com/gorilla/sessions"
 	redisStore "gopkg.in/boj/redistore.v1"
 )
 
-// ConnectionConfigType is used to connect to the redis db
-type ConnectionConfigType struct {
+// ConfigType is used to connect to the redis db
+type ConfigType struct {
 	Size           int
 	Network        string
 	Address        string
 	Password       string
 	SessionSecrets [][]byte
-}
-
-// SessionOptionsType defines the options for the sessions
-type SessionOptionsType struct {
-	Path     string
-	MaxAge   int
-	HTTPOnly bool
 }
 
 // CustomSessionServiceType extends session.ServiceInterface
@@ -36,41 +30,9 @@ type CustomSessionServiceType struct {
 	w              http.ResponseWriter
 }
 
-const (
-	defaultSize                   = 10
-	defaultNetwork                = "tcp"
-	defaultAddress                = ":6379"
-	defaultPassword               = ""
-	defaultSessionSecrets         = "The secret"
-	defaultSessionOptionsPath     = "/"
-	defaultSessionOptionsMaxAge   = 0
-	defaultSessionOptionsHTTPOnly = true
-)
-
-var (
-	// ConnectionConfig ...
-	ConnectionConfig ConnectionConfigType
-	// SessionOptions ...
-	SessionOptions SessionOptionsType
-	// SessionService the service being exported
-	SessionService CustomSessionServiceType
-)
-
-func init() {
-	ConnectionConfig.Size = defaultSize
-	ConnectionConfig.Network = defaultNetwork
-	ConnectionConfig.Address = defaultAddress
-	ConnectionConfig.Password = defaultPassword
-	ConnectionConfig.SessionSecrets = make([][]byte, 1)
-	ConnectionConfig.SessionSecrets[0] = []byte(defaultSessionSecrets)
-	SessionOptions.Path = defaultSessionOptionsPath
-	SessionOptions.MaxAge = defaultSessionOptionsMaxAge
-	SessionOptions.HTTPOnly = defaultSessionOptionsHTTPOnly
-}
-
 // NewService starts the redis connection and sets the session options
-func NewService() *CustomSessionServiceType {
-	store, err := redisStore.NewRediStore(ConnectionConfig.Size, ConnectionConfig.Network, ConnectionConfig.Address, ConnectionConfig.Password, ConnectionConfig.SessionSecrets...)
+func NewService(cnf *config.Config, redisConfig ConfigType) *CustomSessionServiceType {
+	store, err := redisStore.NewRediStore(redisConfig.Size, redisConfig.Network, redisConfig.Address, redisConfig.Password, redisConfig.SessionSecrets...)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -80,9 +42,9 @@ func NewService() *CustomSessionServiceType {
 		sessionStore: store,
 		// Session options
 		sessionOptions: &sessions.Options{
-			Path:     SessionOptions.Path,
-			MaxAge:   SessionOptions.MaxAge,
-			HttpOnly: SessionOptions.HTTPOnly,
+			Path:     cnf.Session.Path,
+			MaxAge:   cnf.Session.MaxAge,
+			HttpOnly: cnf.Session.HTTPOnly,
 		},
 	}
 }
