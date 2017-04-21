@@ -20,10 +20,7 @@ func RunServer(configBackend string) error {
 	}
 	defer db.Close()
 
-	// plugins.UseSessionService(&redis.SessionService)
-	r := redis.NewPluginService()
-	// plugins.SessionService = r.GetSessionService()
-	plugins.SessionService = r
+	plugins.UseSessionService(redis.NewPluginService())
 	if err := plugins.InitServices(cnf, db); err != nil {
 		return err
 	}

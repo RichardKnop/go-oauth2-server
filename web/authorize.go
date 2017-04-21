@@ -22,9 +22,7 @@ func (s *Service) authorizeForm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Render the template
-	fmt.Println("b4 flash message", sessionService)
 	errMsg, _ := sessionService.GetFlashMessage()
-	fmt.Println("errMsg", errMsg)
 	query := r.URL.Query()
 	query.Set("login_redirect_uri", r.URL.Path)
 	renderTemplate(w, "authorize.html", map[string]interface{}{
@@ -128,7 +126,6 @@ func (s *Service) authorizeCommon(r *http.Request) (session.ServiceInterface, *m
 	if err != nil {
 		return nil, nil, nil, "", nil, err
 	}
-	fmt.Println("sess service", sessionService)
 
 	// Get the client from the request context
 	client, err := getClient(r)
