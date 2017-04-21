@@ -6,8 +6,8 @@ import (
 )
 
 // Migrate runs database migrations
-func Migrate() error {
-	_, db, err := initConfigDB(true, false)
+func Migrate(configBackend string) error {
+	_, db, err := initConfigDB(true, false, configBackend)
 	if err != nil {
 		return err
 	}

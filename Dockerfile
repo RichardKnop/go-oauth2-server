@@ -2,6 +2,9 @@
 # and a workspace (GOPATH) configured at /go.
 FROM golang
 
+# Contact maintainer with any issues you encounter
+MAINTAINER Richard Knop <risoknop@gmail.com>
+
 # Cd into the api code directory
 WORKDIR /go/src/github.com/RichardKnop/go-oauth2-server
 

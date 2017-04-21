@@ -11,8 +11,8 @@ import (
 )
 
 // RunServer runs the app
-func RunServer() error {
-	cnf, db, err := initConfigDB(true, true)
+func RunServer(configBackend string) error {
+	cnf, db, err := initConfigDB(true, true, configBackend)
 	if err != nil {
 		return err
 	}

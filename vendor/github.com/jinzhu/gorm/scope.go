@@ -58,7 +58,7 @@ func (scope *Scope) NewDB() *DB {
 }
 
 // SQLDB return *sql.DB
-func (scope *Scope) SQLDB() sqlCommon {
+func (scope *Scope) SQLDB() SQLCommon {
 	return scope.db.db
 }
 
@@ -391,7 +391,7 @@ func (scope *Scope) InstanceGet(name string) (interface{}, bool) {
 func (scope *Scope) Begin() *Scope {
 	if db, ok := scope.SQLDB().(sqlDb); ok {
 		if tx, err := db.Begin(); err == nil {
-			scope.db.db = interface{}(tx).(sqlCommon)
+			scope.db.db = interface{}(tx).(SQLCommon)
 			scope.InstanceSet("gorm:started_transaction", true)
 		}
 	}
@@ -447,7 +447,12 @@ func (scope *Scope) callMethod(methodName string, reflectValue reflect.Value) {
 	}
 }
 
-var columnRegexp = regexp.MustCompile("^[a-zA-Z]+(\\.[a-zA-Z]+)*$") // only match string like `name`, `users.name`
+var (
+	columnRegexp        = regexp.MustCompile("^[a-zA-Z]+(\\.[a-zA-Z]+)*$") // only match string like `name`, `users.name`
+	isNumberRegexp      = regexp.MustCompile("^\\s*\\d+\\s*$")             // match if string is number
+	comparisonRegexp    = regexp.MustCompile("(?i) (=|<>|>|<|LIKE|IS|IN) ")
+	countingQueryRegexp = regexp.MustCompile("(?i)^count(.+)$")
+)
 
 func (scope *Scope) quoteIfPossible(str string) string {
 	if columnRegexp.MatchString(str) {
@@ -509,8 +514,7 @@ func (scope *Scope) primaryCondition(value interface{}) string {
 func (scope *Scope) buildWhereCondition(clause map[string]interface{}) (str string) {
 	switch value := clause["query"].(type) {
 	case string:
-		// if string is number
-		if regexp.MustCompile("^\\s*\\d+\\s*$").MatchString(value) {
+		if isNumberRegexp.MatchString(value) {
 			return scope.primaryCondition(scope.AddToVars(value))
 		} else if value != "" {
 			str = fmt.Sprintf("(%v)", value)
@@ -573,11 +577,10 @@ func (scope *Scope) buildNotCondition(clause map[string]interface{}) (str string
 
 	switch value := clause["query"].(type) {
 	case string:
-		// is number
-		if regexp.MustCompile("^\\s*\\d+\\s*$").MatchString(value) {
+		if isNumberRegexp.MatchString(value) {
 			id, _ := strconv.Atoi(value)
 			return fmt.Sprintf("(%v <> %v)", scope.Quote(primaryKey), id)
-		} else if regexp.MustCompile("(?i) (=|<>|>|<|LIKE|IS|IN) ").MatchString(value) {
+		} else if comparisonRegexp.MatchString(value) {
 			str = fmt.Sprintf(" NOT (%v) ", value)
 			notEqualSQL = fmt.Sprintf("NOT (%v)", value)
 		} else {
@@ -590,8 +593,9 @@ func (scope *Scope) buildNotCondition(clause map[string]interface{}) (str string
 		if reflect.ValueOf(value).Len() > 0 {
 			str = fmt.Sprintf("(%v.%v NOT IN (?))", scope.QuotedTableName(), scope.Quote(primaryKey))
 			clause["args"] = []interface{}{value}
+		} else {
+			return ""
 		}
-		return ""
 	case map[string]interface{}:
 		var sqls []string
 		for key, value := range value {
@@ -669,11 +673,12 @@ func (scope *Scope) buildSelectQuery(clause map[string]interface{}) (str string)
 func (scope *Scope) whereSQL() (sql string) {
 	var (
 		quotedTableName                                = scope.QuotedTableName()
+		deletedAtField, hasDeletedAtField              = scope.FieldByName("DeletedAt")
 		primaryConditions, andConditions, orConditions []string
 	)
 
-	if !scope.Search.Unscoped && scope.HasColumn("deleted_at") {
-		sql := fmt.Sprintf("%v.deleted_at IS NULL", quotedTableName)
+	if !scope.Search.Unscoped && hasDeletedAtField {
+		sql := fmt.Sprintf("%v.%v IS NULL", quotedTableName, scope.Quote(deletedAtField.DBName))
 		primaryConditions = append(primaryConditions, sql)
 	}
 
@@ -882,16 +887,22 @@ func (scope *Scope) updatedAttrsWithValues(value interface{}) (results map[strin
 
 func (scope *Scope) row() *sql.Row {
 	defer scope.trace(NowFunc())
+
+	result := &RowQueryResult{}
+	scope.InstanceSet("row_query_result", result)
 	scope.callCallbacks(scope.db.parent.callbacks.rowQueries)
-	scope.prepareQuerySQL()
-	return scope.SQLDB().QueryRow(scope.SQL, scope.SQLVars...)
+
+	return result.Row
 }
 
 func (scope *Scope) rows() (*sql.Rows, error) {
 	defer scope.trace(NowFunc())
+
+	result := &RowsQueryResult{}
+	scope.InstanceSet("row_query_result", result)
 	scope.callCallbacks(scope.db.parent.callbacks.rowQueries)
-	scope.prepareQuerySQL()
-	return scope.SQLDB().Query(scope.SQL, scope.SQLVars...)
+
+	return result.Rows, result.Error
 }
 
 func (scope *Scope) initialize() *Scope {
@@ -919,12 +930,16 @@ func (scope *Scope) pluck(column string, value interface{}) *Scope {
 			scope.Err(rows.Scan(elem))
 			dest.Set(reflect.Append(dest, reflect.ValueOf(elem).Elem()))
 		}
+
+		if err := rows.Err(); err != nil {
+			scope.Err(err)
+		}
 	}
 	return scope
 }
 
 func (scope *Scope) count(value interface{}) *Scope {
-	if query, ok := scope.Search.selects["query"]; !ok || !regexp.MustCompile("(?i)^count(.+)$").MatchString(fmt.Sprint(query)) {
+	if query, ok := scope.Search.selects["query"]; !ok || !countingQueryRegexp.MatchString(fmt.Sprint(query)) {
 		scope.Search.Select("count(*)")
 	}
 	scope.Search.ignoreOrderQuery = true
@@ -982,6 +997,7 @@ func (scope *Scope) shouldSaveAssociations() bool {
 
 func (scope *Scope) related(value interface{}, foreignKeys ...string) *Scope {
 	toScope := scope.db.NewScope(value)
+	tx := scope.db.Set("gorm:association:source", scope.Value)
 
 	for _, foreignKey := range append(foreignKeys, toScope.typeName()+"Id", scope.typeName()+"Id") {
 		fromField, _ := scope.FieldByName(foreignKey)
@@ -991,36 +1007,34 @@ func (scope *Scope) related(value interface{}, foreignKeys ...string) *Scope {
 			if relationship := fromField.Relationship; relationship != nil {
 				if relationship.Kind == "many_to_many" {
 					joinTableHandler := relationship.JoinTableHandler
-					scope.Err(joinTableHandler.JoinWith(joinTableHandler, toScope.db, scope.Value).Find(value).Error)
+					scope.Err(joinTableHandler.JoinWith(joinTableHandler, tx, scope.Value).Find(value).Error)
 				} else if relationship.Kind == "belongs_to" {
-					query := toScope.db
 					for idx, foreignKey := range relationship.ForeignDBNames {
 						if field, ok := scope.FieldByName(foreignKey); ok {
-							query = query.Where(fmt.Sprintf("%v = ?", scope.Quote(relationship.AssociationForeignDBNames[idx])), field.Field.Interface())
+							tx = tx.Where(fmt.Sprintf("%v = ?", scope.Quote(relationship.AssociationForeignDBNames[idx])), field.Field.Interface())
 						}
 					}
-					scope.Err(query.Find(value).Error)
+					scope.Err(tx.Find(value).Error)
 				} else if relationship.Kind == "has_many" || relationship.Kind == "has_one" {
-					query := toScope.db
 					for idx, foreignKey := range relationship.ForeignDBNames {
 						if field, ok := scope.FieldByName(relationship.AssociationForeignDBNames[idx]); ok {
-							query = query.Where(fmt.Sprintf("%v = ?", scope.Quote(foreignKey)), field.Field.Interface())
+							tx = tx.Where(fmt.Sprintf("%v = ?", scope.Quote(foreignKey)), field.Field.Interface())
 						}
 					}
 
 					if relationship.PolymorphicType != "" {
-						query = query.Where(fmt.Sprintf("%v = ?", scope.Quote(relationship.PolymorphicDBName)), relationship.PolymorphicValue)
+						tx = tx.Where(fmt.Sprintf("%v = ?", scope.Quote(relationship.PolymorphicDBName)), relationship.PolymorphicValue)
 					}
-					scope.Err(query.Find(value).Error)
+					scope.Err(tx.Find(value).Error)
 				}
 			} else {
 				sql := fmt.Sprintf("%v = ?", scope.Quote(toScope.PrimaryKey()))
-				scope.Err(toScope.db.Where(sql, fromField.Field.Interface()).Find(value).Error)
+				scope.Err(tx.Where(sql, fromField.Field.Interface()).Find(value).Error)
 			}
 			return scope
 		} else if toField != nil {
 			sql := fmt.Sprintf("%v = ?", scope.Quote(toField.DBName))
-			scope.Err(toScope.db.Where(sql, scope.PrimaryKeyValue()).Find(value).Error)
+			scope.Err(tx.Where(sql, scope.PrimaryKeyValue()).Find(value).Error)
 			return scope
 		}
 	}

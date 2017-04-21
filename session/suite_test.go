@@ -21,7 +21,7 @@ type SessionTestSuite struct {
 // The SetupSuite method will be run by testify once, at the very
 // start of the testing suite, before any tests are run.
 func (suite *SessionTestSuite) SetupSuite() {
-	suite.cnf = config.NewConfig(false, false)
+	suite.cnf = config.NewConfig(false, false, "etcd")
 
 	// Overwrite internal vars so we don't affect existing session
 	session.StorageSessionName = "test_session"
