@@ -11,4 +11,5 @@ type ServiceInterface interface {
 	ClearUserSession() error
 	SetFlashMessage(msg string) error
 	GetFlashMessage() (interface{}, error)
+	Close()
 }

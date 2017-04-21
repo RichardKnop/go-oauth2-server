@@ -39,6 +39,9 @@ func (s *Service) GetSessionService() session.ServiceInterface {
 	return s.sessionService
 }
 
+// Close stops any running services
+func (s *Service) Close() {}
+
 func (s *Service) setSessionService(r *http.Request, w http.ResponseWriter) {
 	s.sessionService.SetSessionService(r, w)
 }

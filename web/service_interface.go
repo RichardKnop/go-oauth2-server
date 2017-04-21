@@ -18,6 +18,7 @@ type ServiceInterface interface {
 	GetSessionService() session.ServiceInterface
 	GetRoutes() []routes.Route
 	RegisterRoutes(router *mux.Router, prefix string)
+	Close()
 
 	// Needed for the newRoutes to be able to register handlers
 	setSessionService(r *http.Request, w http.ResponseWriter)

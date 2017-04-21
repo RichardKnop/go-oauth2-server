@@ -13,3 +13,6 @@ type Service struct {
 func NewService(db *gorm.DB) *Service {
 	return &Service{db: db}
 }
+
+// Close stops any running services
+func (s *Service) Close() {}

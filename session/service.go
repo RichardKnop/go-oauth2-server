@@ -141,3 +141,6 @@ func (s *Service) GetFlashMessage() (interface{}, error) {
 	// No flash messages in the stack
 	return nil, nil
 }
+
+// Close stops any running services
+func (s *Service) Close() {}
