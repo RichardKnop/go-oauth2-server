@@ -1,7 +1,6 @@
 package oauth_test
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/adam-hanna/go-oauth2-server/models"
@@ -332,7 +331,6 @@ func (suite *OauthTestSuite) TestClearUserTokens() {
 		err = suite.db.Create(testRefreshToken).Error
 		assert.NoError(suite.T(), err, "Inserting test data failed")
 	}
-	fmt.Println(testAccessTokens[0].Client.ID, suite.users[0].ID, testAccessTokens[2].Client.ID, suite.users[1].ID)
 
 	testUserSession = &session.UserSession{
 		ClientID:     suite.clients[0].Key,

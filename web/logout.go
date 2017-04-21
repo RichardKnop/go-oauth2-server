@@ -1,7 +1,6 @@
 package web
 
 import (
-	"fmt"
 	"net/http"
 )
 
@@ -21,7 +20,6 @@ func (s *Service) logout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Delete the access and refresh tokens
-	fmt.Println("User session", userSession)
 	s.oauthService.ClearUserTokens(userSession)
 
 	// Delete the user session
