@@ -36,45 +36,40 @@ type CustomSessionServiceType struct {
 	w              http.ResponseWriter
 }
 
+const (
+	defaultSize                   = 10
+	defaultNetwork                = "tcp"
+	defaultAddress                = ":6379"
+	defaultPassword               = ""
+	defaultSessionSecrets         = "The secret"
+	defaultSessionOptionsPath     = "/"
+	defaultSessionOptionsMaxAge   = 0
+	defaultSessionOptionsHTTPOnly = true
+)
+
 var (
 	// ConnectionConfig ...
 	ConnectionConfig ConnectionConfigType
 	// SessionOptions ...
 	SessionOptions SessionOptionsType
-	// DefaultSize ...
-	DefaultSize = 10
-	// DefaultNetwork ...
-	DefaultNetwork = "tcp"
-	// DefaultAddress ...
-	DefaultAddress = ":6379"
-	// DefaultPassword ...
-	DefaultPassword = ""
-	// DefaultSessionSecrets ...
-	DefaultSessionSecrets = "The secret" // cnf.Session.Secret
-	// DefaultSessionOptionsPath ...
-	DefaultSessionOptionsPath = "/"
-	// DefaultSessionOptionsMaxAge ...
-	DefaultSessionOptionsMaxAge = 0
-	// DefaultSessionOptionsHTTPOnly ...
-	DefaultSessionOptionsHTTPOnly = true
 	// SessionService the service being exported
 	SessionService CustomSessionServiceType
 )
 
 func init() {
-	ConnectionConfig.Size = DefaultSize
-	ConnectionConfig.Network = DefaultNetwork
-	ConnectionConfig.Address = DefaultAddress
-	ConnectionConfig.Password = DefaultPassword
+	ConnectionConfig.Size = defaultSize
+	ConnectionConfig.Network = defaultNetwork
+	ConnectionConfig.Address = defaultAddress
+	ConnectionConfig.Password = defaultPassword
 	ConnectionConfig.SessionSecrets = make([][]byte, 1)
-	ConnectionConfig.SessionSecrets[0] = []byte(DefaultSessionSecrets)
-	SessionOptions.Path = DefaultSessionOptionsPath
-	SessionOptions.MaxAge = DefaultSessionOptionsMaxAge
-	SessionOptions.HTTPOnly = DefaultSessionOptionsHTTPOnly
+	ConnectionConfig.SessionSecrets[0] = []byte(defaultSessionSecrets)
+	SessionOptions.Path = defaultSessionOptionsPath
+	SessionOptions.MaxAge = defaultSessionOptionsMaxAge
+	SessionOptions.HTTPOnly = defaultSessionOptionsHTTPOnly
 }
 
-// NewPluginService starts the redis connection and sets the session options
-func NewPluginService() *CustomSessionServiceType {
+// NewService starts the redis connection and sets the session options
+func NewService() *CustomSessionServiceType {
 	store, err := redisStore.NewRediStore(ConnectionConfig.Size, ConnectionConfig.Network, ConnectionConfig.Address, ConnectionConfig.Password, ConnectionConfig.SessionSecrets...)
 	if err != nil {
 		log.Fatal(err)
@@ -90,10 +85,6 @@ func NewPluginService() *CustomSessionServiceType {
 			HttpOnly: SessionOptions.HTTPOnly,
 		},
 	}
-}
-
-func (c *CustomSessionServiceType) GetSessionService() session.ServiceInterface {
-	return c
 }
 
 // Close stops the redis connection

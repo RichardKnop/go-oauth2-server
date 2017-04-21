@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/adam-hanna/go-oauth2-server/plugins"
+	"github.com/adam-hanna/go-oauth2-server/services"
 	"github.com/adam-hanna/redis-sessions/redis"
 	"github.com/gorilla/mux"
 	"github.com/phyber/negroni-gzip/gzip"
@@ -20,11 +20,11 @@ func RunServer(configBackend string) error {
 	}
 	defer db.Close()
 
-	plugins.UseSessionService(redis.NewPluginService())
-	if err := plugins.InitServices(cnf, db); err != nil {
+	services.UseSessionService(redis.NewService())
+	if err := services.InitServices(cnf, db); err != nil {
 		return err
 	}
-	defer plugins.CloseServices()
+	defer services.CloseServices()
 
 	// Start a classic negroni app
 	app := negroni.New()
@@ -37,9 +37,9 @@ func RunServer(configBackend string) error {
 	router := mux.NewRouter()
 
 	// Add routes
-	plugins.HealthService.RegisterRoutes(router, "/v1")
-	plugins.OauthService.RegisterRoutes(router, "/v1/oauth")
-	plugins.WebService.RegisterRoutes(router, "/web")
+	services.HealthService.RegisterRoutes(router, "/v1")
+	services.OauthService.RegisterRoutes(router, "/v1/oauth")
+	services.WebService.RegisterRoutes(router, "/web")
 
 	// Set the router
 	app.UseHandler(router)
