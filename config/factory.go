@@ -4,15 +4,12 @@ import (
 	"os"
 	"time"
 
-<<<<<<< HEAD
 	"github.com/adam-hanna/go-oauth2-server/logger"
 	"github.com/coreos/etcd/clientv3"
 	"github.com/coreos/etcd/etcdserver/api/v3rpc/rpctypes"
 	"github.com/coreos/etcd/pkg/transport"
 	"golang.org/x/net/context"
-=======
 	"github.com/RichardKnop/go-oauth2-server/logger"
->>>>>>> e367e05c857b300c2e9fd6ad2127d096d628dd6b
 )
 
 var (

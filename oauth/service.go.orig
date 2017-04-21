@@ -4,6 +4,11 @@ import (
 	"github.com/adam-hanna/go-oauth2-server/config"
 	"github.com/adam-hanna/go-oauth2-server/oauth/roles"
 	"github.com/jinzhu/gorm"
+<<<<<<< HEAD
+	"github.com/adam-hanna/go-oauth2-server/config"
+	"github.com/adam-hanna/go-oauth2-server/oauth/roles"
+=======
+>>>>>>> feature/abstraction
 )
 
 // Service struct keeps objects to avoid passing them around

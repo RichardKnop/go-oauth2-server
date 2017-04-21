@@ -7,7 +7,10 @@ import (
 
 	"github.com/adam-hanna/go-oauth2-server/config"
 	"github.com/adam-hanna/go-oauth2-server/session"
+<<<<<<< HEAD
+=======
 	"github.com/gorilla/sessions"
+>>>>>>> feature/abstraction
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 )

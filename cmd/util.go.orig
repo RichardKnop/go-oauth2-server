@@ -8,7 +8,7 @@ import (
 	"github.com/adam-hanna/go-oauth2-server/oauth"
 	"github.com/adam-hanna/go-oauth2-server/web"
 =======
->>>>>>> feature/clearUserTokens
+>>>>>>> feature/abstraction
 	"github.com/jinzhu/gorm"
 )
 

@@ -1,0 +1,25 @@
+{
+	"comment": "",
+	"ignore": "",
+	"package": [
+		{
+			"checksumSHA1": "CugKDIiTN7Xl2ID3yQ17ytRmNOY=",
+			"path": "github.com/garyburd/redigo/internal",
+			"revision": "0d253a66e6e1349f4581d6d2b300ee434ee2da9f",
+			"revisionTime": "2017-02-16T21:49:44Z"
+		},
+		{
+			"checksumSHA1": "kB76idnBbBSxbtkGcVojbDMp+s4=",
+			"path": "github.com/garyburd/redigo/redis",
+			"revision": "0d253a66e6e1349f4581d6d2b300ee434ee2da9f",
+			"revisionTime": "2017-02-16T21:49:44Z"
+		},
+		{
+			"checksumSHA1": "gjsLHtlxVLC+q1gqqRLFe1u+0j4=",
+			"path": "gopkg.in/boj/redistore.v1",
+			"revision": "fc113767cd6b051980f260d6dbe84b2740c46ab0",
+			"revisionTime": "2016-01-28T11:33:10Z"
+		}
+	],
+	"rootPath": "github.com/adam-hanna/go-oauth2-server"
+}

@@ -5,7 +5,10 @@ import (
 
 	"github.com/adam-hanna/go-oauth2-server/config"
 	"github.com/adam-hanna/go-oauth2-server/oauth"
+<<<<<<< HEAD
+=======
 	"github.com/adam-hanna/go-oauth2-server/session"
+>>>>>>> feature/abstraction
 	"github.com/adam-hanna/go-oauth2-server/util/routes"
 	"github.com/gorilla/mux"
 )
