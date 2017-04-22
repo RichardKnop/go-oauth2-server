@@ -1,7 +1,7 @@
 package oauth
 
 import (
-	"github.com/adam-hanna/go-oauth2-server/models"
+	"github.com/RichardKnop/go-oauth2-server/models"
 )
 
 // Login creates an access token and refresh token for a user (logs him/her in)

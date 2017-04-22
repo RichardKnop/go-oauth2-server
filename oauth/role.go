@@ -3,7 +3,7 @@ package oauth
 import (
 	"errors"
 
-	"github.com/adam-hanna/go-oauth2-server/models"
+	"github.com/RichardKnop/go-oauth2-server/models"
 )
 
 var (

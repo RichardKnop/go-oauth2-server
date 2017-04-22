@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/adam-hanna/go-oauth2-server/test-util"
+	"github.com/RichardKnop/go-oauth2-server/test-util"
 )
 
 var (

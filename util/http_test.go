@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/adam-hanna/go-oauth2-server/util"
+	"github.com/RichardKnop/go-oauth2-server/util"
 	"github.com/stretchr/testify/assert"
 )
 

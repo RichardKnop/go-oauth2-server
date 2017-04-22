@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/adam-hanna/go-oauth2-server/models"
-	"github.com/adam-hanna/go-oauth2-server/session"
+	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/RichardKnop/go-oauth2-server/session"
 	"github.com/jinzhu/gorm"
 )
 

@@ -4,9 +4,9 @@ import (
 	"time"
 
 	"github.com/RichardKnop/uuid"
-	"github.com/adam-hanna/go-oauth2-server/models"
-	"github.com/adam-hanna/go-oauth2-server/oauth"
-	"github.com/adam-hanna/go-oauth2-server/session"
+	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/RichardKnop/go-oauth2-server/oauth"
+	"github.com/RichardKnop/go-oauth2-server/session"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 )

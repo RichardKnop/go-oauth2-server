@@ -11,8 +11,8 @@ WORKDIR /go/src/github.com/adam-hanna/go-oauth2-server
 # Create a new unprivileged user
 RUN useradd --user-group --shell /bin/false www
 
-# Chown /go/src/github.com/adam-hanna/go-oauth2-server/ to www user
-RUN chown -R www:www /go/src/github.com/adam-hanna/go-oauth2-server/
+# Chown /go/src/github.com/RichardKnop/go-oauth2-server/ to www user
+RUN chown -R www:www /go/src/github.com/RichardKnop/go-oauth2-server/
 
 # Use the unprivileged user
 USER www

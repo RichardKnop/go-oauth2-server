@@ -7,8 +7,8 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/adam-hanna/go-oauth2-server/models"
-	"github.com/adam-hanna/go-oauth2-server/session"
+	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/RichardKnop/go-oauth2-server/session"
 )
 
 // ErrIncorrectResponseType a form value for response_type was not set to token or code
