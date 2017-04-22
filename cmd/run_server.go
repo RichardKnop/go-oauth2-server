@@ -20,10 +20,10 @@ func RunServer(configBackend string) error {
 	defer db.Close()
 
 	// start the services
-	if err := services.InitServices(cnf, db); err != nil {
+	if err := services.Init(cnf, db); err != nil {
 		return err
 	}
-	defer services.CloseServices()
+	defer services.Close()
 
 	// Start a classic negroni app
 	app := negroni.New()

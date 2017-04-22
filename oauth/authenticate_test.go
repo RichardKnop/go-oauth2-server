@@ -3,12 +3,12 @@ package oauth_test
 import (
 	"time"
 
+	"github.com/RichardKnop/uuid"
 	"github.com/adam-hanna/go-oauth2-server/models"
 	"github.com/adam-hanna/go-oauth2-server/oauth"
 	"github.com/adam-hanna/go-oauth2-server/session"
 	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
-	"github.com/RichardKnop/uuid"
 )
 
 func (suite *OauthTestSuite) TestAuthenticate() {
@@ -22,7 +22,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 		// Expired access token
 		&models.OauthAccessToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_expired_token",
@@ -33,7 +33,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 		// Access token without a user
 		&models.OauthAccessToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_client_token",
@@ -43,7 +43,7 @@ func (suite *OauthTestSuite) TestAuthenticate() {
 		// Access token with a user
 		&models.OauthAccessToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_user_token",
@@ -130,7 +130,7 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 	testAccessTokens = []*models.OauthAccessToken{
 		&models.OauthAccessToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_token_1",
@@ -140,7 +140,7 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 		},
 		&models.OauthAccessToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_token_2",
@@ -149,7 +149,7 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 		},
 		&models.OauthAccessToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_token_3",
@@ -167,7 +167,7 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 	testRefreshTokens = []*models.OauthRefreshToken{
 		&models.OauthRefreshToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_token_1",
@@ -177,7 +177,7 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 		},
 		&models.OauthRefreshToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_token_2",
@@ -186,7 +186,7 @@ func (suite *OauthTestSuite) TestAuthenticateRollingRefreshToken() {
 		},
 		&models.OauthRefreshToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_token_3",
@@ -320,18 +320,30 @@ func (suite *OauthTestSuite) TestClearUserTokens() {
 	// Insert some test access tokens
 	testAccessTokens = []*models.OauthAccessToken{
 		&models.OauthAccessToken{
+			MyGormModel: models.MyGormModel{
+				ID:        uuid.New(),
+				CreatedAt: time.Now().UTC(),
+			},
 			Token:     "test_token_1",
 			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
 		&models.OauthAccessToken{
+			MyGormModel: models.MyGormModel{
+				ID:        uuid.New(),
+				CreatedAt: time.Now().UTC(),
+			},
 			Token:     "test_token_2",
 			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[1],
 			User:      suite.users[0],
 		},
 		&models.OauthAccessToken{
+			MyGormModel: models.MyGormModel{
+				ID:        uuid.New(),
+				CreatedAt: time.Now().UTC(),
+			},
 			Token:     "test_token_3",
 			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
@@ -346,18 +358,30 @@ func (suite *OauthTestSuite) TestClearUserTokens() {
 	// Insert some test access tokens
 	testRefreshTokens = []*models.OauthRefreshToken{
 		&models.OauthRefreshToken{
+			MyGormModel: models.MyGormModel{
+				ID:        uuid.New(),
+				CreatedAt: time.Now().UTC(),
+			},
 			Token:     "test_token_1",
 			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],
 			User:      suite.users[0],
 		},
 		&models.OauthRefreshToken{
+			MyGormModel: models.MyGormModel{
+				ID:        uuid.New(),
+				CreatedAt: time.Now().UTC(),
+			},
 			Token:     "test_token_2",
 			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[1],
 			User:      suite.users[0],
 		},
 		&models.OauthRefreshToken{
+			MyGormModel: models.MyGormModel{
+				ID:        uuid.New(),
+				CreatedAt: time.Now().UTC(),
+			},
 			Token:     "test_token_3",
 			ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 			Client:    suite.clients[0],

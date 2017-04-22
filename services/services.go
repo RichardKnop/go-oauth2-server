@@ -43,8 +43,8 @@ func UseSessionService(s session.ServiceInterface) {
 	SessionService = s
 }
 
-// InitServices starts up all services
-func InitServices(cnf *config.Config, db *gorm.DB) error {
+// Init starts up all services
+func Init(cnf *config.Config, db *gorm.DB) error {
 	if nil == reflect.TypeOf(HealthService) {
 		HealthService = health.NewService(db)
 	}
@@ -65,8 +65,8 @@ func InitServices(cnf *config.Config, db *gorm.DB) error {
 	return nil
 }
 
-// CloseServices closes any open services
-func CloseServices() {
+// Close closes any open services
+func Close() {
 	HealthService.Close()
 	OauthService.Close()
 	WebService.Close()
