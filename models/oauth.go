@@ -54,7 +54,7 @@ type OauthUser struct {
 	Role       *OauthRole
 	Username   string         `sql:"type:varchar(254);unique;not null"`
 	Password   sql.NullString `sql:"type:varchar(60)"`
-	MetaUserID string           `sql:"index"`
+	MetaUserID string         `sql:"index"`
 }
 
 // TableName specifies table name
@@ -118,7 +118,7 @@ func (ac *OauthAuthorizationCode) TableName() string {
 func NewOauthRefreshToken(client *OauthClient, user *OauthUser, expiresIn int, scope string) *OauthRefreshToken {
 	refreshToken := &OauthRefreshToken{
 		MyGormModel: MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		ClientID:  util.StringOrNull(string(client.ID)),
@@ -136,7 +136,7 @@ func NewOauthRefreshToken(client *OauthClient, user *OauthUser, expiresIn int, s
 func NewOauthAccessToken(client *OauthClient, user *OauthUser, expiresIn int, scope string) *OauthAccessToken {
 	accessToken := &OauthAccessToken{
 		MyGormModel: MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		ClientID:  util.StringOrNull(string(client.ID)),
@@ -154,7 +154,7 @@ func NewOauthAccessToken(client *OauthClient, user *OauthUser, expiresIn int, sc
 func NewOauthAuthorizationCode(client *OauthClient, user *OauthUser, expiresIn int, redirectURI, scope string) *OauthAuthorizationCode {
 	return &OauthAuthorizationCode{
 		MyGormModel: MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		ClientID:    util.StringOrNull(string(client.ID)),
