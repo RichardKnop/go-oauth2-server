@@ -8,8 +8,8 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
 	"github.com/RichardKnop/go-oauth2-server/util"
 	pass "github.com/RichardKnop/go-oauth2-server/util/password"
-	"github.com/stretchr/testify/assert"
 	"github.com/RichardKnop/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestUserExistsFindsValidUser() {
@@ -183,7 +183,7 @@ func (suite *OauthTestSuite) TestSetPassword() {
 	// Insert a test user without a password
 	user = &models.OauthUser{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		RoleID:   util.StringOrNull(roles.User),
@@ -221,7 +221,7 @@ func (suite *OauthTestSuite) TestAuthUser() {
 	// Insert a test user without a password
 	err = suite.db.Create(&models.OauthUser{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		RoleID:   util.StringOrNull(roles.User),

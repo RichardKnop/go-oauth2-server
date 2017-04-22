@@ -11,23 +11,23 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 	testutil "github.com/RichardKnop/go-oauth2-server/test-util"
 	"github.com/RichardKnop/go-oauth2-server/util"
-	"github.com/stretchr/testify/assert"
 	"github.com/RichardKnop/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestNewIntrospectResponseFromAccessToken() {
 	MG := models.MyGormModel{
-		ID: 			 uuid.New(),
+		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 	}
 
 	accessToken := &models.OauthAccessToken{
 		MyGormModel: MG,
-		Token:     "test_token_introspect_1",
-		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
-		ClientID:  util.StringOrNull(string(suite.clients[0].ID)),
-		UserID:    util.StringOrNull(string(suite.users[0].ID)),
-		Scope:     "read_write",
+		Token:       "test_token_introspect_1",
+		ExpiresAt:   time.Now().UTC().Add(+10 * time.Second),
+		ClientID:    util.StringOrNull(string(suite.clients[0].ID)),
+		UserID:      util.StringOrNull(string(suite.users[0].ID)),
+		Scope:       "read_write",
 	}
 	expected := &oauth.IntrospectResponse{
 		Active:    true,
@@ -57,17 +57,17 @@ func (suite *OauthTestSuite) TestNewIntrospectResponseFromAccessToken() {
 
 func (suite *OauthTestSuite) TestNewIntrospectResponseFromRefreshToken() {
 	MG := models.MyGormModel{
-		ID: 			 uuid.New(),
+		ID:        uuid.New(),
 		CreatedAt: time.Now().UTC(),
 	}
 
 	refreshToken := &models.OauthRefreshToken{
 		MyGormModel: MG,
-		Token:     "test_token_introspect_1",
-		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
-		ClientID:  util.StringOrNull(string(suite.clients[0].ID)),
-		UserID:    util.StringOrNull(string(suite.users[0].ID)),
-		Scope:     "read_write",
+		Token:       "test_token_introspect_1",
+		ExpiresAt:   time.Now().UTC().Add(+10 * time.Second),
+		ClientID:    util.StringOrNull(string(suite.clients[0].ID)),
+		UserID:      util.StringOrNull(string(suite.users[0].ID)),
+		Scope:       "read_write",
 	}
 	expected := &oauth.IntrospectResponse{
 		Active:    true,
@@ -139,7 +139,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectAccessToken() {
 	// Insert a test access token with a user
 	accessToken := &models.OauthAccessToken{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Token:     "test_token_introspect_1",
@@ -208,7 +208,7 @@ func (suite *OauthTestSuite) TestHandleIntrospectRefreshToken() {
 	// Insert a test refresh token with a user
 	refreshToken := &models.OauthRefreshToken{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Token:     "test_token_introspect_1",

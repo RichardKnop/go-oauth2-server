@@ -10,8 +10,8 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 	"github.com/RichardKnop/go-oauth2-server/test-util"
-	"github.com/stretchr/testify/assert"
 	"github.com/RichardKnop/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestRefreshTokenGrantEmptyNotFound() {
@@ -64,7 +64,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExipired() {
 	// Insert a test refresh token
 	err := suite.db.Create(&models.OauthRefreshToken{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Token:     "test_token",
@@ -102,7 +102,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 	// Insert a test refresh token
 	err := suite.db.Create(&models.OauthRefreshToken{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Token:     "test_token",
@@ -140,7 +140,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 	// Insert a test refresh token
 	err := suite.db.Create(&models.OauthRefreshToken{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Token:     "test_token",
@@ -185,7 +185,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	// Insert a test refresh token
 	err := suite.db.Create(&models.OauthRefreshToken{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Token:     "test_token",

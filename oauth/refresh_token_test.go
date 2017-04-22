@@ -5,8 +5,8 @@ import (
 
 	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
-	"github.com/stretchr/testify/assert"
 	"github.com/RichardKnop/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenCreatesNew() {
@@ -143,7 +143,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Insert an access token without a user
 	err = suite.db.Create(&models.OauthRefreshToken{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Token:     "test_token",
@@ -188,7 +188,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenReturnsExisting() {
 	// Insert an access token with a user
 	err = suite.db.Create(&models.OauthRefreshToken{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Token:     "test_token2",
@@ -244,7 +244,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Insert an expired client only test refresh token
 	err = suite.db.Create(&models.OauthRefreshToken{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Token:     "test_token",
@@ -287,7 +287,7 @@ func (suite *OauthTestSuite) TestGetOrCreateRefreshTokenDeletesExpired() {
 	// Insert an expired user specific test refresh token
 	err = suite.db.Create(&models.OauthRefreshToken{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Token:     "test_token",
@@ -341,7 +341,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 		// Expired test refresh token
 		&models.OauthRefreshToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_expired_token",
@@ -352,7 +352,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 		// Refresh token
 		&models.OauthRefreshToken{
 			MyGormModel: models.MyGormModel{
-				ID: 			 uuid.New(),
+				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
 			},
 			Token:     "test_token",

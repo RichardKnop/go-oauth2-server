@@ -4,8 +4,8 @@ import (
 	"time"
 
 	"github.com/RichardKnop/go-oauth2-server/models"
-	"github.com/stretchr/testify/assert"
 	"github.com/RichardKnop/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestGrantAccessToken() {
@@ -83,7 +83,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 			// Expired access token with a user
 			&models.OauthAccessToken{
 				MyGormModel: models.MyGormModel{
-					ID: 			 uuid.New(),
+					ID:        uuid.New(),
 					CreatedAt: time.Now().UTC(),
 				},
 				Token:     "test_token_1",
@@ -94,7 +94,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 			// Expired access token without a user
 			&models.OauthAccessToken{
 				MyGormModel: models.MyGormModel{
-					ID: 			 uuid.New(),
+					ID:        uuid.New(),
 					CreatedAt: time.Now().UTC(),
 				},
 				Token:     "test_token_2",
@@ -104,7 +104,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 			// Access token with a user
 			&models.OauthAccessToken{
 				MyGormModel: models.MyGormModel{
-					ID: 			 uuid.New(),
+					ID:        uuid.New(),
 					CreatedAt: time.Now().UTC(),
 				},
 				Token:     "test_token_3",
@@ -115,7 +115,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 			// Access token without a user
 			&models.OauthAccessToken{
 				MyGormModel: models.MyGormModel{
-					ID: 			 uuid.New(),
+					ID:        uuid.New(),
 					CreatedAt: time.Now().UTC(),
 				},
 				Token:     "test_token_4",

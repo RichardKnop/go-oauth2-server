@@ -11,8 +11,8 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 	"github.com/RichardKnop/go-oauth2-server/test-util"
 	"github.com/RichardKnop/go-oauth2-server/util"
-	"github.com/stretchr/testify/assert"
 	"github.com/RichardKnop/uuid"
+	"github.com/stretchr/testify/assert"
 )
 
 func (suite *OauthTestSuite) TestAuthorizationCodeGrantEmptyNotFound() {
@@ -65,7 +65,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantExpired() {
 	// Insert a test authorization code
 	err := suite.db.Create(&models.OauthAuthorizationCode{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Code:        "test_code",
@@ -104,7 +104,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrantInvalidRedirectURI() {
 	// Insert a test authorization code
 	err := suite.db.Create(&models.OauthAuthorizationCode{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Code:        "test_code",
@@ -143,7 +143,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	// Insert a test authorization code
 	err := suite.db.Create(&models.OauthAuthorizationCode{
 		MyGormModel: models.MyGormModel{
-			ID: 			 uuid.New(),
+			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		Code:        "test_code",
