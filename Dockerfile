@@ -6,7 +6,7 @@ FROM golang
 MAINTAINER Richard Knop <risoknop@gmail.com>
 
 # Cd into the api code directory
-WORKDIR /go/src/github.com/adam-hanna/go-oauth2-server
+WORKDIR /go/src/github.com/RichardKnop/go-oauth2-server
 
 # Create a new unprivileged user
 RUN useradd --user-group --shell /bin/false www
@@ -18,10 +18,10 @@ RUN chown -R www:www /go/src/github.com/RichardKnop/go-oauth2-server/
 USER www
 
 # Copy the local package files to the container's workspace.
-ADD . /go/src/github.com/adam-hanna/go-oauth2-server
+ADD . /go/src/github.com/RichardKnop/go-oauth2-server
 
 # Install the api program
-RUN go install github.com/adam-hanna/go-oauth2-server
+RUN go install github.com/RichardKnop/go-oauth2-server
 
 # Set environment variables
 ENV PATH /go/bin:$PATH
