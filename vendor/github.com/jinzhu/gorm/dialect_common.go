@@ -31,7 +31,7 @@ func (s *commonDialect) SetDB(db SQLCommon) {
 }
 
 func (commonDialect) BindVar(i int) string {
-	return "$$" // ?
+	return "$$$" // ?
 }
 
 func (commonDialect) Quote(key string) string {
@@ -124,12 +124,12 @@ func (s commonDialect) CurrentDatabase() (name string) {
 
 func (commonDialect) LimitAndOffsetSQL(limit, offset interface{}) (sql string) {
 	if limit != nil {
-		if parsedLimit, err := strconv.ParseInt(fmt.Sprint(limit), 0, 0); err == nil && parsedLimit > 0 {
+		if parsedLimit, err := strconv.ParseInt(fmt.Sprint(limit), 0, 0); err == nil && parsedLimit >= 0 {
 			sql += fmt.Sprintf(" LIMIT %d", parsedLimit)
 		}
 	}
 	if offset != nil {
-		if parsedOffset, err := strconv.ParseInt(fmt.Sprint(offset), 0, 0); err == nil && parsedOffset > 0 {
+		if parsedOffset, err := strconv.ParseInt(fmt.Sprint(offset), 0, 0); err == nil && parsedOffset >= 0 {
 			sql += fmt.Sprintf(" OFFSET %d", parsedOffset)
 		}
 	}
@@ -148,4 +148,9 @@ func (DefaultForeignKeyNamer) BuildForeignKeyName(tableName, field, dest string)
 	keyName := fmt.Sprintf("%s_%s_%s_foreign", tableName, field, dest)
 	keyName = regexp.MustCompile("(_*[^a-zA-Z]+_*|_+)").ReplaceAllString(keyName, "_")
 	return keyName
+}
+
+// IsByteArrayOrSlice returns true of the reflected value is an array or slice
+func IsByteArrayOrSlice(value reflect.Value) bool {
+	return (value.Kind() == reflect.Array || value.Kind() == reflect.Slice) && value.Type().Elem() == reflect.TypeOf(uint8(0))
 }

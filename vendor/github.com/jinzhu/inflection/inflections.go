@@ -5,12 +5,12 @@ Package inflection pluralizes and singularizes English nouns.
 		inflection.Plural("Person") => "People"
 		inflection.Plural("PERSON") => "PEOPLE"
 
-		inflection.Singularize("people") => "person"
-		inflection.Singularize("People") => "Person"
-		inflection.Singularize("PEOPLE") => "PERSON"
+		inflection.Singular("people") => "person"
+		inflection.Singular("People") => "Person"
+		inflection.Singular("PEOPLE") => "PERSON"
 
 		inflection.Plural("FancyPerson") => "FancydPeople"
-		inflection.Singularize("FancyPeople") => "FancydPerson"
+		inflection.Singular("FancyPeople") => "FancydPerson"
 
 Standard rules are from Rails's ActiveSupport (https://github.com/rails/rails/blob/master/activesupport/lib/active_support/inflections.rb)
 

@@ -33,12 +33,34 @@ const (
 type gzipResponseWriter struct {
 	w *gzip.Writer
 	negroni.ResponseWriter
+	wroteHeader bool
+}
+
+// Check whether underlying response is already pre-encoded and disable
+// gzipWriter before the body gets written, otherwise encoding headers
+func (grw *gzipResponseWriter) WriteHeader(code int) {
+	headers := grw.ResponseWriter.Header()
+	if headers.Get(headerContentEncoding) == "" {
+		headers.Set(headerContentEncoding, encodingGzip)
+		headers.Add(headerVary, headerAcceptEncoding)
+	} else {
+		grw.w.Reset(ioutil.Discard)
+		grw.w = nil
+	}
+	grw.ResponseWriter.WriteHeader(code)
+	grw.wroteHeader = true
 }
 
 // Write writes bytes to the gzip.Writer. It will also set the Content-Type
 // header using the net/http library content type detection if the Content-Type
 // header was not set yet.
-func (grw gzipResponseWriter) Write(b []byte) (int, error) {
+func (grw *gzipResponseWriter) Write(b []byte) (int, error) {
+	if !grw.wroteHeader {
+		grw.WriteHeader(http.StatusOK)
+	}
+	if grw.w == nil {
+		return grw.ResponseWriter.Write(b)
+	}
 	if len(grw.Header().Get(headerContentType)) == 0 {
 		grw.Header().Set(headerContentType, http.DetectContentType(b))
 	}
@@ -78,12 +100,6 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.Ha
 		return
 	}
 
-	// Skip compression if already compressed
-	if w.Header().Get(headerContentEncoding) == encodingGzip {
-		next(w, r)
-		return
-	}
-
 	// Retrieve gzip writer from the pool. Reset it to use the ResponseWriter.
 	// This allows us to re-use an already allocated buffer rather than
 	// allocating a new buffer for every request.
@@ -94,22 +110,14 @@ func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.Ha
 	defer h.pool.Put(gz)
 	gz.Reset(w)
 
-	// Set the appropriate gzip headers.
-	headers := w.Header()
-	headers.Set(headerContentEncoding, encodingGzip)
-	headers.Set(headerVary, headerAcceptEncoding)
-
 	// Wrap the original http.ResponseWriter with negroni.ResponseWriter
 	// and create the gzipResponseWriter.
 	nrw := negroni.NewResponseWriter(w)
-	grw := gzipResponseWriter{
-		gz,
-		nrw,
-	}
+	grw := gzipResponseWriter{gz, nrw, false}
 
 	// Call the next handler supplying the gzipResponseWriter instead of
 	// the original.
-	next(grw, r)
+	next(&grw, r)
 
 	// Delete the content length after we know we have been written to.
 	grw.Header().Del(headerContentLength)

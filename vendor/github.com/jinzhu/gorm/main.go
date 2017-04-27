@@ -71,11 +71,13 @@ func Open(dialect string, args ...interface{}) (db *DB, err error) {
 		dialect:   newDialect(dialect, dbSQL),
 	}
 	db.parent = db
-
-	if err == nil {
-		// Send a ping to make sure the database connection is alive.
-		if err = db.DB().Ping(); err != nil {
-			db.DB().Close()
+	if err != nil {
+		return
+	}
+	// Send a ping to make sure the database connection is alive.
+	if d, ok := dbSQL.(*sql.DB); ok {
+		if err = d.Ping(); err != nil {
+			d.Close()
 		}
 	}
 	return
@@ -452,7 +454,7 @@ func (s *DB) Debug() *DB {
 // Begin begin a transaction
 func (s *DB) Begin() *DB {
 	c := s.clone()
-	if db, ok := c.db.(sqlDb); ok {
+	if db, ok := c.db.(sqlDb); ok && db != nil {
 		tx, err := db.Begin()
 		c.db = interface{}(tx).(SQLCommon)
 		c.AddError(err)
@@ -464,7 +466,7 @@ func (s *DB) Begin() *DB {
 
 // Commit commit a transaction
 func (s *DB) Commit() *DB {
-	if db, ok := s.db.(sqlTx); ok {
+	if db, ok := s.db.(sqlTx); ok && db != nil {
 		s.AddError(db.Commit())
 	} else {
 		s.AddError(ErrInvalidTransaction)
@@ -474,7 +476,7 @@ func (s *DB) Commit() *DB {
 
 // Rollback rollback a transaction
 func (s *DB) Rollback() *DB {
-	if db, ok := s.db.(sqlTx); ok {
+	if db, ok := s.db.(sqlTx); ok && db != nil {
 		s.AddError(db.Rollback())
 	} else {
 		s.AddError(ErrInvalidTransaction)
