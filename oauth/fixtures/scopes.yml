@@ -6,7 +6,7 @@
 
 - table: 'oauth_scopes'
   pk:
-    id: 1
+    id: "1"
   fields:
     scope: 'read'
     is_default: true
@@ -15,7 +15,7 @@
 
 - table: 'oauth_scopes'
   pk:
-    id: 2
+    id: "2"
   fields:
     scope: 'read_write'
     is_default: false

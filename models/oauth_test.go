@@ -5,14 +5,13 @@ import (
 	"testing"
 
 	"github.com/RichardKnop/go-oauth2-server/models"
-	"github.com/jinzhu/gorm"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewAccessToken(t *testing.T) {
 	var (
-		client      = &models.OauthClient{Model: gorm.Model{ID: 1}}
-		user        = &models.OauthUser{Model: gorm.Model{ID: 2}}
+		client      = &models.OauthClient{MyGormModel: models.MyGormModel{ID: "1"}}
+		user        = &models.OauthUser{MyGormModel: models.MyGormModel{ID: "2"}}
 		accessToken *models.OauthAccessToken
 		v           driver.Value
 		err         error
@@ -29,10 +28,10 @@ func TestNewAccessToken(t *testing.T) {
 	// accessToken.ClientID.Valid should be true
 	assert.True(t, accessToken.ClientID.Valid)
 
-	// accessToken.ClientID.Value() should return the object id, in this case int64(1)
+	// accessToken.ClientID.Value() should return the object id, in this case string(1)
 	v, err = accessToken.ClientID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), v)
+	assert.Equal(t, string("1"), v)
 
 	// accessToken.UserID.Valid should be false
 	assert.False(t, accessToken.UserID.Valid)
@@ -53,24 +52,24 @@ func TestNewAccessToken(t *testing.T) {
 	// accessToken.ClientID.Valid should be true
 	assert.True(t, accessToken.ClientID.Valid)
 
-	// accessToken.ClientID.Value() should return the object id, in this case int64(1)
+	// accessToken.ClientID.Value() should return the object id, in this case string(1)
 	v, err = accessToken.ClientID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), v)
+	assert.Equal(t, string("1"), v)
 
 	// accessToken.UserID.Valid should be true
 	assert.True(t, accessToken.UserID.Valid)
 
-	// accessToken.UserID.Value() should return the object id, in this case int64(2)
+	// accessToken.UserID.Value() should return the object id, in this case string(2)
 	v, err = accessToken.UserID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(2), v)
+	assert.Equal(t, string("2"), v)
 }
 
 func TestNewRefreshToken(t *testing.T) {
 	var (
-		client       = &models.OauthClient{Model: gorm.Model{ID: 1}}
-		user         = &models.OauthUser{Model: gorm.Model{ID: 2}}
+		client       = &models.OauthClient{MyGormModel: models.MyGormModel{ID: "1"}}
+		user         = &models.OauthUser{MyGormModel: models.MyGormModel{ID: "2"}}
 		refreshToken *models.OauthRefreshToken
 		v            driver.Value
 		err          error
@@ -87,10 +86,10 @@ func TestNewRefreshToken(t *testing.T) {
 	// refreshToken.ClientID.Valid should be true
 	assert.True(t, refreshToken.ClientID.Valid)
 
-	// refreshToken.ClientID.Value() should return the object id, in this case int64(1)
+	// refreshToken.ClientID.Value() should return the object id, in this case string(1)
 	v, err = refreshToken.ClientID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), v)
+	assert.Equal(t, string("1"), v)
 
 	// refreshToken.UserID.Valid should be false
 	assert.False(t, refreshToken.UserID.Valid)
@@ -111,24 +110,24 @@ func TestNewRefreshToken(t *testing.T) {
 	// accessToken.ClientID.Valid should be true
 	assert.True(t, refreshToken.ClientID.Valid)
 
-	// accessToken.ClientID.Value() should return the object id, in this case int64(1)
+	// accessToken.ClientID.Value() should return the object id, in this case string(1)
 	v, err = refreshToken.ClientID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), v)
+	assert.Equal(t, string("1"), v)
 
 	// refreshToken.UserID.Valid should be true
 	assert.True(t, refreshToken.UserID.Valid)
 
-	// refreshToken.UserID.Value() should return the object id, in this case int64(2)
+	// refreshToken.UserID.Value() should return the object id, in this case string(2)
 	v, err = refreshToken.UserID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(2), v)
+	assert.Equal(t, string("2"), v)
 }
 
 func TestNewAuthorizationCode(t *testing.T) {
 	var (
-		client            = &models.OauthClient{Model: gorm.Model{ID: 1}}
-		user              = &models.OauthUser{Model: gorm.Model{ID: 2}}
+		client            = &models.OauthClient{MyGormModel: models.MyGormModel{ID: "1"}}
+		user              = &models.OauthUser{MyGormModel: models.MyGormModel{ID: "2"}}
 		authorizationCode *models.OauthAuthorizationCode
 		v                 driver.Value
 		err               error
@@ -146,16 +145,16 @@ func TestNewAuthorizationCode(t *testing.T) {
 	// authorizationCode.ClientID.Valid should be true
 	assert.True(t, authorizationCode.ClientID.Valid)
 
-	// authorizationCode.ClientID.Value() should return the object id, in this case int64(1)
+	// authorizationCode.ClientID.Value() should return the object id, in this case string(1)
 	v, err = authorizationCode.ClientID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(1), v)
+	assert.Equal(t, string("1"), v)
 
 	// authorizationCode.UserID.Valid should be true
 	assert.True(t, authorizationCode.UserID.Valid)
 
-	// authorizationCode.UserID.Value() should return the object id, in this case int64(2)
+	// authorizationCode.UserID.Value() should return the object id, in this case string(2)
 	v, err = authorizationCode.UserID.Value()
 	assert.Nil(t, err)
-	assert.Equal(t, int64(2), v)
+	assert.Equal(t, string("2"), v)
 }

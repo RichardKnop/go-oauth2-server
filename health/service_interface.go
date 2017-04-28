@@ -10,4 +10,5 @@ type ServiceInterface interface {
 	// Exported methods
 	GetRoutes() []routes.Route
 	RegisterRoutes(router *mux.Router, prefix string)
+	Close()
 }

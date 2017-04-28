@@ -33,7 +33,8 @@ func newGuestMiddleware(service ServiceInterface) *guestMiddleware {
 // ServeHTTP as per the negroni.Handler interface
 func (m *guestMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	// Initialise the session service
-	sessionService := session.NewService(m.service.GetConfig(), r, w)
+	m.service.setSessionService(r, w)
+	sessionService := m.service.GetSessionService()
 
 	// Attempt to start the session
 	if err := sessionService.StartSession(); err != nil {
@@ -59,7 +60,8 @@ func newLoggedInMiddleware(service ServiceInterface) *loggedInMiddleware {
 // ServeHTTP as per the negroni.Handler interface
 func (m *loggedInMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 	// Initialise the session service
-	sessionService := session.NewService(m.service.GetConfig(), r, w)
+	m.service.setSessionService(r, w)
+	sessionService := m.service.GetSessionService()
 
 	// Attempt to start the session
 	if err := sessionService.StartSession(); err != nil {

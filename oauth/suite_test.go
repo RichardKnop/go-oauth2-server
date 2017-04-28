@@ -67,13 +67,13 @@ func (suite *OauthTestSuite) SetupSuite() {
 
 	// Fetch test client
 	suite.clients = make([]*models.OauthClient, 0)
-	if err := suite.db.Order("id").Find(&suite.clients).Error; err != nil {
+	if err := suite.db.Order("created_at").Find(&suite.clients).Error; err != nil {
 		log.Fatal(err)
 	}
 
 	// Fetch test users
 	suite.users = make([]*models.OauthUser, 0)
-	if err := suite.db.Order("id").Find(&suite.users).Error; err != nil {
+	if err := suite.db.Order("created_at").Find(&suite.users).Error; err != nil {
 		log.Fatal(err)
 	}
 
@@ -103,8 +103,8 @@ func (suite *OauthTestSuite) TearDownTest() {
 	suite.db.Unscoped().Delete(new(models.OauthAuthorizationCode))
 	suite.db.Unscoped().Delete(new(models.OauthRefreshToken))
 	suite.db.Unscoped().Delete(new(models.OauthAccessToken))
-	suite.db.Unscoped().Not("id", []int64{1, 2}).Delete(new(models.OauthUser))
-	suite.db.Unscoped().Not("id", []int64{1, 2, 3}).Delete(new(models.OauthClient))
+	suite.db.Unscoped().Not("id", []string{"1", "2"}).Delete(new(models.OauthUser))
+	suite.db.Unscoped().Not("id", []string{"1", "2", "3"}).Delete(new(models.OauthClient))
 }
 
 // TestOauthTestSuite ...

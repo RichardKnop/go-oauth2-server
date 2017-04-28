@@ -1,11 +1,14 @@
 package oauth_test
 
 import (
+	"time"
+
 	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
 	"github.com/RichardKnop/go-oauth2-server/util"
 	pass "github.com/RichardKnop/go-oauth2-server/util/password"
+	"github.com/RichardKnop/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -179,6 +182,10 @@ func (suite *OauthTestSuite) TestSetPassword() {
 
 	// Insert a test user without a password
 	user = &models.OauthUser{
+		MyGormModel: models.MyGormModel{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		RoleID:   util.StringOrNull(roles.User),
 		Username: "test@user_nopass",
 		Password: util.StringOrNull(""),
@@ -213,6 +220,10 @@ func (suite *OauthTestSuite) TestAuthUser() {
 
 	// Insert a test user without a password
 	err = suite.db.Create(&models.OauthUser{
+		MyGormModel: models.MyGormModel{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		RoleID:   util.StringOrNull(roles.User),
 		Username: "test@user_nopass",
 		Password: util.StringOrNull(""),

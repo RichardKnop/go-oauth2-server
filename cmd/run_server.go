@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/RichardKnop/go-oauth2-server/services"
 	"github.com/gorilla/mux"
 	"github.com/phyber/negroni-gzip/gzip"
 	"github.com/urfave/negroni"
@@ -17,9 +18,12 @@ func RunServer(configBackend string) error {
 		return err
 	}
 	defer db.Close()
-	if err := initServices(cnf, db); err != nil {
+
+	// start the services
+	if err := services.Init(cnf, db); err != nil {
 		return err
 	}
+	defer services.Close()
 
 	// Start a classic negroni app
 	app := negroni.New()
@@ -32,9 +36,9 @@ func RunServer(configBackend string) error {
 	router := mux.NewRouter()
 
 	// Add routes
-	healthService.RegisterRoutes(router, "/v1")
-	oauthService.RegisterRoutes(router, "/v1/oauth")
-	webService.RegisterRoutes(router, "/web")
+	services.HealthService.RegisterRoutes(router, "/v1")
+	services.OauthService.RegisterRoutes(router, "/v1/oauth")
+	services.WebService.RegisterRoutes(router, "/web")
 
 	// Set the router
 	app.UseHandler(router)

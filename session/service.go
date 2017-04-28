@@ -40,20 +40,24 @@ func init() {
 	gob.Register(new(UserSession))
 }
 
-// NewService starts a new Service instance
-func NewService(cnf *config.Config, r *http.Request, w http.ResponseWriter) *Service {
+// NewService returns a new Service instance
+func NewService(cnf *config.Config, sessionStore sessions.Store) *Service {
 	return &Service{
 		// Session cookie storage
-		sessionStore: sessions.NewCookieStore([]byte(cnf.Session.Secret)),
+		sessionStore: sessionStore,
 		// Session options
 		sessionOptions: &sessions.Options{
 			Path:     cnf.Session.Path,
 			MaxAge:   cnf.Session.MaxAge,
 			HttpOnly: cnf.Session.HTTPOnly,
 		},
-		r: r,
-		w: w,
 	}
+}
+
+// SetSessionService sets the request and responseWriter on the session service
+func (s *Service) SetSessionService(r *http.Request, w http.ResponseWriter) {
+	s.r = r
+	s.w = w
 }
 
 // StartSession starts a new session. This method must be called before other
@@ -137,3 +141,6 @@ func (s *Service) GetFlashMessage() (interface{}, error) {
 	// No flash messages in the stack
 	return nil, nil
 }
+
+// Close stops any running services
+func (s *Service) Close() {}

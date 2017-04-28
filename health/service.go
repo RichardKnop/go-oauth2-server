@@ -9,7 +9,10 @@ type Service struct {
 	db *gorm.DB
 }
 
-// NewService starts a new Service instance
+// NewService returns a new Service instance
 func NewService(db *gorm.DB) *Service {
 	return &Service{db: db}
 }
+
+// Close stops any running services
+func (s *Service) Close() {}

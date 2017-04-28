@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/RichardKnop/go-oauth2-server/session"
 	"github.com/jinzhu/gorm"
 )
 
@@ -32,9 +33,9 @@ func (s *Service) Authenticate(token string) (*models.OauthAccessToken, error) {
 	}
 
 	// Extend refresh token expiration database
-	query := s.db.Model(new(models.OauthRefreshToken)).Where("client_id = ?", accessToken.ClientID.Int64)
+	query := s.db.Model(new(models.OauthRefreshToken)).Where("client_id = ?", accessToken.ClientID.String)
 	if accessToken.UserID.Valid {
-		query = query.Where("user_id = ?", accessToken.UserID.Int64)
+		query = query.Where("user_id = ?", accessToken.UserID.String)
 	} else {
 		query = query.Where("user_id IS NULL")
 	}
@@ -46,4 +47,21 @@ func (s *Service) Authenticate(token string) (*models.OauthAccessToken, error) {
 	}
 
 	return accessToken, nil
+}
+
+// ClearUserTokens deletes the user's access and refresh tokens associated with this client id
+func (s *Service) ClearUserTokens(userSession *session.UserSession) {
+	// Clear all refresh tokens with user_id and client_id
+	refreshToken := new(models.OauthRefreshToken)
+	found := !models.OauthRefreshTokenPreload(s.db).Where("token = ?", userSession.RefreshToken).First(refreshToken).RecordNotFound()
+	if found {
+		s.db.Unscoped().Where("client_id = ? AND user_id = ?", refreshToken.ClientID, refreshToken.UserID).Delete(models.OauthRefreshToken{})
+	}
+
+	// Clear all access tokens with user_id and client_id
+	accessToken := new(models.OauthAccessToken)
+	found = !models.OauthAccessTokenPreload(s.db).Where("token = ?", userSession.AccessToken).First(accessToken).RecordNotFound()
+	if found {
+		s.db.Unscoped().Where("client_id = ? AND user_id = ?", accessToken.ClientID, accessToken.UserID).Delete(models.OauthAccessToken{})
+	}
 }

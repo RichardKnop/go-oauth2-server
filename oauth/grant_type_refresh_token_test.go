@@ -10,6 +10,7 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
 	"github.com/RichardKnop/go-oauth2-server/test-util"
+	"github.com/RichardKnop/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -62,6 +63,10 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantBogusNotFound() {
 func (suite *OauthTestSuite) TestRefreshTokenGrantExipired() {
 	// Insert a test refresh token
 	err := suite.db.Create(&models.OauthRefreshToken{
+		MyGormModel: models.MyGormModel{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(-10 * time.Second),
 		Client:    suite.clients[0],
@@ -96,6 +101,10 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantExipired() {
 func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 	// Insert a test refresh token
 	err := suite.db.Create(&models.OauthRefreshToken{
+		MyGormModel: models.MyGormModel{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -130,6 +139,10 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantScopeCannotBeGreater() {
 func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 	// Insert a test refresh token
 	err := suite.db.Create(&models.OauthRefreshToken{
+		MyGormModel: models.MyGormModel{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],
@@ -171,6 +184,10 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 	// Insert a test refresh token
 	err := suite.db.Create(&models.OauthRefreshToken{
+		MyGormModel: models.MyGormModel{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
 		Token:     "test_token",
 		ExpiresAt: time.Now().UTC().Add(+10 * time.Second),
 		Client:    suite.clients[0],

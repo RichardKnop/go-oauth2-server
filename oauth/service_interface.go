@@ -3,6 +3,7 @@ package oauth
 import (
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/RichardKnop/go-oauth2-server/session"
 	"github.com/RichardKnop/go-oauth2-server/util/routes"
 	"github.com/gorilla/mux"
 	"github.com/jinzhu/gorm"
@@ -14,6 +15,7 @@ type ServiceInterface interface {
 	GetConfig() *config.Config
 	RestrictToRoles(allowedRoles ...string)
 	IsRoleAllowed(role string) bool
+	FindRoleByID(id string) (*models.OauthRole, error)
 	GetRoutes() []routes.Route
 	RegisterRoutes(router *mux.Router, prefix string)
 	ClientExists(clientID string) bool
@@ -31,6 +33,8 @@ type ServiceInterface interface {
 	UpdateUsernameTx(db *gorm.DB, user *models.OauthUser, username string) error
 	AuthUser(username, thePassword string) (*models.OauthUser, error)
 	GetScope(requestedScope string) (string, error)
+	GetDefaultScope() string
+	ScopeExists(requestedScope string) bool
 	Login(client *models.OauthClient, user *models.OauthUser, scope string) (*models.OauthAccessToken, *models.OauthRefreshToken, error)
 	GrantAuthorizationCode(client *models.OauthClient, user *models.OauthUser, expiresIn int, redirectURI, scope string) (*models.OauthAuthorizationCode, error)
 	GrantAccessToken(client *models.OauthClient, user *models.OauthUser, expiresIn int, scope string) (*models.OauthAccessToken, error)
@@ -39,4 +43,6 @@ type ServiceInterface interface {
 	Authenticate(token string) (*models.OauthAccessToken, error)
 	NewIntrospectResponseFromAccessToken(accessToken *models.OauthAccessToken) (*IntrospectResponse, error)
 	NewIntrospectResponseFromRefreshToken(refreshToken *models.OauthRefreshToken) (*IntrospectResponse, error)
+	ClearUserTokens(userSession *session.UserSession)
+	Close()
 }

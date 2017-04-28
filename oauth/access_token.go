@@ -13,7 +13,7 @@ func (s *Service) GrantAccessToken(client *models.OauthClient, user *models.Oaut
 
 	// Delete expired access tokens
 	query := tx.Unscoped().Where("client_id = ?", client.ID)
-	if user != nil && user.ID > 0 {
+	if user != nil && len([]rune(user.ID)) > 0 {
 		query = query.Where("user_id = ?", user.ID)
 	} else {
 		query = query.Where("user_id IS NULL")
