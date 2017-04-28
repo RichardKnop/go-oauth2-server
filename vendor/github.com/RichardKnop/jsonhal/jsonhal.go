@@ -20,6 +20,26 @@ type Link struct {
 // Embedded represents a resource in "_embedded" object
 type Embedded interface{}
 
+// EmbedSetter is the interface that wraps the basic setEmbedded method.
+//
+// SetEmbedded adds a slice of objects under a named key in the embedded map
+type EmbedSetter interface {
+	SetEmbedded(name string, embedded Embedded)
+}
+
+// EmbedGetter is the interface that wraps the basic getEmbedded method.
+//
+// GetEmbedded returns a slice of embedded resources by name or error
+type EmbedGetter interface {
+	GetEmbedded(name string) (Embedded, error)
+}
+
+// Embedder is the interface that wraps the basic setEmbedded and getEmbedded methods.
+type Embedder interface {
+	EmbedSetter
+	EmbedGetter
+}
+
 // Hal is used for composition, include it as anonymous field in your structs
 type Hal struct {
 	Links    map[string]*Link    `json:"_links,omitempty"`
@@ -32,6 +52,13 @@ func (h *Hal) SetLink(name, href, title string) {
 		h.Links = make(map[string]*Link, 0)
 	}
 	h.Links[name] = &Link{Href: href, Title: title}
+}
+
+// DeleteLink removes a link named name if it is found
+func (h *Hal) DeleteLink(name string) {
+	if h.Links != nil {
+		delete(h.Links, name)
+	}
 }
 
 // GetLink returns a link by name or error
@@ -85,4 +112,11 @@ func (h *Hal) DecodeEmbedded(name string, result interface{}) error {
 		return err
 	}
 	return mapstructure.Decode(interface{}(e), result)
+}
+
+// DeleteEmbedded removes an embedded resource named name if it is found
+func (h *Hal) DeleteEmbedded(name string) {
+	if h.Embedded != nil {
+		delete(h.Embedded, name)
+	}
 }

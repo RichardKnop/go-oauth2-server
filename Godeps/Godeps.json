@@ -12,7 +12,7 @@
 		},
 		{
 			"ImportPath": "github.com/RichardKnop/jsonhal",
-			"Rev": "51961047a401d68724b01ba49ae2c86da503de4f"
+			"Rev": "c338b7f302554e0a0430c3e8e4c25386a6cd0442"
 		},
 		{
 			"ImportPath": "github.com/RichardKnop/logging",
