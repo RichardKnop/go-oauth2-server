@@ -1,6 +1,4 @@
 .bash_profile
-etcd-data
-postgres-data
 Makefile
 *.MD
 LICENSE
