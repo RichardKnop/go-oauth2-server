@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 # to make sure etcd is ready (election ended and leader elected)
 while ! etcdctl endpoint health &>/dev/null; do :; done
 

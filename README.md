@@ -627,7 +627,7 @@ You can use [docker-compose](https://docs.docker.com/compose/) to start the app,
 docker-compose up
 ```
 
-During up process all configuration and fixtures will be loaded. After successful up you can check, that app is running using for example the health check request:
+During `docker-compose up` process all configuration and fixtures will be loaded. After successful up you can check, that app is running using for example the health check request:
 
 ```sh
 curl --compressed -v localhost:8080/v1/health

@@ -1,15 +1,19 @@
-#!/bin/bash
+#!/bin/sh
+
 set -e
 
-last=$({
-  shift $(($#-1))
-  echo $1
-})
+executable="go-oauth2-server"
+cmd="$@"
 
-if [ "$last" = 'runserver' ]; then
-  $1 migrate
-  $1 loaddata oauth/fixtures/scopes.yml
-  $1 loaddata oauth/fixtures/roles.yml
+if [ "$1" = 'runserver' ] || [ "$1" = 'loaddata' ]; then
+  until $executable migrate; do
+    >&2 echo "Postgres is unavailable - sleeping"
+    sleep 1
+  done
+
+  $executable loaddata oauth/fixtures/scopes.yml
+  $executable loaddata oauth/fixtures/roles.yml
 fi
 
-exec "$@"
+>&2 echo "Postgres is up - executing command: $cmd"
+exec $executable $cmd
