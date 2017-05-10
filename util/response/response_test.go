@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/RichardKnop/go-oauth2-server/util/response"
 )
 
 func TestWriteJSON(t *testing.T) {
@@ -15,7 +16,7 @@ func TestWriteJSON(t *testing.T) {
 		"foo": "bar",
 		"qux": 1,
 	}
-	WriteJSON(w, obj, 201)
+	response.WriteJSON(w, obj, 201)
 
 	assert.Equal(t, 201, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
@@ -25,7 +26,7 @@ func TestWriteJSON(t *testing.T) {
 
 func TestNoContent(t *testing.T) {
 	w := httptest.NewRecorder()
-	NoContent(w)
+	response.NoContent(w)
 
 	assert.Equal(t, 204, w.Code)
 	assert.Equal(t, "", strings.TrimSpace(w.Body.String()))
@@ -33,7 +34,7 @@ func TestNoContent(t *testing.T) {
 
 func TestError(t *testing.T) {
 	w := httptest.NewRecorder()
-	Error(w, "something went wrong", 500)
+	response.Error(w, "something went wrong", 500)
 
 	assert.Equal(t, 500, w.Code)
 	assert.Equal(t, "application/json; charset=utf-8", w.Header().Get("Content-Type"))
