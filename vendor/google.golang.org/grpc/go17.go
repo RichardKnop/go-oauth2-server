@@ -1,6 +1,7 @@
+// +build go1.7
+
 /*
- *
- * Copyright 2014, Google Inc.
+ * Copyright 2016, Google Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -31,36 +32,24 @@
  *
  */
 
-// Package peer defines various peer information associated with RPCs and
-// corresponding utils.
-package peer
+package grpc
 
 import (
 	"net"
+	"net/http"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc/credentials"
 )
 
-// Peer contains the information of the peer for an RPC, such as the address
-// and authentication information.
-type Peer struct {
-	// Addr is the peer address.
-	Addr net.Addr
-	// AuthInfo is the authentication information of the transport.
-	// It is nil if there is no transport security being used.
-	AuthInfo credentials.AuthInfo
+// dialContext connects to the address on the named network.
+func dialContext(ctx context.Context, network, address string) (net.Conn, error) {
+	return (&net.Dialer{}).DialContext(ctx, network, address)
 }
 
-type peerKey struct{}
-
-// NewContext creates a new context with peer information attached.
-func NewContext(ctx context.Context, p *Peer) context.Context {
-	return context.WithValue(ctx, peerKey{}, p)
-}
-
-// FromContext returns the peer information in ctx if it exists.
-func FromContext(ctx context.Context) (p *Peer, ok bool) {
-	p, ok = ctx.Value(peerKey{}).(*Peer)
-	return
+func sendHTTPRequest(ctx context.Context, req *http.Request, conn net.Conn) error {
+	req = req.WithContext(ctx)
+	if err := req.Write(conn); err != nil {
+		return err
+	}
+	return nil
 }

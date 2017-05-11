@@ -110,6 +110,8 @@ type http2Client struct {
 
 	statsHandler stats.Handler
 
+	initialWindowSize int32
+
 	mu            sync.Mutex     // guard the following variables
 	state         transportState // the state of underlying connection
 	activeStreams map[uint32]*Stream
@@ -198,6 +200,10 @@ func newHTTP2Client(ctx context.Context, addr TargetInfo, opts ConnectOptions) (
 	if kp.Timeout == 0 {
 		kp.Timeout = defaultClientKeepaliveTimeout
 	}
+	icwz := int32(initialConnWindowSize)
+	if opts.InitialConnWindowSize >= defaultWindowSize {
+		icwz = opts.InitialConnWindowSize
+	}
 	var buf bytes.Buffer
 	t := &http2Client{
 		ctx:        ctx,
@@ -209,27 +215,31 @@ func newHTTP2Client(ctx context.Context, addr TargetInfo, opts ConnectOptions) (
 		localAddr:  conn.LocalAddr(),
 		authInfo:   authInfo,
 		// The client initiated stream id is odd starting from 1.
-		nextID:          1,
-		writableChan:    make(chan int, 1),
-		shutdownChan:    make(chan struct{}),
-		errorChan:       make(chan struct{}),
-		goAway:          make(chan struct{}),
-		awakenKeepalive: make(chan struct{}, 1),
-		framer:          newFramer(conn),
-		hBuf:            &buf,
-		hEnc:            hpack.NewEncoder(&buf),
-		controlBuf:      newRecvBuffer(),
-		fc:              &inFlow{limit: initialConnWindowSize},
-		sendQuotaPool:   newQuotaPool(defaultWindowSize),
-		scheme:          scheme,
-		state:           reachable,
-		activeStreams:   make(map[uint32]*Stream),
-		creds:           opts.PerRPCCredentials,
-		maxStreams:      defaultMaxStreamsClient,
-		streamsQuota:    newQuotaPool(defaultMaxStreamsClient),
-		streamSendQuota: defaultWindowSize,
-		kp:              kp,
-		statsHandler:    opts.StatsHandler,
+		nextID:            1,
+		writableChan:      make(chan int, 1),
+		shutdownChan:      make(chan struct{}),
+		errorChan:         make(chan struct{}),
+		goAway:            make(chan struct{}),
+		awakenKeepalive:   make(chan struct{}, 1),
+		framer:            newFramer(conn),
+		hBuf:              &buf,
+		hEnc:              hpack.NewEncoder(&buf),
+		controlBuf:        newRecvBuffer(),
+		fc:                &inFlow{limit: uint32(icwz)},
+		sendQuotaPool:     newQuotaPool(defaultWindowSize),
+		scheme:            scheme,
+		state:             reachable,
+		activeStreams:     make(map[uint32]*Stream),
+		creds:             opts.PerRPCCredentials,
+		maxStreams:        defaultMaxStreamsClient,
+		streamsQuota:      newQuotaPool(defaultMaxStreamsClient),
+		streamSendQuota:   defaultWindowSize,
+		kp:                kp,
+		statsHandler:      opts.StatsHandler,
+		initialWindowSize: initialWindowSize,
+	}
+	if opts.InitialWindowSize >= defaultWindowSize {
+		t.initialWindowSize = opts.InitialWindowSize
 	}
 	// Make sure awakenKeepalive can't be written upon.
 	// keepalive routine will make it writable, if need be.
@@ -258,10 +268,10 @@ func newHTTP2Client(ctx context.Context, addr TargetInfo, opts ConnectOptions) (
 		t.Close()
 		return nil, connectionErrorf(true, err, "transport: preface mismatch, wrote %d bytes; want %d", n, len(clientPreface))
 	}
-	if initialWindowSize != defaultWindowSize {
+	if t.initialWindowSize != defaultWindowSize {
 		err = t.framer.writeSettings(true, http2.Setting{
 			ID:  http2.SettingInitialWindowSize,
-			Val: uint32(initialWindowSize),
+			Val: uint32(t.initialWindowSize),
 		})
 	} else {
 		err = t.framer.writeSettings(true)
@@ -271,7 +281,7 @@ func newHTTP2Client(ctx context.Context, addr TargetInfo, opts ConnectOptions) (
 		return nil, connectionErrorf(true, err, "transport: %v", err)
 	}
 	// Adjust the connection flow control window if needed.
-	if delta := uint32(initialConnWindowSize - defaultWindowSize); delta > 0 {
+	if delta := uint32(icwz - defaultWindowSize); delta > 0 {
 		if err := t.framer.writeWindowUpdate(true, 0, delta); err != nil {
 			t.Close()
 			return nil, connectionErrorf(true, err, "transport: %v", err)
@@ -294,7 +304,7 @@ func (t *http2Client) newStream(ctx context.Context, callHdr *CallHdr) *Stream {
 		method:        callHdr.Method,
 		sendCompress:  callHdr.SendCompress,
 		buf:           newRecvBuffer(),
-		fc:            &inFlow{limit: initialWindowSize},
+		fc:            &inFlow{limit: uint32(t.initialWindowSize)},
 		sendQuotaPool: newQuotaPool(int(t.streamSendQuota)),
 		headerChan:    make(chan struct{}),
 	}
@@ -324,7 +334,6 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 	if t.authInfo != nil {
 		pr.AuthInfo = t.authInfo
 	}
-	userCtx := ctx
 	ctx = peer.NewContext(ctx, pr)
 	authData := make(map[string]string)
 	for _, c := range t.creds {
@@ -391,7 +400,6 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 		return nil, ErrConnClosing
 	}
 	s := t.newStream(ctx, callHdr)
-	s.clientStatsCtx = userCtx
 	t.activeStreams[s.id] = s
 	// If the number of active streams change from 0 to 1, then check if keepalive
 	// has gone dormant. If so, wake it up.
@@ -437,23 +445,23 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 	)
 	if md, ok := metadata.FromOutgoingContext(ctx); ok {
 		hasMD = true
-		for k, v := range md {
+		for k, vv := range md {
 			// HTTP doesn't allow you to set pseudoheaders after non pseudoheaders were set.
 			if isReservedHeader(k) {
 				continue
 			}
-			for _, entry := range v {
-				t.hEnc.WriteField(hpack.HeaderField{Name: k, Value: entry})
+			for _, v := range vv {
+				t.hEnc.WriteField(hpack.HeaderField{Name: k, Value: encodeMetadataHeader(k, v)})
 			}
 		}
 	}
 	if md, ok := t.md.(*metadata.MD); ok {
-		for k, v := range *md {
+		for k, vv := range *md {
 			if isReservedHeader(k) {
 				continue
 			}
-			for _, entry := range v {
-				t.hEnc.WriteField(hpack.HeaderField{Name: k, Value: entry})
+			for _, v := range vv {
+				t.hEnc.WriteField(hpack.HeaderField{Name: k, Value: encodeMetadataHeader(k, v)})
 			}
 		}
 	}
@@ -493,6 +501,8 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 			return nil, connectionErrorf(true, err, "transport: %v", err)
 		}
 	}
+	s.bytesSent = true
+
 	if t.statsHandler != nil {
 		outHeader := &stats.OutHeader{
 			Client:      true,
@@ -502,7 +512,7 @@ func (t *http2Client) NewStream(ctx context.Context, callHdr *CallHdr) (_ *Strea
 			LocalAddr:   t.localAddr,
 			Compression: callHdr.SendCompress,
 		}
-		t.statsHandler.HandleRPC(s.clientStatsCtx, outHeader)
+		t.statsHandler.HandleRPC(s.ctx, outHeader)
 	}
 	t.writableChan <- 0
 	return s, nil
@@ -790,11 +800,6 @@ func (t *http2Client) handleData(f *http2.DataFrame) {
 		return
 	}
 	if size > 0 {
-		if f.Header().Flags.Has(http2.FlagDataPadded) {
-			if w := t.fc.onRead(uint32(size) - uint32(len(f.Data()))); w > 0 {
-				t.controlBuf.put(&windowUpdate{0, w})
-			}
-		}
 		s.mu.Lock()
 		if s.state == streamDone {
 			s.mu.Unlock()
@@ -813,6 +818,9 @@ func (t *http2Client) handleData(f *http2.DataFrame) {
 			return
 		}
 		if f.Header().Flags.Has(http2.FlagDataPadded) {
+			if w := t.fc.onRead(uint32(size) - uint32(len(f.Data()))); w > 0 {
+				t.controlBuf.put(&windowUpdate{0, w})
+			}
 			if w := s.fc.onRead(uint32(size) - uint32(len(f.Data()))); w > 0 {
 				t.controlBuf.put(&windowUpdate{s.id, w})
 			}
@@ -958,6 +966,7 @@ func (t *http2Client) operateHeaders(frame *http2.MetaHeadersFrame) {
 	if !ok {
 		return
 	}
+	s.bytesReceived = true
 	var state decodeState
 	for _, hf := range frame.Fields {
 		if err := state.processHeaderField(hf); err != nil {
@@ -982,13 +991,13 @@ func (t *http2Client) operateHeaders(frame *http2.MetaHeadersFrame) {
 					Client:     true,
 					WireLength: int(frame.Header().Length),
 				}
-				t.statsHandler.HandleRPC(s.clientStatsCtx, inHeader)
+				t.statsHandler.HandleRPC(s.ctx, inHeader)
 			} else {
 				inTrailer := &stats.InTrailer{
 					Client:     true,
 					WireLength: int(frame.Header().Length),
 				}
-				t.statsHandler.HandleRPC(s.clientStatsCtx, inTrailer)
+				t.statsHandler.HandleRPC(s.ctx, inTrailer)
 			}
 		}
 	}()

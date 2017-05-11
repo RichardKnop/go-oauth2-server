@@ -151,26 +151,27 @@ func newClientStream(ctx context.Context, desc *StreamDesc, cc *ClientConn, meth
 			}
 		}()
 	}
+	ctx = newContextWithRPCInfo(ctx)
 	sh := cc.dopts.copts.StatsHandler
 	if sh != nil {
-		ctx = sh.TagRPC(ctx, &stats.RPCTagInfo{FullMethodName: method})
+		ctx = sh.TagRPC(ctx, &stats.RPCTagInfo{FullMethodName: method, FailFast: c.failFast})
 		begin := &stats.Begin{
 			Client:    true,
 			BeginTime: time.Now(),
 			FailFast:  c.failFast,
 		}
 		sh.HandleRPC(ctx, begin)
-	}
-	defer func() {
-		if err != nil && sh != nil {
-			// Only handle end stats if err != nil.
-			end := &stats.End{
-				Client: true,
-				Error:  err,
+		defer func() {
+			if err != nil {
+				// Only handle end stats if err != nil.
+				end := &stats.End{
+					Client: true,
+					Error:  err,
+				}
+				sh.HandleRPC(ctx, end)
 			}
-			sh.HandleRPC(ctx, end)
-		}
-	}()
+		}()
+	}
 	gopts := BalancerGetOptions{
 		BlockingWait: !c.failFast,
 	}
@@ -193,14 +194,17 @@ func newClientStream(ctx context.Context, desc *StreamDesc, cc *ClientConn, meth
 
 		s, err = t.NewStream(ctx, callHdr)
 		if err != nil {
+			if _, ok := err.(transport.ConnectionError); ok && put != nil {
+				// If error is connection error, transport was sending data on wire,
+				// and we are not sure if anything has been sent on wire.
+				// If error is not connection error, we are sure nothing has been sent.
+				updateRPCInfoInContext(ctx, rpcInfo{bytesSent: true, bytesReceived: false})
+			}
 			if put != nil {
 				put()
 				put = nil
 			}
-			if _, ok := err.(transport.ConnectionError); ok || err == transport.ErrStreamDrain {
-				if c.failFast {
-					return nil, toRPCErr(err)
-				}
+			if _, ok := err.(transport.ConnectionError); (ok || err == transport.ErrStreamDrain) && !c.failFast {
 				continue
 			}
 			return nil, toRPCErr(err)
@@ -237,6 +241,9 @@ func newClientStream(ctx context.Context, desc *StreamDesc, cc *ClientConn, meth
 		select {
 		case <-t.Error():
 			// Incur transport error, simply exit.
+		case <-cc.ctx.Done():
+			cs.finish(ErrClientConnClosing)
+			cs.closeTransportStream(ErrClientConnClosing)
 		case <-s.Done():
 			// TODO: The trace of the RPC is terminated here when there is no pending
 			// I/O, which is probably not the optimal solution.
@@ -460,6 +467,10 @@ func (cs *clientStream) finish(err error) {
 		o.after(&cs.c)
 	}
 	if cs.put != nil {
+		updateRPCInfoInContext(cs.s.Context(), rpcInfo{
+			bytesSent:     cs.s.BytesSent(),
+			bytesReceived: cs.s.BytesReceived(),
+		})
 		cs.put()
 		cs.put = nil
 	}

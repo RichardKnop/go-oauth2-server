@@ -1,6 +1,6 @@
 [![Codeship Status for RichardKnop/go-fixtures](https://codeship.com/projects/2972d6c0-37b3-0134-ffd1-02b643534a44/status?branch=master)](https://codeship.com/projects/165845)
 
-[![GoDoc](https://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/RichardKnop/go-fixtures)
+[![GoDoc](https://godoc.org/github.com/nathany/looper?status.svg)](http://godoc.org/github.com/RichardKnop/go-fixtures)
 [![Travis Status for RichardKnop/go-fixtures](https://travis-ci.org/RichardKnop/go-fixtures.svg?branch=master)](https://travis-ci.org/RichardKnop/go-fixtures)
 
 # go-fixtures

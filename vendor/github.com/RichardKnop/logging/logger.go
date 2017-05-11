@@ -31,7 +31,7 @@ var prefix = map[level]string{
 }
 
 // Logger ...
-type Logger map[level]*Wrapper
+type Logger map[level]LoggerInterface
 
 // New returns instance of Logger
 func New(out, errOut io.Writer, f Formatter) Logger {
@@ -50,7 +50,7 @@ func New(out, errOut io.Writer, f Formatter) Logger {
 		f = new(DefaultFormatter)
 	}
 
-	l := make(map[level]*Wrapper, 4)
+	l := make(map[level]LoggerInterface, 4)
 	l[INFO] = &Wrapper{lvl: INFO, formatter: f, logger: log.New(out, f.GetPrefix(INFO)+prefix[INFO], flag)}
 	l[WARNING] = &Wrapper{lvl: INFO, formatter: f, logger: log.New(out, f.GetPrefix(WARNING)+prefix[WARNING], flag)}
 	l[ERROR] = &Wrapper{lvl: INFO, formatter: f, logger: log.New(errOut, f.GetPrefix(ERROR)+prefix[ERROR], flag)}
