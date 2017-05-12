@@ -87,8 +87,8 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/sessions",
-			"Comment": "v1.1-5-gba78acc",
-			"Rev": "ba78acc856fe7c79891d516131b3d903cc8d9367"
+			"Comment": "v1.1-6-g8b6b4cd",
+			"Rev": "8b6b4cd75f07f7ee036eb37b8127bd40ab1efc49"
 		},
 		{
 			"ImportPath": "github.com/hashicorp/consul/api",
@@ -175,13 +175,13 @@
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",
-			"Comment": "v1.19.1-34-gab403a5",
-			"Rev": "ab403a54a148f2d857920810291539e1f817ee7b"
+			"Comment": "v1.19.1-36-gd70f47e",
+			"Rev": "d70f47eeca3afd795160003bc6e28b001d60c67c"
 		},
 		{
 			"ImportPath": "github.com/urfave/negroni",
-			"Comment": "v0.2.0-106-g490e6a5",
-			"Rev": "490e6a555d47ca891a89a150d0c1ef3922dfffe9"
+			"Comment": "v0.2.0-115-g1d8981a",
+			"Rev": "1d8981a52d6bda4467a9faacf3fdddd38222dfc4"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",
