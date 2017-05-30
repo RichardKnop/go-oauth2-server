@@ -2,6 +2,7 @@
 
 [![GoDoc](https://godoc.org/github.com/nathany/looper?status.svg)](http://godoc.org/github.com/RichardKnop/go-fixtures)
 [![Travis Status for RichardKnop/go-fixtures](https://travis-ci.org/RichardKnop/go-fixtures.svg?branch=master)](https://travis-ci.org/RichardKnop/go-fixtures)
+[![Donate Bitcoin](https://img.shields.io/badge/donate-bitcoin-orange.svg)](https://richardknop.github.io/donate/)
 
 # go-fixtures
 

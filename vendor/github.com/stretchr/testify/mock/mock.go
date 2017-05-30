@@ -141,7 +141,7 @@ func (c *Call) After(d time.Duration) *Call {
 //    	arg := args.Get(0).(*map[string]interface{})
 //    	arg["foo"] = "bar"
 //    })
-func (c *Call) Run(fn func(Arguments)) *Call {
+func (c *Call) Run(fn func(args Arguments)) *Call {
 	c.lock()
 	defer c.unlock()
 	c.RunFn = fn
@@ -514,7 +514,7 @@ func (f argumentMatcher) String() string {
 //
 // |fn|, must be a function accepting a single argument (of the expected type)
 // which returns a bool. If |fn| doesn't match the required signature,
-// MathedBy() panics.
+// MatchedBy() panics.
 func MatchedBy(fn interface{}) argumentMatcher {
 	fnType := reflect.TypeOf(fn)
 
@@ -715,6 +715,10 @@ func typeAndKind(v interface{}) (reflect.Type, reflect.Kind) {
 }
 
 func diffArguments(expected Arguments, actual Arguments) string {
+	if len(expected) != len(actual) {
+		return fmt.Sprintf("Provided %v arguments, mocked for %v arguments", len(expected), len(actual))
+	}
+
 	for x := range expected {
 		if diffString := diff(expected[x], actual[x]); diffString != "" {
 			return fmt.Sprintf("Difference found in argument %v:\n\n%s", x, diffString)
