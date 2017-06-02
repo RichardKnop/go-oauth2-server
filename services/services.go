@@ -19,13 +19,13 @@ func init() {
 var (
 	// HealthService ...
 	HealthService health.ServiceInterface
-	
+
 	// OauthService ...
 	OauthService oauth.ServiceInterface
-	
+
 	// WebService ...
 	WebService web.ServiceInterface
-	
+
 	// SessionService ...
 	SessionService session.ServiceInterface
 )
