@@ -27,7 +27,7 @@ func renderTemplate(w http.ResponseWriter, name string, data map[string]interfac
 		return fmt.Errorf("The template %s does not exist", name)
 	}
 
-	// Create a buffer to temporarily write to and check if any errors were encounted.
+	// Create a buffer to temporarily write to and check if any errors were encountered.
 	buf := bufpool.Get()
 	defer bufpool.Put(buf)
 
@@ -57,11 +57,11 @@ func loadTemplates() {
 	bufpool = bpool.NewBufferPool(64)
 
 	layoutTemplates := map[string][]string{
-		"web/layouts/outside.html": []string{
+		"web/layouts/outside.html": {
 			"./web/includes/register.html",
 			"./web/includes/login.html",
 		},
-		"web/layouts/inside.html": []string{
+		"web/layouts/inside.html": {
 			"./web/includes/authorize.html",
 		},
 	}

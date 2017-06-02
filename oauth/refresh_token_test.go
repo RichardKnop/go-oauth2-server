@@ -339,7 +339,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 	// Insert some test refresh tokens
 	testRefreshTokens := []*models.OauthRefreshToken{
 		// Expired test refresh token
-		&models.OauthRefreshToken{
+		{
 			MyGormModel: models.MyGormModel{
 				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),
@@ -350,7 +350,7 @@ func (suite *OauthTestSuite) TestGetValidRefreshToken() {
 			User:      suite.users[0],
 		},
 		// Refresh token
-		&models.OauthRefreshToken{
+		{
 			MyGormModel: models.MyGormModel{
 				ID:        uuid.New(),
 				CreatedAt: time.Now().UTC(),

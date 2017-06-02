@@ -6,7 +6,7 @@ import (
 
 // AccessTokenResponse ...
 type AccessTokenResponse struct {
-	UserID       string   `json:"user_id,omitempty"`
+	UserID       string `json:"user_id,omitempty"`
 	AccessToken  string `json:"access_token"`
 	ExpiresIn    int    `json:"expires_in"`
 	TokenType    string `json:"token_type"`

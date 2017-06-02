@@ -43,20 +43,20 @@ var Cnf = &Config{
 
 // NewConfig loads configuration from etcd and returns *Config struct
 // It also starts a goroutine in the background to keep config up-to-date
-func NewConfig(mustLoadOnce bool, keepReloading bool, configBackend string) *Config {
+func NewConfig(mustLoadOnce bool, keepReloading bool, backendType string) *Config {
 	if configLoaded {
 		return Cnf
 	}
 
-	var backend ConfigBackend
+	var backend Backend
 
-	switch configBackend {
+	switch backendType {
 	case "etcd":
-		backend = &etcdBackend{}
+		backend = new(etcdBackend)
 	case "consul":
-		backend = &consulBackend{}
+		backend = new(consulBackend)
 	default:
-		logger.FATAL.Printf("%s is not a valid backend", configBackend)
+		logger.FATAL.Printf("%s is not a valid backend", backendType)
 		os.Exit(1)
 	}
 

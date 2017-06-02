@@ -81,7 +81,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 	var (
 		testAccessTokens = []*models.OauthAccessToken{
 			// Expired access token with a user
-			&models.OauthAccessToken{
+			{
 				MyGormModel: models.MyGormModel{
 					ID:        uuid.New(),
 					CreatedAt: time.Now().UTC(),
@@ -92,7 +92,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 				User:      suite.users[0],
 			},
 			// Expired access token without a user
-			&models.OauthAccessToken{
+			{
 				MyGormModel: models.MyGormModel{
 					ID:        uuid.New(),
 					CreatedAt: time.Now().UTC(),
@@ -102,7 +102,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 				Client:    suite.clients[0],
 			},
 			// Access token with a user
-			&models.OauthAccessToken{
+			{
 				MyGormModel: models.MyGormModel{
 					ID:        uuid.New(),
 					CreatedAt: time.Now().UTC(),
@@ -113,7 +113,7 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 				User:      suite.users[0],
 			},
 			// Access token without a user
-			&models.OauthAccessToken{
+			{
 				MyGormModel: models.MyGormModel{
 					ID:        uuid.New(),
 					CreatedAt: time.Now().UTC(),

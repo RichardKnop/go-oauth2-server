@@ -35,7 +35,7 @@ func TestAddRoutes(t *testing.T) {
 
 	// Add a test GET route without a middleware
 	routes.AddRoutes([]routes.Route{
-		routes.Route{
+		{
 			Name:        "foobar_route",
 			Method:      "GET",
 			Pattern:     "/bar",
@@ -45,7 +45,7 @@ func TestAddRoutes(t *testing.T) {
 
 	// Add a test PUT route with a middleware and a named parameter
 	routes.AddRoutes([]routes.Route{
-		routes.Route{
+		{
 			Name:        "helloworld_route",
 			Method:      "PUT",
 			Pattern:     "/world/{id:[0-9]+}",
@@ -96,7 +96,7 @@ func TestRecoveryMiddlewareHandlesPanic(t *testing.T) {
 
 	// Add a test GET route without a middleware
 	routes.AddRoutes([]routes.Route{
-		routes.Route{
+		{
 			Name:    "panic_route",
 			Method:  "GET",
 			Pattern: "/panic",

@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/RichardKnop/go-oauth2-server/util"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFormatTime(t *testing.T) {

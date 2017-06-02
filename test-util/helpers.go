@@ -11,10 +11,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/RichardKnop/go-oauth2-server/util/response"
 	"github.com/RichardKnop/jsonhal"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
-	"github.com/RichardKnop/go-oauth2-server/util/response"
 )
 
 // TestGetErrorExpectedResponse ...
@@ -117,6 +117,7 @@ func TestListValidResponse(t *testing.T, router *mux.Router, path, entity, acces
 // TestListValidResponseWithParams tests a list endpoint for a valid response with default settings
 func TestListValidResponseWithParams(t *testing.T, router *mux.Router, path, entity, accessToken string, items []interface{}, assertExpectations func(), params map[string]string) {
 	u, err := url.Parse(fmt.Sprintf("http://1.2.3.4/v1/%s", path))
+	assert.NoError(t, err)
 
 	// add any params
 	for k, v := range params {
@@ -158,13 +159,13 @@ func TestListValidResponseWithParams(t *testing.T, router *mux.Router, path, ent
 	expected := &response.ListResponse{
 		Hal: jsonhal.Hal{
 			Links: map[string]*jsonhal.Link{
-				"self": &jsonhal.Link{
+				"self": {
 					Href: baseURI,
 				},
-				"first": &jsonhal.Link{
+				"first": {
 					Href: pagedURI,
 				},
-				"last": &jsonhal.Link{
+				"last": {
 					Href: pagedURI,
 				},
 				"prev": new(jsonhal.Link),

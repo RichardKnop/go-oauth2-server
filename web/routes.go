@@ -15,7 +15,7 @@ func (s *Service) RegisterRoutes(router *mux.Router, prefix string) {
 // GetRoutes returns []routes.Route slice for the health service
 func (s *Service) GetRoutes() []routes.Route {
 	return []routes.Route{
-		routes.Route{
+		{
 			Name:        "register_form",
 			Method:      "GET",
 			Pattern:     "/register",
@@ -26,7 +26,7 @@ func (s *Service) GetRoutes() []routes.Route {
 				newClientMiddleware(s),
 			},
 		},
-		routes.Route{
+		{
 			Name:        "register",
 			Method:      "POST",
 			Pattern:     "/register",
@@ -37,7 +37,7 @@ func (s *Service) GetRoutes() []routes.Route {
 				newClientMiddleware(s),
 			},
 		},
-		routes.Route{
+		{
 			Name:        "login_form",
 			Method:      "GET",
 			Pattern:     "/login",
@@ -48,7 +48,7 @@ func (s *Service) GetRoutes() []routes.Route {
 				newClientMiddleware(s),
 			},
 		},
-		routes.Route{
+		{
 			Name:        "login",
 			Method:      "POST",
 			Pattern:     "/login",
@@ -59,7 +59,7 @@ func (s *Service) GetRoutes() []routes.Route {
 				newClientMiddleware(s),
 			},
 		},
-		routes.Route{
+		{
 			Name:        "logout",
 			Method:      "GET",
 			Pattern:     "/logout",
@@ -69,7 +69,7 @@ func (s *Service) GetRoutes() []routes.Route {
 				newLoggedInMiddleware(s),
 			},
 		},
-		routes.Route{
+		{
 			Name:        "authorize_form",
 			Method:      "GET",
 			Pattern:     "/authorize",
@@ -80,7 +80,7 @@ func (s *Service) GetRoutes() []routes.Route {
 				newClientMiddleware(s),
 			},
 		},
-		routes.Route{
+		{
 			Name:        "authorize",
 			Method:      "POST",
 			Pattern:     "/authorize",

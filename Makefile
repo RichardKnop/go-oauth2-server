@@ -14,5 +14,13 @@ install-deps:
 fmt:
 	bash -c 'go list ./... | grep -v vendor | xargs -n1 go fmt'
 
+lint:
+	bash -c 'gometalinter --disable-all -E vet -E gofmt -E misspell -E ineffassign -E goimports -E deadcode --tests --vendor ./...'
+
+golint:
+	# TODO: When Go 1.9 is released vendor folder should be ignored automatically
+	bash -c 'go list ./... | grep -v vendor | grep -v mocks | xargs -n1 golint'
+
 test:
+	# TODO: When Go 1.9 is released vendor folder should be ignored automatically
 	bash -c 'go list ./... | grep -v vendor | xargs -n1 go test -timeout=30s'
