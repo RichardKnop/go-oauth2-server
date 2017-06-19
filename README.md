@@ -12,7 +12,7 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
 [![codecov for RichardKnop/go-oauth2-server](https://codecov.io/gh/RichardKnop/go-oauth2-server/branch/master/graph/badge.svg)](https://codecov.io/gh/RichardKnop/go-oauth2-server)
 [![Codeship Status for RichardKnop/go-oauth2-server](https://codeship.com/projects/fba90e10-7020-0133-0db8-4acedf45d268/status?branch=master)](https://codeship.com/projects/116440)
 
-[![Sourcegraph for RichardKnop/go-oauth2-server](https://sourcegraph.com/github.com/RichardKnop/go-oauth2-server/-/badge.svg)](https://sourcegraph.com/github.com/RichardKnop/machinery?badge)
+[![Sourcegraph for RichardKnop/go-oauth2-server](https://sourcegraph.com/github.com/RichardKnop/go-oauth2-server/-/badge.svg)](https://sourcegraph.com/github.com/RichardKnop/go-oauth2-server?badge)
 [![Donate Bitcoin](https://img.shields.io/badge/donate-bitcoin-orange.svg)](https://richardknop.github.io/donate/)
 
 ---
