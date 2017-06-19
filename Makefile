@@ -23,4 +23,8 @@ golint:
 
 test:
 	# TODO: When Go 1.9 is released vendor folder should be ignored automatically
+	bash -c 'go list ./... | grep -v vendor | xargs -n1 go test -timeout=30s'
+
+test-with-coverage:
+	# TODO: When Go 1.9 is released vendor folder should be ignored automatically
 	bash -c 'go list ./... | grep -v vendor | xargs -n1 go test -timeout=60s -race -coverprofile=coverage.txt -covermode=atomic'
