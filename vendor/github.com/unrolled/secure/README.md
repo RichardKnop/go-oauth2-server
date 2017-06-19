@@ -21,7 +21,7 @@ var myHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 func main() {
 	secureMiddleware := secure.New(secure.Options{
 		AllowedHosts:          []string{"example.com", "ssl.example.com"},
-        HostsProxyHeaders:     []string{"X-Forwarded-Host"},
+        	HostsProxyHeaders:     []string{"X-Forwarded-Host"},
 		SSLRedirect:           true,
 		SSLHost:               "ssl.example.com",
 		SSLProxyHeaders:       map[string]string{"X-Forwarded-Proto": "https"},
@@ -53,7 +53,7 @@ Content-Security-Policy: default-src 'self'
 PublicKey: pin-sha256="base64+primary=="; pin-sha256="base64+backup=="; max-age=5184000; includeSubdomains; report-uri="https://www.example.com/hpkp-report"
 ~~~
 
-###Set the `IsDevelopment` option to `true` when developing!
+### Set the `IsDevelopment` option to `true` when developing!
 When `IsDevelopment` is true, the AllowedHosts, SSLRedirect, STS header, and HPKP header will not be in effect. This allows you to work in development/test mode and not have any annoying redirects to HTTPS (ie. development can happen on HTTP), or block `localhost` has a bad host.
 
 ### Available options

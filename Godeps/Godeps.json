@@ -8,15 +8,15 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/RichardKnop/go-fixtures",
-			"Rev": "ec5cef5c7a0887f4e33cf2eb00b0efdb2362ecda"
+			"Rev": "a1a94fd51b774c00ddc4f39a0b096435d91f5ac9"
 		},
 		{
 			"ImportPath": "github.com/RichardKnop/jsonhal",
-			"Rev": "0346f037529e4e06e8669d9aa9d906dfda7b4dae"
+			"Rev": "1aed18116332cf27efa2ca1eea662a8c94198651"
 		},
 		{
 			"ImportPath": "github.com/RichardKnop/logging",
-			"Rev": "8692ae85bb7c50aadb496ffd6fb58a76300eaab1"
+			"Rev": "faff9c1c28798bb458fa9078dc921466fc0cd3d9"
 		},
 		{
 			"ImportPath": "github.com/RichardKnop/uuid",
@@ -77,8 +77,8 @@
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Comment": "v1.3.0-6-g4c1c395",
-			"Rev": "4c1c3952b7d9d0a061a3fa7b36fd373ba0398ebc"
+			"Comment": "v1.4.0-10-g18fca31",
+			"Rev": "18fca31550181693b3a834a15b74b564b3605876"
 		},
 		{
 			"ImportPath": "github.com/gorilla/securecookie",
@@ -101,13 +101,13 @@
 		},
 		{
 			"ImportPath": "github.com/hashicorp/serf/coordinate",
-			"Comment": "v0.8.1-30-g19f2c40",
-			"Rev": "19f2c401e122352c047a84d6584dd51e2fb8fcc4"
+			"Comment": "v0.8.1-47-gd75a3b0",
+			"Rev": "d75a3b0f314378394eaeff5091aa93b67cb26c1e"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/gorm",
-			"Comment": "v1.0-154-g717654b",
-			"Rev": "717654b31c3d51348cb305684369c20a8387154b"
+			"Comment": "v1.0-156-g9acaa33",
+			"Rev": "9acaa33324bbcc78239a1c913d4f1292c12177b9"
 		},
 		{
 			"ImportPath": "github.com/jinzhu/inflection",
@@ -151,27 +151,27 @@
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/assert",
-			"Comment": "v1.1.4-47-geb84487",
-			"Rev": "eb84487caee2d64c96bb5c6afb60fd4f631eb0f0"
+			"Comment": "v1.1.4-66-gf6abca5",
+			"Rev": "f6abca593680b2315d2075e0f5e2a9751e3f431a"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/mock",
-			"Comment": "v1.1.4-47-geb84487",
-			"Rev": "eb84487caee2d64c96bb5c6afb60fd4f631eb0f0"
+			"Comment": "v1.1.4-66-gf6abca5",
+			"Rev": "f6abca593680b2315d2075e0f5e2a9751e3f431a"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/require",
-			"Comment": "v1.1.4-47-geb84487",
-			"Rev": "eb84487caee2d64c96bb5c6afb60fd4f631eb0f0"
+			"Comment": "v1.1.4-66-gf6abca5",
+			"Rev": "f6abca593680b2315d2075e0f5e2a9751e3f431a"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/suite",
-			"Comment": "v1.1.4-47-geb84487",
-			"Rev": "eb84487caee2d64c96bb5c6afb60fd4f631eb0f0"
+			"Comment": "v1.1.4-66-gf6abca5",
+			"Rev": "f6abca593680b2315d2075e0f5e2a9751e3f431a"
 		},
 		{
 			"ImportPath": "github.com/unrolled/secure",
-			"Rev": "824e85271811af89640ea25620c67f6c2eed987e"
+			"Rev": "179957f53e4db0bcd04dd42c95b07b1d12c34f5e"
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",
@@ -180,8 +180,8 @@
 		},
 		{
 			"ImportPath": "github.com/urfave/negroni",
-			"Comment": "v0.2.0-115-g1d8981a",
-			"Rev": "1d8981a52d6bda4467a9faacf3fdddd38222dfc4"
+			"Comment": "v0.2.0-117-g3019daf",
+			"Rev": "3019daf414cfd2c51de68c3a535707c0de6e3d83"
 		},
 		{
 			"ImportPath": "golang.org/x/crypto/bcrypt",

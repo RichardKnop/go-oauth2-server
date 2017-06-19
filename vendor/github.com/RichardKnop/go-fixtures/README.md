@@ -1,12 +1,18 @@
-[![Codeship Status for RichardKnop/go-fixtures](https://codeship.com/projects/2972d6c0-37b3-0134-ffd1-02b643534a44/status?branch=master)](https://codeship.com/projects/165845)
-
-[![GoDoc](https://godoc.org/github.com/nathany/looper?status.svg)](http://godoc.org/github.com/RichardKnop/go-fixtures)
-[![Travis Status for RichardKnop/go-fixtures](https://travis-ci.org/RichardKnop/go-fixtures.svg?branch=master)](https://travis-ci.org/RichardKnop/go-fixtures)
-[![Donate Bitcoin](https://img.shields.io/badge/donate-bitcoin-orange.svg)](https://richardknop.github.io/donate/)
-
-# go-fixtures
+## go-fixtures
 
 Django style fixtures for Golang's excellent built-in `database/sql` library. Currently only `YAML` fixtures are supported.
+
+[![Travis Status for RichardKnop/go-fixtures](https://travis-ci.org/RichardKnop/go-fixtures.svg?branch=master&label=linux+build)](https://travis-ci.org/RichardKnop/go-fixtures)
+[![godoc for RichardKnop/go-fixtures](https://godoc.org/github.com/nathany/looper?status.svg)](http://godoc.org/github.com/RichardKnop/go-fixtures)
+[![goreportcard for RichardKnop/go-fixtures](https://goreportcard.com/badge/github.com/RichardKnop/go-fixtures)](https://goreportcard.com/report/RichardKnop/go-fixtures)
+[![codecov for RichardKnop/go-fixtures](https://codecov.io/gh/RichardKnop/go-fixtures/branch/master/graph/badge.svg)](https://codecov.io/gh/RichardKnop/go-fixtures)
+[![Codeship Status for RichardKnop/go-fixtures](https://codeship.com/projects/2972d6c0-37b3-0134-ffd1-02b643534a44/status?branch=master)](https://codeship.com/projects/165845)
+
+[![Sourcegraph for RichardKnop/go-fixtures](https://sourcegraph.com/github.com/RichardKnop/go-fixtures/-/badge.svg)](https://sourcegraph.com/github.com/RichardKnop/go-fixtures?badge)
+[![Donate Bitcoin](https://img.shields.io/badge/donate-bitcoin-orange.svg)](https://richardknop.github.io/donate/)
+
+---
+
 
 There are two reserved values you can use for `datetime` fields:
 
@@ -98,7 +104,7 @@ func main() {
 			Usage: "run web server",
 			Action: func(c *cli.Context) error {
 				// Run your web server here
-        return nil
+				return nil
 			},
 		},
 	}

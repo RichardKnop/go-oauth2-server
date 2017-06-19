@@ -1,2 +1,2 @@
-// Django style fixtures for Golang's excellent built-in database/sql library
+// Package fixtures implements Django like fixtures for Postgres and MySQL
 package fixtures
