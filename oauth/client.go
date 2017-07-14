@@ -19,6 +19,8 @@ var (
 	ErrInvalidClientSecret = errors.New("Invalid client secret")
 	// ErrClientIDTaken ...
 	ErrClientIDTaken = errors.New("Client ID taken")
+	// ErrInvalidRedirectURL ...
+	ErrInvalidRedirectURL = errors.New("Invalid redirect URL")
 )
 
 // ClientExists returns true if client exists
@@ -66,6 +68,14 @@ func (s *Service) AuthClient(clientID, secret string) (*models.OauthClient, erro
 	}
 
 	return client, nil
+}
+
+// CheckRedirectURL -> validate the redirect url
+func (s *Service) CheckRedirectURL(client *Client, redirectURL string) error {
+	if redirectURL != client.RedirectURI.String {
+		return ErrInvalidRedirectURL
+	}
+	return nil
 }
 
 func (s *Service) createClientCommon(db *gorm.DB, clientID, secret, redirectURI string) (*models.OauthClient, error) {

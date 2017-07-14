@@ -94,6 +94,12 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		err = s.oauthService.CheckRedirectURL(client, redirectURI.String())
+		if err != nil {
+			errorRedirect(w, r, redirectURI, "invalid_redirect_uri", state, responseType)
+			return
+		}
+
 		// Grant an access token
 		accessToken, err := s.oauthService.GrantAccessToken(
 			client,   // client
