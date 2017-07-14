@@ -31,6 +31,7 @@ test:
 	done;
 
 test-with-coverage:
+	echo "" > coverage.out
 	echo "mode: set" > coverage-all.out
 	for pkg in ${PACKAGES}; do \
 		go test -coverprofile=coverage.out -covermode=set $$pkg; \
