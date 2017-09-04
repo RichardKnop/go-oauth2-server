@@ -33,7 +33,7 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
   * [etcd](#etcd)
   * [consul](#consul)
   * [postgres](#postgres)
-* [Compile & Run Data](#compile-run)
+* [Compile & Run Data](#compile--run)
 * [Testing](#testing)
 * [Docker](#docker)
 * [Docker Compose](#docker-compose)
