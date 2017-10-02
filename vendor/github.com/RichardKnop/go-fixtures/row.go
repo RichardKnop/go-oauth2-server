@@ -22,10 +22,13 @@ type Row struct {
 	updateColumnLength int
 	pkColumns          []string
 	pkValues           []interface{}
+	rawPkValues        []interface{}
 	insertColumns      []string
 	updateColumns      []string
 	insertValues       []interface{}
 	updateValues       []interface{}
+	rawInsertValues    []interface{}
+	rawUpdateValues    []interface{}
 }
 
 // Init loads internal struct variables
@@ -39,7 +42,8 @@ func (row *Row) Init() {
 	row.updateColumns = make([]string, 0)
 	row.insertValues = make([]interface{}, 0)
 	row.updateValues = make([]interface{}, 0)
-
+	row.rawInsertValues = make([]interface{}, 0)
+	row.rawUpdateValues = make([]interface{}, 0)
 	// Get and sort map keys
 	var i int
 	pkKeys := make([]string, len(row.PK))
@@ -60,11 +64,11 @@ func (row *Row) Init() {
 	// Primary keys
 	for _, pkKey := range pkKeys {
 		row.pkColumns = append(row.pkColumns, pkKey)
-		row.pkValues = append(row.pkValues, row.PK[pkKey])
+		row.appendValue("pk", row.PK[pkKey])
 		row.insertColumns = append(row.insertColumns, pkKey)
 		row.updateColumns = append(row.updateColumns, pkKey)
-		row.insertValues = append(row.insertValues, row.PK[pkKey])
-		row.updateValues = append(row.updateValues, row.PK[pkKey])
+		row.appendValue("insert", row.PK[pkKey])
+		row.appendValue("update", row.PK[pkKey])
 	}
 
 	// Rest of the fields
@@ -72,20 +76,20 @@ func (row *Row) Init() {
 		sv, ok := row.Fields[fieldKey].(string)
 		if ok && sv == onInsertNow {
 			row.insertColumns = append(row.insertColumns, fieldKey)
-			row.insertValues = append(row.insertValues, time.Now())
+			row.appendValue("insert", time.Now())
 			row.updateColumnLength--
 			continue
 		}
 		if ok && sv == onUpdateNow {
 			row.updateColumns = append(row.updateColumns, fieldKey)
-			row.updateValues = append(row.updateValues, time.Now())
+			row.appendValue("update", time.Now())
 			row.insertColumnLength--
 			continue
 		}
 		row.insertColumns = append(row.insertColumns, fieldKey)
 		row.updateColumns = append(row.updateColumns, fieldKey)
-		row.insertValues = append(row.insertValues, row.Fields[fieldKey])
-		row.updateValues = append(row.updateValues, row.Fields[fieldKey])
+		row.appendValue("insert", row.Fields[fieldKey])
+		row.appendValue("update", row.Fields[fieldKey])
 	}
 }
 
@@ -94,9 +98,19 @@ func (row *Row) GetInsertColumnsLength() int {
 	return row.insertColumnLength
 }
 
+// GetInsertValuesLength returns number of values for INSERT query
+func (row *Row) GetInsertValuesLength() int {
+	return len(row.insertValues)
+}
+
 // GetUpdateColumnsLength returns number of columns for UDPATE query
 func (row *Row) GetUpdateColumnsLength() int {
 	return row.updateColumnLength
+}
+
+// GetUpdateValuesLength returns number of values for UDPATE query
+func (row *Row) GetUpdateValuesLength() int {
+	return len(row.updateValues)
 }
 
 // GetInsertColumns returns a slice of column names for INSERT query
@@ -130,9 +144,18 @@ func (row *Row) GetUpdateValues() []interface{} {
 // GetInsertPlaceholders returns a slice of placeholders for INSERT query
 func (row *Row) GetInsertPlaceholders(driver string) []string {
 	placeholders := make([]string, row.GetInsertColumnsLength())
-	for i := 0; i < row.GetInsertColumnsLength(); i++ {
+	for i, j := 0, 0; i < row.GetInsertColumnsLength(); i++ {
+		val := row.rawInsertValues[i]
+		switch v := val.(type) {
+		case string:
+			if strings.HasPrefix(v, "RAW=") {
+				placeholders[i] = strings.TrimPrefix(v, "RAW=")
+				continue
+			}
+		}
 		if driver == postgresDriver {
-			placeholders[i] = fmt.Sprintf("$%d", i+1)
+			placeholders[i] = fmt.Sprintf("$%d", j+1)
+			j++
 		} else {
 			placeholders[i] = "?"
 		}
@@ -143,9 +166,19 @@ func (row *Row) GetInsertPlaceholders(driver string) []string {
 // GetUpdatePlaceholders returns a slice of placeholders for UPDATE query
 func (row *Row) GetUpdatePlaceholders(driver string) []string {
 	placeholders := make([]string, row.GetUpdateColumnsLength())
+	j := 0
 	for i, c := range row.GetUpdateColumns() {
+		val := row.rawUpdateValues[i]
+		switch v := val.(type) {
+		case string:
+			if strings.HasPrefix(v, "RAW=") {
+				placeholders[i] = fmt.Sprintf("%s = %s", c, strings.TrimPrefix(v, "RAW="))
+				continue
+			}
+		}
 		if driver == postgresDriver {
-			placeholders[i] = fmt.Sprintf("%s = $%d", c, i+1)
+			placeholders[i] = fmt.Sprintf("%s = $%d", c, j+1)
+			j++
 		} else {
 			placeholders[i] = fmt.Sprintf("%s = ?", c)
 		}
@@ -156,14 +189,25 @@ func (row *Row) GetUpdatePlaceholders(driver string) []string {
 // GetWhere returns a where condition based on primary key with placeholders
 func (row *Row) GetWhere(driver string, i int) string {
 	wheres := make([]string, len(row.PK))
-	j := i
+	start, j := i, i
 	for _, c := range row.pkColumns {
-		if driver == postgresDriver {
-			wheres[i-j] = fmt.Sprintf("%s = $%d", c, i+1)
-		} else {
-			wheres[i-j] = fmt.Sprintf("%s = ?", c)
-		}
+		val := row.rawPkValues[i-start]
 		i++
+		switch v := val.(type) {
+		case string:
+			if strings.HasPrefix(v, "RAW=") {
+				wheres[i-1-start] = fmt.Sprintf("%s = %s", c, strings.TrimPrefix(v, "RAW="))
+
+				continue
+			}
+		}
+		if driver == postgresDriver {
+			wheres[i-1-start] = fmt.Sprintf("%s = $%d", c, j+1)
+			j++
+		} else {
+			wheres[i-1-start] = fmt.Sprintf("%s = ?", c)
+		}
+
 	}
 	return strings.Join(wheres, " AND ")
 }
@@ -171,4 +215,26 @@ func (row *Row) GetWhere(driver string, i int) string {
 // GetPKValues returns a slice of primary key values
 func (row *Row) GetPKValues() []interface{} {
 	return row.pkValues
+}
+
+func (row *Row) appendValue(queryType string, val interface{}) {
+	sv, ok := val.(string)
+	if !ok || !strings.HasPrefix(sv, "RAW=") {
+		switch queryType {
+		case "insert":
+			row.insertValues = append(row.insertValues, val)
+		case "update":
+			row.updateValues = append(row.updateValues, val)
+		case "pk":
+			row.pkValues = append(row.pkValues, val)
+		}
+	}
+	switch queryType {
+	case "insert":
+		row.rawInsertValues = append(row.rawInsertValues, val)
+	case "update":
+		row.rawUpdateValues = append(row.rawUpdateValues, val)
+	case "pk":
+		row.rawPkValues = append(row.rawPkValues, val)
+	}
 }

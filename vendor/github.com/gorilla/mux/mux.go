@@ -176,6 +176,13 @@ func (r *Router) UseEncodedPath() *Router {
 // parentRoute
 // ----------------------------------------------------------------------------
 
+func (r *Router) getBuildScheme() string {
+	if r.parent != nil {
+		return r.parent.getBuildScheme()
+	}
+	return ""
+}
+
 // getNamedRoutes returns the map where named routes are registered.
 func (r *Router) getNamedRoutes() map[string]*Route {
 	if r.namedRoutes == nil {
@@ -456,7 +463,7 @@ func mapFromPairsToString(pairs ...string) (map[string]string, error) {
 	return m, nil
 }
 
-// mapFromPairsToRegex converts variadic string paramers to a
+// mapFromPairsToRegex converts variadic string parameters to a
 // string to regex map.
 func mapFromPairsToRegex(pairs ...string) (map[string]*regexp.Regexp, error) {
 	length, err := checkPairs(pairs...)

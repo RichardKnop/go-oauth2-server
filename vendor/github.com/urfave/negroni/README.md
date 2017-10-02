@@ -455,6 +455,7 @@ linking your middleware if you have built one:
 
 | Middleware | Author | Description |
 | -----------|--------|-------------|
+| [authz](https://github.com/casbin/negroni-authz) | [Yang Luo](https://github.com/hsluoyz) | ACL, RBAC, ABAC Authorization middlware based on [Casbin](https://github.com/casbin/casbin) |
 | [binding](https://github.com/mholt/binding) | [Matt Holt](https://github.com/mholt) | Data binding from HTTP requests into structs |
 | [cloudwatch](https://github.com/cvillecsteele/negroni-cloudwatch) | [Colin Steele](https://github.com/cvillecsteele) | AWS cloudwatch metrics middleware |
 | [cors](https://github.com/rs/cors) | [Olivier Poitrey](https://github.com/rs) | [Cross Origin Resource Sharing](http://www.w3.org/TR/cors/) (CORS) support |
@@ -485,6 +486,8 @@ linking your middleware if you have built one:
 [Alexander Rødseth](https://github.com/xyproto) created
 [mooseware](https://github.com/xyproto/mooseware), a skeleton for writing a
 Negroni middleware handler.
+
+[Prasanga Siripala](https://github.com/pjebs) created an effective skeleton structure for web-based Go/Negroni projects: [Go-Skeleton](https://github.com/pjebs/go-skeleton) 
 
 ## Live code reload?
 

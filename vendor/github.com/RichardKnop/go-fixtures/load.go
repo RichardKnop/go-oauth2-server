@@ -83,7 +83,7 @@ func Load(data []byte, db *sql.DB, driver string) error {
 				`UPDATE "%s" SET %s WHERE %s`,
 				row.Table,
 				strings.Join(row.GetUpdatePlaceholders(driver), ", "),
-				row.GetWhere(driver, row.GetUpdateColumnsLength()),
+				row.GetWhere(driver, row.GetUpdateValuesLength()),
 			)
 			if driver == "mysql" {
 				updateQuery = strings.Replace(updateQuery, "\"", "", -1)
