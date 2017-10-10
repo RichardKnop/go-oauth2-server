@@ -50,11 +50,10 @@ func (r *OauthRole) TableName() string {
 // OauthUser ...
 type OauthUser struct {
 	MyGormModel
-	RoleID     sql.NullString `sql:"type:varchar(20);index;not null"`
-	Role       *OauthRole
-	Username   string         `sql:"type:varchar(254);unique;not null"`
-	Password   sql.NullString `sql:"type:varchar(60)"`
-	MetaUserID string         `sql:"index"`
+	RoleID   sql.NullString `sql:"type:varchar(20);index;not null"`
+	Role     *OauthRole
+	Username string         `sql:"type:varchar(254);unique;not null"`
+	Password sql.NullString `sql:"type:varchar(60)"`
 }
 
 // TableName specifies table name

@@ -171,7 +171,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrantDefaultsToOriginalScope() {
 
 	// Check the response body
 	expected := &oauth.AccessTokenResponse{
-		UserID:       accessToken.User.MetaUserID,
+		UserID:       accessToken.UserID.String,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
 		TokenType:    tokentypes.Bearer,
@@ -217,7 +217,7 @@ func (suite *OauthTestSuite) TestRefreshTokenGrant() {
 
 	// Check the response
 	expected := &oauth.AccessTokenResponse{
-		UserID:       accessToken.User.MetaUserID,
+		UserID:       accessToken.UserID.String,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
 		TokenType:    tokentypes.Bearer,

@@ -32,8 +32,8 @@ func NewAccessTokenResponse(accessToken *models.OauthAccessToken, refreshToken *
 		TokenType:   theTokenType,
 		Scope:       accessToken.Scope,
 	}
-	if accessToken.User != nil {
-		response.UserID = accessToken.User.MetaUserID
+	if accessToken.UserID.Valid {
+		response.UserID = accessToken.UserID.String
 	}
 	if refreshToken != nil {
 		response.RefreshToken = refreshToken.Token

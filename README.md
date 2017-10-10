@@ -123,7 +123,7 @@ The authorization server authenticates the client, validates the authorization c
 
 ```json
 {
-  "user_id": 1,
+  "user_id": "1",
   "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
   "expires_in": 3600,
   "token_type": "Bearer",
@@ -252,7 +252,7 @@ The client requests an access token from the authorization server's token endpoi
 curl --compressed -v localhost:8080/v1/oauth/tokens \
 	-u test_client_1:test_secret \
 	-d "grant_type=password" \
-	-d "username=test@username" \
+	-d "username=test@user" \
 	-d "password=test_password" \
 	-d "scope=read_write"
 ```
@@ -261,7 +261,7 @@ The authorization server authenticates the client and validates the resource own
 
 ```json
 {
-  "user_id": 1,
+  "user_id": "1",
   "access_token": "00ccd40e-72ca-4e79-a4b6-67c95e2e3f1c",
   "expires_in": 3600,
   "token_type": "Bearer",
@@ -334,7 +334,7 @@ If valid and authorized, the authorization server issues an access token.
 
 ```json
 {
-  "user_id": 1,
+  "user_id": "1",
   "access_token": "1f962bd5-7890-435d-b619-584b6aa32e6c",
   "expires_in": 3600,
   "token_type": "Bearer",

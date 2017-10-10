@@ -11,7 +11,6 @@
     role_id: 'superuser'
     username: 'test@superuser'
     password: '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS'
-    meta_user_id: "1"
     created_at: 'ON_INSERT_NOW()'
     updated_at: 'ON_UPDATE_NOW()'
 
@@ -22,7 +21,6 @@
     role_id: 'user'
     username: 'test@user'
     password: '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS'
-    meta_user_id: "2"
     created_at: 'ON_INSERT_NOW()'
     updated_at: 'ON_UPDATE_NOW()'
 
@@ -33,6 +31,5 @@
     role_id: 'user'
     username: 'test@user2'
     password: '$2a$10$4J4t9xuWhOKhfjN0bOKNReS9sL3BVSN9zxIr2.VaWWQfRBWh1dQIS'
-    meta_user_id: "3"
     created_at: 'ON_INSERT_NOW()'
     updated_at: 'ON_UPDATE_NOW()'

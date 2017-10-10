@@ -38,7 +38,7 @@ func (suite *OauthTestSuite) TestPasswordGrant() {
 
 	// Check the response
 	expected := &oauth.AccessTokenResponse{
-		UserID:       accessToken.User.MetaUserID,
+		UserID:       accessToken.UserID.String,
 		AccessToken:  accessToken.Token,
 		ExpiresIn:    3600,
 		TokenType:    tokentypes.Bearer,
