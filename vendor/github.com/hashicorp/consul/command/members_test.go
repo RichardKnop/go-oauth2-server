@@ -2,32 +2,35 @@ package command
 
 import (
 	"fmt"
-	"github.com/hashicorp/consul/command/base"
-	"github.com/mitchellh/cli"
 	"strings"
 	"testing"
+
+	"github.com/hashicorp/consul/agent"
+	"github.com/mitchellh/cli"
 )
 
 func testMembersCommand(t *testing.T) (*cli.MockUi, *MembersCommand) {
-	ui := new(cli.MockUi)
+	ui := cli.NewMockUi()
 	return ui, &MembersCommand{
-		Command: base.Command{
-			Ui:    ui,
-			Flags: base.FlagSetClientHTTP,
+		BaseCommand: BaseCommand{
+			UI:    ui,
+			Flags: FlagSetClientHTTP,
 		},
 	}
 }
 
 func TestMembersCommand_implements(t *testing.T) {
+	t.Parallel()
 	var _ cli.Command = &MembersCommand{}
 }
 
 func TestMembersCommandRun(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testMembersCommand(t)
-	args := []string{"-http-addr=" + a1.httpAddr}
+	args := []string{"-http-addr=" + a.HTTPAddr()}
 
 	code := c.Run(args)
 	if code != 0 {
@@ -35,7 +38,7 @@ func TestMembersCommandRun(t *testing.T) {
 	}
 
 	// Name
-	if !strings.Contains(ui.OutputWriter.String(), a1.config.NodeName) {
+	if !strings.Contains(ui.OutputWriter.String(), a.Config.NodeName) {
 		t.Fatalf("bad: %#v", ui.OutputWriter.String())
 	}
 
@@ -51,29 +54,31 @@ func TestMembersCommandRun(t *testing.T) {
 }
 
 func TestMembersCommandRun_WAN(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testMembersCommand(t)
-	args := []string{"-http-addr=" + a1.httpAddr, "-wan"}
+	args := []string{"-http-addr=" + a.HTTPAddr(), "-wan"}
 
 	code := c.Run(args)
 	if code != 0 {
 		t.Fatalf("bad: %d. %#v", code, ui.ErrorWriter.String())
 	}
 
-	if !strings.Contains(ui.OutputWriter.String(), fmt.Sprintf("%d", a1.config.Ports.SerfWan)) {
+	if !strings.Contains(ui.OutputWriter.String(), fmt.Sprintf("%d", a.Config.Ports.SerfWan)) {
 		t.Fatalf("bad: %#v", ui.OutputWriter.String())
 	}
 }
 
 func TestMembersCommandRun_statusFilter(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testMembersCommand(t)
 	args := []string{
-		"-http-addr=" + a1.httpAddr,
+		"-http-addr=" + a.HTTPAddr(),
 		"-status=a.*e",
 	}
 
@@ -82,18 +87,19 @@ func TestMembersCommandRun_statusFilter(t *testing.T) {
 		t.Fatalf("bad: %d. %#v", code, ui.ErrorWriter.String())
 	}
 
-	if !strings.Contains(ui.OutputWriter.String(), a1.config.NodeName) {
+	if !strings.Contains(ui.OutputWriter.String(), a.Config.NodeName) {
 		t.Fatalf("bad: %#v", ui.OutputWriter.String())
 	}
 }
 
 func TestMembersCommandRun_statusFilter_failed(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testMembersCommand(t)
 	args := []string{
-		"-http-addr=" + a1.httpAddr,
+		"-http-addr=" + a.HTTPAddr(),
 		"-status=(fail|left)",
 	}
 
@@ -102,7 +108,7 @@ func TestMembersCommandRun_statusFilter_failed(t *testing.T) {
 		t.Fatalf("bad: %d. %#v", code, ui.ErrorWriter.String())
 	}
 
-	if strings.Contains(ui.OutputWriter.String(), a1.config.NodeName) {
+	if strings.Contains(ui.OutputWriter.String(), a.Config.NodeName) {
 		t.Fatalf("bad: %#v", ui.OutputWriter.String())
 	}
 

@@ -127,5 +127,5 @@
   name = "golang.org/x/net"
 
 [[dependencies]]
-  branch = "master"
+  version = "1.2.15"
   name = "gopkg.in/tylerb/graceful.v1"

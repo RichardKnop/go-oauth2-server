@@ -16,12 +16,19 @@ set -e
 
 source ./build
 
+# build before setting up test GOPATH
+if [[ "${PASSES}" == *"functional"* ]]; then
+	./tools/functional-tester/build
+fi
+
 # build tests with vendored dependencies
 etcd_setup_gopath
 
 if [ -z "$PASSES" ]; then
 	PASSES="fmt bom dep compile build unit"
 fi
+
+USERPKG=${PKG:-}
 
 # Invoke ./cover for HTML output
 COVER=${COVER:-"-cover"}
@@ -31,13 +38,30 @@ IGNORE_PKGS="(cmd/|etcdserverpb|rafttest|gopath.proto|v3lockpb|v3electionpb)"
 INTEGRATION_PKGS="(integration|e2e|contrib|functional-tester)"
 
 # all github.com/coreos/etcd/whatever pkgs that are not auto-generated / tools
-PKGS=`find . -name \*.go | while read a; do dirname $a; done | sort | uniq | egrep -v "$IGNORE_PKGS" | egrep -v "(tools/|contrib/|e2e|pb)" | sed "s|\.|${REPO_PATH}|g"`
+PKGS=`find . -name \*.go | while read a; do dirname $a; done | sort | uniq | egrep -v "$IGNORE_PKGS" | egrep -v "(tools/|contrib/|e2e|pb)" | sed "s|\.|${REPO_PATH}|g" | xargs echo`
 # pkg1,pkg2,pkg3
-PKGS_COMMA=`echo ${PKGS} | sed 's/ /,/g'`
+PKGS_COMMA=${PKGS// /,}
 
 TEST_PKGS=`find . -name \*_test.go | while read a; do dirname $a; done | sort | uniq | egrep -v "$IGNORE_PKGS" | sed "s|\./||g"`
-FORMATTABLE=`find . -name \*.go | while read a; do echo $(dirname $a)/"*.go"; done | sort | uniq | egrep -v "$IGNORE_PKGS" | sed "s|\./||g"`
+FORMATTABLE=`find . -name \*.go | while read a; do echo "$(dirname $a)/*.go"; done | sort | uniq | egrep -v "$IGNORE_PKGS" | sed "s|\./||g"`
 TESTABLE_AND_FORMATTABLE=`echo "$TEST_PKGS" | egrep -v "$INTEGRATION_PKGS"`
+
+# check if user provided PKG override
+if [ -z "${USERPKG}" ]; then
+	TEST=$TESTABLE_AND_FORMATTABLE
+	FMT=$FORMATTABLE
+else
+	# strip out leading dotslashes and trailing slashes from PKG=./foo/
+	TEST=${USERPKG/#./}
+	TEST=${TEST/#\//}
+	TEST=${TEST/%\//}
+	# only run gofmt on packages provided by user
+	FMT="$TEST"
+fi
+
+# split TEST into an array and prepend REPO_PATH to each local package
+split=(${TEST// / })
+TEST=${split/#/${REPO_PATH}/}
 
 # TODO: 'client' pkg fails with gosimple from generated files
 # TODO: 'rafttest' is failing with unused
@@ -47,25 +71,6 @@ if [ -z "$GOARCH" ]; then
 	GOARCH=$(go env GOARCH);
 fi
 
-# user has not provided PKG override
-if [ -z "$PKG" ]; then
-	TEST=$TESTABLE_AND_FORMATTABLE
-	FMT=$FORMATTABLE
-
-# user has provided PKG override
-else
-	# strip out leading dotslashes and trailing slashes from PKG=./foo/
-	TEST=${PKG/#./}
-	TEST=${TEST/#\//}
-	TEST=${TEST/%\//}
-
-	# only run gofmt on packages provided by user
-	FMT="$TEST"
-fi
-
-# split TEST into an array and prepend REPO_PATH to each local package
-split=(${TEST// / })
-TEST=${split[@]/#/${REPO_PATH}/}
 
 # determine whether target supports race detection
 if [ "$GOARCH" == "amd64" ]; then
@@ -85,6 +90,43 @@ function integration_pass {
 	go test -timeout 10m -v ${RACE} -cpu 1,2,4 $@ ${REPO_PATH}/clientv3/integration
 	go test -timeout 1m -v -cpu 1,2,4 $@ ${REPO_PATH}/contrib/raftexample
 	go test -timeout 1m -v ${RACE} -cpu 1,2,4 -run=Example $@ ${TEST}
+}
+
+function functional_pass {
+	for a in 1 2 3; do
+		mkdir -p ./agent-$a
+		./bin/etcd-agent -etcd-path ./bin/etcd -etcd-log-dir "./agent-$a" -port ":${a}9027" -use-root=false &
+		pid="$!"
+		agent_pids="${agent_pids} $pid"
+	done
+
+	for a in 1 2 3; do
+		echo "Waiting for 'etcd-agent' on ${a}9027..."
+		while ! nc -z localhost ${a}9027; do
+			sleep 1
+		done
+	done
+
+	echo "Starting 'etcd-tester'"
+	./bin/etcd-tester \
+		-agent-endpoints "127.0.0.1:19027,127.0.0.1:29027,127.0.0.1:39027" \
+		-client-ports 12379,22379,32379 \
+		-peer-ports 12380,22380,32380 \
+		-limit 1 \
+		-schedule-cases "0 1 2 3 4 5" \
+		-exit-on-failure && echo "'etcd-tester' succeeded"
+	ETCD_TESTER_EXIT_CODE=$?
+	echo "ETCD_TESTER_EXIT_CODE:" ${ETCD_TESTER_EXIT_CODE}
+
+	echo "Waiting for processes to exit"
+	kill -s TERM ${agent_pids}
+	for a in ${agent_pids}; do wait $a || true; done
+	rm -rf ./agent-*
+
+	if [[ "${ETCD_TESTER_EXIT_CODE}" -ne "0" ]]; then
+		echo "FAIL with exit code" ${ETCD_TESTER_EXIT_CODE}
+		exit ${ETCD_TESTER_EXIT_CODE}
+	fi
 }
 
 function cov_pass {
@@ -170,10 +212,14 @@ function grpcproxy_pass {
 function release_pass {
 	rm -f ./bin/etcd-last-release
 	# to grab latest patch release; bump this up for every minor release
-	UPGRADE_VER=$(git tag -l --sort=-version:refname "v3.1.*" | head -1)
+	UPGRADE_VER=$(git tag -l --sort=-version:refname "v3.2.*" | head -1)
 	if [ -n "$MANUAL_VER" ]; then
 		# in case, we need to test against different version
 		UPGRADE_VER=$MANUAL_VER
+	fi
+	if [[ -z ${UPGRADE_VER} ]]; then
+		UPGRADE_VER="v3.2.0"
+		echo "fallback to" ${UPGRADE_VER}
 	fi
 
 	local file="etcd-$UPGRADE_VER-linux-$GOARCH.tar.gz"
@@ -185,9 +231,8 @@ function release_pass {
 	set -e
 	case $result in
 		0)	;;
-		22)	return 0
-			;;
-		*)	exit $result
+		*)	echo "FAIL with" ${result}
+			exit $result
 			;;
 	esac
 
@@ -213,21 +258,33 @@ function fmt_pass {
 		exit 255
 	fi
 
-	echo "Checking 'go tool vet -shadow'..."
-	for path in $FMT; do
-		if [ "${path##*.}" != "go" ]; then
-			path="${path}/*.go"
+	echo "Checking 'go tool vet -all -shadow'..."
+	fmtpkgs=$(echo $FMT | xargs dirname | sort | uniq | sed '/\./d')
+	vetRes=$(go tool vet -all -shadow ${fmtpkgs} 2>&1 | grep -v '/gw/' || true)
+	if [ -n "${vetRes}" ]; then
+		echo -e "govet -all -shadow checking failed:\n${vetRes}"
+		exit 255
+	fi
+
+	if which shellcheck >/dev/null; then
+		echo "Checking shellcheck..."
+		shellcheckResult=$(shellcheck -fgcc build test scripts/* 2>&1 || true)
+		if [ -n "${shellcheckResult}" ]; then
+			# mask the most common ones; fix later
+			SHELLCHECK_MASK="SC(2086|2006|2068|2196|2035|2162|2076)"
+			errs=$(echo "${shellcheckResult}" | egrep -v "${SHELLCHECK_MASK}" || true)
+			if [ -n "${errs}" ]; then
+				echo -e "shellcheck checking failed:\n${shellcheckResult}\n===\nFailed:\n${errs}"
+				exit 255
+			fi
+			suppressed=$(echo "${shellcheckResult}" | cut -f4- -d':' | sort | uniq -c | sort -n)
+			echo -e "shellcheck suppressed warnings:\n${suppressed}"
 		fi
-		vetRes=$(go tool vet -shadow ${path})
-		if [ -n "${vetRes}" ]; then
-			echo -e "govet -shadow checking ${path} failed:\n${vetRes}"
-			exit 255
-		fi
-	done
+	fi
 
 	echo "Checking documentation style..."
 	# eschew you
-	yous=`find . -name \*.md | xargs egrep --color "[Yy]ou[r]?[ '.,;]" | grep -v /v2/ || true`
+	yous=`find . -name \*.md -exec egrep --color "[Yy]ou[r]?[ '.,;]" {} + | grep -v /v2/ || true`
 	if [ ! -z "$yous" ]; then
 		echo -e "found 'you' in documentation:\n${yous}"
 		exit 255
@@ -268,7 +325,7 @@ function fmt_pass {
 			# TODO: resolve these after go1.8 migration
 			SIMPLE_CHECK_MASK="S(1024)"
 			if echo "${gosimpleResult}" | egrep -v "$SIMPLE_CHECK_MASK"; then
-				echo -e "gosimple checking ${path} failed:\n${gosimpleResult}"
+				echo -e "gosimple checking failed:\n${gosimpleResult}"
 				exit 255
 			else
 				echo -e "gosimple warning:\n${gosimpleResult}"
@@ -297,7 +354,7 @@ function fmt_pass {
 			# See https://github.com/dominikh/go-tools/tree/master/cmd/staticcheck
 			STATIC_CHECK_MASK="SA(1019|2002)"
 			if echo "${staticcheckResult}" | egrep -v "$STATIC_CHECK_MASK"; then
-				echo -e "staticcheck checking ${path} failed:\n${staticcheckResult}"
+				echo -e "staticcheck checking failed:\n${staticcheckResult}"
 				exit 255
 			else
 				suppressed=`echo "${staticcheckResult}" | sed 's/ /\n/g' | grep "(SA" | sort | uniq -c`
@@ -309,16 +366,20 @@ function fmt_pass {
 	fi
 
 	echo "Checking for license header..."
-	licRes=$(for file in $(find . -type f -iname '*.go' ! -path './cmd/*' ! -path './gopath.proto/*'); do
-			head -n3 "${file}" | grep -Eq "(Copyright|generated|GENERATED)" || echo -e "  ${file}"
-		done;)
+	licRes=""
+	files=$(find . -type f -iname '*.go' ! -path './cmd/*' ! -path './gopath.proto/*')
+	for file in $files; do
+		if ! head -n3 "${file}" | grep -Eq "(Copyright|generated|GENERATED)" ; then
+			licRes="${licRes}"$(echo -e "  ${file}")
+		fi
+	done
 	if [ -n "${licRes}" ]; then
 		echo -e "license header checking failed:\n${licRes}"
 		exit 255
 	fi
 
 	echo "Checking commit titles..."
-	git log --oneline `git merge-base HEAD master`...HEAD | while read l; do
+	git log --oneline "$(git merge-base HEAD master)"...HEAD | while read l; do
 		commitMsg=`echo "$l" | cut -f2- -d' '`
 		if [[ "$commitMsg" == Merge* ]]; then
 			# ignore "Merge pull" commits
@@ -350,7 +411,7 @@ function bom_pass {
 		--override-file bill-of-materials.override.json \
 		github.com/coreos/etcd github.com/coreos/etcd/etcdctl >bom-now.json || true
 	if ! diff bill-of-materials.json bom-now.json; then
-		echo vendored licenses do not match given bill of materials
+		echo "vendored licenses do not match given bill of materials"
 		exit 255
 	fi
 	rm bom-now.json
@@ -372,7 +433,7 @@ function dep_pass {
 function build_cov_pass {
 	out="bin"
 	if [ -n "${BINDIR}" ]; then out="${BINDIR}"; fi
-	go test -c -covermode=set -coverpkg=$PKGS_COMMA -o ${out}/etcd_test
+	go test -tags cov -c -covermode=set -coverpkg=$PKGS_COMMA -o ${out}/etcd_test
 	go test -tags cov -c -covermode=set -coverpkg=$PKGS_COMMA -o ${out}/etcdctl_test ${REPO_PATH}/etcdctl
 }
 

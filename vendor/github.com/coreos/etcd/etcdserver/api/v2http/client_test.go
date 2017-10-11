@@ -37,7 +37,6 @@ import (
 	"github.com/coreos/etcd/pkg/types"
 	"github.com/coreos/etcd/raft/raftpb"
 	"github.com/coreos/etcd/store"
-	"github.com/coreos/etcd/version"
 	"github.com/coreos/go-semver/semver"
 	"github.com/jonboulle/clockwork"
 	"golang.org/x/net/context"
@@ -1220,6 +1219,56 @@ func TestWriteEvent(t *testing.T) {
 	}
 }
 
+func TestV2DMachinesEndpoint(t *testing.T) {
+	tests := []struct {
+		method string
+		wcode  int
+	}{
+		{"GET", http.StatusOK},
+		{"HEAD", http.StatusOK},
+		{"POST", http.StatusMethodNotAllowed},
+	}
+
+	m := &machinesHandler{cluster: &fakeCluster{}}
+	s := httptest.NewServer(m)
+	defer s.Close()
+
+	for _, tt := range tests {
+		req, err := http.NewRequest(tt.method, s.URL+machinesPrefix, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		resp, err := http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if resp.StatusCode != tt.wcode {
+			t.Errorf("StatusCode = %d, expected %d", resp.StatusCode, tt.wcode)
+		}
+	}
+}
+
+func TestServeMachines(t *testing.T) {
+	cluster := &fakeCluster{
+		clientURLs: []string{"http://localhost:8080", "http://localhost:8081", "http://localhost:8082"},
+	}
+	writer := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "", nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	h := &machinesHandler{cluster: cluster}
+	h.ServeHTTP(writer, req)
+	w := "http://localhost:8080, http://localhost:8081, http://localhost:8082"
+	if g := writer.Body.String(); g != w {
+		t.Errorf("body = %s, want %s", g, w)
+	}
+	if writer.Code != http.StatusOK {
+		t.Errorf("code = %d, want %d", writer.Code, http.StatusOK)
+	}
+}
+
 func TestGetID(t *testing.T) {
 	tests := []struct {
 		path string
@@ -1357,48 +1406,6 @@ func TestServeStoreStats(t *testing.T) {
 		t.Errorf("body = %s, want %s", g, w)
 	}
 
-}
-
-func TestServeVersion(t *testing.T) {
-	req, err := http.NewRequest("GET", "", nil)
-	if err != nil {
-		t.Fatalf("error creating request: %v", err)
-	}
-	rw := httptest.NewRecorder()
-	serveVersion(rw, req, "2.1.0")
-	if rw.Code != http.StatusOK {
-		t.Errorf("code=%d, want %d", rw.Code, http.StatusOK)
-	}
-	vs := version.Versions{
-		Server:  version.Version,
-		Cluster: "2.1.0",
-	}
-	w, err := json.Marshal(&vs)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if g := rw.Body.String(); g != string(w) {
-		t.Fatalf("body = %q, want %q", g, string(w))
-	}
-	if ct := rw.HeaderMap.Get("Content-Type"); ct != "application/json" {
-		t.Errorf("contet-type header = %s, want %s", ct, "application/json")
-	}
-}
-
-func TestServeVersionFails(t *testing.T) {
-	for _, m := range []string{
-		"CONNECT", "TRACE", "PUT", "POST", "HEAD",
-	} {
-		req, err := http.NewRequest(m, "", nil)
-		if err != nil {
-			t.Fatalf("error creating request: %v", err)
-		}
-		rw := httptest.NewRecorder()
-		serveVersion(rw, req, "2.1.0")
-		if rw.Code != http.StatusMethodNotAllowed {
-			t.Errorf("method %s: code=%d, want %d", m, rw.Code, http.StatusMethodNotAllowed)
-		}
-	}
 }
 
 func TestBadServeKeys(t *testing.T) {

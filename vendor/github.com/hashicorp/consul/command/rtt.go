@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/consul/command/base"
+	"github.com/hashicorp/consul/lib"
 	"github.com/hashicorp/serf/coordinate"
 )
 
 // RTTCommand is a Command implementation that allows users to query the
 // estimated round trip time between nodes using network coordinates.
 type RTTCommand struct {
-	base.Command
+	BaseCommand
 }
 
 func (c *RTTCommand) Help() string {
@@ -34,7 +34,7 @@ Usage: consul rtt [options] node1 [node2]
   because they are maintained by independent Serf gossip areas, so they are
   not compatible.
 
-` + c.Command.Help()
+` + c.BaseCommand.Help()
 
 	return strings.TrimSpace(helpText)
 }
@@ -42,27 +42,27 @@ Usage: consul rtt [options] node1 [node2]
 func (c *RTTCommand) Run(args []string) int {
 	var wan bool
 
-	f := c.Command.NewFlagSet(c)
+	f := c.BaseCommand.NewFlagSet(c)
 
 	f.BoolVar(&wan, "wan", false, "Use WAN coordinates instead of LAN coordinates.")
 
-	if err := c.Command.Parse(args); err != nil {
+	if err := c.BaseCommand.Parse(args); err != nil {
 		return 1
 	}
 
 	// They must provide at least one node.
 	nodes := f.Args()
 	if len(nodes) < 1 || len(nodes) > 2 {
-		c.Ui.Error("One or two node names must be specified")
-		c.Ui.Error("")
-		c.Ui.Error(c.Help())
+		c.UI.Error("One or two node names must be specified")
+		c.UI.Error("")
+		c.UI.Error(c.Help())
 		return 1
 	}
 
 	// Create and test the HTTP client.
-	client, err := c.Command.HTTPClient()
+	client, err := c.BaseCommand.HTTPClient()
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Error connecting to Consul agent: %s", err))
+		c.UI.Error(fmt.Sprintf("Error connecting to Consul agent: %s", err))
 		return 1
 	}
 	coordClient := client.Coordinate()
@@ -77,7 +77,7 @@ func (c *RTTCommand) Run(args []string) int {
 			agent := client.Agent()
 			self, err := agent.Self()
 			if err != nil {
-				c.Ui.Error(fmt.Sprintf("Unable to look up agent info: %s", err))
+				c.UI.Error(fmt.Sprintf("Unable to look up agent info: %s", err))
 				return 1
 			}
 
@@ -89,7 +89,7 @@ func (c *RTTCommand) Run(args []string) int {
 		parts1 := strings.Split(nodes[0], ".")
 		parts2 := strings.Split(nodes[1], ".")
 		if len(parts1) != 2 || len(parts2) != 2 {
-			c.Ui.Error("Node names must be specified as <node name>.<datacenter> with -wan")
+			c.UI.Error("Node names must be specified as <node name>.<datacenter> with -wan")
 			return 1
 		}
 		node1, dc1 := parts1[0], parts1[1]
@@ -98,7 +98,7 @@ func (c *RTTCommand) Run(args []string) int {
 		// Pull all the WAN coordinates.
 		dcs, err := coordClient.Datacenters()
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Error getting coordinates: %s", err))
+			c.UI.Error(fmt.Sprintf("Error getting coordinates: %s", err))
 			return 1
 		}
 
@@ -133,7 +133,7 @@ func (c *RTTCommand) Run(args []string) int {
 			agent := client.Agent()
 			node, err := agent.NodeName()
 			if err != nil {
-				c.Ui.Error(fmt.Sprintf("Unable to look up agent info: %s", err))
+				c.UI.Error(fmt.Sprintf("Unable to look up agent info: %s", err))
 				return 1
 			}
 			nodes = append(nodes, node)
@@ -142,32 +142,35 @@ func (c *RTTCommand) Run(args []string) int {
 		// Pull all the LAN coordinates.
 		entries, _, err := coordClient.Nodes(nil)
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Error getting coordinates: %s", err))
+			c.UI.Error(fmt.Sprintf("Error getting coordinates: %s", err))
 			return 1
 		}
 
-		// See if the requested nodes are in there.
+		// Index all the coordinates by segment.
+		cs1, cs2 := make(lib.CoordinateSet), make(lib.CoordinateSet)
 		for _, entry := range entries {
 			if entry.Node == nodes[0] {
-				coord1 = entry.Coord
+				cs1[entry.Segment] = entry.Coord
 			}
 			if entry.Node == nodes[1] {
-				coord2 = entry.Coord
+				cs2[entry.Segment] = entry.Coord
 			}
+		}
 
-			if coord1 != nil && coord2 != nil {
-				goto SHOW_RTT
-			}
+		// See if there's a compatible set of coordinates.
+		coord1, coord2 = cs1.Intersect(cs2)
+		if coord1 != nil && coord2 != nil {
+			goto SHOW_RTT
 		}
 	}
 
 	// Make sure we found both coordinates.
 	if coord1 == nil {
-		c.Ui.Error(fmt.Sprintf("Could not find a coordinate for node %q", nodes[0]))
+		c.UI.Error(fmt.Sprintf("Could not find a coordinate for node %q", nodes[0]))
 		return 1
 	}
 	if coord2 == nil {
-		c.Ui.Error(fmt.Sprintf("Could not find a coordinate for node %q", nodes[1]))
+		c.UI.Error(fmt.Sprintf("Could not find a coordinate for node %q", nodes[1]))
 		return 1
 	}
 
@@ -175,7 +178,7 @@ SHOW_RTT:
 
 	// Report the round trip time.
 	dist := fmt.Sprintf("%.3f ms", coord1.DistanceTo(coord2).Seconds()*1000.0)
-	c.Ui.Output(fmt.Sprintf("Estimated %s <-> %s rtt: %s (using %s coordinates)", nodes[0], nodes[1], dist, source))
+	c.UI.Output(fmt.Sprintf("Estimated %s <-> %s rtt: %s (using %s coordinates)", nodes[0], nodes[1], dist, source))
 	return 0
 }
 

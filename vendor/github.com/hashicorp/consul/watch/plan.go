@@ -20,7 +20,7 @@ const (
 )
 
 // Run is used to run a watch plan
-func (p *WatchPlan) Run(address string) error {
+func (p *Plan) Run(address string) error {
 	// Setup the client
 	p.address = address
 	conf := consulapi.DefaultConfig()
@@ -45,7 +45,7 @@ func (p *WatchPlan) Run(address string) error {
 OUTER:
 	for !p.shouldStop() {
 		// Invoke the handler
-		index, result, err := p.Func(p)
+		index, result, err := p.Watcher(p)
 
 		// Check if we should terminate since the function
 		// could have blocked for a while
@@ -57,6 +57,7 @@ OUTER:
 		if err != nil {
 			// Perform an exponential backoff
 			failures++
+			p.lastIndex = 0
 			retry := retryInterval * time.Duration(failures*failures)
 			if retry > maxBackoffTime {
 				retry = maxBackoffTime
@@ -85,6 +86,9 @@ OUTER:
 		if oldIndex != 0 && reflect.DeepEqual(p.lastResult, result) {
 			continue
 		}
+		if p.lastIndex < oldIndex {
+			p.lastIndex = 0
+		}
 
 		// Handle the updated result
 		p.lastResult = result
@@ -96,21 +100,30 @@ OUTER:
 }
 
 // Stop is used to stop running the watch plan
-func (p *WatchPlan) Stop() {
+func (p *Plan) Stop() {
 	p.stopLock.Lock()
 	defer p.stopLock.Unlock()
 	if p.stop {
 		return
 	}
 	p.stop = true
+	if p.cancelFunc != nil {
+		p.cancelFunc()
+	}
 	close(p.stopCh)
 }
 
-func (p *WatchPlan) shouldStop() bool {
+func (p *Plan) shouldStop() bool {
 	select {
 	case <-p.stopCh:
 		return true
 	default:
 		return false
 	}
+}
+
+func (p *Plan) IsStopped() bool {
+	p.stopLock.Lock()
+	defer p.stopLock.Unlock()
+	return p.stop
 }

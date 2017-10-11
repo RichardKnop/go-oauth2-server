@@ -10,13 +10,12 @@ import (
 	"strings"
 
 	"github.com/hashicorp/consul/api"
-	"github.com/hashicorp/consul/command/base"
 )
 
 // KVPutCommand is a Command implementation that is used to write data to the
 // key-value store.
 type KVPutCommand struct {
-	base.Command
+	BaseCommand
 
 	// testStdin is the input for testing.
 	testStdin io.Reader
@@ -56,13 +55,13 @@ Usage: consul kv put [options] KEY [DATA]
 
   Additional flags and more advanced use cases are detailed below.
 
-` + c.Command.Help()
+` + c.BaseCommand.Help()
 
 	return strings.TrimSpace(helpText)
 }
 
 func (c *KVPutCommand) Run(args []string) int {
-	f := c.Command.NewFlagSet(c)
+	f := c.BaseCommand.NewFlagSet(c)
 	cas := f.Bool("cas", false,
 		"Perform a Check-And-Set operation. Specifying this value also "+
 			"requires the -modify-index flag to be set. The default value "+
@@ -89,7 +88,7 @@ func (c *KVPutCommand) Run(args []string) int {
 			"-session flag to be set. The key must be held by the session in order to "+
 			"be unlocked. The default value is false.")
 
-	if err := c.Command.Parse(args); err != nil {
+	if err := c.BaseCommand.Parse(args); err != nil {
 		return 1
 	}
 
@@ -97,7 +96,7 @@ func (c *KVPutCommand) Run(args []string) int {
 	args = f.Args()
 	key, data, err := c.dataFromArgs(args)
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Error! %s", err))
+		c.UI.Error(fmt.Sprintf("Error! %s", err))
 		return 1
 	}
 
@@ -105,26 +104,26 @@ func (c *KVPutCommand) Run(args []string) int {
 	if *base64encoded {
 		dataBytes, err = base64.StdEncoding.DecodeString(data)
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Error! Cannot base 64 decode data: %s", err))
+			c.UI.Error(fmt.Sprintf("Error! Cannot base 64 decode data: %s", err))
 		}
 	}
 
 	// Session is reauired for release or acquire
 	if (*release || *acquire) && *session == "" {
-		c.Ui.Error("Error! Missing -session (required with -acquire and -release)")
+		c.UI.Error("Error! Missing -session (required with -acquire and -release)")
 		return 1
 	}
 
 	// ModifyIndex is required for CAS
 	if *cas && *modifyIndex == 0 {
-		c.Ui.Error("Must specify -modify-index with -cas!")
+		c.UI.Error("Must specify -modify-index with -cas!")
 		return 1
 	}
 
 	// Create and test the HTTP client
-	client, err := c.Command.HTTPClient()
+	client, err := c.BaseCommand.HTTPClient()
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Error connecting to Consul agent: %s", err))
+		c.UI.Error(fmt.Sprintf("Error connecting to Consul agent: %s", err))
 		return 1
 	}
 
@@ -140,49 +139,49 @@ func (c *KVPutCommand) Run(args []string) int {
 	case *cas:
 		ok, _, err := client.KV().CAS(pair, nil)
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Error! Did not write to %s: %s", key, err))
+			c.UI.Error(fmt.Sprintf("Error! Did not write to %s: %s", key, err))
 			return 1
 		}
 		if !ok {
-			c.Ui.Error(fmt.Sprintf("Error! Did not write to %s: CAS failed", key))
+			c.UI.Error(fmt.Sprintf("Error! Did not write to %s: CAS failed", key))
 			return 1
 		}
 
-		c.Ui.Info(fmt.Sprintf("Success! Data written to: %s", key))
+		c.UI.Info(fmt.Sprintf("Success! Data written to: %s", key))
 		return 0
 	case *acquire:
 		ok, _, err := client.KV().Acquire(pair, nil)
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Error! Failed writing data: %s", err))
+			c.UI.Error(fmt.Sprintf("Error! Failed writing data: %s", err))
 			return 1
 		}
 		if !ok {
-			c.Ui.Error("Error! Did not acquire lock")
+			c.UI.Error("Error! Did not acquire lock")
 			return 1
 		}
 
-		c.Ui.Info(fmt.Sprintf("Success! Lock acquired on: %s", key))
+		c.UI.Info(fmt.Sprintf("Success! Lock acquired on: %s", key))
 		return 0
 	case *release:
 		ok, _, err := client.KV().Release(pair, nil)
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Error! Failed writing data: %s", key))
+			c.UI.Error(fmt.Sprintf("Error! Failed writing data: %s", key))
 			return 1
 		}
 		if !ok {
-			c.Ui.Error("Error! Did not release lock")
+			c.UI.Error("Error! Did not release lock")
 			return 1
 		}
 
-		c.Ui.Info(fmt.Sprintf("Success! Lock released on: %s", key))
+		c.UI.Info(fmt.Sprintf("Success! Lock released on: %s", key))
 		return 0
 	default:
 		if _, err := client.KV().Put(pair, nil); err != nil {
-			c.Ui.Error(fmt.Sprintf("Error! Failed writing data: %s", err))
+			c.UI.Error(fmt.Sprintf("Error! Failed writing data: %s", err))
 			return 1
 		}
 
-		c.Ui.Info(fmt.Sprintf("Success! Data written to: %s", key))
+		c.UI.Info(fmt.Sprintf("Success! Data written to: %s", key))
 		return 0
 	}
 }
@@ -225,13 +224,12 @@ func (c *KVPutCommand) dataFromArgs(args []string) (string, string, error) {
 	case '-':
 		if len(data) > 1 {
 			return key, data, nil
-		} else {
-			var b bytes.Buffer
-			if _, err := io.Copy(&b, stdin); err != nil {
-				return "", "", fmt.Errorf("Failed to read stdin: %s", err)
-			}
-			return key, b.String(), nil
 		}
+		var b bytes.Buffer
+		if _, err := io.Copy(&b, stdin); err != nil {
+			return "", "", fmt.Errorf("Failed to read stdin: %s", err)
+		}
+		return key, b.String(), nil
 	default:
 		return key, data, nil
 	}

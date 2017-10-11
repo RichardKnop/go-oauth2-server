@@ -1722,15 +1722,15 @@ type TestA301ResponseWriter struct {
 	status int
 }
 
-func (ho TestA301ResponseWriter) Header() http.Header {
+func (ho *TestA301ResponseWriter) Header() http.Header {
 	return http.Header(ho.hh)
 }
 
-func (ho TestA301ResponseWriter) Write(b []byte) (int, error) {
+func (ho *TestA301ResponseWriter) Write(b []byte) (int, error) {
 	return 0, nil
 }
 
-func (ho TestA301ResponseWriter) WriteHeader(code int) {
+func (ho *TestA301ResponseWriter) WriteHeader(code int) {
 	ho.status = code
 }
 
@@ -1870,4 +1870,43 @@ func newRequest(method, url string) *http.Request {
 		panic(err)
 	}
 	return req
+}
+
+func TestNoMatchMethodErrorHandler(t *testing.T) {
+	func1 := func(w http.ResponseWriter, r *http.Request) {}
+
+	r := NewRouter()
+	r.HandleFunc("/", func1).Methods("GET", "POST")
+
+	req, _ := http.NewRequest("PUT", "http://localhost/", nil)
+	match := new(RouteMatch)
+	matched := r.Match(req, match)
+
+	if matched {
+		t.Error("Should not have matched route for methods")
+	}
+
+	if match.MatchErr != ErrMethodMismatch {
+		t.Error("Should get ErrMethodMismatch error")
+	}
+
+	resp := NewRecorder()
+	r.ServeHTTP(resp, req)
+	if resp.Code != 405 {
+		t.Errorf("Expecting code %v", 405)
+	}
+
+	// Add matching route
+	r.HandleFunc("/", func1).Methods("PUT")
+
+	match = new(RouteMatch)
+	matched = r.Match(req, match)
+
+	if !matched {
+		t.Error("Should have matched route for methods")
+	}
+
+	if match.MatchErr != nil {
+		t.Error("Should not have any matching error. Found:", match.MatchErr)
+	}
 }

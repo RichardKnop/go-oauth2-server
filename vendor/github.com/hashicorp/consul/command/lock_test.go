@@ -8,22 +8,23 @@ import (
 	"testing"
 	"time"
 
+	"github.com/hashicorp/consul/agent"
 	"github.com/hashicorp/consul/api"
-	"github.com/hashicorp/consul/command/base"
 	"github.com/mitchellh/cli"
 )
 
 func testLockCommand(t *testing.T) (*cli.MockUi, *LockCommand) {
-	ui := new(cli.MockUi)
+	ui := cli.NewMockUi()
 	return ui, &LockCommand{
-		Command: base.Command{
-			Ui:    ui,
-			Flags: base.FlagSetHTTP,
+		BaseCommand: BaseCommand{
+			UI:    ui,
+			Flags: FlagSetHTTP,
 		},
 	}
 }
 
 func TestLockCommand_implements(t *testing.T) {
+	t.Parallel()
 	var _ cli.Command = &LockCommand{}
 }
 
@@ -39,20 +40,21 @@ func argFail(t *testing.T, args []string, expected string) {
 }
 
 func TestLockCommand_BadArgs(t *testing.T) {
+	t.Parallel()
 	argFail(t, []string{"-try=blah", "test/prefix", "date"}, "invalid duration")
 	argFail(t, []string{"-try=-10s", "test/prefix", "date"}, "Timeout must be positive")
 	argFail(t, []string{"-monitor-retry=-5", "test/prefix", "date"}, "must be >= 0")
 }
 
 func TestLockCommand_Run(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
-	waitForLeader(t, a1.httpAddr)
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testLockCommand(t)
-	filePath := filepath.Join(a1.dir, "test_touch")
+	filePath := filepath.Join(a.Config.DataDir, "test_touch")
 	touchCmd := fmt.Sprintf("touch '%s'", filePath)
-	args := []string{"-http-addr=" + a1.httpAddr, "test/prefix", touchCmd}
+	args := []string{"-http-addr=" + a.HTTPAddr(), "test/prefix", touchCmd}
 
 	code := c.Run(args)
 	if code != 0 {
@@ -67,14 +69,14 @@ func TestLockCommand_Run(t *testing.T) {
 }
 
 func TestLockCommand_Try_Lock(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
-	waitForLeader(t, a1.httpAddr)
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testLockCommand(t)
-	filePath := filepath.Join(a1.dir, "test_touch")
+	filePath := filepath.Join(a.Config.DataDir, "test_touch")
 	touchCmd := fmt.Sprintf("touch '%s'", filePath)
-	args := []string{"-http-addr=" + a1.httpAddr, "-try=10s", "test/prefix", touchCmd}
+	args := []string{"-http-addr=" + a.HTTPAddr(), "-try=10s", "test/prefix", touchCmd}
 
 	// Run the command.
 	var lu *LockUnlock
@@ -98,14 +100,14 @@ func TestLockCommand_Try_Lock(t *testing.T) {
 }
 
 func TestLockCommand_Try_Semaphore(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
-	waitForLeader(t, a1.httpAddr)
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testLockCommand(t)
-	filePath := filepath.Join(a1.dir, "test_touch")
+	filePath := filepath.Join(a.Config.DataDir, "test_touch")
 	touchCmd := fmt.Sprintf("touch '%s'", filePath)
-	args := []string{"-http-addr=" + a1.httpAddr, "-n=3", "-try=10s", "test/prefix", touchCmd}
+	args := []string{"-http-addr=" + a.HTTPAddr(), "-n=3", "-try=10s", "test/prefix", touchCmd}
 
 	// Run the command.
 	var lu *LockUnlock
@@ -129,14 +131,14 @@ func TestLockCommand_Try_Semaphore(t *testing.T) {
 }
 
 func TestLockCommand_MonitorRetry_Lock_Default(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
-	waitForLeader(t, a1.httpAddr)
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testLockCommand(t)
-	filePath := filepath.Join(a1.dir, "test_touch")
+	filePath := filepath.Join(a.Config.DataDir, "test_touch")
 	touchCmd := fmt.Sprintf("touch '%s'", filePath)
-	args := []string{"-http-addr=" + a1.httpAddr, "test/prefix", touchCmd}
+	args := []string{"-http-addr=" + a.HTTPAddr(), "test/prefix", touchCmd}
 
 	// Run the command.
 	var lu *LockUnlock
@@ -161,14 +163,14 @@ func TestLockCommand_MonitorRetry_Lock_Default(t *testing.T) {
 }
 
 func TestLockCommand_MonitorRetry_Semaphore_Default(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
-	waitForLeader(t, a1.httpAddr)
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testLockCommand(t)
-	filePath := filepath.Join(a1.dir, "test_touch")
+	filePath := filepath.Join(a.Config.DataDir, "test_touch")
 	touchCmd := fmt.Sprintf("touch '%s'", filePath)
-	args := []string{"-http-addr=" + a1.httpAddr, "-n=3", "test/prefix", touchCmd}
+	args := []string{"-http-addr=" + a.HTTPAddr(), "-n=3", "test/prefix", touchCmd}
 
 	// Run the command.
 	var lu *LockUnlock
@@ -193,14 +195,14 @@ func TestLockCommand_MonitorRetry_Semaphore_Default(t *testing.T) {
 }
 
 func TestLockCommand_MonitorRetry_Lock_Arg(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
-	waitForLeader(t, a1.httpAddr)
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testLockCommand(t)
-	filePath := filepath.Join(a1.dir, "test_touch")
+	filePath := filepath.Join(a.Config.DataDir, "test_touch")
 	touchCmd := fmt.Sprintf("touch '%s'", filePath)
-	args := []string{"-http-addr=" + a1.httpAddr, "-monitor-retry=9", "test/prefix", touchCmd}
+	args := []string{"-http-addr=" + a.HTTPAddr(), "-monitor-retry=9", "test/prefix", touchCmd}
 
 	// Run the command.
 	var lu *LockUnlock
@@ -225,14 +227,14 @@ func TestLockCommand_MonitorRetry_Lock_Arg(t *testing.T) {
 }
 
 func TestLockCommand_MonitorRetry_Semaphore_Arg(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
-	waitForLeader(t, a1.httpAddr)
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testLockCommand(t)
-	filePath := filepath.Join(a1.dir, "test_touch")
+	filePath := filepath.Join(a.Config.DataDir, "test_touch")
 	touchCmd := fmt.Sprintf("touch '%s'", filePath)
-	args := []string{"-http-addr=" + a1.httpAddr, "-n=3", "-monitor-retry=9", "test/prefix", touchCmd}
+	args := []string{"-http-addr=" + a.HTTPAddr(), "-n=3", "-monitor-retry=9", "test/prefix", touchCmd}
 
 	// Run the command.
 	var lu *LockUnlock
@@ -254,4 +256,34 @@ func TestLockCommand_MonitorRetry_Semaphore_Arg(t *testing.T) {
 		opts.MonitorRetryTime != defaultMonitorRetryTime {
 		t.Fatalf("bad: %#v", opts)
 	}
+}
+
+func TestLockCommand_ChildExitCode(t *testing.T) {
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
+
+	t.Run("clean exit", func(t *testing.T) {
+		_, c := testLockCommand(t)
+		args := []string{"-http-addr=" + a.HTTPAddr(), "-child-exit-code", "test/prefix", "exit 0"}
+		if got, want := c.Run(args), 0; got != want {
+			t.Fatalf("got %d want %d", got, want)
+		}
+	})
+
+	t.Run("error exit", func(t *testing.T) {
+		_, c := testLockCommand(t)
+		args := []string{"-http-addr=" + a.HTTPAddr(), "-child-exit-code", "test/prefix", "exit 1"}
+		if got, want := c.Run(args), 2; got != want {
+			t.Fatalf("got %d want %d", got, want)
+		}
+	})
+
+	t.Run("not propagated", func(t *testing.T) {
+		_, c := testLockCommand(t)
+		args := []string{"-http-addr=" + a.HTTPAddr(), "test/prefix", "exit 1"}
+		if got, want := c.Run(args), 0; got != want {
+			t.Fatalf("got %d want %d", got, want)
+		}
+	})
 }

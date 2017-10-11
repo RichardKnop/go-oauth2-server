@@ -71,9 +71,16 @@ a {
     margin-top: 200px;
 }
 
+.sticky-scroll {
+    top: 15px;
+    position: sticky;
+    position: -webkit-sticky;
+    overflow: scroll;
+}
+
 .row {
     &.colored {
-        background-color: $light-purple;
+        background-color: $light-pink;
     }
 }
 
@@ -82,12 +89,12 @@ a {
 }
 
 
-.bg-purple {
-    background-color: $purple;
+.bg-pink {
+    background-color: $pink;
 }
 
-.bg-light-purple {
-    background-color: $light-purple;
+.bg-light-pink {
+    background-color: $light-pink;
 }
 
 .bg-orange {

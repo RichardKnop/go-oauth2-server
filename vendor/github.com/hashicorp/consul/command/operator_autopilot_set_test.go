@@ -5,29 +5,30 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hashicorp/consul/command/base"
-	"github.com/hashicorp/consul/consul/structs"
+	"github.com/hashicorp/consul/agent"
+	"github.com/hashicorp/consul/agent/structs"
 	"github.com/mitchellh/cli"
 )
 
 func TestOperator_Autopilot_Set_Implements(t *testing.T) {
+	t.Parallel()
 	var _ cli.Command = &OperatorAutopilotSetCommand{}
 }
 
 func TestOperator_Autopilot_Set(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
-	waitForLeader(t, a1.httpAddr)
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
-	ui := new(cli.MockUi)
+	ui := cli.NewMockUi()
 	c := OperatorAutopilotSetCommand{
-		Command: base.Command{
-			Ui:    ui,
-			Flags: base.FlagSetHTTP,
+		BaseCommand: BaseCommand{
+			UI:    ui,
+			Flags: FlagSetHTTP,
 		},
 	}
 	args := []string{
-		"-http-addr=" + a1.httpAddr,
+		"-http-addr=" + a.HTTPAddr(),
 		"-cleanup-dead-servers=false",
 		"-max-trailing-logs=99",
 		"-last-contact-threshold=123ms",
@@ -47,7 +48,7 @@ func TestOperator_Autopilot_Set(t *testing.T) {
 		Datacenter: "dc1",
 	}
 	var reply structs.AutopilotConfig
-	if err := a1.agent.RPC("Operator.AutopilotGetConfiguration", &req, &reply); err != nil {
+	if err := a.RPC("Operator.AutopilotGetConfiguration", &req, &reply); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 

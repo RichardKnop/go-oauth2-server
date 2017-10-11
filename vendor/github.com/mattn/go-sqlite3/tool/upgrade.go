@@ -1,5 +1,3 @@
-// +build ignore
-
 package main
 
 import (
@@ -28,7 +26,7 @@ func main() {
 	var url string
 	doc.Find("a").Each(func(_ int, s *goquery.Selection) {
 		if url == "" && strings.HasPrefix(s.Text(), "sqlite-amalgamation-") {
-			url = "https://www.sqlite.org/2017/" + s.Text()
+			url = "https://www.sqlite.org/2016/" + s.Text()
 		}
 	})
 	if url == "" {

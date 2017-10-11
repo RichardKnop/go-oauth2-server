@@ -8,7 +8,7 @@ description: |-
 
 # Session HTTP Endpoint
 
-The `/session` endpoints create, destroy, and query sessions in Cosul.
+The `/session` endpoints create, destroy, and query sessions in Consul.
 
 ## Create Session
 
@@ -49,7 +49,7 @@ The table below shows this endpoint's support for
   session is invalidated. Valid values are:
 
   - `release` - causes any locks that are held to be released
-  - `delete` - causes an locks that are held to be deleted
+  - `delete` - causes any locks that are held to be deleted
 
 - `TTL` `(string: "")` - Specifies the number of seconds (between 10s and
   86400s). If provided, the session is invalidated if it is not renewed before

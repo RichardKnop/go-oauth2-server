@@ -45,7 +45,7 @@ func TestV3PutOverwrite(t *testing.T) {
 
 	kvc := toGRPC(clus.RandClient()).KV
 	key := []byte("foo")
-	reqput := &pb.PutRequest{Key: key, Value: []byte("bar")}
+	reqput := &pb.PutRequest{Key: key, Value: []byte("bar"), PrevKv: true}
 
 	respput, err := kvc.Put(context.TODO(), reqput)
 	if err != nil {
@@ -61,6 +61,9 @@ func TestV3PutOverwrite(t *testing.T) {
 	if respput2.Header.Revision <= respput.Header.Revision {
 		t.Fatalf("expected newer revision on overwrite, got %v <= %v",
 			respput2.Header.Revision, respput.Header.Revision)
+	}
+	if pkv := respput2.PrevKv; pkv == nil || string(pkv.Value) != "bar" {
+		t.Fatalf("expected PrevKv=bar, got response %+v", respput2)
 	}
 
 	reqrange := &pb.RangeRequest{Key: key}
@@ -325,6 +328,58 @@ func TestV3TxnRevision(t *testing.T) {
 	// updated revision
 	if tresp.Header.Revision != presp.Header.Revision+1 {
 		t.Fatalf("got rev %d, wanted rev %d", tresp.Header.Revision, presp.Header.Revision+1)
+	}
+}
+
+// Testv3TxnCmpHeaderRev tests that the txn header revision is set as expected
+// when compared to the Succeeded field in the txn response.
+func TestV3TxnCmpHeaderRev(t *testing.T) {
+	defer testutil.AfterTest(t)
+	clus := NewClusterV3(t, &ClusterConfig{Size: 1})
+	defer clus.Terminate(t)
+
+	kvc := toGRPC(clus.RandClient()).KV
+
+	for i := 0; i < 10; i++ {
+		// Concurrently put a key with a txn comparing on it.
+		revc := make(chan int64, 1)
+		go func() {
+			defer close(revc)
+			pr := &pb.PutRequest{Key: []byte("k"), Value: []byte("v")}
+			presp, err := kvc.Put(context.TODO(), pr)
+			if err != nil {
+				t.Fatal(err)
+			}
+			revc <- presp.Header.Revision
+		}()
+
+		// The read-only txn uses the optimized readindex server path.
+		txnget := &pb.RequestOp{Request: &pb.RequestOp_RequestRange{
+			RequestRange: &pb.RangeRequest{Key: []byte("k")}}}
+		txn := &pb.TxnRequest{Success: []*pb.RequestOp{txnget}}
+		// i = 0 /\ Succeeded => put followed txn
+		cmp := &pb.Compare{
+			Result:      pb.Compare_EQUAL,
+			Target:      pb.Compare_VERSION,
+			Key:         []byte("k"),
+			TargetUnion: &pb.Compare_Version{Version: int64(i)},
+		}
+		txn.Compare = append(txn.Compare, cmp)
+
+		tresp, err := kvc.Txn(context.TODO(), txn)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		prev := <-revc
+		// put followed txn; should eval to false
+		if prev > tresp.Header.Revision && !tresp.Succeeded {
+			t.Errorf("#%d: got else but put rev %d followed txn rev (%+v)", i, prev, tresp)
+		}
+		// txn follows put; should eval to true
+		if tresp.Header.Revision >= prev && tresp.Succeeded {
+			t.Errorf("#%d: got then but put rev %d preceded txn (%+v)", i, prev, tresp)
+		}
 	}
 }
 
@@ -1402,9 +1457,9 @@ func TestTLSReloadAtomicReplace(t *testing.T) {
 	defer os.RemoveAll(certsDirExp)
 
 	cloneFunc := func() transport.TLSInfo {
-		tlsInfo, err := copyTLSFiles(testTLSInfo, certsDir)
-		if err != nil {
-			t.Fatal(err)
+		tlsInfo, terr := copyTLSFiles(testTLSInfo, certsDir)
+		if terr != nil {
+			t.Fatal(terr)
 		}
 		if _, err = copyTLSFiles(testTLSInfoExpired, certsDirExp); err != nil {
 			t.Fatal(err)
@@ -1448,9 +1503,9 @@ func TestTLSReloadCopy(t *testing.T) {
 	defer os.RemoveAll(certsDir)
 
 	cloneFunc := func() transport.TLSInfo {
-		tlsInfo, err := copyTLSFiles(testTLSInfo, certsDir)
-		if err != nil {
-			t.Fatal(err)
+		tlsInfo, terr := copyTLSFiles(testTLSInfo, certsDir)
+		if terr != nil {
+			t.Fatal(terr)
 		}
 		return tlsInfo
 	}

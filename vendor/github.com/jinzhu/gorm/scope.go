@@ -253,15 +253,25 @@ func (scope *Scope) CallMethod(methodName string) {
 
 // AddToVars add value as sql's vars, used to prevent SQL injection
 func (scope *Scope) AddToVars(value interface{}) string {
+	_, skipBindVar := scope.InstanceGet("skip_bindvar")
+
 	if expr, ok := value.(*expr); ok {
 		exp := expr.expr
 		for _, arg := range expr.args {
-			exp = strings.Replace(exp, "?", scope.AddToVars(arg), 1)
+			if skipBindVar {
+				scope.AddToVars(arg)
+			} else {
+				exp = strings.Replace(exp, "?", scope.AddToVars(arg), 1)
+			}
 		}
 		return exp
 	}
 
 	scope.SQLVars = append(scope.SQLVars, value)
+
+	if skipBindVar {
+		return "?"
+	}
 	return scope.Dialect().BindVar(len(scope.SQLVars))
 }
 
@@ -329,12 +339,12 @@ func (scope *Scope) QuotedTableName() (name string) {
 
 // CombinedConditionSql return combined condition sql
 func (scope *Scope) CombinedConditionSql() string {
-	joinSql := scope.joinsSQL()
-	whereSql := scope.whereSQL()
+	joinSQL := scope.joinsSQL()
+	whereSQL := scope.whereSQL()
 	if scope.Search.raw {
-		whereSql = strings.TrimSuffix(strings.TrimPrefix(whereSql, "WHERE ("), ")")
+		whereSQL = strings.TrimSuffix(strings.TrimPrefix(whereSQL, "WHERE ("), ")")
 	}
-	return joinSql + whereSql + scope.groupSQL() +
+	return joinSQL + whereSQL + scope.groupSQL() +
 		scope.havingSQL() + scope.orderSQL() + scope.limitAndOffsetSQL()
 }
 
@@ -448,8 +458,8 @@ func (scope *Scope) callMethod(methodName string, reflectValue reflect.Value) {
 }
 
 var (
-	columnRegexp        = regexp.MustCompile("^[a-zA-Z]+(\\.[a-zA-Z]+)*$") // only match string like `name`, `users.name`
-	isNumberRegexp      = regexp.MustCompile("^\\s*\\d+\\s*$")             // match if string is number
+	columnRegexp        = regexp.MustCompile("^[a-zA-Z\\d]+(\\.[a-zA-Z\\d]+)*$") // only match string like `name`, `users.name`
+	isNumberRegexp      = regexp.MustCompile("^\\s*\\d+\\s*$")                   // match if string is number
 	comparisonRegexp    = regexp.MustCompile("(?i) (=|<>|>|<|LIKE|IS|IN) ")
 	countingQueryRegexp = regexp.MustCompile("(?i)^count(.+)$")
 )
@@ -1129,7 +1139,7 @@ func (scope *Scope) dropTable() *Scope {
 }
 
 func (scope *Scope) modifyColumn(column string, typ string) {
-	scope.Raw(fmt.Sprintf("ALTER TABLE %v MODIFY %v %v", scope.QuotedTableName(), scope.Quote(column), typ)).Exec()
+	scope.Raw(fmt.Sprintf("ALTER TABLE %v ALTER COLUMN %v TYPE %v", scope.QuotedTableName(), scope.Quote(column), typ)).Exec()
 }
 
 func (scope *Scope) dropColumn(column string) {

@@ -790,7 +790,7 @@ Prints a line of JSON encoding the database hash, revision, total keys, and size
 
 ## Concurrency commands
 
-### LOCK \<lockname\>
+### LOCK \<lockname\> [command arg1 arg2 ...]
 
 LOCK acquires a distributed named mutex with a given name. Once the lock is acquired, it will be held until etcdctl is terminated.
 
@@ -798,11 +798,22 @@ LOCK acquires a distributed named mutex with a given name. Once the lock is acqu
 
 Once the lock is acquired, the result for the GET on the unique lock holder key is displayed.
 
+If a command is given, it will be launched with environment variables `ETCD_LOCK_KEY` and `ETCD_LOCK_REV` set to the lock's holder key and revision.
+
 #### Example
+
+Acquire lock with standard output display:
 
 ```bash
 ./etcdctl lock mylock
 # mylock/1234534535445
+```
+
+Acquire lock and execute `echo lock acquired`:
+
+```bash
+./etcdctl lock mylock echo lock acquired
+# lock acquired
 ```
 
 #### Remarks
@@ -961,16 +972,27 @@ RPC: RoleGrantPermission
 
 #### Options
 
+- from-key -- grant a permission of keys that are greater than or equal to the given key using byte compare
+
 - prefix -- grant a prefix permission
 
-#### Ouptut
+#### Output
 
 `Role <role name> updated`.
 
 #### Examples
 
+Grant read and write permission on the key `foo` to role `myrole`:
+
 ```bash
 ./etcdctl --user=root:123 role grant-permission myrole readwrite foo
+# Role myrole updated
+```
+
+Grant read permission on the wildcard key pattern `foo/*` to role `myrole`:
+
+```bash
+./etcdctl --user=root:123 role grant-permission --prefix myrole readwrite foo/
 # Role myrole updated
 ```
 
@@ -979,6 +1001,12 @@ RPC: RoleGrantPermission
 `role revoke-permission` revokes a key from a role.
 
 RPC: RoleRevokePermission
+
+#### Options
+
+- from-key -- revoke a permission of keys that are greater than or equal to the given key using byte compare
+
+- prefix -- revoke a prefix permission
 
 #### Output
 

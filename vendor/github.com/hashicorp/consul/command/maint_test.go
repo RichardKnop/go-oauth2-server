@@ -4,26 +4,28 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/consul/command/base"
-	"github.com/hashicorp/consul/consul/structs"
+	"github.com/hashicorp/consul/agent"
+	"github.com/hashicorp/consul/agent/structs"
 	"github.com/mitchellh/cli"
 )
 
 func testMaintCommand(t *testing.T) (*cli.MockUi, *MaintCommand) {
-	ui := new(cli.MockUi)
+	ui := cli.NewMockUi()
 	return ui, &MaintCommand{
-		Command: base.Command{
-			Ui:    ui,
-			Flags: base.FlagSetClientHTTP,
+		BaseCommand: BaseCommand{
+			UI:    ui,
+			Flags: FlagSetClientHTTP,
 		},
 	}
 }
 
 func TestMaintCommand_implements(t *testing.T) {
+	t.Parallel()
 	var _ cli.Command = &MaintCommand{}
 }
 
 func TestMaintCommandRun_ConflictingArgs(t *testing.T) {
+	t.Parallel()
 	_, c := testMaintCommand(t)
 
 	if code := c.Run([]string{"-enable", "-disable"}); code != 1 {
@@ -44,28 +46,29 @@ func TestMaintCommandRun_ConflictingArgs(t *testing.T) {
 }
 
 func TestMaintCommandRun_NoArgs(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	// Register the service and put it into maintenance mode
 	service := &structs.NodeService{
 		ID:      "test",
 		Service: "test",
 	}
-	if err := a1.agent.AddService(service, nil, false, ""); err != nil {
+	if err := a.AddService(service, nil, false, ""); err != nil {
 		t.Fatalf("err: %v", err)
 	}
-	if err := a1.agent.EnableServiceMaintenance("test", "broken 1", ""); err != nil {
+	if err := a.EnableServiceMaintenance("test", "broken 1", ""); err != nil {
 		t.Fatalf("err: %s", err)
 	}
 
 	// Enable node maintenance
-	a1.agent.EnableNodeMaintenance("broken 2", "")
+	a.EnableNodeMaintenance("broken 2", "")
 
 	// Run consul maint with no args (list mode)
 	ui, c := testMaintCommand(t)
 
-	args := []string{"-http-addr=" + a1.httpAddr}
+	args := []string{"-http-addr=" + a.HTTPAddr()}
 	code := c.Run(args)
 	if code != 0 {
 		t.Fatalf("bad: %d. %#v", code, ui.ErrorWriter.String())
@@ -81,7 +84,7 @@ func TestMaintCommandRun_NoArgs(t *testing.T) {
 	}
 
 	// Ensure the node shows up in the list
-	if !strings.Contains(out, a1.config.NodeName) {
+	if !strings.Contains(out, a.Config.NodeName) {
 		t.Fatalf("bad:\n%s", out)
 	}
 	if !strings.Contains(out, "broken 2") {
@@ -90,13 +93,14 @@ func TestMaintCommandRun_NoArgs(t *testing.T) {
 }
 
 func TestMaintCommandRun_EnableNodeMaintenance(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testMaintCommand(t)
 
 	args := []string{
-		"-http-addr=" + a1.httpAddr,
+		"-http-addr=" + a.HTTPAddr(),
 		"-enable",
 		"-reason=broken",
 	}
@@ -111,13 +115,14 @@ func TestMaintCommandRun_EnableNodeMaintenance(t *testing.T) {
 }
 
 func TestMaintCommandRun_DisableNodeMaintenance(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testMaintCommand(t)
 
 	args := []string{
-		"-http-addr=" + a1.httpAddr,
+		"-http-addr=" + a.HTTPAddr(),
 		"-disable",
 	}
 	code := c.Run(args)
@@ -131,22 +136,23 @@ func TestMaintCommandRun_DisableNodeMaintenance(t *testing.T) {
 }
 
 func TestMaintCommandRun_EnableServiceMaintenance(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	// Register the service
 	service := &structs.NodeService{
 		ID:      "test",
 		Service: "test",
 	}
-	if err := a1.agent.AddService(service, nil, false, ""); err != nil {
+	if err := a.AddService(service, nil, false, ""); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
 	ui, c := testMaintCommand(t)
 
 	args := []string{
-		"-http-addr=" + a1.httpAddr,
+		"-http-addr=" + a.HTTPAddr(),
 		"-enable",
 		"-service=test",
 		"-reason=broken",
@@ -162,22 +168,23 @@ func TestMaintCommandRun_EnableServiceMaintenance(t *testing.T) {
 }
 
 func TestMaintCommandRun_DisableServiceMaintenance(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	// Register the service
 	service := &structs.NodeService{
 		ID:      "test",
 		Service: "test",
 	}
-	if err := a1.agent.AddService(service, nil, false, ""); err != nil {
+	if err := a.AddService(service, nil, false, ""); err != nil {
 		t.Fatalf("err: %v", err)
 	}
 
 	ui, c := testMaintCommand(t)
 
 	args := []string{
-		"-http-addr=" + a1.httpAddr,
+		"-http-addr=" + a.HTTPAddr(),
 		"-disable",
 		"-service=test",
 	}
@@ -192,13 +199,14 @@ func TestMaintCommandRun_DisableServiceMaintenance(t *testing.T) {
 }
 
 func TestMaintCommandRun_ServiceMaintenance_NoService(t *testing.T) {
-	a1 := testAgent(t)
-	defer a1.Shutdown()
+	t.Parallel()
+	a := agent.NewTestAgent(t.Name(), nil)
+	defer a.Shutdown()
 
 	ui, c := testMaintCommand(t)
 
 	args := []string{
-		"-http-addr=" + a1.httpAddr,
+		"-http-addr=" + a.HTTPAddr(),
 		"-enable",
 		"-service=redis",
 		"-reason=broken",

@@ -109,7 +109,7 @@ type Config struct {
 
 	Debug        bool   `json:"debug"`
 	LogPkgLevels string `json:"log-package-levels"`
-	EnablePprof  bool
+	EnablePprof  bool   `json:"enable-pprof"`
 	Metrics      string `json:"metrics"`
 
 	// ForceNewCluster starts a new cluster even if previously started; unsafe.
@@ -331,7 +331,9 @@ func (cfg *Config) PeerURLsMapAndToken(which string) (urlsmap types.URLsMap, tok
 		}
 		clusterStr := strings.Join(clusterStrs, ",")
 		if strings.Contains(clusterStr, "https://") && cfg.PeerTLSInfo.CAFile == "" {
-			cfg.PeerTLSInfo.ServerName = cfg.DNSCluster
+			// SRV targets have subdomains under the given DNSCluster, so wildcard matching
+			// is needed.
+			cfg.PeerTLSInfo.ServerName = "*." + cfg.DNSCluster
 		}
 		urlsmap, err = types.NewURLsMap(clusterStr)
 		// only etcd member must belong to the discovered cluster.

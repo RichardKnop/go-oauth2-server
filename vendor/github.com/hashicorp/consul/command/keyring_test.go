@@ -4,37 +4,38 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/consul/command/agent"
-	"github.com/hashicorp/consul/command/base"
+	"github.com/hashicorp/consul/agent"
 	"github.com/mitchellh/cli"
 )
 
 func testKeyringCommand(t *testing.T) (*cli.MockUi, *KeyringCommand) {
-	ui := new(cli.MockUi)
+	ui := cli.NewMockUi()
 	return ui, &KeyringCommand{
-		Command: base.Command{
-			Ui:    ui,
-			Flags: base.FlagSetClientHTTP,
+		BaseCommand: BaseCommand{
+			UI:    ui,
+			Flags: FlagSetClientHTTP,
 		},
 	}
 }
 
 func TestKeyringCommand_implements(t *testing.T) {
+	t.Parallel()
 	var _ cli.Command = &KeyringCommand{}
 }
 
 func TestKeyringCommandRun(t *testing.T) {
+	t.Parallel()
 	key1 := "HS5lJ+XuTlYKWaeGYyG+/A=="
 	key2 := "kZyFABeAmc64UMTrm9XuKA=="
 
 	// Begin with a single key
-	a1 := testAgentWithConfig(t, func(c *agent.Config) {
-		c.EncryptKey = key1
-	})
+	cfg := agent.TestConfig()
+	cfg.EncryptKey = key1
+	a1 := agent.NewTestAgent(t.Name(), cfg)
 	defer a1.Shutdown()
 
 	// The LAN and WAN keyrings were initialized with key1
-	out := listKeys(t, a1.httpAddr)
+	out := listKeys(t, a1.HTTPAddr())
 	if !strings.Contains(out, "dc1 (LAN):\n  "+key1) {
 		t.Fatalf("bad: %#v", out)
 	}
@@ -46,10 +47,10 @@ func TestKeyringCommandRun(t *testing.T) {
 	}
 
 	// Install the second key onto the keyring
-	installKey(t, a1.httpAddr, key2)
+	installKey(t, a1.HTTPAddr(), key2)
 
 	// Both keys should be present
-	out = listKeys(t, a1.httpAddr)
+	out = listKeys(t, a1.HTTPAddr())
 	for _, key := range []string{key1, key2} {
 		if !strings.Contains(out, key) {
 			t.Fatalf("bad: %#v", out)
@@ -57,11 +58,11 @@ func TestKeyringCommandRun(t *testing.T) {
 	}
 
 	// Rotate to key2, remove key1
-	useKey(t, a1.httpAddr, key2)
-	removeKey(t, a1.httpAddr, key1)
+	useKey(t, a1.HTTPAddr(), key2)
+	removeKey(t, a1.HTTPAddr(), key1)
 
 	// Only key2 is present now
-	out = listKeys(t, a1.httpAddr)
+	out = listKeys(t, a1.HTTPAddr())
 	if !strings.Contains(out, "dc1 (LAN):\n  "+key2) {
 		t.Fatalf("bad: %#v", out)
 	}
@@ -74,6 +75,7 @@ func TestKeyringCommandRun(t *testing.T) {
 }
 
 func TestKeyringCommandRun_help(t *testing.T) {
+	t.Parallel()
 	ui, c := testKeyringCommand(t)
 	code := c.Run(nil)
 	if code != 1 {
@@ -87,6 +89,7 @@ func TestKeyringCommandRun_help(t *testing.T) {
 }
 
 func TestKeyringCommandRun_failedConnection(t *testing.T) {
+	t.Parallel()
 	ui, c := testKeyringCommand(t)
 	args := []string{"-list", "-http-addr=127.0.0.1:0"}
 	code := c.Run(args)
@@ -99,6 +102,7 @@ func TestKeyringCommandRun_failedConnection(t *testing.T) {
 }
 
 func TestKeyringCommandRun_invalidRelayFactor(t *testing.T) {
+	t.Parallel()
 	ui, c := testKeyringCommand(t)
 
 	args := []string{"-list", "-relay-factor=6"}

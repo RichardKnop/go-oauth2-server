@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/consul/command/agent"
-	"github.com/hashicorp/consul/command/base"
+	"github.com/hashicorp/consul/agent"
+	"github.com/hashicorp/consul/configutil"
 )
 
 // ValidateCommand is a Command implementation that is used to
 // verify config files
 type ValidateCommand struct {
-	base.Command
+	BaseCommand
 }
 
 func (c *ValidateCommand) Help() string {
@@ -26,7 +26,7 @@ Usage: consul validate [options] FILE_OR_DIRECTORY...
 
   Returns 0 if the configuration is valid, or 1 if there are problems.
 
-` + c.Command.Help()
+` + c.BaseCommand.Help()
 
 	return strings.TrimSpace(helpText)
 }
@@ -35,17 +35,17 @@ func (c *ValidateCommand) Run(args []string) int {
 	var configFiles []string
 	var quiet bool
 
-	f := c.Command.NewFlagSet(c)
-	f.Var((*agent.AppendSliceValue)(&configFiles), "config-file",
+	f := c.BaseCommand.NewFlagSet(c)
+	f.Var((*configutil.AppendSliceValue)(&configFiles), "config-file",
 		"Path to a JSON file to read configuration from. This can be specified multiple times.")
-	f.Var((*agent.AppendSliceValue)(&configFiles), "config-dir",
+	f.Var((*configutil.AppendSliceValue)(&configFiles), "config-dir",
 		"Path to a directory to read configuration files from. This will read every file ending in "+
 			".json as configuration in this directory in alphabetical order.")
 	f.BoolVar(&quiet, "quiet", false,
 		"When given, a successful run will produce no output.")
-	c.Command.HideFlags("config-file", "config-dir")
+	c.BaseCommand.HideFlags("config-file", "config-dir")
 
-	if err := c.Command.Parse(args); err != nil {
+	if err := c.BaseCommand.Parse(args); err != nil {
 		return 1
 	}
 
@@ -54,18 +54,18 @@ func (c *ValidateCommand) Run(args []string) int {
 	}
 
 	if len(configFiles) < 1 {
-		c.Ui.Error("Must specify at least one config file or directory")
+		c.UI.Error("Must specify at least one config file or directory")
 		return 1
 	}
 
 	_, err := agent.ReadConfigPaths(configFiles)
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Config validation failed: %v", err.Error()))
+		c.UI.Error(fmt.Sprintf("Config validation failed: %v", err.Error()))
 		return 1
 	}
 
 	if !quiet {
-		c.Ui.Output("Configuration is valid!")
+		c.UI.Output("Configuration is valid!")
 	}
 	return 0
 }

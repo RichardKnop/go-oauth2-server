@@ -5,34 +5,36 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hashicorp/consul/command/base"
+	"github.com/hashicorp/consul/agent"
 	"github.com/mitchellh/cli"
 )
 
 func testJoinCommand(t *testing.T) (*cli.MockUi, *JoinCommand) {
-	ui := new(cli.MockUi)
+	ui := cli.NewMockUi()
 	return ui, &JoinCommand{
-		Command: base.Command{
-			Ui:    ui,
-			Flags: base.FlagSetClientHTTP,
+		BaseCommand: BaseCommand{
+			UI:    ui,
+			Flags: FlagSetClientHTTP,
 		},
 	}
 }
 
 func TestJoinCommand_implements(t *testing.T) {
+	t.Parallel()
 	var _ cli.Command = &JoinCommand{}
 }
 
 func TestJoinCommandRun(t *testing.T) {
-	a1 := testAgent(t)
-	a2 := testAgent(t)
+	t.Parallel()
+	a1 := agent.NewTestAgent(t.Name(), nil)
+	a2 := agent.NewTestAgent(t.Name(), nil)
 	defer a1.Shutdown()
 	defer a2.Shutdown()
 
 	ui, c := testJoinCommand(t)
 	args := []string{
-		"-http-addr=" + a1.httpAddr,
-		fmt.Sprintf("127.0.0.1:%d", a2.config.Ports.SerfLan),
+		"-http-addr=" + a1.HTTPAddr(),
+		fmt.Sprintf("127.0.0.1:%d", a2.Config.Ports.SerfLan),
 	}
 
 	code := c.Run(args)
@@ -40,22 +42,23 @@ func TestJoinCommandRun(t *testing.T) {
 		t.Fatalf("bad: %d. %#v", code, ui.ErrorWriter.String())
 	}
 
-	if len(a1.agent.LANMembers()) != 2 {
-		t.Fatalf("bad: %#v", a1.agent.LANMembers())
+	if len(a1.LANMembers()) != 2 {
+		t.Fatalf("bad: %#v", a1.LANMembers())
 	}
 }
 
 func TestJoinCommandRun_wan(t *testing.T) {
-	a1 := testAgent(t)
-	a2 := testAgent(t)
+	t.Parallel()
+	a1 := agent.NewTestAgent(t.Name(), nil)
+	a2 := agent.NewTestAgent(t.Name(), nil)
 	defer a1.Shutdown()
 	defer a2.Shutdown()
 
 	ui, c := testJoinCommand(t)
 	args := []string{
-		"-http-addr=" + a1.httpAddr,
+		"-http-addr=" + a1.HTTPAddr(),
 		"-wan",
-		fmt.Sprintf("127.0.0.1:%d", a2.config.Ports.SerfWan),
+		fmt.Sprintf("127.0.0.1:%d", a2.Config.Ports.SerfWan),
 	}
 
 	code := c.Run(args)
@@ -63,12 +66,13 @@ func TestJoinCommandRun_wan(t *testing.T) {
 		t.Fatalf("bad: %d. %#v", code, ui.ErrorWriter.String())
 	}
 
-	if len(a1.agent.WANMembers()) != 2 {
-		t.Fatalf("bad: %#v", a1.agent.WANMembers())
+	if len(a1.WANMembers()) != 2 {
+		t.Fatalf("bad: %#v", a1.WANMembers())
 	}
 }
 
 func TestJoinCommandRun_noAddrs(t *testing.T) {
+	t.Parallel()
 	ui, c := testJoinCommand(t)
 	args := []string{"-http-addr=foo"}
 

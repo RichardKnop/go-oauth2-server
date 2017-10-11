@@ -11,17 +11,14 @@ import (
 	"time"
 )
 
-// Dialect is a type of dialect of databases.
 type Dialect int
 
-// Dialects for databases.
 const (
-	SQLITE     Dialect = iota // SQLITE mean SQLite3 dialect
-	POSTGRESQL                // POSTGRESQL mean PostgreSQL dialect
-	MYSQL                     // MYSQL mean MySQL dialect
+	SQLITE Dialect = iota
+	POSTGRESQL
+	MYSQL
 )
 
-// DB provide context for the tests
 type DB struct {
 	*testing.T
 	*sql.DB
@@ -35,19 +32,19 @@ var db *DB
 var testTables = []string{"foo", "bar", "t", "bench"}
 
 var tests = []testing.InternalTest{
-	{Name: "TestBlobs", F: TestBlobs},
-	{Name: "TestManyQueryRow", F: TestManyQueryRow},
-	{Name: "TestTxQuery", F: TestTxQuery},
-	{Name: "TestPreparedStmt", F: TestPreparedStmt},
+	{"TestBlobs", TestBlobs},
+	{"TestManyQueryRow", TestManyQueryRow},
+	{"TestTxQuery", TestTxQuery},
+	{"TestPreparedStmt", TestPreparedStmt},
 }
 
 var benchmarks = []testing.InternalBenchmark{
-	{Name: "BenchmarkExec", F: BenchmarkExec},
-	{Name: "BenchmarkQuery", F: BenchmarkQuery},
-	{Name: "BenchmarkParams", F: BenchmarkParams},
-	{Name: "BenchmarkStmt", F: BenchmarkStmt},
-	{Name: "BenchmarkRows", F: BenchmarkRows},
-	{Name: "BenchmarkStmtRows", F: BenchmarkStmtRows},
+	{"BenchmarkExec", BenchmarkExec},
+	{"BenchmarkQuery", BenchmarkQuery},
+	{"BenchmarkParams", BenchmarkParams},
+	{"BenchmarkStmt", BenchmarkStmt},
+	{"BenchmarkRows", BenchmarkRows},
+	{"BenchmarkStmtRows", BenchmarkStmtRows},
 }
 
 // RunTests runs the SQL test suite
@@ -81,7 +78,7 @@ func (db *DB) tearDown() {
 		case MYSQL, POSTGRESQL:
 			db.mustExec("drop table if exists " + tbl)
 		default:
-			db.Fatal("unknown dialect")
+			db.Fatal("unkown dialect")
 		}
 	}
 }
@@ -109,7 +106,7 @@ func (db *DB) blobType(size int) string {
 	case MYSQL:
 		return fmt.Sprintf("VARBINARY(%d)", size)
 	}
-	panic("unknown dialect")
+	panic("unkown dialect")
 }
 
 func (db *DB) serialPK() string {
@@ -121,7 +118,7 @@ func (db *DB) serialPK() string {
 	case MYSQL:
 		return "integer primary key auto_increment"
 	}
-	panic("unknown dialect")
+	panic("unkown dialect")
 }
 
 func (db *DB) now() string {
@@ -133,7 +130,7 @@ func (db *DB) now() string {
 	case MYSQL:
 		return "now()"
 	}
-	panic("unknown dialect")
+	panic("unkown dialect")
 }
 
 func makeBench() {
@@ -152,7 +149,6 @@ func makeBench() {
 	}
 }
 
-// TestResult is test for result
 func TestResult(t *testing.T) {
 	db.tearDown()
 	db.mustExec("create temporary table test (id " + db.serialPK() + ", name varchar(10))")
@@ -179,7 +175,6 @@ func TestResult(t *testing.T) {
 	}
 }
 
-// TestBlobs is test for blobs
 func TestBlobs(t *testing.T) {
 	db.tearDown()
 	var blob = []byte{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
@@ -206,7 +201,6 @@ func TestBlobs(t *testing.T) {
 	}
 }
 
-// TestManyQueryRow is test for many query row
 func TestManyQueryRow(t *testing.T) {
 	if testing.Short() {
 		t.Log("skipping in short mode")
@@ -224,7 +218,6 @@ func TestManyQueryRow(t *testing.T) {
 	}
 }
 
-// TestTxQuery is test for transactional query
 func TestTxQuery(t *testing.T) {
 	db.tearDown()
 	tx, err := db.Begin()
@@ -263,7 +256,6 @@ func TestTxQuery(t *testing.T) {
 	}
 }
 
-// TestPreparedStmt is test for prepared statement
 func TestPreparedStmt(t *testing.T) {
 	db.tearDown()
 	db.mustExec("CREATE TABLE t (count INT)")
@@ -309,7 +301,6 @@ func TestPreparedStmt(t *testing.T) {
 // test -bench but calling Benchmark() from a benchmark test
 // currently hangs go.
 
-// BenchmarkExec is benchmark for exec
 func BenchmarkExec(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		if _, err := db.Exec("select 1"); err != nil {
@@ -318,7 +309,6 @@ func BenchmarkExec(b *testing.B) {
 	}
 }
 
-// BenchmarkQuery is benchmark for query
 func BenchmarkQuery(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var n sql.NullString
@@ -332,7 +322,6 @@ func BenchmarkQuery(b *testing.B) {
 	}
 }
 
-// BenchmarkParams is benchmark for params
 func BenchmarkParams(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		var n sql.NullString
@@ -346,7 +335,6 @@ func BenchmarkParams(b *testing.B) {
 	}
 }
 
-// BenchmarkStmt is benchmark for statement
 func BenchmarkStmt(b *testing.B) {
 	st, err := db.Prepare("select ?, ?, ?, ?")
 	if err != nil {
@@ -366,7 +354,6 @@ func BenchmarkStmt(b *testing.B) {
 	}
 }
 
-// BenchmarkRows is benchmark for rows
 func BenchmarkRows(b *testing.B) {
 	db.once.Do(makeBench)
 
@@ -391,7 +378,6 @@ func BenchmarkRows(b *testing.B) {
 	}
 }
 
-// BenchmarkStmtRows is benchmark for statement rows
 func BenchmarkStmtRows(b *testing.B) {
 	db.once.Do(makeBench)
 

@@ -57,7 +57,7 @@ popd
 
 for dir in ${DIRS}; do
 	pushd ${dir}
-		protoc --gofast_out=plugins=grpc,import_prefix=github.com/coreos/:. -I=.:"${GOGOPROTO_PATH}":"${COREOS_ROOT}":"${GRPC_GATEWAY_ROOT}/third_party/googleapis" *.proto
+		protoc --gofast_out=plugins=grpc,import_prefix=github.com/coreos/:. -I=".:${GOGOPROTO_PATH}:${COREOS_ROOT}:${GRPC_GATEWAY_ROOT}/third_party/googleapis" *.proto
 		sed -i.bak -E "s/github\.com\/coreos\/(gogoproto|github\.com|golang\.org|google\.golang\.org)/\1/g" *.pb.go
 		sed -i.bak -E 's/github\.com\/coreos\/(errors|fmt|io)/\1/g' *.pb.go
 		sed -i.bak -E 's/import _ \"gogoproto\"//g' *.pb.go
@@ -68,6 +68,8 @@ for dir in ${DIRS}; do
 	popd
 done
 
+# remove old swagger files so it's obvious whether the files fail to generate
+rm -rf Documentation/dev-guide/apispec/swagger/*json
 for pb in etcdserverpb/rpc api/v3lock/v3lockpb/v3lock api/v3election/v3electionpb/v3election; do
 	protobase="etcdserver/${pb}"
 	protoc -I. \
@@ -93,8 +95,9 @@ for pb in etcdserverpb/rpc api/v3lock/v3lockpb/v3lock api/v3election/v3electionp
 	go fmt ${gwfile}
 	mv ${gwfile} ${pkgpath}/gw/
 	rm -f ./etcdserver/${pb}*.bak
+	swaggerName=`basename ${pb}`
 	mv	Documentation/dev-guide/apispec/swagger/etcdserver/${pb}.swagger.json \
-		Documentation/dev-guide/apispec/swagger/${name}.swagger.json
+		Documentation/dev-guide/apispec/swagger/${swaggerName}.swagger.json
 done
 rm -rf Documentation/dev-guide/apispec/swagger/etcdserver/
 
@@ -107,7 +110,7 @@ rm -rf Documentation/dev-guide/apispec/swagger/etcdserver/
 if [ "$1" = "-g" ]; then
 	echo "protodoc is auto-generating grpc API reference documentation..."
 	go get -v -u github.com/coreos/protodoc
-	SHA_PROTODOC="f4164b1cce80b5eba4c835d08483f552dc568b7c"
+	SHA_PROTODOC="4372ee725035a208404e2d5465ba921469decc32"
 	PROTODOC_PATH="${GOPATH}/src/github.com/coreos/protodoc"
 	pushd "${PROTODOC_PATH}"
 		git reset --hard "${SHA_PROTODOC}"

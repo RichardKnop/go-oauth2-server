@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"github.com/hashicorp/consul/command/base"
 	"sort"
 	"strings"
 )
@@ -10,41 +9,41 @@ import (
 // InfoCommand is a Command implementation that queries a running
 // Consul agent for various debugging statistics for operators
 type InfoCommand struct {
-	base.Command
+	BaseCommand
 }
 
-func (i *InfoCommand) Help() string {
+func (c *InfoCommand) Help() string {
 	helpText := `
 Usage: consul info [options]
 
 	Provides debugging information for operators
 
-` + i.Command.Help()
+` + c.BaseCommand.Help()
 
 	return strings.TrimSpace(helpText)
 }
 
-func (i *InfoCommand) Run(args []string) int {
-	i.Command.NewFlagSet(i)
+func (c *InfoCommand) Run(args []string) int {
+	c.BaseCommand.NewFlagSet(c)
 
-	if err := i.Command.Parse(args); err != nil {
+	if err := c.BaseCommand.Parse(args); err != nil {
 		return 1
 	}
 
-	client, err := i.Command.HTTPClient()
+	client, err := c.BaseCommand.HTTPClient()
 	if err != nil {
-		i.Ui.Error(fmt.Sprintf("Error connecting to Consul agent: %s", err))
+		c.UI.Error(fmt.Sprintf("Error connecting to Consul agent: %s", err))
 		return 1
 	}
 
 	self, err := client.Agent().Self()
 	if err != nil {
-		i.Ui.Error(fmt.Sprintf("Error querying agent: %s", err))
+		c.UI.Error(fmt.Sprintf("Error querying agent: %s", err))
 		return 1
 	}
 	stats, ok := self["Stats"]
 	if !ok {
-		i.Ui.Error(fmt.Sprintf("Agent response did not contain 'Stats' key: %v", self))
+		c.UI.Error(fmt.Sprintf("Agent response did not contain 'Stats' key: %v", self))
 		return 1
 	}
 
@@ -57,12 +56,12 @@ func (i *InfoCommand) Run(args []string) int {
 
 	// Iterate over each top-level key
 	for _, key := range keys {
-		i.Ui.Output(key + ":")
+		c.UI.Output(key + ":")
 
 		// Sort the sub-keys
 		subvals, ok := stats[key].(map[string]interface{})
 		if !ok {
-			i.Ui.Error(fmt.Sprintf("Got invalid subkey in stats: %v", subvals))
+			c.UI.Error(fmt.Sprintf("Got invalid subkey in stats: %v", subvals))
 			return 1
 		}
 		subkeys := make([]string, 0, len(subvals))
@@ -74,12 +73,12 @@ func (i *InfoCommand) Run(args []string) int {
 		// Iterate over the subkeys
 		for _, subkey := range subkeys {
 			val := subvals[subkey]
-			i.Ui.Output(fmt.Sprintf("\t%s = %s", subkey, val))
+			c.UI.Output(fmt.Sprintf("\t%s = %s", subkey, val))
 		}
 	}
 	return 0
 }
 
-func (i *InfoCommand) Synopsis() string {
+func (c *InfoCommand) Synopsis() string {
 	return "Provides debugging information for operators."
 }

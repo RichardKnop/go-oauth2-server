@@ -4,12 +4,10 @@ import (
 	"flag"
 	"fmt"
 	"strings"
-
-	"github.com/hashicorp/consul/command/base"
 )
 
 type OperatorRaftCommand struct {
-	base.Command
+	BaseCommand
 }
 
 func (c *OperatorRaftCommand) Help() string {
@@ -36,7 +34,7 @@ func (c *OperatorRaftCommand) Synopsis() string {
 
 func (c *OperatorRaftCommand) Run(args []string) int {
 	if result := c.raft(args); result != nil {
-		c.Ui.Error(result.Error())
+		c.UI.Error(result.Error())
 		return 1
 	}
 	return 0
@@ -44,7 +42,7 @@ func (c *OperatorRaftCommand) Run(args []string) int {
 
 // raft handles the raft subcommands.
 func (c *OperatorRaftCommand) raft(args []string) error {
-	f := c.Command.NewFlagSet(c)
+	f := c.BaseCommand.NewFlagSet(c)
 
 	// Parse verb arguments.
 	var listPeers, removePeer bool
@@ -63,9 +61,9 @@ func (c *OperatorRaftCommand) raft(args []string) error {
 
 	// Leave these flags for backwards compatibility, but hide them
 	// TODO: remove flags/behavior from this command in Consul 0.9
-	c.Command.HideFlags("list-peers", "remove-peer", "address")
+	c.BaseCommand.HideFlags("list-peers", "remove-peer", "address")
 
-	if err := c.Command.Parse(args); err != nil {
+	if err := c.BaseCommand.Parse(args); err != nil {
 		if err == flag.ErrHelp {
 			return nil
 		}
@@ -73,26 +71,25 @@ func (c *OperatorRaftCommand) raft(args []string) error {
 	}
 
 	// Set up a client.
-	client, err := c.Command.HTTPClient()
+	client, err := c.BaseCommand.HTTPClient()
 	if err != nil {
 		return fmt.Errorf("error connecting to Consul agent: %s", err)
 	}
-	operator := client.Operator()
 
 	// Dispatch based on the verb argument.
 	if listPeers {
-		result, err := raftListPeers(operator, c.Command.HTTPStale())
+		result, err := raftListPeers(client, c.BaseCommand.HTTPStale())
 		if err != nil {
-			c.Ui.Error(fmt.Sprintf("Error getting peers: %v", err))
+			c.UI.Error(fmt.Sprintf("Error getting peers: %v", err))
 		}
-		c.Ui.Output(result)
+		c.UI.Output(result)
 	} else if removePeer {
-		if err := raftRemovePeers(address, "", operator); err != nil {
+		if err := raftRemovePeers(address, "", client.Operator()); err != nil {
 			return fmt.Errorf("Error removing peer: %v", err)
 		}
-		c.Ui.Output(fmt.Sprintf("Removed peer with address %q", address))
+		c.UI.Output(fmt.Sprintf("Removed peer with address %q", address))
 	} else {
-		c.Ui.Output(c.Help())
+		c.UI.Output(c.Help())
 		return nil
 	}
 

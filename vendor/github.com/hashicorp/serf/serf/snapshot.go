@@ -84,7 +84,7 @@ func NewSnapshotter(path string,
 	inCh := make(chan Event, 1024)
 
 	// Try to open the file
-	fh, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0644)
+	fh, err := os.OpenFile(path, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0755)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to open snapshot: %v", err)
 	}
@@ -532,10 +532,7 @@ func (s *Snapshotter) replay() error {
 				s.logger.Printf("[WARN] serf: Failed to decode coordinate: %v", err)
 				continue
 			}
-			if err := s.coordClient.SetCoordinate(&coord); err != nil {
-				s.logger.Printf("[WARN] serf: Failed to set coordinate: %v", err)
-				continue
-			}
+			s.coordClient.SetCoordinate(&coord)
 		} else if line == "leave" {
 			// Ignore a leave if we plan on re-joining
 			if s.rejoinAfterLeave {

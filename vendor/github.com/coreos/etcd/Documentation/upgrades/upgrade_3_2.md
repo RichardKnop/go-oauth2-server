@@ -30,11 +30,27 @@ resp.TTL == -1
 err == nil
 ```
 
+`clientv3.NewFromConfigFile` is moved to `yaml.NewConfig`.
+
+Before
+
+```go
+import "github.com/coreos/etcd/clientv3"
+clientv3.NewFromConfigFile
+```
+
+After
+
+```go
+import clientv3yaml "github.com/coreos/etcd/clientv3/yaml"
+clientv3yaml.NewConfig
+```
+
 ### Server upgrade checklists
 
 #### Upgrade requirements
 
-To upgrade an existing etcd deployment to 3.2, the running cluster must be 3.1 or greater. If it's before 3.1, please upgrade to [3.1](https://github.com/coreos/etcd/releases/tag/v3.1.7) before upgrading to 3.2.
+To upgrade an existing etcd deployment to 3.2, the running cluster must be 3.1 or greater. If it's before 3.1, please [upgrade to 3.1](upgrade_3_1.md) before upgrading to 3.2.
 
 Also, to ensure a smooth rolling upgrade, the running cluster must be healthy. Check the health of the cluster by using the `etcdctl endpoint health` command before proceeding.
 

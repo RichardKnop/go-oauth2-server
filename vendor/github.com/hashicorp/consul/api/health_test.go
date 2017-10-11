@@ -5,9 +5,11 @@ import (
 	"testing"
 
 	"github.com/hashicorp/consul/testutil"
+	"github.com/hashicorp/consul/testutil/retry"
+	"github.com/pascaldekloe/goe/verify"
 )
 
-func TestHealth_Node(t *testing.T) {
+func TestAPI_HealthNode(t *testing.T) {
 	t.Parallel()
 	c, s := makeClient(t)
 	defer s.Stop()
@@ -20,25 +22,21 @@ func TestHealth_Node(t *testing.T) {
 		t.Fatalf("err: %v", err)
 	}
 	name := info["Config"]["NodeName"].(string)
-
-	if err := testutil.WaitForResult(func() (bool, error) {
+	retry.Run(t, func(r *retry.R) {
 		checks, meta, err := health.Node(name, nil)
 		if err != nil {
-			return false, err
+			r.Fatal(err)
 		}
 		if meta.LastIndex == 0 {
-			return false, fmt.Errorf("bad: %v", meta)
+			r.Fatalf("bad: %v", meta)
 		}
 		if len(checks) == 0 {
-			return false, fmt.Errorf("bad: %v", checks)
+			r.Fatalf("bad: %v", checks)
 		}
-		return true, nil
-	}); err != nil {
-		t.Fatal(err)
-	}
+	})
 }
 
-func TestHealthChecks_AggregatedStatus(t *testing.T) {
+func TestAPI_HealthChecks_AggregatedStatus(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
@@ -171,9 +169,11 @@ func TestHealthChecks_AggregatedStatus(t *testing.T) {
 	}
 }
 
-func TestHealth_Checks(t *testing.T) {
+func TestAPI_HealthChecks(t *testing.T) {
 	t.Parallel()
-	c, s := makeClient(t)
+	c, s := makeClientWithConfig(t, nil, func(conf *testutil.TestServerConfig) {
+		conf.NodeName = "node123"
+	})
 	defer s.Stop()
 
 	agent := c.Agent()
@@ -182,6 +182,7 @@ func TestHealth_Checks(t *testing.T) {
 	// Make a service with a check
 	reg := &AgentServiceRegistration{
 		Name: "foo",
+		Tags: []string{"bar"},
 		Check: &AgentServiceCheck{
 			TTL: "15s",
 		},
@@ -191,24 +192,33 @@ func TestHealth_Checks(t *testing.T) {
 	}
 	defer agent.ServiceDeregister("foo")
 
-	if err := testutil.WaitForResult(func() (bool, error) {
-		checks, meta, err := health.Checks("foo", nil)
+	retry.Run(t, func(r *retry.R) {
+		checks := HealthChecks{
+			&HealthCheck{
+				Node:        "node123",
+				CheckID:     "service:foo",
+				Name:        "Service 'foo' check",
+				Status:      "critical",
+				ServiceID:   "foo",
+				ServiceName: "foo",
+				ServiceTags: []string{"bar"},
+			},
+		}
+
+		out, meta, err := health.Checks("foo", nil)
 		if err != nil {
-			return false, err
+			r.Fatal(err)
 		}
 		if meta.LastIndex == 0 {
-			return false, fmt.Errorf("bad: %v", meta)
+			r.Fatalf("bad: %v", meta)
 		}
-		if len(checks) == 0 {
-			return false, fmt.Errorf("Bad: %v", checks)
+		if got, want := out, checks; !verify.Values(t, "checks", got, want) {
+			r.Fatal("health.Checks failed")
 		}
-		return true, nil
-	}); err != nil {
-		t.Fatal(err)
-	}
+	})
 }
 
-func TestHealth_Checks_NodeMetaFilter(t *testing.T) {
+func TestAPI_HealthChecks_NodeMetaFilter(t *testing.T) {
 	t.Parallel()
 	meta := map[string]string{"somekey": "somevalue"}
 	c, s := makeClientWithConfig(t, nil, func(conf *testutil.TestServerConfig) {
@@ -231,51 +241,47 @@ func TestHealth_Checks_NodeMetaFilter(t *testing.T) {
 	}
 	defer agent.ServiceDeregister("foo")
 
-	if err := testutil.WaitForResult(func() (bool, error) {
+	retry.Run(t, func(r *retry.R) {
 		checks, meta, err := health.Checks("foo", &QueryOptions{NodeMeta: meta})
 		if err != nil {
-			return false, err
+			r.Fatal(err)
 		}
 		if meta.LastIndex == 0 {
-			return false, fmt.Errorf("bad: %v", meta)
+			r.Fatalf("bad: %v", meta)
 		}
 		if len(checks) == 0 {
-			return false, fmt.Errorf("Bad: %v", checks)
+			r.Fatalf("Bad: %v", checks)
 		}
-		return true, nil
-	}); err != nil {
-		t.Fatal(err)
-	}
+	})
 }
 
-func TestHealth_Service(t *testing.T) {
+func TestAPI_HealthService(t *testing.T) {
 	c, s := makeClient(t)
 	defer s.Stop()
 
 	health := c.Health()
-
-	if err := testutil.WaitForResult(func() (bool, error) {
+	retry.Run(t, func(r *retry.R) {
 		// consul service should always exist...
 		checks, meta, err := health.Service("consul", "", true, nil)
 		if err != nil {
-			return false, err
+			r.Fatal(err)
 		}
 		if meta.LastIndex == 0 {
-			return false, fmt.Errorf("bad: %v", meta)
+			r.Fatalf("bad: %v", meta)
 		}
 		if len(checks) == 0 {
-			return false, fmt.Errorf("Bad: %v", checks)
+			r.Fatalf("Bad: %v", checks)
 		}
 		if _, ok := checks[0].Node.TaggedAddresses["wan"]; !ok {
-			return false, fmt.Errorf("Bad: %v", checks[0].Node)
+			r.Fatalf("Bad: %v", checks[0].Node)
 		}
-		return true, nil
-	}); err != nil {
-		t.Fatal(err)
-	}
+		if checks[0].Node.Datacenter != "dc1" {
+			r.Fatalf("Bad datacenter: %v", checks[0].Node)
+		}
+	})
 }
 
-func TestHealth_Service_NodeMetaFilter(t *testing.T) {
+func TestAPI_HealthService_NodeMetaFilter(t *testing.T) {
 	meta := map[string]string{"somekey": "somevalue"}
 	c, s := makeClientWithConfig(t, nil, func(conf *testutil.TestServerConfig) {
 		conf.NodeMeta = meta
@@ -283,53 +289,48 @@ func TestHealth_Service_NodeMetaFilter(t *testing.T) {
 	defer s.Stop()
 
 	health := c.Health()
-
-	if err := testutil.WaitForResult(func() (bool, error) {
+	retry.Run(t, func(r *retry.R) {
 		// consul service should always exist...
 		checks, meta, err := health.Service("consul", "", true, &QueryOptions{NodeMeta: meta})
 		if err != nil {
-			return false, err
+			r.Fatal(err)
 		}
 		if meta.LastIndex == 0 {
-			return false, fmt.Errorf("bad: %v", meta)
+			r.Fatalf("bad: %v", meta)
 		}
 		if len(checks) == 0 {
-			return false, fmt.Errorf("Bad: %v", checks)
+			r.Fatalf("Bad: %v", checks)
 		}
 		if _, ok := checks[0].Node.TaggedAddresses["wan"]; !ok {
-			return false, fmt.Errorf("Bad: %v", checks[0].Node)
+			r.Fatalf("Bad: %v", checks[0].Node)
 		}
-		return true, nil
-	}); err != nil {
-		t.Fatal(err)
-	}
+		if checks[0].Node.Datacenter != "dc1" {
+			r.Fatalf("Bad datacenter: %v", checks[0].Node)
+		}
+	})
 }
 
-func TestHealth_State(t *testing.T) {
+func TestAPI_HealthState(t *testing.T) {
 	t.Parallel()
 	c, s := makeClient(t)
 	defer s.Stop()
 
 	health := c.Health()
-
-	if err := testutil.WaitForResult(func() (bool, error) {
+	retry.Run(t, func(r *retry.R) {
 		checks, meta, err := health.State("any", nil)
 		if err != nil {
-			return false, err
+			r.Fatal(err)
 		}
 		if meta.LastIndex == 0 {
-			return false, fmt.Errorf("bad: %v", meta)
+			r.Fatalf("bad: %v", meta)
 		}
 		if len(checks) == 0 {
-			return false, fmt.Errorf("Bad: %v", checks)
+			r.Fatalf("Bad: %v", checks)
 		}
-		return true, nil
-	}); err != nil {
-		t.Fatal(err)
-	}
+	})
 }
 
-func TestHealth_State_NodeMetaFilter(t *testing.T) {
+func TestAPI_HealthState_NodeMetaFilter(t *testing.T) {
 	t.Parallel()
 	meta := map[string]string{"somekey": "somevalue"}
 	c, s := makeClientWithConfig(t, nil, func(conf *testutil.TestServerConfig) {
@@ -338,20 +339,16 @@ func TestHealth_State_NodeMetaFilter(t *testing.T) {
 	defer s.Stop()
 
 	health := c.Health()
-
-	if err := testutil.WaitForResult(func() (bool, error) {
+	retry.Run(t, func(r *retry.R) {
 		checks, meta, err := health.State("any", &QueryOptions{NodeMeta: meta})
 		if err != nil {
-			return false, err
+			r.Fatal(err)
 		}
 		if meta.LastIndex == 0 {
-			return false, fmt.Errorf("bad: %v", meta)
+			r.Fatalf("bad: %v", meta)
 		}
 		if len(checks) == 0 {
-			return false, fmt.Errorf("Bad: %v", checks)
+			r.Fatalf("Bad: %v", checks)
 		}
-		return true, nil
-	}); err != nil {
-		t.Fatal(err)
-	}
+	})
 }

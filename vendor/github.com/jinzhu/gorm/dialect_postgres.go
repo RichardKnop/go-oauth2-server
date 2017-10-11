@@ -13,6 +13,7 @@ type postgres struct {
 
 func init() {
 	RegisterDialect("postgres", &postgres{})
+	RegisterDialect("cloudsqlpostgres", &postgres{})
 }
 
 func (postgres) GetName() string {
@@ -30,14 +31,14 @@ func (s *postgres) DataTypeOf(field *StructField) string {
 		switch dataValue.Kind() {
 		case reflect.Bool:
 			sqlType = "boolean"
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uintptr:
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uintptr:
 			if _, ok := field.TagSettings["AUTO_INCREMENT"]; ok || field.IsPrimaryKey {
 				field.TagSettings["AUTO_INCREMENT"] = "AUTO_INCREMENT"
 				sqlType = "serial"
 			} else {
 				sqlType = "integer"
 			}
-		case reflect.Int64, reflect.Uint64:
+		case reflect.Int64, reflect.Uint32, reflect.Uint64:
 			if _, ok := field.TagSettings["AUTO_INCREMENT"]; ok || field.IsPrimaryKey {
 				field.TagSettings["AUTO_INCREMENT"] = "AUTO_INCREMENT"
 				sqlType = "bigserial"
@@ -67,8 +68,9 @@ func (s *postgres) DataTypeOf(field *StructField) string {
 		default:
 			if IsByteArrayOrSlice(dataValue) {
 				sqlType = "bytea"
-			} else if isUUID(dataValue) {
-				sqlType = "uuid"
+				if isUUID(dataValue) {
+					sqlType = "uuid"
+				}
 			}
 		}
 	}
@@ -85,7 +87,7 @@ func (s *postgres) DataTypeOf(field *StructField) string {
 
 func (s postgres) HasIndex(tableName string, indexName string) bool {
 	var count int
-	s.db.QueryRow("SELECT count(*) FROM pg_indexes WHERE tablename = $1 AND indexname = $2", tableName, indexName).Scan(&count)
+	s.db.QueryRow("SELECT count(*) FROM pg_indexes WHERE tablename = $1 AND indexname = $2 AND schemaname = CURRENT_SCHEMA()", tableName, indexName).Scan(&count)
 	return count > 0
 }
 
@@ -97,13 +99,13 @@ func (s postgres) HasForeignKey(tableName string, foreignKeyName string) bool {
 
 func (s postgres) HasTable(tableName string) bool {
 	var count int
-	s.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.tables WHERE table_name = $1 AND table_type = 'BASE TABLE'", tableName).Scan(&count)
+	s.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.tables WHERE table_name = $1 AND table_type = 'BASE TABLE' AND table_schema = CURRENT_SCHEMA()", tableName).Scan(&count)
 	return count > 0
 }
 
 func (s postgres) HasColumn(tableName string, columnName string) bool {
 	var count int
-	s.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.columns WHERE table_name = $1 AND column_name = $2", tableName, columnName).Scan(&count)
+	s.db.QueryRow("SELECT count(*) FROM INFORMATION_SCHEMA.columns WHERE table_name = $1 AND column_name = $2 AND table_schema = CURRENT_SCHEMA()", tableName, columnName).Scan(&count)
 	return count > 0
 }
 

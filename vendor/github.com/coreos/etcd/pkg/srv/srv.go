@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+// Package srv looks up DNS SRV records.
 package srv
 
 import (
@@ -55,7 +56,7 @@ func GetCluster(service, name, dns string, apurls types.URLs) ([]string, error) 
 			host := net.JoinHostPort(srv.Target, port)
 			tcpAddr, terr := resolveTCPAddr("tcp", host)
 			if terr != nil {
-				terr = err
+				err = terr
 				continue
 			}
 			n := ""

@@ -4,14 +4,12 @@ import (
 	"fmt"
 	"strings"
 	"sync"
-
-	"github.com/hashicorp/consul/command/base"
 )
 
 // MonitorCommand is a Command implementation that queries a running
 // Consul agent what members are part of the cluster currently.
 type MonitorCommand struct {
-	base.Command
+	BaseCommand
 
 	ShutdownCh <-chan struct{}
 
@@ -29,7 +27,7 @@ Usage: consul monitor [options]
   example your agent may only be logging at INFO level, but with the monitor
   you can see the DEBUG level logs.
 
-` + c.Command.Help()
+` + c.BaseCommand.Help()
 
 	return strings.TrimSpace(helpText)
 }
@@ -37,23 +35,23 @@ Usage: consul monitor [options]
 func (c *MonitorCommand) Run(args []string) int {
 	var logLevel string
 
-	f := c.Command.NewFlagSet(c)
+	f := c.BaseCommand.NewFlagSet(c)
 	f.StringVar(&logLevel, "log-level", "INFO", "Log level of the agent.")
 
-	if err := c.Command.Parse(args); err != nil {
+	if err := c.BaseCommand.Parse(args); err != nil {
 		return 1
 	}
 
-	client, err := c.Command.HTTPClient()
+	client, err := c.BaseCommand.HTTPClient()
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Error connecting to Consul agent: %s", err))
+		c.UI.Error(fmt.Sprintf("Error connecting to Consul agent: %s", err))
 		return 1
 	}
 
 	eventDoneCh := make(chan struct{})
 	logCh, err := client.Agent().Monitor(logLevel, eventDoneCh, nil)
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Error starting monitor: %s", err))
+		c.UI.Error(fmt.Sprintf("Error starting monitor: %s", err))
 		return 1
 	}
 
@@ -66,15 +64,15 @@ func (c *MonitorCommand) Run(args []string) int {
 				if log == "" {
 					break OUTER
 				}
-				c.Ui.Info(log)
+				c.UI.Info(log)
 			}
 		}
 
 		c.lock.Lock()
 		defer c.lock.Unlock()
 		if !c.quitting {
-			c.Ui.Info("")
-			c.Ui.Output("Remote side ended the monitor! This usually means that the\n" +
+			c.UI.Info("")
+			c.UI.Output("Remote side ended the monitor! This usually means that the\n" +
 				"remote side has exited or crashed.")
 		}
 	}()

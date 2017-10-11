@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hashicorp/consul/command/agent"
-	"github.com/hashicorp/consul/command/base"
+	"github.com/hashicorp/consul/agent"
+	"github.com/hashicorp/consul/configutil"
 )
 
 // ConfigTestCommand is a Command implementation that is used to
 // verify config files
 type ConfigTestCommand struct {
-	base.Command
+	BaseCommand
 }
 
 func (c *ConfigTestCommand) Help() string {
@@ -28,7 +28,7 @@ Usage: consul configtest [options]
 
   Returns 0 if the configuration is valid, or 1 if there are problems.
 
-` + c.Command.Help()
+` + c.BaseCommand.Help()
 
 	return strings.TrimSpace(helpText)
 }
@@ -36,25 +36,25 @@ Usage: consul configtest [options]
 func (c *ConfigTestCommand) Run(args []string) int {
 	var configFiles []string
 
-	f := c.Command.NewFlagSet(c)
-	f.Var((*agent.AppendSliceValue)(&configFiles), "config-file",
+	f := c.BaseCommand.NewFlagSet(c)
+	f.Var((*configutil.AppendSliceValue)(&configFiles), "config-file",
 		"Path to a JSON file to read configuration from. This can be specified multiple times.")
-	f.Var((*agent.AppendSliceValue)(&configFiles), "config-dir",
+	f.Var((*configutil.AppendSliceValue)(&configFiles), "config-dir",
 		"Path to a directory to read configuration files from. This will read every file ending in "+
 			".json as configuration in this directory in alphabetical order.")
 
-	if err := c.Command.Parse(args); err != nil {
+	if err := c.BaseCommand.Parse(args); err != nil {
 		return 1
 	}
 
 	if len(configFiles) <= 0 {
-		c.Ui.Error("Must specify config using -config-file or -config-dir")
+		c.UI.Error("Must specify config using -config-file or -config-dir")
 		return 1
 	}
 
 	_, err := agent.ReadConfigPaths(configFiles)
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Config validation failed: %v", err.Error()))
+		c.UI.Error(fmt.Sprintf("Config validation failed: %v", err.Error()))
 		return 1
 	}
 	return 0

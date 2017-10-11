@@ -10,7 +10,6 @@ package sqlite3
 #cgo CFLAGS: -DSQLITE_ENABLE_RTREE -DSQLITE_THREADSAFE
 #cgo CFLAGS: -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4_UNICODE61
 #cgo CFLAGS: -DSQLITE_TRACE_SIZE_LIMIT=15
-#cgo CFLAGS: -DSQLITE_DISABLE_INTRINSIC
 #cgo CFLAGS: -Wno-deprecated-declarations
 #ifndef USE_LIBSQLITE3
 #include <sqlite3-binding.h>
@@ -383,14 +382,14 @@ func (c *SQLiteConn) RegisterFunc(name string, impl interface{}, pure bool) erro
 	if pure {
 		opts |= C.SQLITE_DETERMINISTIC
 	}
-	rv := sqlite3CreateFunction(c.db, cname, C.int(numArgs), C.int(opts), newHandle(c, &fi), C.callbackTrampoline, nil, nil)
+	rv := sqlite3_create_function(c.db, cname, C.int(numArgs), C.int(opts), newHandle(c, &fi), C.callbackTrampoline, nil, nil)
 	if rv != C.SQLITE_OK {
 		return c.lastError()
 	}
 	return nil
 }
 
-func sqlite3CreateFunction(db *C.sqlite3, zFunctionName *C.char, nArg C.int, eTextRep C.int, pApp uintptr, xFunc unsafe.Pointer, xStep unsafe.Pointer, xFinal unsafe.Pointer) C.int {
+func sqlite3_create_function(db *C.sqlite3, zFunctionName *C.char, nArg C.int, eTextRep C.int, pApp uintptr, xFunc unsafe.Pointer, xStep unsafe.Pointer, xFinal unsafe.Pointer) C.int {
 	return C._sqlite3_create_function(db, zFunctionName, nArg, eTextRep, C.uintptr_t(pApp), (*[0]byte)(unsafe.Pointer(xFunc)), (*[0]byte)(unsafe.Pointer(xStep)), (*[0]byte)(unsafe.Pointer(xFinal)))
 }
 
@@ -399,19 +398,11 @@ func (c *SQLiteConn) AutoCommit() bool {
 	return int(C.sqlite3_get_autocommit(c.db)) != 0
 }
 
-func (c *SQLiteConn) lastError() error {
-	return lastError(c.db)
-}
-
-func lastError(db *C.sqlite3) error {
-	rv := C.sqlite3_errcode(db)
-	if rv == C.SQLITE_OK {
-		return nil
-	}
+func (c *SQLiteConn) lastError() Error {
 	return Error{
-		Code:         ErrNo(rv),
-		ExtendedCode: ErrNoExtended(C.sqlite3_extended_errcode(db)),
-		err:          C.GoString(C.sqlite3_errmsg(db)),
+		Code:         ErrNo(C.sqlite3_errcode(c.db)),
+		ExtendedCode: ErrNoExtended(C.sqlite3_extended_errcode(c.db)),
+		err:          C.GoString(C.sqlite3_errmsg(c.db)),
 	}
 }
 
@@ -438,8 +429,7 @@ func (c *SQLiteConn) exec(ctx context.Context, query string, args []namedValue) 
 		if s.(*SQLiteStmt).s != nil {
 			na := s.NumInput()
 			if len(args) < na {
-				s.Close()
-				return nil, fmt.Errorf("not enough args to execute query: want %d got %d", na, len(args))
+				return nil, fmt.Errorf("Not enough args to execute query. Expected %d, got %d.", na, len(args))
 			}
 			for i := 0; i < na; i++ {
 				args[i].Ordinal -= start
@@ -489,7 +479,7 @@ func (c *SQLiteConn) query(ctx context.Context, query string, args []namedValue)
 		s.(*SQLiteStmt).cls = true
 		na := s.NumInput()
 		if len(args) < na {
-			return nil, fmt.Errorf("not enough args to execute query: want %d got %d", na, len(args))
+			return nil, fmt.Errorf("Not enough args to execute query. Expected %d, got %d.", na, len(args))
 		}
 		for i := 0; i < na; i++ {
 			args[i].Ordinal -= start
@@ -541,8 +531,6 @@ func errorString(err Error) string {
 //   _txlock=XXX
 //     Specify locking behavior for transactions.  XXX can be "immediate",
 //     "deferred", "exclusive".
-//   _foreign_keys=X
-//     Enable or disable enforcement of foreign keys.  X can be 1 or 0.
 func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	if C.sqlite3_threadsafe() == 0 {
 		return nil, errors.New("sqlite library was not compiled for thread-safe operation")
@@ -551,7 +539,6 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	var loc *time.Location
 	txlock := "BEGIN"
 	busyTimeout := 5000
-	foreignKeys := -1
 	pos := strings.IndexRune(dsn, '?')
 	if pos >= 1 {
 		params, err := url.ParseQuery(dsn[pos+1:])
@@ -594,18 +581,6 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 			}
 		}
 
-		// _foreign_keys
-		if val := params.Get("_foreign_keys"); val != "" {
-			switch val {
-			case "1":
-				foreignKeys = 1
-			case "0":
-				foreignKeys = 0
-			default:
-				return nil, fmt.Errorf("Invalid _foreign_keys: %v", val)
-			}
-		}
-
 		if !strings.HasPrefix(dsn, "file:") {
 			dsn = dsn[:pos]
 		}
@@ -628,43 +603,19 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 
 	rv = C.sqlite3_busy_timeout(db, C.int(busyTimeout))
 	if rv != C.SQLITE_OK {
-		C.sqlite3_close_v2(db)
 		return nil, Error{Code: ErrNo(rv)}
-	}
-
-	exec := func(s string) error {
-		cs := C.CString(s)
-		rv := C.sqlite3_exec(db, cs, nil, nil, nil)
-		C.free(unsafe.Pointer(cs))
-		if rv != C.SQLITE_OK {
-			return lastError(db)
-		}
-		return nil
-	}
-	if foreignKeys == 0 {
-		if err := exec("PRAGMA foreign_keys = OFF;"); err != nil {
-			C.sqlite3_close_v2(db)
-			return nil, err
-		}
-	} else if foreignKeys == 1 {
-		if err := exec("PRAGMA foreign_keys = ON;"); err != nil {
-			C.sqlite3_close_v2(db)
-			return nil, err
-		}
 	}
 
 	conn := &SQLiteConn{db: db, loc: loc, txlock: txlock}
 
 	if len(d.Extensions) > 0 {
 		if err := conn.loadExtensions(d.Extensions); err != nil {
-			conn.Close()
 			return nil, err
 		}
 	}
 
 	if d.ConnectHook != nil {
 		if err := d.ConnectHook(conn); err != nil {
-			conn.Close()
 			return nil, err
 		}
 	}
@@ -674,11 +625,11 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 
 // Close the connection.
 func (c *SQLiteConn) Close() error {
+	deleteHandles(c)
 	rv := C.sqlite3_close_v2(c.db)
 	if rv != C.SQLITE_OK {
 		return c.lastError()
 	}
-	deleteHandles(c)
 	c.db = nil
 	runtime.SetFinalizer(c, nil)
 	return nil
@@ -742,7 +693,7 @@ func (s *SQLiteStmt) bind(args []namedValue) error {
 
 	for i, v := range args {
 		if v.Name != "" {
-			cname := C.CString(":" + v.Name)
+			cname := C.CString(v.Name)
 			args[i].Ordinal = int(C.sqlite3_bind_parameter_index(s.s, cname))
 			C.free(unsafe.Pointer(cname))
 		}
@@ -814,18 +765,14 @@ func (s *SQLiteStmt) query(ctx context.Context, args []namedValue) (driver.Rows,
 		done:     make(chan struct{}),
 	}
 
-	go func(db *C.sqlite3) {
+	go func() {
 		select {
 		case <-ctx.Done():
-			select {
-			case <-rows.done:
-			default:
-				C.sqlite3_interrupt(db)
-				rows.Close()
-			}
+			C.sqlite3_interrupt(s.c.db)
+			rows.Close()
 		case <-rows.done:
 		}
-	}(s.c.db)
+	}()
 
 	return rows, nil
 }
@@ -861,13 +808,13 @@ func (s *SQLiteStmt) exec(ctx context.Context, args []namedValue) (driver.Result
 
 	done := make(chan struct{})
 	defer close(done)
-	go func(db *C.sqlite3) {
+	go func() {
 		select {
 		case <-ctx.Done():
-			C.sqlite3_interrupt(db)
+			C.sqlite3_interrupt(s.c.db)
 		case <-done:
 		}
-	}(s.c.db)
+	}()
 
 	var rowid, changes C.longlong
 	rv := C._sqlite3_step(s.s, &rowid, &changes)

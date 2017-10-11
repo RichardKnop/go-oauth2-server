@@ -107,35 +107,6 @@ func TestReadonly(t *testing.T) {
 	}
 }
 
-func TestForeignKeys(t *testing.T) {
-	cases := map[string]bool{
-		"?_foreign_keys=1": true,
-		"?_foreign_keys=0": false,
-	}
-	for option, want := range cases {
-		fname := TempFilename(t)
-		uri := "file:" + fname + option
-		db, err := sql.Open("sqlite3", uri)
-		if err != nil {
-			os.Remove(fname)
-			t.Errorf("sql.Open(\"sqlite3\", %q): %v", uri, err)
-			continue
-		}
-		var enabled bool
-		err = db.QueryRow("PRAGMA foreign_keys;").Scan(&enabled)
-		db.Close()
-		os.Remove(fname)
-		if err != nil {
-			t.Errorf("query foreign_keys for %s: %v", uri, err)
-			continue
-		}
-		if enabled != want {
-			t.Errorf("\"PRAGMA foreign_keys;\" for %q = %t; want %t", uri, enabled, want)
-			continue
-		}
-	}
-}
-
 func TestClose(t *testing.T) {
 	tempFilename := TempFilename(t)
 	defer os.Remove(tempFilename)
@@ -1213,6 +1184,66 @@ func TestFunctionRegistration(t *testing.T) {
 	}
 }
 
+type sumAggregator int64
+
+func (s *sumAggregator) Step(x int64) {
+	*s += sumAggregator(x)
+}
+
+func (s *sumAggregator) Done() int64 {
+	return int64(*s)
+}
+
+func TestAggregatorRegistration(t *testing.T) {
+	customSum := func() *sumAggregator {
+		var ret sumAggregator
+		return &ret
+	}
+
+	sql.Register("sqlite3_AggregatorRegistration", &SQLiteDriver{
+		ConnectHook: func(conn *SQLiteConn) error {
+			if err := conn.RegisterAggregator("customSum", customSum, true); err != nil {
+				return err
+			}
+			return nil
+		},
+	})
+	db, err := sql.Open("sqlite3_AggregatorRegistration", ":memory:")
+	if err != nil {
+		t.Fatal("Failed to open database:", err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec("create table foo (department integer, profits integer)")
+	if err != nil {
+		// trace feature is not implemented
+		t.Skip("Failed to create table:", err)
+	}
+
+	_, err = db.Exec("insert into foo values (1, 10), (1, 20), (2, 42)")
+	if err != nil {
+		t.Fatal("Failed to insert records:", err)
+	}
+
+	tests := []struct {
+		dept, sum int64
+	}{
+		{1, 30},
+		{2, 42},
+	}
+
+	for _, test := range tests {
+		var ret int64
+		err = db.QueryRow("select customSum(profits) from foo where department = $1 group by department", test.dept).Scan(&ret)
+		if err != nil {
+			t.Fatal("Query failed:", err)
+		}
+		if ret != test.sum {
+			t.Fatalf("Custom sum returned wrong value, got %d, want %d", ret, test.sum)
+		}
+	}
+}
+
 func TestDeclTypes(t *testing.T) {
 
 	d := SQLiteDriver{}
@@ -1268,14 +1299,14 @@ var customFunctionOnce sync.Once
 
 func BenchmarkCustomFunctions(b *testing.B) {
 	customFunctionOnce.Do(func() {
-		customAdd := func(a, b int64) int64 {
+		custom_add := func(a, b int64) int64 {
 			return a + b
 		}
 
 		sql.Register("sqlite3_BenchmarkCustomFunctions", &SQLiteDriver{
 			ConnectHook: func(conn *SQLiteConn) error {
 				// Impure function to force sqlite to reexecute it each time.
-				if err := conn.RegisterFunc("custom_add", customAdd, false); err != nil {
+				if err := conn.RegisterFunc("custom_add", custom_add, false); err != nil {
 					return err
 				}
 				return nil

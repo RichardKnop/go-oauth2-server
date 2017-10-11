@@ -6,29 +6,28 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/hashicorp/consul/command/base"
+	"github.com/hashicorp/consul/testutil"
 	"github.com/mitchellh/cli"
 )
 
 func testConfigTestCommand(t *testing.T) (*cli.MockUi, *ConfigTestCommand) {
-	ui := new(cli.MockUi)
+	ui := cli.NewMockUi()
 	return ui, &ConfigTestCommand{
-		Command: base.Command{
-			Ui:    ui,
-			Flags: base.FlagSetNone,
+		BaseCommand: BaseCommand{
+			UI:    ui,
+			Flags: FlagSetNone,
 		},
 	}
 }
 
 func TestConfigTestCommand_implements(t *testing.T) {
+	t.Parallel()
 	var _ cli.Command = &ConfigTestCommand{}
 }
 
 func TestConfigTestCommandFailOnEmptyFile(t *testing.T) {
-	tmpFile, err := ioutil.TempFile("", "consul")
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
+	t.Parallel()
+	tmpFile := testutil.TempFile(t, "consul")
 	defer os.RemoveAll(tmpFile.Name())
 
 	_, cmd := testConfigTestCommand(t)
@@ -43,10 +42,8 @@ func TestConfigTestCommandFailOnEmptyFile(t *testing.T) {
 }
 
 func TestConfigTestCommandSucceedOnEmptyDir(t *testing.T) {
-	td, err := ioutil.TempDir("", "consul")
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
+	t.Parallel()
+	td := testutil.TempDir(t, "consul")
 	defer os.RemoveAll(td)
 
 	ui, cmd := testConfigTestCommand(t)
@@ -61,14 +58,12 @@ func TestConfigTestCommandSucceedOnEmptyDir(t *testing.T) {
 }
 
 func TestConfigTestCommandSucceedOnMinimalConfigFile(t *testing.T) {
-	td, err := ioutil.TempDir("", "consul")
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
+	t.Parallel()
+	td := testutil.TempDir(t, "consul")
 	defer os.RemoveAll(td)
 
 	fp := filepath.Join(td, "config.json")
-	err = ioutil.WriteFile(fp, []byte(`{}`), 0644)
+	err := ioutil.WriteFile(fp, []byte(`{}`), 0644)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
@@ -85,13 +80,11 @@ func TestConfigTestCommandSucceedOnMinimalConfigFile(t *testing.T) {
 }
 
 func TestConfigTestCommandSucceedOnMinimalConfigDir(t *testing.T) {
-	td, err := ioutil.TempDir("", "consul")
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
+	t.Parallel()
+	td := testutil.TempDir(t, "consul")
 	defer os.RemoveAll(td)
 
-	err = ioutil.WriteFile(filepath.Join(td, "config.json"), []byte(`{}`), 0644)
+	err := ioutil.WriteFile(filepath.Join(td, "config.json"), []byte(`{}`), 0644)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}
@@ -108,13 +101,11 @@ func TestConfigTestCommandSucceedOnMinimalConfigDir(t *testing.T) {
 }
 
 func TestConfigTestCommandSucceedOnConfigDirWithEmptyFile(t *testing.T) {
-	td, err := ioutil.TempDir("", "consul")
-	if err != nil {
-		t.Fatalf("err: %s", err)
-	}
+	t.Parallel()
+	td := testutil.TempDir(t, "consul")
 	defer os.RemoveAll(td)
 
-	err = ioutil.WriteFile(filepath.Join(td, "config.json"), []byte{}, 0644)
+	err := ioutil.WriteFile(filepath.Join(td, "config.json"), []byte{}, 0644)
 	if err != nil {
 		t.Fatalf("err: %s", err)
 	}

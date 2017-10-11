@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	consulapi "github.com/hashicorp/consul/api"
-	"github.com/hashicorp/consul/command/base"
 	"github.com/hashicorp/serf/serf"
 	"github.com/ryanuber/columnize"
 )
@@ -16,7 +15,7 @@ import (
 // MembersCommand is a Command implementation that queries a running
 // Consul agent what members are part of the cluster currently.
 type MembersCommand struct {
-	base.Command
+	BaseCommand
 }
 
 func (c *MembersCommand) Help() string {
@@ -25,7 +24,7 @@ Usage: consul members [options]
 
   Outputs the members of a running Consul agent.
 
-` + c.Command.Help()
+` + c.BaseCommand.Help()
 
 	return strings.TrimSpace(helpText)
 }
@@ -34,8 +33,9 @@ func (c *MembersCommand) Run(args []string) int {
 	var detailed bool
 	var wan bool
 	var statusFilter string
+	var segment string
 
-	f := c.Command.NewFlagSet(c)
+	f := c.BaseCommand.NewFlagSet(c)
 	f.BoolVar(&detailed, "detailed", false,
 		"Provides detailed information about nodes.")
 	f.BoolVar(&wan, "wan", false,
@@ -44,27 +44,35 @@ func (c *MembersCommand) Run(args []string) int {
 	f.StringVar(&statusFilter, "status", ".*",
 		"If provided, output is filtered to only nodes matching the regular "+
 			"expression for status.")
+	f.StringVar(&segment, "segment", consulapi.AllSegments,
+		"(Enterprise-only) If provided, output is filtered to only nodes in"+
+			"the given segment.")
 
-	if err := c.Command.Parse(args); err != nil {
+	if err := c.BaseCommand.Parse(args); err != nil {
 		return 1
 	}
 
 	// Compile the regexp
 	statusRe, err := regexp.Compile(statusFilter)
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Failed to compile status regexp: %v", err))
+		c.UI.Error(fmt.Sprintf("Failed to compile status regexp: %v", err))
 		return 1
 	}
 
-	client, err := c.Command.HTTPClient()
+	client, err := c.BaseCommand.HTTPClient()
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Error connecting to Consul agent: %s", err))
+		c.UI.Error(fmt.Sprintf("Error connecting to Consul agent: %s", err))
 		return 1
 	}
 
-	members, err := client.Agent().Members(wan)
+	// Make the request.
+	opts := consulapi.MembersOpts{
+		Segment: segment,
+		WAN:     wan,
+	}
+	members, err := client.Agent().MembersOpts(opts)
 	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Error retrieving members: %s", err))
+		c.UI.Error(fmt.Sprintf("Error retrieving members: %s", err))
 		return 1
 	}
 
@@ -72,6 +80,12 @@ func (c *MembersCommand) Run(args []string) int {
 	n := len(members)
 	for i := 0; i < n; i++ {
 		member := members[i]
+		if member.Tags["segment"] == "" {
+			member.Tags["segment"] = "<default>"
+		}
+		if segment == consulapi.AllSegments && member.Tags["role"] == "consul" {
+			member.Tags["segment"] = "<all>"
+		}
 		statusString := serf.MemberStatus(member.Status).String()
 		if !statusRe.MatchString(statusString) {
 			members[i], members[n-1] = members[n-1], members[i]
@@ -87,7 +101,7 @@ func (c *MembersCommand) Run(args []string) int {
 		return 2
 	}
 
-	sort.Sort(ByMemberName(members))
+	sort.Sort(ByMemberNameAndSegment(members))
 
 	// Generate the output
 	var result []string
@@ -99,23 +113,32 @@ func (c *MembersCommand) Run(args []string) int {
 
 	// Generate the columnized version
 	output := columnize.SimpleFormat(result)
-	c.Ui.Output(output)
+	c.UI.Output(output)
 
 	return 0
 }
 
 // so we can sort members by name
-type ByMemberName []*consulapi.AgentMember
+type ByMemberNameAndSegment []*consulapi.AgentMember
 
-func (m ByMemberName) Len() int           { return len(m) }
-func (m ByMemberName) Swap(i, j int)      { m[i], m[j] = m[j], m[i] }
-func (m ByMemberName) Less(i, j int) bool { return m[i].Name < m[j].Name }
+func (m ByMemberNameAndSegment) Len() int      { return len(m) }
+func (m ByMemberNameAndSegment) Swap(i, j int) { m[i], m[j] = m[j], m[i] }
+func (m ByMemberNameAndSegment) Less(i, j int) bool {
+	switch {
+	case m[i].Tags["segment"] < m[j].Tags["segment"]:
+		return true
+	case m[i].Tags["segment"] > m[j].Tags["segment"]:
+		return false
+	default:
+		return m[i].Name < m[j].Name
+	}
+}
 
 // standardOutput is used to dump the most useful information about nodes
 // in a more human-friendly format
 func (c *MembersCommand) standardOutput(members []*consulapi.AgentMember) []string {
 	result := make([]string, 0, len(members))
-	header := "Node|Address|Status|Type|Build|Protocol|DC"
+	header := "Node|Address|Status|Type|Build|Protocol|DC|Segment"
 	result = append(result, header)
 	for _, member := range members {
 		addr := net.TCPAddr{IP: net.ParseIP(member.Addr), Port: int(member.Port)}
@@ -127,19 +150,20 @@ func (c *MembersCommand) standardOutput(members []*consulapi.AgentMember) []stri
 			build = build[:idx]
 		}
 		dc := member.Tags["dc"]
+		segment := member.Tags["segment"]
 
 		statusString := serf.MemberStatus(member.Status).String()
 		switch member.Tags["role"] {
 		case "node":
-			line := fmt.Sprintf("%s|%s|%s|client|%s|%s|%s",
-				member.Name, addr.String(), statusString, build, protocol, dc)
+			line := fmt.Sprintf("%s|%s|%s|client|%s|%s|%s|%s",
+				member.Name, addr.String(), statusString, build, protocol, dc, segment)
 			result = append(result, line)
 		case "consul":
-			line := fmt.Sprintf("%s|%s|%s|server|%s|%s|%s",
-				member.Name, addr.String(), statusString, build, protocol, dc)
+			line := fmt.Sprintf("%s|%s|%s|server|%s|%s|%s|%s",
+				member.Name, addr.String(), statusString, build, protocol, dc, segment)
 			result = append(result, line)
 		default:
-			line := fmt.Sprintf("%s|%s|%s|unknown|||",
+			line := fmt.Sprintf("%s|%s|%s|unknown||||",
 				member.Name, addr.String(), statusString)
 			result = append(result, line)
 		}
