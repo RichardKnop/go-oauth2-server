@@ -1,11 +1,11 @@
 package oauth_test
 
 import (
-	"log"
 	"os"
 	"testing"
 
 	"github.com/RichardKnop/go-oauth2-server/config"
+	"github.com/RichardKnop/go-oauth2-server/log"
 	"github.com/RichardKnop/go-oauth2-server/models"
 	"github.com/RichardKnop/go-oauth2-server/oauth"
 	"github.com/RichardKnop/go-oauth2-server/test-util"
@@ -32,7 +32,7 @@ var (
 
 func init() {
 	if err := os.Chdir("../"); err != nil {
-		log.Fatal(err)
+		log.ERROR.Fatal(err)
 	}
 }
 
@@ -55,26 +55,27 @@ func (suite *OauthTestSuite) SetupSuite() {
 
 	// Create the test database
 	db, err := testutil.CreateTestDatabasePostgres(
+		suite.cnf.Database.Host,
 		testDbUser,
 		testDbName,
 		testMigrations,
 		testFixtures,
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.ERROR.Fatal(err)
 	}
 	suite.db = db
 
 	// Fetch test client
 	suite.clients = make([]*models.OauthClient, 0)
 	if err := suite.db.Order("created_at").Find(&suite.clients).Error; err != nil {
-		log.Fatal(err)
+		log.ERROR.Fatal(err)
 	}
 
 	// Fetch test users
 	suite.users = make([]*models.OauthUser, 0)
 	if err := suite.db.Order("created_at").Find(&suite.users).Error; err != nil {
-		log.Fatal(err)
+		log.ERROR.Fatal(err)
 	}
 
 	// Initialise the service

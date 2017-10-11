@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/RichardKnop/go-oauth2-server/logger"
+	"github.com/RichardKnop/go-oauth2-server/log"
 	"github.com/hashicorp/consul/api"
 )
 
@@ -74,7 +74,7 @@ func (b *consulBackend) RefreshConfig(newCnf *Config) {
 
 func newConsulClient(theEndpoint, certFile, keyFile, caFile string) (*api.Client, error) {
 	// Log the consul endpoint for debugging purposes
-	logger.INFO.Printf("CONSUL Endpoint: %s", theEndpoint)
+	log.INFO.Printf("CONSUL Endpoint: %s", theEndpoint)
 
 	consulConfig := api.DefaultConfig()
 

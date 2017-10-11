@@ -3,7 +3,7 @@ package migrations
 import (
 	"fmt"
 
-	"github.com/RichardKnop/go-oauth2-server/logger"
+	"github.com/RichardKnop/go-oauth2-server/log"
 	"github.com/jinzhu/gorm"
 )
 
@@ -36,12 +36,12 @@ func Migrate(db *gorm.DB, migrations []MigrationStage) error {
 // the specified database and logs any errors
 func MigrateAll(db *gorm.DB, migrationFunctions []func(*gorm.DB) error) {
 	if err := Bootstrap(db); err != nil {
-		logger.ERROR.Print(err)
+		log.ERROR.Print(err)
 	}
 
 	for _, m := range migrationFunctions {
 		if err := m(db); err != nil {
-			logger.ERROR.Print(err)
+			log.ERROR.Print(err)
 		}
 	}
 }
@@ -52,9 +52,9 @@ func MigrationExists(db *gorm.DB, migrationName string) bool {
 	found := !db.Where("name = ?", migrationName).First(migration).RecordNotFound()
 
 	if found {
-		logger.INFO.Printf("Skipping %s migration", migrationName)
+		log.INFO.Printf("Skipping %s migration", migrationName)
 	} else {
-		logger.INFO.Printf("Running %s migration", migrationName)
+		log.INFO.Printf("Running %s migration", migrationName)
 	}
 
 	return found
@@ -66,7 +66,7 @@ func SaveMigration(db *gorm.DB, migrationName string) error {
 	migration.Name = migrationName
 
 	if err := db.Create(migration).Error; err != nil {
-		logger.ERROR.Printf("Error saving record to migrations table: %s", err)
+		log.ERROR.Printf("Error saving record to migrations table: %s", err)
 		return fmt.Errorf("Error saving record to migrations table: %s", err)
 	}
 

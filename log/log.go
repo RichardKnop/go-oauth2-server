@@ -1,4 +1,4 @@
-package logger
+package log
 
 import (
 	"github.com/RichardKnop/logging"
@@ -18,10 +18,9 @@ var (
 )
 
 // Set sets a custom logger
-func Set(l logging.Logger) {
-	logger = l
-	INFO = logger[logging.INFO]
-	WARNING = logger[logging.WARNING]
-	ERROR = logger[logging.ERROR]
-	FATAL = logger[logging.FATAL]
+func Set(l logging.LoggerInterface) {
+	INFO = l
+	WARNING = l
+	ERROR = l
+	FATAL = l
 }

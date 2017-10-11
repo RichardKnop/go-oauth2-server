@@ -1,0 +1,22 @@
+version: "2"
+
+services:
+  postgres:
+    container_name: go_oauth2_server_sut_postgres
+    image: "postgres"
+    environment:
+      POSTGRES_USER: "go_oauth2_server"
+      POSTGRES_PASSWORD: ""
+      POSTGRES_DB: "go_oauth2_server"
+    logging:
+      driver: none
+
+  sut:
+    container_name: go_oauth2_server_sut
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    build:
+      context: .
+      dockerfile: ./Dockerfile.test

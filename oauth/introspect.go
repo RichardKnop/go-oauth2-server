@@ -81,8 +81,8 @@ func (s *Service) NewIntrospectResponseFromAccessToken(accessToken *models.Oauth
 
 	if accessToken.UserID.Valid {
 		user := new(models.OauthUser)
-		notFound := s.db.Select("username").First(user, accessToken.UserID.String).
-			RecordNotFound()
+		notFound := s.db.Select("username").Where("id = ?", accessToken.UserID.String).
+			First(user, accessToken.UserID.String).RecordNotFound()
 		if notFound {
 			return nil, ErrUserNotFound
 		}
@@ -113,8 +113,8 @@ func (s *Service) NewIntrospectResponseFromRefreshToken(refreshToken *models.Oau
 
 	if refreshToken.UserID.Valid {
 		user := new(models.OauthUser)
-		notFound := s.db.Select("username").First(user, refreshToken.UserID.String).
-			RecordNotFound()
+		notFound := s.db.Select("username").Where("id = ?", refreshToken.UserID.String).
+			First(user, refreshToken.UserID.String).RecordNotFound()
 		if notFound {
 			return nil, ErrUserNotFound
 		}

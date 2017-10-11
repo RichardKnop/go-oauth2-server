@@ -4,7 +4,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/logger"
+	"github.com/RichardKnop/go-oauth2-server/log"
 )
 
 var (
@@ -19,7 +19,7 @@ var (
 var Cnf = &Config{
 	Database: DatabaseConfig{
 		Type:         "postgres",
-		Host:         "localhost",
+		Host:         "postgres",
 		Port:         5432,
 		User:         "go_oauth2_server",
 		Password:     "",
@@ -56,7 +56,7 @@ func NewConfig(mustLoadOnce bool, keepReloading bool, backendType string) *Confi
 	case "consul":
 		backend = new(consulBackend)
 	default:
-		logger.FATAL.Printf("%s is not a valid backend", backendType)
+		log.FATAL.Printf("%s is not a valid backend", backendType)
 		os.Exit(1)
 	}
 
@@ -68,7 +68,7 @@ func NewConfig(mustLoadOnce bool, keepReloading bool, backendType string) *Confi
 		newCnf, err := backend.LoadConfig()
 
 		if err != nil {
-			logger.FATAL.Print(err)
+			log.FATAL.Print(err)
 			os.Exit(1)
 		}
 
@@ -77,7 +77,7 @@ func NewConfig(mustLoadOnce bool, keepReloading bool, backendType string) *Confi
 
 		// Set configLoaded to true
 		configLoaded = true
-		logger.INFO.Print("Successfully loaded config for the first time")
+		log.INFO.Print("Successfully loaded config for the first time")
 	}
 
 	if keepReloading {
@@ -90,7 +90,7 @@ func NewConfig(mustLoadOnce bool, keepReloading bool, backendType string) *Confi
 				// Attempt to reload the config
 				newCnf, err := backend.LoadConfig()
 				if err != nil {
-					logger.ERROR.Print(err)
+					log.ERROR.Print(err)
 					continue
 				}
 
@@ -99,7 +99,7 @@ func NewConfig(mustLoadOnce bool, keepReloading bool, backendType string) *Confi
 
 				// Set configLoaded to true
 				configLoaded = true
-				logger.INFO.Print("Successfully reloaded config")
+				log.INFO.Print("Successfully reloaded config")
 			}
 		}()
 	}

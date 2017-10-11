@@ -2,9 +2,7 @@ package testutil
 
 import (
 	"fmt"
-	"log"
 	"os"
-	"os/exec"
 
 	"github.com/RichardKnop/go-fixtures"
 	"github.com/RichardKnop/go-oauth2-server/util/migrations"
@@ -39,10 +37,10 @@ func CreateTestDatabase(dbPath string, migrationFunctions []func(*gorm.DB) error
 // CreateTestDatabasePostgres is similar to CreateTestDatabase but it uses
 // Postgres instead of sqlite, this is needed for testing packages that rely
 // on some Postgres specifuc features (such as table inheritance)
-func CreateTestDatabasePostgres(dbUser, dbName string, migrationFunctions []func(*gorm.DB) error, fixtureFiles []string) (*gorm.DB, error) {
+func CreateTestDatabasePostgres(dbHost, dbUser, dbName string, migrationFunctions []func(*gorm.DB) error, fixtureFiles []string) (*gorm.DB, error) {
 
 	// Postgres test database
-	db, err := rebuildDatabasePostgres(dbUser, dbName)
+	db, err := rebuildDatabasePostgres(dbHost, dbUser, dbName)
 	if err != nil {
 		return nil, err
 	}
@@ -74,21 +72,29 @@ func rebuildDatabase(dbPath string) (*gorm.DB, error) {
 
 // rebuildDatabase attempts to delete an existing Postgres
 // database and rebuild it, returning a pointer to it
-func rebuildDatabasePostgres(dbUser, dbName string) (*gorm.DB, error) {
-	dropPostgresDB(dbUser, dbName)
-
-	if err := createPostgresDB(dbUser, dbName); err != nil {
+func rebuildDatabasePostgres(dbHost, dbUser, dbName string) (*gorm.DB, error) {
+	db, err := openPostgresDB(dbHost, dbUser, "template1")
+	if err != nil {
 		return nil, err
 	}
 
-	return openPostgresDB(dbUser, dbName)
+	if err := db.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS %s;", dbName)).Error; err != nil {
+		return nil, err
+	}
+
+	if err := db.Exec(fmt.Sprintf("CREATE DATABASE %s;", dbName)).Error; err != nil {
+		return nil, err
+	}
+
+	return openPostgresDB(dbHost, dbUser, dbName)
 }
 
-func openPostgresDB(dbUser, dbName string) (*gorm.DB, error) {
+func openPostgresDB(dbHost, dbUser, dbName string) (*gorm.DB, error) {
 	// Init a new postgres test database connection
 	db, err := gorm.Open("postgres",
 		fmt.Sprintf(
-			"sslmode=disable host=localhost port=5432 user=%s password='' dbname=%s",
+			"sslmode=disable host=%s port=5432 user=%s password='' dbname=%s",
+			dbHost,
 			dbUser,
 			dbName,
 		),
@@ -97,23 +103,4 @@ func openPostgresDB(dbUser, dbName string) (*gorm.DB, error) {
 		return nil, err
 	}
 	return db, nil
-}
-
-func createPostgresDB(dbUser, dbName string) error {
-	// Create a new test database
-	createDbCmd := fmt.Sprintf("createdb -U %s %s", dbUser, dbName)
-	log.Println(createDbCmd)
-	out, err := exec.Command("sh", "-c", createDbCmd).Output()
-	if err != nil {
-		log.Printf("%v", string(out))
-		return err
-	}
-	return nil
-}
-
-func dropPostgresDB(dbUser, dbName string) {
-	// Delete the current database if it exists
-	dropDbCmd := fmt.Sprintf("dropdb --if-exists -U %s %s", dbUser, dbName)
-	fmt.Println(dropDbCmd)
-	exec.Command("sh", "-c", dropDbCmd).Output()
 }
