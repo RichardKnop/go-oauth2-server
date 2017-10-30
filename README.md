@@ -1,6 +1,8 @@
 [1]: ../../../assets/blob/master/go-oauth2-server/login_screenshot.png
 [2]: ../../../assets/blob/master/go-oauth2-server/authorization_code_screenshot.png
 [3]: ../../../assets/blob/master/go-oauth2-server/implicit_screenshot.png
+[4]: http://patreon_public_assets.s3.amazonaws.com/sized/becomeAPatronBanner.png
+[5]: http://richardknop.com/images/btcaddress.png
 
 ## Go OAuth2 Server
 
@@ -36,6 +38,7 @@ This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc
 * [Testing](#testing)
 * [Docker](#docker)
 * [Docker Compose](#docker-compose)
+* [Supporting the project](#supporting-the-project)
 
 ## OAuth 2.0
 
@@ -623,3 +626,13 @@ During `docker-compose up` process all configuration and fixtures will be loaded
 ```sh
 curl --compressed -v localhost:8080/v1/health
 ```
+
+## Supporting the project
+
+Become a patreon:
+
+[![http://patreon.com/richardknop][4]](http://patreon.com/richardknop)
+
+Or donate BTC to my wallet: `12iFVjQ5n3Qdmiai4Mp9EG93NSvDipyRKV`
+
+![Donate BTC][5]
