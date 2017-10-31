@@ -44,9 +44,6 @@ type MD map[string][]string
 //  - lowercase letters: a-z
 //  - special characters: -_.
 // Uppercase letters are automatically converted to lowercase.
-//
-// Keys beginning with "grpc-" are reserved for grpc-internal use only and may
-// result in errors if set in metadata.
 func New(m map[string]string) MD {
 	md := MD{}
 	for k, val := range m {
@@ -65,9 +62,6 @@ func New(m map[string]string) MD {
 //  - lowercase letters: a-z
 //  - special characters: -_.
 // Uppercase letters are automatically converted to lowercase.
-//
-// Keys beginning with "grpc-" are reserved for grpc-internal use only and may
-// result in errors if set in metadata.
 func Pairs(kv ...string) MD {
 	if len(kv)%2 == 1 {
 		panic(fmt.Sprintf("metadata: Pairs got the odd number of input pairs for metadata: %d", len(kv)))
@@ -110,6 +104,11 @@ func Join(mds ...MD) MD {
 type mdIncomingKey struct{}
 type mdOutgoingKey struct{}
 
+// NewContext is a wrapper for NewOutgoingContext(ctx, md).  Deprecated.
+func NewContext(ctx context.Context, md MD) context.Context {
+	return NewOutgoingContext(ctx, md)
+}
+
 // NewIncomingContext creates a new context with incoming md attached.
 func NewIncomingContext(ctx context.Context, md MD) context.Context {
 	return context.WithValue(ctx, mdIncomingKey{}, md)
@@ -118,6 +117,11 @@ func NewIncomingContext(ctx context.Context, md MD) context.Context {
 // NewOutgoingContext creates a new context with outgoing md attached.
 func NewOutgoingContext(ctx context.Context, md MD) context.Context {
 	return context.WithValue(ctx, mdOutgoingKey{}, md)
+}
+
+// FromContext is a wrapper for FromIncomingContext(ctx).  Deprecated.
+func FromContext(ctx context.Context) (md MD, ok bool) {
+	return FromIncomingContext(ctx)
 }
 
 // FromIncomingContext returns the incoming metadata in ctx if it exists.  The
