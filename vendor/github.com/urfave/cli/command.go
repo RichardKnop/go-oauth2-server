@@ -73,7 +73,7 @@ func (c CommandsByName) Len() int {
 }
 
 func (c CommandsByName) Less(i, j int) bool {
-	return c[i].Name < c[j].Name
+	return lexicographicLess(c[i].Name, c[j].Name)
 }
 
 func (c CommandsByName) Swap(i, j int) {
@@ -167,7 +167,7 @@ func (c Command) Run(ctx *Context) (err error) {
 	if err != nil {
 		if c.OnUsageError != nil {
 			err := c.OnUsageError(context, err, false)
-			HandleExitCoder(err)
+			context.App.handleExitCoder(context, err)
 			return err
 		}
 		fmt.Fprintln(context.App.Writer, "Incorrect Usage:", err.Error())
@@ -184,7 +184,7 @@ func (c Command) Run(ctx *Context) (err error) {
 		defer func() {
 			afterErr := c.After(context)
 			if afterErr != nil {
-				HandleExitCoder(err)
+				context.App.handleExitCoder(context, err)
 				if err != nil {
 					err = NewMultiError(err, afterErr)
 				} else {
@@ -198,7 +198,7 @@ func (c Command) Run(ctx *Context) (err error) {
 		err = c.Before(context)
 		if err != nil {
 			ShowCommandHelp(context, c.Name)
-			HandleExitCoder(err)
+			context.App.handleExitCoder(context, err)
 			return err
 		}
 	}
@@ -210,7 +210,7 @@ func (c Command) Run(ctx *Context) (err error) {
 	err = HandleAction(c.Action, context)
 
 	if err != nil {
-		HandleExitCoder(err)
+		context.App.handleExitCoder(context, err)
 	}
 	return err
 }

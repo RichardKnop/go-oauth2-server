@@ -1,0 +1,20 @@
+- table: 'other_table'
+  pk:
+    id: 2
+  fields:
+    int_field: 123
+    boolean_field: false
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'
+
+- table: 'join_table'
+  pk:
+    some_id: 1
+    other_id: 2
+
+- table: 'string_key_table'
+  pk:
+    id: 'new_id'
+  fields:
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'
