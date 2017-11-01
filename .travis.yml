@@ -18,9 +18,6 @@ install:
   - go get -u golang.org/x/tools/cmd/goimports
   - go get -u github.com/tsenart/deadcode
 
-before_script:
-  - createuser --createdb go_oauth2_server
-
 script:
   - make lint
   - vendorcheck ./...
