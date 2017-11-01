@@ -24,7 +24,6 @@ import (
 	"testing"
 
 	"golang.org/x/net/context"
-	"google.golang.org/grpc/testdata"
 )
 
 func TestTLSOverrideServerName(t *testing.T) {
@@ -50,6 +49,8 @@ func TestTLSClone(t *testing.T) {
 	}
 
 }
+
+const tlsDir = "../test/testdata/"
 
 type serverHandshake func(net.Conn) (AuthInfo, error)
 
@@ -161,7 +162,7 @@ func clientHandle(t *testing.T, hs func(net.Conn, string) (AuthInfo, error), lis
 
 // Server handshake implementation in gRPC.
 func gRPCServerHandshake(conn net.Conn) (AuthInfo, error) {
-	serverTLS, err := NewServerTLSFromFile(testdata.Path("server1.pem"), testdata.Path("server1.key"))
+	serverTLS, err := NewServerTLSFromFile(tlsDir+"server1.pem", tlsDir+"server1.key")
 	if err != nil {
 		return nil, err
 	}
@@ -183,7 +184,7 @@ func gRPCClientHandshake(conn net.Conn, lisAddr string) (AuthInfo, error) {
 }
 
 func tlsServerHandshake(conn net.Conn) (AuthInfo, error) {
-	cert, err := tls.LoadX509KeyPair(testdata.Path("server1.pem"), testdata.Path("server1.key"))
+	cert, err := tls.LoadX509KeyPair(tlsDir+"server1.pem", tlsDir+"server1.key")
 	if err != nil {
 		return nil, err
 	}
