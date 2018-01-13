@@ -344,7 +344,7 @@ handler if the request does not match a file on the filesystem.
 This middleware catches `panic`s and responds with a `500` response code. If
 any other middleware has written a response code or body, this middleware will
 fail to properly send a 500 to the client, as the client has already received
-the HTTP response code. Additionally, an `ErrorHandlerFunc` can be attached
+the HTTP response code. Additionally, an `PanicHandlerFunc` can be attached
 to report 500's to an error reporting service such as Sentry or Airbrake.
 
 Example:
@@ -396,14 +396,14 @@ func main() {
 
   n := negroni.New()
   recovery := negroni.NewRecovery()
-  recovery.ErrorHandlerFunc = reportToSentry
+  recovery.PanicHandlerFunc = reportToSentry
   n.Use(recovery)
   n.UseHandler(mux)
 
   http.ListenAndServe(":3003", n)
 }
 
-func reportToSentry(error interface{}) {
+func reportToSentry(info *negroni.PanicInformation) {
     // write code here to report error to Sentry
 }
 ```
@@ -518,6 +518,7 @@ linking your middleware if you have built one:
 | [xrequestid](https://github.com/pilu/xrequestid) | [Andrea Franz](https://github.com/pilu) | Middleware that assigns a random X-Request-Id header to each request |
 | [mgo session](https://github.com/joeljames/nigroni-mgo-session) | [Joel James](https://github.com/joeljames) | Middleware that handles creating and closing mgo sessions per request |
 | [digits](https://github.com/bamarni/digits) | [Bilal Amarni](https://github.com/bamarni) | Middleware that handles [Twitter Digits](https://get.digits.com/) authentication |
+| [stats](https://github.com/guptachirag/stats) | [Chirag Gupta](https://github.com/guptachirag/stats) | Middleware that manages qps and latency stats for your endpoints and asynchronously flushes them to influx db |
 
 ## Examples
 

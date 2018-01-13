@@ -1,17 +1,20 @@
 package objx
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestStringTypeString(t *testing.T) {
 	m := New(map[string]interface{}{"string": "foo"})
+
 	assert.Equal(t, "foo", m.Get("string").String())
 }
 
 func TestStringTypeBool(t *testing.T) {
 	m := New(map[string]interface{}{"bool": true})
+
 	assert.Equal(t, "true", m.Get("bool").String())
 }
 
