@@ -6,7 +6,7 @@
 
 ## Go OAuth2 Server
 
-This service implements [OAuth 2.0 specification](http://tools.ietf.org/html/rfc6749#section-4.3). Excerpts from the specification are included in this README file to describe different grant types. Please read the full spec for more detailed information.
+This service implements [OAuth 2.0 specification](https://tools.ietf.org/html/rfc6749). Excerpts from the specification are included in this README file to describe different grant types. Please read the full spec for more detailed information.
 
 [![Travis Status for RichardKnop/go-oauth2-server](https://travis-ci.org/RichardKnop/go-oauth2-server.svg?branch=master&label=linux+build)](https://travis-ci.org/RichardKnop/go-oauth2-server)
 [![godoc for RichardKnop/go-oauth2-server](https://godoc.org/github.com/nathany/looper?status.svg)](http://godoc.org/github.com/RichardKnop/go-oauth2-server)
