@@ -80,12 +80,23 @@ func (s *Service) introspectHandler(w http.ResponseWriter, r *http.Request) {
 
 // Get client credentials from basic auth and try to authenticate client
 func (s *Service) basicAuthClient(r *http.Request) (*models.OauthClient, error) {
+	var clientID, secret string
+	var ok bool
+
+	clientID = r.Form.Get("client_id")
+	secret = r.Form.Get("client_secret")
+
+	if clientID != "" && secret != "" {
+		goto AUTH
+	}
+
 	// Get client credentials from basic auth
-	clientID, secret, ok := r.BasicAuth()
+	clientID, secret, ok = r.BasicAuth()
 	if !ok {
 		return nil, ErrInvalidClientIDOrSecret
 	}
 
+AUTH:
 	// Authenticate the client
 	client, err := s.AuthClient(clientID, secret)
 	if err != nil {
