@@ -17,6 +17,9 @@ WORKDIR /go/src/github.com/RichardKnop/go-oauth2-server
 # Copy the local package files to the container's workspace.
 ADD . /go/src/github.com/RichardKnop/go-oauth2-server
 
+# Set GO111MODULE=on variable to activate module support
+ENV GO111MODULE on
+
 # Chown the application directory to app user
 RUN chown -R app:app /go/src/github.com/RichardKnop/go-oauth2-server/
 
