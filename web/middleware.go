@@ -114,7 +114,7 @@ func (m *loggedInMiddleware) authenticate(userSession *session.UserSession) erro
 	// Validate the refresh token
 	theRefreshToken, err := m.service.GetOauthService().GetValidRefreshToken(
 		userSession.RefreshToken, // refresh token
-		client, // client
+		client,                   // client
 	)
 	if err != nil {
 		return err

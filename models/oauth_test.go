@@ -19,9 +19,9 @@ func TestNewAccessToken(t *testing.T) {
 
 	// When user object is nil
 	accessToken = models.NewOauthAccessToken(
-		client, // client
-		nil,    // user
-		3600,   // expires in
+		client,                 // client
+		nil,                    // user
+		3600,                   // expires in
 		"scope doesn't matter", // scope
 	)
 
@@ -43,9 +43,9 @@ func TestNewAccessToken(t *testing.T) {
 
 	// When user object is not nil
 	accessToken = models.NewOauthAccessToken(
-		client, // client
-		user,   // user
-		3600,   // expires in
+		client,                 // client
+		user,                   // user
+		3600,                   // expires in
 		"scope doesn't matter", // scope
 	)
 
@@ -135,9 +135,9 @@ func TestNewAuthorizationCode(t *testing.T) {
 
 	// When user object is not nil
 	authorizationCode = models.NewOauthAuthorizationCode(
-		client, // client
-		user,   // user
-		3600,   // expires in
+		client,                        // client
+		user,                          // user
+		3600,                          // expires in
 		"redirect URI doesn't matter", // redirect URI
 		"scope doesn't matter",        // scope
 	)

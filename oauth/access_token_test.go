@@ -17,9 +17,9 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 
 	// Grant a client only access token
 	accessToken, err = suite.service.GrantAccessToken(
-		suite.clients[0], // client
-		nil,              // user
-		3600,             // expires in
+		suite.clients[0],       // client
+		nil,                    // user
+		3600,                   // expires in
 		"scope doesn't matter", // scope
 	)
 
@@ -47,9 +47,9 @@ func (suite *OauthTestSuite) TestGrantAccessToken() {
 
 	// Grant a user specific access token
 	accessToken, err = suite.service.GrantAccessToken(
-		suite.clients[0], // client
-		suite.users[0],   // user
-		3600,             // expires in
+		suite.clients[0],       // client
+		suite.users[0],         // user
+		3600,                   // expires in
 		"scope doesn't matter", // scope
 	)
 
@@ -136,9 +136,9 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 
 	// This should only delete test_token_1
 	_, err = suite.service.GrantAccessToken(
-		suite.clients[0], // client
-		suite.users[0],   // user
-		3600,             // expires in
+		suite.clients[0],       // client
+		suite.users[0],         // user
+		3600,                   // expires in
 		"scope doesn't matter", // scope
 	)
 	assert.NoError(suite.T(), err)
@@ -162,9 +162,9 @@ func (suite *OauthTestSuite) TestGrantAccessTokenDeletesExpiredTokens() {
 
 	// This should only delete test_token_2
 	_, err = suite.service.GrantAccessToken(
-		suite.clients[0], // client
-		nil,              // user
-		3600,             // expires in
+		suite.clients[0],       // client
+		nil,                    // user
+		3600,                   // expires in
 		"scope doesn't matter", // scope
 	)
 	assert.NoError(suite.T(), err)

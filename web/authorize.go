@@ -63,8 +63,8 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 	if responseType == "code" {
 		// Create a new authorization code
 		authorizationCode, err := s.oauthService.GrantAuthorizationCode(
-			client, // client
-			user,   // user
+			client,                       // client
+			user,                         // user
 			s.cnf.Oauth.AuthCodeLifetime, // expires in
 			redirectURI.String(),         // redirect URI
 			scope,                        // scope

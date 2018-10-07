@@ -14,9 +14,9 @@ func (suite *OauthTestSuite) TestGrantAuthorizationCode() {
 
 	// Grant an authorization code
 	authorizationCode, err = suite.service.GrantAuthorizationCode(
-		suite.clients[0], // client
-		suite.users[0],   // user
-		3600,             // expires in
+		suite.clients[0],              // client
+		suite.users[0],                // user
+		3600,                          // expires in
 		"redirect URI doesn't matter", // redirect URI
 		"scope doesn't matter",        // scope
 	)

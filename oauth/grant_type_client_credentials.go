@@ -17,7 +17,7 @@ func (s *Service) clientCredentialsGrant(r *http.Request, client *models.OauthCl
 	// Create a new access token
 	accessToken, err := s.GrantAccessToken(
 		client,
-		nil, // empty user
+		nil,                             // empty user
 		s.cnf.Oauth.AccessTokenLifetime, // expires in
 		scope,
 	)

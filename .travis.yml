@@ -10,7 +10,6 @@ services:
 
 install:
   - go get -u github.com/golang/lint/golint
-  - go get -u github.com/FiloSottile/vendorcheck
   # Install gometalinter and certain linters
   - go get -u github.com/alecthomas/gometalinter
   - go get -u github.com/client9/misspell/cmd/misspell

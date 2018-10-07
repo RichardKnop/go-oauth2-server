@@ -7,6 +7,7 @@ import (
 	"github.com/RichardKnop/go-fixtures"
 	"github.com/RichardKnop/go-oauth2-server/util/migrations"
 	"github.com/jinzhu/gorm"
+
 	// Drivers
 	_ "github.com/lib/pq"
 	_ "github.com/mattn/go-sqlite3"
