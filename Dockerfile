@@ -23,6 +23,10 @@ ENV GO111MODULE on
 # Chown the application directory to app user
 RUN chown -R app:app /go/src/github.com/RichardKnop/go-oauth2-server/
 
+# Create user's home directory
+RUN mkdir -p /home/app
+RUN chown app /home/app
+
 # Use the unprivileged user
 USER app
 
