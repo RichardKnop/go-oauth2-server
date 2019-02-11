@@ -39,7 +39,6 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	// Get the state parameter
 	state := r.Form.Get("state")
 

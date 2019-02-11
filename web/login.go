@@ -23,6 +23,7 @@ func (s *Service) loginForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) login(w http.ResponseWriter, r *http.Request) {
+
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {
@@ -55,7 +56,6 @@ func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
-
 	// Log in the user
 	accessToken, refreshToken, err := s.oauthService.Login(
 		client,
@@ -67,7 +67,6 @@ func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
-
 	// Log in the user and store the user session in a cookie
 	userSession := &session.UserSession{
 		ClientID:     client.Key,
@@ -80,7 +79,6 @@ func (s *Service) login(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, r.RequestURI, http.StatusFound)
 		return
 	}
-
 	// Redirect to the authorize page by default but allow redirection to other
 	// pages by specifying a path with login_redirect_uri query string param
 	loginRedirectURI := r.URL.Query().Get("login_redirect_uri")

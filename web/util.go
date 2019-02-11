@@ -4,11 +4,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 )
 
 // Redirects to a new path while keeping current request's query string
 func redirectWithQueryString(to string, query url.Values, w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, fmt.Sprintf("%s%s", to, getQueryString(query)), http.StatusFound)
+	if strings.ContainsAny(to, "?") {
+		http.Redirect(w, r, fmt.Sprintf("%s&%s", to, getQueryAskString(query)), http.StatusFound)
+	} else {
+		http.Redirect(w, r, fmt.Sprintf("%s?%s", to, getQueryAskString(query)), http.StatusFound)
+	}
 }
 
 // Redirects to a new path with the query string moved to the URL fragment
@@ -17,6 +22,14 @@ func redirectWithFragment(to string, query url.Values, w http.ResponseWriter, r 
 }
 
 // Returns string encoded query string of the request
+func getQueryAskString(query url.Values) string {
+	encoded := query.Encode()
+	if len(encoded) > 0 {
+		encoded = fmt.Sprintf("%s", encoded)
+	}
+	return encoded
+}
+
 func getQueryString(query url.Values) string {
 	encoded := query.Encode()
 	if len(encoded) > 0 {

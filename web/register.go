@@ -23,6 +23,7 @@ func (s *Service) registerForm(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Service) register(w http.ResponseWriter, r *http.Request) {
+
 	// Get the session service from the request context
 	sessionService, err := getSessionService(r)
 	if err != nil {

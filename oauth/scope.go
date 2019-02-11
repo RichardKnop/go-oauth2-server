@@ -2,6 +2,7 @@ package oauth
 
 import (
 	"errors"
+	"log"
 	"sort"
 	"strings"
 
@@ -51,7 +52,7 @@ func (s *Service) ScopeExists(requestedScope string) bool {
 	// Count how many of requested scopes exist in the database
 	var count int
 	s.db.Model(new(models.OauthScope)).Where("scope in (?)", scopes).Count(&count)
-
+	log.Println("count", count)
 	// Return true only if all requested scopes found
 	return count == len(scopes)
 }

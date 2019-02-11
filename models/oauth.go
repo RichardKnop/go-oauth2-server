@@ -68,9 +68,9 @@ type OauthRefreshToken struct {
 	UserID    sql.NullString `sql:"index"`
 	Client    *OauthClient
 	User      *OauthUser
-	Token     string    `sql:"type:varchar(40);unique;not null"`
-	ExpiresAt time.Time `sql:"not null"`
-	Scope     string    `sql:"type:varchar(200);not null"`
+	Token     string `sql:"type:varchar(40);unique;not null"`
+	ExpiresAt time.Time
+	Scope     string `sql:"type:varchar(200);not null"`
 }
 
 // TableName specifies table name
@@ -85,9 +85,9 @@ type OauthAccessToken struct {
 	UserID    sql.NullString `sql:"index"`
 	Client    *OauthClient
 	User      *OauthUser
-	Token     string    `sql:"type:varchar(40);unique;not null"`
-	ExpiresAt time.Time `sql:"not null"`
-	Scope     string    `sql:"type:varchar(200);not null"`
+	Token     string `sql:"type:varchar(40);unique;not null"`
+	ExpiresAt time.Time
+	Scope     string `sql:"type:varchar(200);not null"`
 }
 
 // TableName specifies table name
@@ -104,8 +104,8 @@ type OauthAuthorizationCode struct {
 	User        *OauthUser
 	Code        string         `sql:"type:varchar(40);unique;not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
-	ExpiresAt   time.Time      `sql:"not null"`
-	Scope       string         `sql:"type:varchar(200);not null"`
+	ExpiresAt   time.Time
+	Scope       string `sql:"type:varchar(200);not null"`
 }
 
 // TableName specifies table name

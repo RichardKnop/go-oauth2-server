@@ -68,10 +68,9 @@ func (s *Service) NewIntrospectResponseFromAccessToken(accessToken *models.Oauth
 		TokenType: tokentypes.Bearer,
 		ExpiresAt: int(accessToken.ExpiresAt.Unix()),
 	}
-
 	if accessToken.ClientID.Valid {
 		client := new(models.OauthClient)
-		notFound := s.db.Select("key").First(client, accessToken.ClientID.String).
+		notFound := s.db.Select("`key`").First(client, accessToken.ClientID.String).
 			RecordNotFound()
 		if notFound {
 			return nil, ErrClientNotFound
@@ -81,14 +80,14 @@ func (s *Service) NewIntrospectResponseFromAccessToken(accessToken *models.Oauth
 
 	if accessToken.UserID.Valid {
 		user := new(models.OauthUser)
-		notFound := s.db.Select("username").Where("id = ?", accessToken.UserID.String).
-			First(user, accessToken.UserID.String).RecordNotFound()
+		notFound := s.db.Select("*").Where("id = ?", accessToken.UserID.String).
+			First(user).RecordNotFound()
 		if notFound {
 			return nil, ErrUserNotFound
 		}
 		introspectResponse.Username = user.Username
+		introspectResponse.RoleId = user.RoleID.String
 	}
-
 	return introspectResponse, nil
 }
 

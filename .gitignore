@@ -3,3 +3,6 @@ go-oauth2-server
 etcd-data
 postgres-data
 coverage*
+vendor/*/
+*.log
+*.idea

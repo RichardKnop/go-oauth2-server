@@ -14,6 +14,7 @@ var (
 )
 
 func (s *Service) authorizationCodeGrant(r *http.Request, client *models.OauthClient) (*AccessTokenResponse, error) {
+
 	// Fetch the authorization code
 	authorizationCode, err := s.getValidAuthorizationCode(
 		r.Form.Get("code"),
