@@ -476,7 +476,7 @@ If you are using etcd API version 3, use `etcdctl put` instead of `etcdctl set`.
 Check the config was loaded properly:
 
 ```sh
-etcdctl get /config/go_oauth2_server.json
+ETCDCTL_API=3 etcdctl get /config/go_oauth2_server.json
 ```
 
 ### consul
