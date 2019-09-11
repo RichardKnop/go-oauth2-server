@@ -1,5 +1,12 @@
-go-oauth2-server
-.bash_profile
-etcd-data
-postgres-data
-coverage*
+# IDE Files
+#-------------------------
+/nbproject/
+.idea/*
+
+## Sublime Text cache files
+*.tmlanguage.cache
+*.tmPreferences.cache
+*.stTheme.cache
+*.sublime-workspace
+*.sublime-project
+

