@@ -15,6 +15,7 @@ type OauthClient struct {
 	Key         string         `sql:"type:varchar(254);unique;not null"`
 	Secret      string         `sql:"type:varchar(60);not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
+	Public      bool           `sql:"default=true"`
 }
 
 // TableName specifies table name
@@ -98,14 +99,15 @@ func (at *OauthAccessToken) TableName() string {
 // OauthAuthorizationCode ...
 type OauthAuthorizationCode struct {
 	MyGormModel
-	ClientID    sql.NullString `sql:"index;not null"`
-	UserID      sql.NullString `sql:"index;not null"`
-	Client      *OauthClient
-	User        *OauthUser
-	Code        string         `sql:"type:varchar(40);unique;not null"`
-	RedirectURI sql.NullString `sql:"type:varchar(200)"`
-	ExpiresAt   time.Time      `sql:"not null"`
-	Scope       string         `sql:"type:varchar(200);not null"`
+	ClientID      sql.NullString `sql:"index;not null"`
+	UserID        sql.NullString `sql:"index;not null"`
+	Client        *OauthClient
+	User          *OauthUser
+	Code          string         `sql:"type:varchar(40);unique;not null"`
+	RedirectURI   sql.NullString `sql:"type:varchar(200)"`
+	ExpiresAt     time.Time      `sql:"not null"`
+	Scope         string         `sql:"type:varchar(200);not null"`
+	CodeChallenge string         `sql: type:varchar(128);not null`
 }
 
 // TableName specifies table name
@@ -150,18 +152,19 @@ func NewOauthAccessToken(client *OauthClient, user *OauthUser, expiresIn int, sc
 }
 
 // NewOauthAuthorizationCode creates new OauthAuthorizationCode instance
-func NewOauthAuthorizationCode(client *OauthClient, user *OauthUser, expiresIn int, redirectURI, scope string) *OauthAuthorizationCode {
+func NewOauthAuthorizationCode(client *OauthClient, user *OauthUser, expiresIn int, redirectURI, scope string, codeChallenge string) *OauthAuthorizationCode {
 	return &OauthAuthorizationCode{
 		MyGormModel: MyGormModel{
 			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
-		ClientID:    util.StringOrNull(string(client.ID)),
-		UserID:      util.StringOrNull(string(user.ID)),
-		Code:        uuid.New(),
-		ExpiresAt:   time.Now().UTC().Add(time.Duration(expiresIn) * time.Second),
-		RedirectURI: util.StringOrNull(redirectURI),
-		Scope:       scope,
+		ClientID:      util.StringOrNull(string(client.ID)),
+		UserID:        util.StringOrNull(string(user.ID)),
+		Code:          uuid.New(),
+		ExpiresAt:     time.Now().UTC().Add(time.Duration(expiresIn) * time.Second),
+		RedirectURI:   util.StringOrNull(redirectURI),
+		Scope:         scope,
+		CodeChallenge: codeChallenge,
 	}
 }
 

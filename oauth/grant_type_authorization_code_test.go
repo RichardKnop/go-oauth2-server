@@ -191,3 +191,58 @@ func (suite *OauthTestSuite) TestAuthorizationCodeGrant() {
 	assert.True(suite.T(), suite.db.Unscoped().
 		First(new(models.OauthAuthorizationCode)).RecordNotFound())
 }
+
+func (suite *OauthTestSuite) TestAuthorizationCodePKCEGrant() {
+	// Insert a test authorization code
+	err := suite.db.Create(&models.OauthAuthorizationCode{
+		MyGormModel: models.MyGormModel{
+			ID:        uuid.New(),
+			CreatedAt: time.Now().UTC(),
+		},
+		Code:          "test_code",
+		ExpiresAt:     time.Now().UTC().Add(+10 * time.Second),
+		Client:        suite.clients[2],
+		User:          suite.users[2],
+		RedirectURI:   util.StringOrNull("https://www.example.com"),
+		Scope:         "read_write",
+		CodeChallenge: "f866CDl1fJqqejcBLMjQ9UdbRhT9KY0bmD9O88RNvEY",
+	}).Error
+	assert.NoError(suite.T(), err, "Inserting test data failed")
+
+	// Prepare a request
+	r, err := http.NewRequest("POST", "http://1.2.3.4/v1/oauth/tokens", nil)
+	assert.NoError(suite.T(), err, "Request setup should not get an error")
+	r.PostForm = url.Values{
+		"grant_type":    {"authorization_code"},
+		"code":          {"test_code"},
+		"redirect_uri":  {"https://www.example.com"},
+		"code_verifier": {"ThisIsAVerifier"},
+		"client_id":     {"pkce_client"},
+	}
+
+	// Serve the request
+	w := httptest.NewRecorder()
+	suite.router.ServeHTTP(w, r)
+
+	// Fetch data
+	accessToken, refreshToken := new(models.OauthAccessToken), new(models.OauthRefreshToken)
+	assert.False(suite.T(), models.OauthAccessTokenPreload(suite.db).
+		Last(accessToken).RecordNotFound())
+	assert.False(suite.T(), models.OauthRefreshTokenPreload(suite.db).
+		Last(refreshToken).RecordNotFound())
+
+	// Check the response
+	expected := &oauth.AccessTokenResponse{
+		UserID:       accessToken.UserID.String,
+		AccessToken:  accessToken.Token,
+		ExpiresIn:    3600,
+		TokenType:    tokentypes.Bearer,
+		Scope:        "read_write",
+		RefreshToken: refreshToken.Token,
+	}
+	testutil.TestResponseObject(suite.T(), w, expected, 200)
+
+	// The authorization code should get deleted after use
+	assert.True(suite.T(), suite.db.Unscoped().
+		First(new(models.OauthAuthorizationCode)).RecordNotFound())
+}

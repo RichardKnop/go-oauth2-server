@@ -39,11 +39,30 @@ func (s *Service) tokensHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Client auth
-	client, err := s.basicAuthClient(r)
-	if err != nil {
-		response.UnauthorizedError(w, err.Error())
-		return
+	var (
+		client *models.OauthClient
+		err    error
+	)
+
+	// If PKCE Request, skip basic auth
+	if !(r.Form.Get("grant_type") == "authorization_code" && len(r.Form.Get("code_verifier")) > 0) {
+		// Client auth
+		client, err = s.basicAuthClient(r)
+		if err != nil {
+			response.UnauthorizedError(w, err.Error())
+			return
+		}
+	} else {
+		client, err = s.FindClientByClientID(r.Form.Get("client_id"))
+		if err != nil {
+			response.UnauthorizedError(w, err.Error())
+			return
+		}
+
+		if !client.Public {
+			response.UnauthorizedError(w, ErrPKCENotAllowed.Error())
+			return
+		}
 	}
 
 	// Grant processing

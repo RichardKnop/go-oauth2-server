@@ -348,7 +348,7 @@ func (_m *ServiceInterface) Login(client *models.OauthClient, user *models.Oauth
 
 	return r0, r1, r2
 }
-func (_m *ServiceInterface) GrantAuthorizationCode(client *models.OauthClient, user *models.OauthUser, expiresIn int, redirectURI string, scope string) (*models.OauthAuthorizationCode, error) {
+func (_m *ServiceInterface) GrantAuthorizationCode(client *models.OauthClient, user *models.OauthUser, expiresIn int, redirectURI string, scope string, codeChallenge string) (*models.OauthAuthorizationCode, error) {
 	ret := _m.Called(client, user, expiresIn, redirectURI, scope)
 
 	var r0 *models.OauthAuthorizationCode

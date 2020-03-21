@@ -5,6 +5,9 @@ FROM golang
 # Contact maintainer with any issues you encounter
 MAINTAINER Richard Knop <risoknop@gmail.com>
 
+RUN apt-get update && apt-get install -y --no-install-recommends dos2unix \
+	&& rm -rf /var/lib/apt/lists/*
+
 # Set environment variables
 ENV PATH /go/bin:$PATH
 
@@ -32,6 +35,8 @@ USER app
 
 # Install the api program
 RUN go install github.com/RichardKnop/go-oauth2-server
+
+RUN dos2unix docker-entrypoint.sh
 
 # User docker-entrypoint.sh script as entrypoint
 ENTRYPOINT ["./docker-entrypoint.sh"]
