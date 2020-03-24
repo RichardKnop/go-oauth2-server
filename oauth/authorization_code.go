@@ -88,11 +88,16 @@ func (s *Service) getValidAuthorizationCode(code, redirectURI string, client *mo
 			return nil, ErrPKCENoMatch
 		}
 
-	}
-
-	// Redirect URI must match if it was used to obtain the authorization code
-	if redirectURI != authorizationCode.RedirectURI.String {
-		return nil, ErrInvalidRedirectURI
+		// Redirect is optional here for PKCE
+		// If a redirect URI is specified though, ensure it's a match.
+		if len(redirectURI) > 0 && redirectURI != authorizationCode.RedirectURI.String {
+			return nil, ErrInvalidRedirectURI
+		}
+	} else {
+		// Redirect URI must match if it was used to obtain the authorization code
+		if redirectURI != authorizationCode.RedirectURI.String {
+			return nil, ErrInvalidRedirectURI
+		}
 	}
 
 	// Check the authorization code hasn't expired
