@@ -215,7 +215,7 @@ func (suite *OauthTestSuite) TestAuthorizationCodePKCEGrant() {
 	r.PostForm = url.Values{
 		"grant_type":    {"authorization_code"},
 		"code":          {"test_code"},
-		"redirect_uri":  {"https://www.example.com"},
+		"redirect_uri":  {""},
 		"code_verifier": {"ThisIsAVerifier"},
 		"client_id":     {"pkce_client"},
 	}
