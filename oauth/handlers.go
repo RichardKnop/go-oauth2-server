@@ -40,26 +40,47 @@ func (s *Service) tokensHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var (
-		client *models.OauthClient
-		err    error
+		client      *models.OauthClient
+		clientID    string
+		authCodeReq bool
+		refreshReq  bool
+		err         error
 	)
 
-	// If PKCE Request, skip basic auth
-	if !(r.Form.Get("grant_type") == "authorization_code" && len(r.Form.Get("code_verifier")) > 0) {
-		// Client auth
+	authCodeReq = r.Form.Get("grant_type") == "authorization_code"
+	refreshReq = r.Form.Get("grant_type") == "refresh_token"
+	clientID = r.Form.Get("client_id")
+
+	//If it's an authorization_code or refresh_token request, and a client_id is specified, look it up
+	if (authCodeReq || refreshReq) && len(clientID) > 0 {
+		//Grab the client
+		var _client *models.OauthClient
+		_client, err = s.FindClientByClientID(clientID)
+		if err != nil {
+			response.UnauthorizedError(w, err.Error())
+			return
+		}
+
+		//If the client is public, allow for auth code and refresh
+		if _client.Public && authCodeReq && len(r.Form.Get("code_verifier")) > 0 {
+			client = _client
+		} else if _client.Public && refreshReq {
+			client = _client
+		} else {
+			response.UnauthorizedError(w, ErrInvalidGrantType.Error())
+			return
+		}
+	}
+
+	if client == nil {
 		client, err = s.basicAuthClient(r)
 		if err != nil {
 			response.UnauthorizedError(w, err.Error())
 			return
 		}
-	} else {
-		client, err = s.FindClientByClientID(r.Form.Get("client_id"))
-		if err != nil {
-			response.UnauthorizedError(w, err.Error())
-			return
-		}
 
-		if !client.Public {
+		// If we got here with a public client, it's not a valid PKCE request
+		if client.Public {
 			response.UnauthorizedError(w, ErrPKCENotAllowed.Error())
 			return
 		}
