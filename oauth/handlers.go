@@ -66,9 +66,6 @@ func (s *Service) tokensHandler(w http.ResponseWriter, r *http.Request) {
 			client = _client
 		} else if _client.Public && refreshReq {
 			client = _client
-		} else {
-			response.UnauthorizedError(w, ErrInvalidGrantType.Error())
-			return
 		}
 	}
 
