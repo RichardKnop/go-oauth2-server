@@ -5,6 +5,9 @@ import (
 	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
 	"github.com/jinzhu/gorm"
 	"mime"
+	"errors"
+	"json"
+	"decoder"
 	"net/http"
 )
 
