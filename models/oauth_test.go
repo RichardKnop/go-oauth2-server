@@ -140,6 +140,7 @@ func TestNewAuthorizationCode(t *testing.T) {
 		3600,                          // expires in
 		"redirect URI doesn't matter", // redirect URI
 		"scope doesn't matter",        // scope
+		"",                            //challenge
 	)
 
 	// authorizationCode.ClientID.Valid should be true

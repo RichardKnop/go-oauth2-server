@@ -21,6 +21,7 @@ This service implements [OAuth 2.0 specification](https://tools.ietf.org/html/rf
   * [Client Authentication](#client-authentication)
   * [Grant Types](#grant-types)
     * [Authorization Code](#authorization-code)
+    * [Authorization Code with PKCE](#authorization-code-with-pkce)
     * [Implicit](#implicit)
     * [Resource Owner Password Credentials](#resource-owner-password-credentials)
     * [Client Credentials](#client-credentials)
@@ -130,6 +131,90 @@ The authorization server authenticates the client, validates the authorization c
   "token_type": "Bearer",
   "scope": "read_write",
   "refresh_token": "6fd8d272-375a-4d8a-8d0f-43367dc8b791"
+}
+```
+
+#### Authorization Code with PKCE
+
+https://tools.ietf.org/html/rfc7636
+
+Authorization Code with PKCE (Proof Key for Code Exchange) allows for a safer flow than Authorization Code for public clients, e.g SPA (Single Page Apps) and Native (e.g. mobile, or compiled) applications, or any other client where the client secret cannot be reliably or safely stored.
+
+
+```
++----------+
+| Resource |
+|   Owner  |
+|          |
++----------+
+     ^
+     |
+    (B)               Client Identifier,
++----|-----+           Code Challenge,       +---------------+
+|         -+----(A)-- & Redirection URI ---->|               |
+|  User-   |                                 | Authorization |
+|  Agent  -+----(B)-- User authenticates --->|     Server    |
+|          |                                 |               |
+|         -+----(C)-- Authorization Code ---<|               |
++-|----|---+                                 +---------------+
+  |    |                                         ^      v
+ (A)  (C)                                        |      |
+  |    |                                         |      |
+  ^    v                                         |      |
++---------+          Authorization Code,         |      |
+|         |>---(D)--   Code Verifier,   ---------'      |
+|  Client |          & Redirection URI                  |
+|         |                                             |
+|         |<---(E)----- Access Token -------------------'
++---------+       (w/ Optional Refresh Token)
+```
+
+Key differences from plain Authorization Code flow are that a code challenge is also sent in (A), and the code verifier is send in (D) instead of basic auth and/or client_id + client_secret.
+
+There are two challenge methods, `PLAIN` and `S256`. The User-Agent must generate both a challenge and verification code at the start. For `plain`, they are simply the same string. `PLAIN` is not recommended for use, and is reserved for situations where the `S256` challenge is unable to be supported for some technical reason [https://tools.ietf.org/html/rfc7636#section-4.2].
+
+The code verifier must be a (high-entropy cryptographic) random string, 43 to 128 characters long, comprised of `[[A-Z] / [a-z] / [0-9] / "-" / "." / "_" / "~"` [https://tools.ietf.org/html/rfc7636#section-4.1].
+
+For `S256` the code challenge is the URL-Safe Base64 encoded SHA256 hash of the code verifier [https://tools.ietf.org/html/rfc7636#section-4.2].
+
+##### Example
+
+The client MUST have `public=true` in the database.
+
+For testing, PKCE Verifier and Challenge can be created here - https://tonyxu-io.github.io/pkce-generator/.
+
+- Verifier - `ThisIsAVerifier`
+- Challenge - `f866CDl1fJqqejcBLMjQ9UdbRhT9KY0bmD9O88RNvEY`
+
+```
+http://localhost:8080/web/authorize?client_id=test_client_1&redirect_uri=https%3A%2F%2Fwww.example.com&response_type=code&state=somestate&scope=read_write&code_challenge=f866CDl1fJqqejcBLMjQ9UdbRhT9KY0bmD9O88RNvEY&code_challenge_method=S256
+```
+
+Note the `code_challenge` and `code_challenge_method` query parameters in the above URL. The redirect page will receive the same parameters as the normal Authorization Code flow.
+
+```
+https://www.example.com/?code=327adafb-393a-43c0-a0e1-d7da651ac7aa&state=somestate
+```
+
+To obtain the token, the request is similar to Authorization Code, but omiting the client secret, and adding in the code_verifier.
+
+```
+curl --compressed -v localhost:8080/v1/oauth/tokens \
+    -d "client_id=test_client_1" \
+	-d "grant_type=authorization_code" \
+	-d "code=327adafb-393a-43c0-a0e1-d7da651ac7aa" \
+	-d "redirect_uri=https://www.example.com" \
+	-d "code_verifier=ThisIsAVerifier"
+```
+Returns: 
+```
+{
+    "user_id":"1",
+    "access_token":"60f25bd5-4bb8-408a-b39a-fe227d2b243a",
+    "expires_in":3600,
+    "token_type":"Bearer",
+    "scope":"read_write",
+    "refresh_token":"47325775-8a9b-4a35-bfd9-1685929feda6"
 }
 ```
 

@@ -36,7 +36,7 @@ type ServiceInterface interface {
 	GetDefaultScope() string
 	ScopeExists(requestedScope string) bool
 	Login(client *models.OauthClient, user *models.OauthUser, scope string) (*models.OauthAccessToken, *models.OauthRefreshToken, error)
-	GrantAuthorizationCode(client *models.OauthClient, user *models.OauthUser, expiresIn int, redirectURI, scope string) (*models.OauthAuthorizationCode, error)
+	GrantAuthorizationCode(client *models.OauthClient, user *models.OauthUser, expiresIn int, redirectURI, scope string, codeChallenge string) (*models.OauthAuthorizationCode, error)
 	GrantAccessToken(client *models.OauthClient, user *models.OauthUser, expiresIn int, scope string) (*models.OauthAccessToken, error)
 	GetOrCreateRefreshToken(client *models.OauthClient, user *models.OauthUser, expiresIn int, scope string) (*models.OauthRefreshToken, error)
 	GetValidRefreshToken(token string, client *models.OauthClient) (*models.OauthRefreshToken, error)
