@@ -2,7 +2,7 @@ version: "2"
 
 services:
   etcd:
-    image: quay.io/coreos/etcd
+    image: gcr.io/etcd-development/etcd
     command: etcd --initial-cluster-state new --listen-client-urls http://0.0.0.0:2379 --advertise-client-urls http://127.0.0.1:2379
     volumes:
       - "etcd-data:/default.etcd"

@@ -30,6 +30,8 @@ RUN chown app /home/app
 # Use the unprivileged user
 USER app
 
+RUN go mod tidy
+
 # Install the api program
 RUN go install github.com/RichardKnop/go-oauth2-server
 
