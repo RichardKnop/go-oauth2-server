@@ -1,13 +1,13 @@
 package oauth
 
 import (
+	"encoding/json"
+	"errors"
 	"github.com/RichardKnop/go-oauth2-server/config"
 	"github.com/RichardKnop/go-oauth2-server/oauth/roles"
+	"github.com/gorilla/schema"
 	"github.com/jinzhu/gorm"
 	"mime"
-	"errors"
-	"json"
-	"decoder"
 	"net/http"
 )
 
@@ -70,7 +70,7 @@ func (s *Service) DecodeRequest(r *http.Request, target interface{}) error {
 	mediaType, _, err := mime.ParseMediaType(contentType)
 	if err != nil {
 		return ErrUnknownContentType
-	}else {
+	} else {
 		contentType = mediaType
 	}
 
@@ -85,6 +85,7 @@ func (s *Service) DecodeRequest(r *http.Request, target interface{}) error {
 			return err
 		}
 
+		var decoder = schema.NewDecoder()
 		err = decoder.Decode(target, r.PostForm)
 		if err != nil {
 			return err
