@@ -55,6 +55,8 @@ func NewConfig(mustLoadOnce bool, keepReloading bool, backendType string) *Confi
 		backend = new(etcdBackend)
 	case "consul":
 		backend = new(consulBackend)
+	case "ev":
+		backend = new(evBackend)
 	default:
 		log.FATAL.Printf("%s is not a valid backend", backendType)
 		os.Exit(1)
