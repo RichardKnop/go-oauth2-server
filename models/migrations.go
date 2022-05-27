@@ -13,6 +13,10 @@ var (
 			Name:     "initial",
 			Function: migrate0001,
 		},
+		{
+			Name:     "pkce",
+			Function: migrate0002,
+		},
 	}
 )
 
@@ -103,6 +107,17 @@ func migrate0001(db *gorm.DB, name string) error {
 	if err != nil {
 		return fmt.Errorf("Error creating foreign key on "+
 			"oauth_authorization_codes.user_id for oauth_users(id): %s", err)
+	}
+
+	return nil
+}
+
+func migrate0002(db *gorm.DB, name string) error {
+	if err := db.AutoMigrate(&OauthClient{}).Error; err != nil {
+		return fmt.Errorf("Error migrating oauth_clients table: %s", err)
+	}
+	if err := db.AutoMigrate(&OauthAuthorizationCode{}).Error; err != nil {
+		return fmt.Errorf("Error migrating oauth_auth codes table: %s", err)
 	}
 
 	return nil

@@ -61,6 +61,7 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 
 	// When response_type == "code", we will grant an authorization code
 	if responseType == "code" {
+		codeChallenge := r.Form.Get("code_challenge")
 		// Create a new authorization code
 		authorizationCode, err := s.oauthService.GrantAuthorizationCode(
 			client,                       // client
@@ -68,6 +69,7 @@ func (s *Service) authorize(w http.ResponseWriter, r *http.Request) {
 			s.cnf.Oauth.AuthCodeLifetime, // expires in
 			redirectURI.String(),         // redirect URI
 			scope,                        // scope
+			codeChallenge,                // code challenge
 		)
 		if err != nil {
 			errorRedirect(w, r, redirectURI, "server_error", state, responseType)

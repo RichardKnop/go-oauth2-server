@@ -19,6 +19,8 @@ func (s *Service) authorizationCodeGrant(r *http.Request, client *models.OauthCl
 		r.Form.Get("code"),
 		r.Form.Get("redirect_uri"),
 		client,
+		r.Form.Get("code_verifier"),
+		r.Form.Get("code_challenge_method"),
 	)
 	if err != nil {
 		return nil, err

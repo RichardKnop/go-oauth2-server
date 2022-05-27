@@ -1,18 +1,30 @@
-#!/bin/sh
+#!/bin/bash
 
-set -e
+set -ex
 
 executable="go-oauth2-server"
 cmd="$@"
 
-if [ "$1" = 'runserver' ] || [ "$1" = 'loaddata' ]; then
-  until $executable migrate; do
+if [ "$1" = 'runserver' ] || [ "$1" = 'loaddata' ] || [ "$3" = 'runserver' ] || [ "$3" = 'loaddata' ]; then
+  extra_args=""
+  if [ "$3" = 'runserver' ] || [ "$3" = 'loaddata' ]; then
+    extra_args="$1 $2"
+  fi
+
+  until $executable $extra_args migrate; do
     >&2 echo "Postgres is unavailable - sleeping"
     sleep 1
   done
 
-  $executable loaddata oauth/fixtures/scopes.yml
-  $executable loaddata oauth/fixtures/roles.yml
+  $executable $extra_args loaddata oauth/fixtures/scopes.yml
+  $executable $extra_args loaddata oauth/fixtures/roles.yml
+
+  if [[ -z "${FIXTURES}" ]]; then
+    echo "No extra fixtures"
+  else
+    echo $FIXTURES | base64 -d > /tmp/fixtures.yml
+    $executable $extra_args loaddata /tmp/fixtures.yml
+  fi
 fi
 
 >&2 echo "Postgres is up - executing command: $cmd"
