@@ -20,6 +20,8 @@ if [ "$1" = 'runserver' ] || [ "$1" = 'loaddata' ] || [ "$3" = 'runserver' ] || 
   $executable $extra_args loaddata oauth/fixtures/roles.yml
 
   if [[ -z "${FIXTURES}" ]]; then
+    echo "No extra fixtures"
+  else
     echo $FIXTURES | base64 -d > /tmp/fixtures.yml
     $executable $extra_args loaddata /tmp/fixtures.yml
   fi
