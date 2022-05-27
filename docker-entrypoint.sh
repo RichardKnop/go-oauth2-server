@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -ex
 
 executable="go-oauth2-server"
 cmd="$@"
