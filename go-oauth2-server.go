@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/RichardKnop/go-oauth2-server/cmd"
+	"github.com/caputomarcos/go-oauth2-server/cmd"
 	"github.com/urfave/cli"
 )
 

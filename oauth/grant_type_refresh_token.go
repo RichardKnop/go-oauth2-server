@@ -3,8 +3,8 @@ package oauth
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
-	"github.com/RichardKnop/go-oauth2-server/oauth/tokentypes"
+	"github.com/caputomarcos/go-oauth2-server/models"
+	"github.com/caputomarcos/go-oauth2-server/oauth/tokentypes"
 )
 
 func (s *Service) refreshTokenGrant(r *http.Request, client *models.OauthClient) (*AccessTokenResponse, error) {

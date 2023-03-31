@@ -3,7 +3,7 @@ package web
 import (
 	"net/http"
 
-	"github.com/RichardKnop/go-oauth2-server/session"
+	"github.com/caputomarcos/go-oauth2-server/session"
 	"github.com/gorilla/context"
 )
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/RichardKnop/go-oauth2-server/util/response"
+	"github.com/caputomarcos/go-oauth2-server/util/response"
 	"github.com/stretchr/testify/assert"
 )
 
