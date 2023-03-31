@@ -33,10 +33,10 @@ USER app
 # Fix go.sum checksum mismatch issue when downloading github.com/coreos/etcd 
 RUN rm go.sum
 ENV GOFLAGS=-mod=readonly
-RUN go get github.com/RichardKnop/go-oauth2-server
+RUN go get github.com/caputomarcos/go-oauth2-server
 
 # Install the api program
-RUN go install github.com/RichardKnop/go-oauth2-server
+RUN go install github.com/caputomarcos/go-oauth2-server
 
 # User docker-entrypoint.sh script as entrypoint
 ENTRYPOINT ["./docker-entrypoint.sh"]
