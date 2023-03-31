@@ -30,6 +30,11 @@ RUN chown app /home/app
 # Use the unprivileged user
 USER app
 
+# Fix go.sum checksum mismatch issue when downloading github.com/coreos/etcd 
+RUN rm go.sum
+ENV GOFLAGS=-mod=readonly
+RUN go get github.com/RichardKnop/go-oauth2-server
+
 # Install the api program
 RUN go install github.com/RichardKnop/go-oauth2-server
 
