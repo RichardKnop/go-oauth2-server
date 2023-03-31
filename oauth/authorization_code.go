@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/caputomarcos/go-oauth2-server/models"
 )
 
 var (

@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
-	"github.com/RichardKnop/go-oauth2-server/util"
-	pass "github.com/RichardKnop/go-oauth2-server/util/password"
+	"github.com/caputomarcos/go-oauth2-server/models"
+	"github.com/caputomarcos/go-oauth2-server/util"
+	pass "github.com/caputomarcos/go-oauth2-server/util/password"
 	"github.com/RichardKnop/uuid"
 	"github.com/jinzhu/gorm"
 )

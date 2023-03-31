@@ -1,11 +1,11 @@
 package mocks
 
-import "github.com/RichardKnop/go-oauth2-server/oauth"
+import "github.com/caputomarcos/go-oauth2-server/oauth"
 import "github.com/stretchr/testify/mock"
 
-import "github.com/RichardKnop/go-oauth2-server/config"
-import "github.com/RichardKnop/go-oauth2-server/models"
-import "github.com/RichardKnop/go-oauth2-server/util/routes"
+import "github.com/caputomarcos/go-oauth2-server/config"
+import "github.com/caputomarcos/go-oauth2-server/models"
+import "github.com/caputomarcos/go-oauth2-server/util/routes"
 import "github.com/gorilla/mux"
 import "github.com/jinzhu/gorm"
 

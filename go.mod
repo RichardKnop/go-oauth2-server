@@ -1,4 +1,4 @@
-module github.com/RichardKnop/go-oauth2-server
+module github.com/caputomarcos/go-oauth2-server
 
 require (
 	cloud.google.com/go v0.36.0 // indirect

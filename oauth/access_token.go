@@ -3,7 +3,7 @@ package oauth
 import (
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/models"
+	"github.com/caputomarcos/go-oauth2-server/models"
 )
 
 // GrantAccessToken deletes old tokens and grants a new access token

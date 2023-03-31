@@ -1,10 +1,11 @@
 package models
 
 import (
+	"encoding/base64"
 	"database/sql"
 	"time"
 
-	"github.com/RichardKnop/go-oauth2-server/util"
+	"github.com/caputomarcos/go-oauth2-server/util"
 	"github.com/RichardKnop/uuid"
 	"github.com/jinzhu/gorm"
 )
@@ -68,7 +69,7 @@ type OauthRefreshToken struct {
 	UserID    sql.NullString `sql:"index"`
 	Client    *OauthClient
 	User      *OauthUser
-	Token     string    `sql:"type:varchar(40);unique;not null"`
+	Token     string    `sql:"type:varchar(2048);unique;not null"`
 	ExpiresAt time.Time `sql:"not null"`
 	Scope     string    `sql:"type:varchar(200);not null"`
 }
@@ -85,7 +86,7 @@ type OauthAccessToken struct {
 	UserID    sql.NullString `sql:"index"`
 	Client    *OauthClient
 	User      *OauthUser
-	Token     string    `sql:"type:varchar(40);unique;not null"`
+	Token     string    `sql:"type:varchar(2048);unique;not null"`
 	ExpiresAt time.Time `sql:"not null"`
 	Scope     string    `sql:"type:varchar(200);not null"`
 }
@@ -102,7 +103,7 @@ type OauthAuthorizationCode struct {
 	UserID      sql.NullString `sql:"index;not null"`
 	Client      *OauthClient
 	User        *OauthUser
-	Code        string         `sql:"type:varchar(40);unique;not null"`
+	Code        string         `sql:"type:varchar(2048);unique;not null"`
 	RedirectURI sql.NullString `sql:"type:varchar(200)"`
 	ExpiresAt   time.Time      `sql:"not null"`
 	Scope       string         `sql:"type:varchar(200);not null"`
@@ -115,13 +116,17 @@ func (ac *OauthAuthorizationCode) TableName() string {
 
 // NewOauthRefreshToken creates new OauthRefreshToken instance
 func NewOauthRefreshToken(client *OauthClient, user *OauthUser, expiresIn int, scope string) *OauthRefreshToken {
+	// Generate a new UUID
+	id := uuid.New()
+	// Convert the UUID to bytes
+	uuidBytes := id[:]
 	refreshToken := &OauthRefreshToken{
 		MyGormModel: MyGormModel{
 			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		ClientID:  util.StringOrNull(string(client.ID)),
-		Token:     uuid.New(),
+		Token:     base64.StdEncoding.EncodeToString([]byte(uuidBytes)), // Encode the UUID with base64
 		ExpiresAt: time.Now().UTC().Add(time.Duration(expiresIn) * time.Second),
 		Scope:     scope,
 	}
@@ -133,13 +138,17 @@ func NewOauthRefreshToken(client *OauthClient, user *OauthUser, expiresIn int, s
 
 // NewOauthAccessToken creates new OauthAccessToken instance
 func NewOauthAccessToken(client *OauthClient, user *OauthUser, expiresIn int, scope string) *OauthAccessToken {
+	// Generate a new UUID
+	id := uuid.New()
+	// Convert the UUID to bytes
+	uuidBytes := id[:]
 	accessToken := &OauthAccessToken{
 		MyGormModel: MyGormModel{
 			ID:        uuid.New(),
 			CreatedAt: time.Now().UTC(),
 		},
 		ClientID:  util.StringOrNull(string(client.ID)),
-		Token:     uuid.New(),
+		Token:     base64.StdEncoding.EncodeToString([]byte(uuidBytes)), // Encode the UUID with base64
 		ExpiresAt: time.Now().UTC().Add(time.Duration(expiresIn) * time.Second),
 		Scope:     scope,
 	}
