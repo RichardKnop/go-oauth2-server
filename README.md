@@ -535,9 +535,10 @@ createdb -U go_oauth2_server go_oauth2_server
 
 ## Compile & Run
 
-Compile the app:
+Clean the checksum & Compile the app:
 
 ```sh
+rm go.sum
 go install .
 ```
 
