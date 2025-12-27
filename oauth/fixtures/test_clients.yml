@@ -13,6 +13,7 @@
     redirect_uri: 'https://www.example.com'
     created_at: 'ON_INSERT_NOW()'
     updated_at: 'ON_UPDATE_NOW()'
+    public: false
 
 - table: 'oauth_clients'
   pk:
@@ -23,3 +24,15 @@
     redirect_uri: 'https://www.example.com'
     created_at: 'ON_INSERT_NOW()'
     updated_at: 'ON_UPDATE_NOW()'
+    public: false
+
+- table: 'oauth_clients'
+  pk:
+    id: "3"
+  fields:
+    key: 'pkce_client'
+    secret: '$2a$10$CUoGytf1pR7CC6Y043gt/.vFJUV4IRqvH5R6F0VfITP8s2TqrQ.4e'
+    redirect_uri: 'https://www.example.com'
+    created_at: 'ON_INSERT_NOW()'
+    updated_at: 'ON_UPDATE_NOW()'
+    public: true

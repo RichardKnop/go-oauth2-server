@@ -18,7 +18,7 @@ WORKDIR /go/src/github.com/RichardKnop/go-oauth2-server
 ADD . /go/src/github.com/RichardKnop/go-oauth2-server
 
 # Set GO111MODULE=on variable to activate module support
-ENV GO111MODULE on
+ENV GO111MODULE auto
 
 # Chown the application directory to app user
 RUN chown -R app:app /go/src/github.com/RichardKnop/go-oauth2-server/
