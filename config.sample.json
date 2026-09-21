@@ -1,0 +1,24 @@
+{
+  "Database": {
+    "Type": "postgres",
+    "Host": "localhost",
+    "Port": 5432,
+    "User": "test_user",
+    "Password": "",
+    "DatabaseName": "test_go_oauth2_server",
+    "MaxIdleConns": 5,
+    "MaxOpenConns": 5
+  },
+  "Oauth": {
+    "AccessTokenLifetime": 3600,
+    "RefreshTokenLifetime": 1209600,
+    "AuthCodeLifetime": 3600
+  },
+  "Session": {
+    "Secret": "test_secret",
+    "Path": "/",
+    "MaxAge": 604800,
+    "HTTPOnly": true
+  },
+  "IsDevelopment": true
+}
